@@ -1284,6 +1284,22 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   AND isn't Today or Daily needs to set this explicitly too, the same
   way `HabitDetail.origin` already tracks it for the habit detail page.
 
+- NAME PER DAY (4.28, "workout is one habit but one day I can call it
+  chest day, other pull day… the title stays the current name"): a habit
+  (not a tracker habit — its name is the tracker's) can have
+  `it.dayNames` = {weekday 0=Mon: name} and `it.perDay` (the switch). Only
+  the ROWS use it, via `habitDayName(it,pi)` (pi = day offset → wIdx):
+  Today (`ci`) and the Habits project's day panels (`ciEdit`). The habit
+  page title, Statistics best/worst (`habitName`), Trash, templates' dedupe
+  keep `it.text`. In DailyItemSheet: a "Name per day" switch under Days
+  (`#daily-item-pd`, opt-group like the tracker chart switches), then one
+  `.pd-card` with a `.pd-row` per SELECTED day (day + borderless input,
+  placeholder = the main name, kept in sync by `syncPh`). Names typed for an
+  unselected day, or with the switch off, are kept (`_applyPerDay` saves
+  trimmed non-empty names; perDay only when on) — turning it back on brings
+  them back. Rows are not `.opt-row` on purpose (no TAPPABLE/press grey on
+  a row that holds a text field). Export round trip checked (dayNames
+  survives `_prep`/unpack).
 - Regular (non-tracker) habits can now have an optional `desc` on the
   `dailyItems` entry, edited in `DailyItemSheet` (hidden, like the name
   field, when `trackerPid` is set — a tracked project's own description

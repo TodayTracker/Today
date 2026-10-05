@@ -873,6 +873,13 @@ html:not(#x) .card-list .ti:only-child,html:not(#x) .card-list .sw.t:only-child,
 html:not(#x) .cali.row-first.row-last,html:not(#x) .opt-group .opt-row:only-child,
 html:not(#x) .el-card .el-row:only-child,html:not(#x) .cat-choice:only-child,
 html:not(#x) #daily-cat-list .el-row:only-child{border-radius:14px}
+/* Habit window: a name per weekday (DailyItemSheet, "Name per day") */
+.pd-card{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:8px}
+.pd-row{display:flex;align-items:center;gap:12px;height:46px;padding:0 14px}
+.pd-row+.pd-row{border-top:0.5px solid var(--line)}
+.pd-day{flex:none;width:28px;font-size:15px;font-weight:500;color:#999}
+.pd-inp{flex:1;min-width:0;height:100%;border:none;outline:none;background:transparent;color:var(--ink);font-size:16px;font-weight:500;font-family:inherit;padding:0;margin:0}
+.pd-inp::placeholder{color:#bbb}
 /* a task row picked up to move (its card is transparent otherwise) */
 html:not(#x) .card-list .ti.dragging{background:var(--card)!important;border-radius:14px!important;border-bottom:none}
 /* tracker rows and entries */
@@ -1477,7 +1484,7 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
 <div class="sheet-overlay" id="daily-item-sheet-overlay" onclick="if(event.target===this)DailyItemSheet.close()">
   <div class="sheet">
     <div class="sheet-title" id="daily-item-sheet-title">Add habit</div>
-    <input class="sheet-inp" id="daily-item-inp" placeholder="Habit name">
+    <input class="sheet-inp" id="daily-item-inp" placeholder="Habit name" oninput="DailyItemSheet.syncPh()">
     <div class="sheet-label" id="daily-item-tracker-lbl" style="display:none"></div>
     <textarea class="sheet-inp" id="daily-item-desc" placeholder="Description (optional)" style="min-height:70px;resize:none"></textarea>
     <div id="daily-item-goal-wrap" style="display:none">
@@ -1489,6 +1496,15 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
     </div>
     <div class="sheet-label">Days</div>
     <div class="type-grid days" id="daily-item-days"></div>
+    <div id="daily-item-pd-wrap">
+      <div class="opt-group" style="margin-bottom:14px">
+        <div class="opt-row"><div class="opt-text"><div class="opt-title">Name per day</div></div><label class="switch"><input type="checkbox" id="daily-item-pd" onchange="DailyItemSheet.setPerDay(this.checked)"><span class="switch-slider"></span></label></div>
+      </div>
+      <div id="daily-item-pd-box" style="display:none">
+        <div class="pd-card" id="daily-item-pd-list"></div>
+        <div class="exp-note">Shown on that day instead of the name. Empty days use the name, and the habit's page keeps it as its title.</div>
+      </div>
+    </div>
     <div class="sheet-btns">
       <button class="sheet-save" onclick="DailyItemSheet.save()">Save</button>
     </div>
@@ -1580,7 +1596,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.27';
+var APP_VERSION='Beta 4.28';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2726,6 +2742,9 @@ var CHANGELOG=[
     "Task order: hold a task (not its tick box) and drag it up or down to change the order. In Tasks it's the order of all your tasks — Today and the War Room follow it too; in a project it's only that project's order (in the List view, each list's own). A task always stays within its priority",
     "Menu > Tasks > New tasks: a new task goes to the bottom (the default) or the top of its priority — in its project and in Tasks. A task whose priority you change is placed the same way",
     "Tasks > List view now also shows lists that have no category"
+  ]},
+  {v:'Beta 4.28',notes:[
+    "Habits: Name per day. In a habit's window, turn on Name per day and give each of its days its own name — e.g. Workout is Chest day on Monday and Pull day on Wednesday. Today and the habit project's days show that day's name; the habit's page, Statistics and the Trash keep its main name. Days left empty use the main name"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2827,7 +2846,8 @@ var USER_LOG={
   'Beta 4.24':'design',
   'Beta 4.25':["Starter templates"],
   'Beta 4.26':'both',
-  'Beta 4.27':["Drag tasks to change their order","New tasks at the top or bottom"]
+  'Beta 4.27':["Drag tasks to change their order","New tasks at the top or bottom"],
+  'Beta 4.28':["Habits can have a different name each day"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3489,6 +3509,8 @@ var I18N=(function(){
     "Pick one or more to start with":"Wähle eine oder mehrere für den Start",
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
+    "Name per day":"Name pro Tag","Pick the days first.":"Wähle zuerst die Tage.",
+    "Shown on that day instead of the name. Empty days use the name, and the habit's page keeps it as its title.":"Wird an diesem Tag statt des Namens angezeigt. Leere Tage nutzen den Namen, und die Seite der Gewohnheit behält ihn als Titel.",
     "Where a new task goes among the tasks of the same priority — in its project and in Tasks. Hold a task to move it.":"Wo eine neue Aufgabe unter den Aufgaben derselben Priorität landet — im Projekt und in Aufgaben. Halte eine Aufgabe gedrückt, um sie zu verschieben.",
     "Pick one or more. Untick anything you don't want.":"Wähle eine oder mehrere. Entferne den Haken bei allem, was du nicht willst.",
     "Set up with AI":"Mit KI einrichten",
@@ -5459,6 +5481,14 @@ function tickZone(e,zone){
   if(e.target===cb||DB.data.settings.holdToComplete)return;
   cb.click();
 }
+// A habit's name on day offset pi (0 = today): with "Name per day" on, its
+// own name for that weekday (it.dayNames, 0 = Monday) if it has one; else
+// its name. Only the rows use it — the habit's page, Statistics and the Trash
+// keep the name.
+function habitDayName(it,pi){
+  if(it.perDay&&it.dayNames){var d=new Date(T);d.setDate(T.getDate()+pi);var n=it.dayNames[wIdx(d)];if(n)return n;}
+  return it.text;
+}
 function ciEdit(itemId,text,dayIdx){
   return '<div class="cali split" data-id="'+itemId+'">'
     +'<span class="cali-tick" onclick="tickZone(event,this)"><input type="checkbox" data-id="'+itemId+'" data-day="'+dayIdx+'" onchange="A.toggleDailyItemFor(this,'+dayIdx+')"></span>'
@@ -6118,7 +6148,7 @@ function buildPanels(){
     // Swipe right to skip that day — on any day, also a past one (sick,
     // away), whatever Menu > Today > Skip habits says (that's Today's).
     items.forEach(function(it){
-      h+=swipeWrap('h',it.trackerPid?ciTracker(it,pi,true):ciEdit(it.id,it.text,pi),true);
+      h+=swipeWrap('h',it.trackerPid?ciTracker(it,pi,true):ciEdit(it.id,habitDayName(it,pi),pi),true);
     });
     h+='</div>';
     p.innerHTML=h;c.appendChild(p);
@@ -6330,7 +6360,7 @@ function renderToday(){
     var items=all.filter(function(it){return habitPid(it)===pid;});
     if(!items.length)return;
     h+='<div class="caltitle">'+esc(habitsTitle(pid))+'</div><div class="calsec">';
-    items.forEach(function(it){h+=swipeWrap('h',it.trackerPid?ciTracker(it,0,false):ci(it.id,it.text,0));});
+    items.forEach(function(it){h+=swipeWrap('h',it.trackerPid?ciTracker(it,0,false):ci(it.id,habitDayName(it,0),0));});
     h+='</div>';
   });
   document.getElementById('today-daily').innerHTML=h;
@@ -7200,6 +7230,7 @@ var DailyItemSheet={
     }
     document.getElementById('daily-item-delete-row').style.display='none';
     this.showGoal(null);
+    this.perDay=false;this.dayNames={};this.showPerDay();
     this.renderDays();
     _overlayOpen('daily-item-sheet-overlay');
     if(!this.trackerPid)setTimeout(function(){_autoFocus(document.getElementById('daily-item-inp'));},300);
@@ -7224,6 +7255,7 @@ var DailyItemSheet={
     }
     document.getElementById('daily-item-delete-row').style.display='';
     this.showGoal(hasGoal(it)?it.goal:null);
+    this.perDay=!!it.perDay;this.dayNames=Object.assign({},it.dayNames||{});this.showPerDay();
     this.renderDays();
     _overlayOpen('daily-item-sheet-overlay');
   },
@@ -7250,6 +7282,38 @@ var DailyItemSheet={
     var idx=this.selectedDays.indexOf(i);
     if(idx===-1)this.selectedDays.push(i);else this.selectedDays.splice(idx,1);
     this.renderDays();
+    this.renderPerDay();
+  },
+  // "Name per day" (not for tracker habits — their name is the tracker's):
+  // one field per selected weekday. Names typed for a day that gets
+  // unselected (or with the switch off) are kept, just not used.
+  perDay:false,dayNames:{},
+  showPerDay:function(){
+    document.getElementById('daily-item-pd-wrap').style.display=this.trackerPid?'none':'';
+    document.getElementById('daily-item-pd').checked=this.perDay;
+    this.renderPerDay();
+  },
+  setPerDay:function(on){this.perDay=!!on;this.renderPerDay();},
+  renderPerDay:function(){
+    var box=document.getElementById('daily-item-pd-box'),self=this;
+    box.style.display=this.perDay&&!this.trackerPid?'':'none';
+    if(box.style.display==='none')return;
+    var ph=document.getElementById('daily-item-inp').value.trim()||t('Habit name');
+    var days=this.selectedDays.slice().sort();
+    document.getElementById('daily-item-pd-list').innerHTML=days.length?days.map(function(i){
+      return '<div class="pd-row"><span class="pd-day">'+DN[i]+'</span><input class="pd-inp" data-d="'+i+'" placeholder="'+esc(ph)+'" value="'+esc(self.dayNames[i]||'')+'" oninput="DailyItemSheet.dayNames['+i+']=this.value"></div>';
+    }).join(''):'<div class="cal-none">Pick the days first.</div>';
+  },
+  syncPh:function(){
+    var ph=document.getElementById('daily-item-inp').value.trim()||t('Habit name');
+    document.querySelectorAll('#daily-item-pd-list .pd-inp').forEach(function(x){x.placeholder=ph;});
+  },
+  // what gets saved on the habit: names trimmed, empty ones left out
+  _applyPerDay:function(it){
+    var names={},self=this;
+    Object.keys(this.dayNames).forEach(function(k){var v=(self.dayNames[k]||'').trim();if(v)names[k]=v;});
+    if(Object.keys(names).length)it.dayNames=names;else delete it.dayNames;
+    if(this.perDay)it.perDay=true;else delete it.perDay;
   },
   // Delete from inside the Edit habit sheet — the row's own inline trash
   // icon was removed (2.64) so this is now the only way; same Trash/
@@ -7276,6 +7340,7 @@ var DailyItemSheet={
           if(!nm)return;
           it.text=nm;
           it.desc=document.getElementById('daily-item-desc').value.trim();
+          this._applyPerDay(it);
         } else {
           var g=this.readGoal();
           if(g==null)delete it.goal;else it.goal=g;
@@ -7295,7 +7360,9 @@ var DailyItemSheet={
     } else {
       var text=document.getElementById('daily-item-inp').value.trim();
       if(!text)return;
-      DB.addDailyItem(this.catId,text,this.selectedDays.slice(),curHabitsPid());
+      var nid=DB.addDailyItem(this.catId,text,this.selectedDays.slice(),curHabitsPid());
+      var ni=DB.data.dailyItems.find(function(x){return x.id===nid;});
+      if(ni&&(this.perDay||Object.keys(this.dayNames).length)){this._applyPerDay(ni);DB.save();}
     }
     _overlayClose('daily-item-sheet-overlay');
     buildPanels();restoreChecks(Nav.sd);renderToday();renderGrids();
