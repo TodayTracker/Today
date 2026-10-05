@@ -873,6 +873,8 @@ html:not(#x) .card-list .ti:only-child,html:not(#x) .card-list .sw.t:only-child,
 html:not(#x) .cali.row-first.row-last,html:not(#x) .opt-group .opt-row:only-child,
 html:not(#x) .el-card .el-row:only-child,html:not(#x) .cat-choice:only-child,
 html:not(#x) #daily-cat-list .el-row:only-child{border-radius:14px}
+/* a task row picked up to move (its card is transparent otherwise) */
+html:not(#x) .card-list .ti.dragging{background:var(--card)!important;border-radius:14px!important;border-bottom:none}
 /* tracker rows and entries */
 .trk-entry{padding:12px 0}
 /* Guide page: each tip is a title (row text) and a paragraph (paragraph role) */
@@ -1096,6 +1098,10 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
     <div class="guide-item">
       <div class="guide-t">Move habits by holding</div>
       <div class="guide-p">In Daily, hold a habit's bar — not its tick box — until it lifts, then drag it up or down. The order is the same on every day and in Today.</div>
+    </div>
+    <div class="guide-item">
+      <div class="guide-t">Move tasks by holding</div>
+      <div class="guide-p">Hold a task — not its tick box — until it lifts, then drag it up or down. In Tasks this sets the order of all your tasks (also used in Today), in a project only that project's order. A task stays within its priority.</div>
     </div>
     <div class="guide-item">
       <div class="guide-t">Zoom and scroll charts</div>
@@ -1574,7 +1580,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.26';
+var APP_VERSION='Beta 4.27';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2715,6 +2721,11 @@ var CHANGELOG=[
   {v:'Beta 4.26',notes:[
     "Fixed: zooming the bar charts (Statistics and habit pages) by pinching. On the iPhone a pinch only zoomed for a moment and then stopped, because the chart redraws itself while you pinch and the phone lost track of your fingers. It now follows your fingers the whole way, zooms faster, and always zooms out far enough for monthly bars (up to a year, further when your data goes back further)",
     "Templates: Fitness has a yellow square"
+  ]},
+  {v:'Beta 4.27',notes:[
+    "Task order: hold a task (not its tick box) and drag it up or down to change the order. In Tasks it's the order of all your tasks — Today and the War Room follow it too; in a project it's only that project's order (in the List view, each list's own). A task always stays within its priority",
+    "Menu > Tasks > New tasks: a new task goes to the bottom (the default) or the top of its priority — in its project and in Tasks. A task whose priority you change is placed the same way",
+    "Tasks > List view now also shows lists that have no category"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2815,7 +2826,8 @@ var USER_LOG={
   'Beta 4.23':'design',
   'Beta 4.24':'design',
   'Beta 4.25':["Starter templates"],
-  'Beta 4.26':'both'
+  'Beta 4.26':'both',
+  'Beta 4.27':["Drag tasks to change their order","New tasks at the top or bottom"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -2887,7 +2899,7 @@ var DEFAULT_SETTINGS={
   startTab:'today',hiddenTabs:['blocker'],holdToComplete:false,devMode:false,autoUpdate:true,language:'en',theme:'system',
   dayStartHour:3,todayHabitsDisappear:true,skipHabits:false,
   todayTaskCount:3,todayRefill:false,skipTasks:true,skipResetDaily:true,showWarRoom:true,
-  statsRange:'3m',sound:true,tasksView:'tasks',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,statsHidden:[],statsOrder:['score','chart','best','worst','perfect']
+  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,statsHidden:[],statsOrder:['score','chart','best','worst','perfect']
 };
 // A plain notice card at the top of the screen for the rare data problems
 // in DB.load / DB.save — tap it to dismiss.
@@ -2990,6 +3002,7 @@ var DB={
       return out;
     },[]);
     if(!d.dailyChecks)d.dailyChecks={};
+    this.syncTaskOrder(); // the order across all projects (4.27): first time = the Tasks tab's order until now
   },
   // A failed save (e.g. the phone's storage is full) used to fail silently —
   // changes just stopped sticking. Now it says so, once per session.
@@ -3149,22 +3162,70 @@ var DB={
     d.dailyItems.splice(beforeId?j:j+1,0,it);
     this.save();
   },
+  // Tasks have two orders. In a project: extraTasks[pid]'s array order
+  // (kept sorted by priority, so it only counts within a priority). Across
+  // all projects (Tasks tab, Today, War Room): taskOrder, every task key in
+  // one list — also only compared within a priority. A new task, and one
+  // whose priority changes, goes to the bottom or top of its priority in
+  // both (Menu > Tasks > New tasks, settings.newTaskPos). A drag moves it in
+  // one of them (moveTask).
   addTask:function(projId,text,pri){
     pri=pri||'bs';
     var key='t'+Date.now()+Math.random().toString(36).slice(2);
     if(!this.data.extraTasks[projId])this.data.extraTasks[projId]=[];
     this.data.extraTasks[projId].push({key:key,text:text,pri:pri,desc:''});
-    this._sortTasks(projId);
+    this._placeTask(projId,key);
     this.save(); return key;
   },
   updateTask:function(projId,key,fields){
     var tasks=this.data.extraTasks[projId]||[];
     var t=tasks.find(function(x){return x.key===key;});
     if(!t)return;
+    var priChanged=fields.pri!==undefined&&fields.pri!==t.pri;
     if(fields.text!==undefined)t.text=fields.text;
     if(fields.pri!==undefined)t.pri=fields.pri;
     if(fields.desc!==undefined)t.desc=fields.desc;
-    this._sortTasks(projId);
+    if(priChanged)this._placeTask(projId,key);else this._sortTasks(projId);
+    this.save();
+  },
+  // taskOrder holds exactly the tasks that exist: gone ones are dropped, ones
+  // it doesn't have yet (data from before 4.27, a restored project) join at
+  // the end, in the order the Tasks tab showed them before.
+  syncTaskOrder:function(){
+    var d=this.data,has={},keys=[],seen={},o=[];
+    for(var pid in d.extraTasks)(d.extraTasks[pid]||[]).forEach(function(t){has[t.key]=1;keys.push(t.key);});
+    (Array.isArray(d.taskOrder)?d.taskOrder:[]).forEach(function(k){if(has[k]&&!seen[k]){seen[k]=1;o.push(k);}});
+    keys.forEach(function(k){if(!seen[k]){seen[k]=1;o.push(k);}});
+    d.taskOrder=o;return o;
+  },
+  taskRank:function(){var r={};this.syncTaskOrder().forEach(function(k,i){r[k]=i;});return r;},
+  // a new (or re-prioritised) task: bottom or top of its priority, in its
+  // project and across all projects
+  _placeTask:function(pid,key){
+    var top=this.data.settings.newTaskPos==='top',arr=this.data.extraTasks[pid]||[];
+    var i=arr.findIndex(function(t){return t.key===key;});
+    if(i!==-1){var t=arr.splice(i,1)[0];if(top)arr.unshift(t);else arr.push(t);}
+    this._sortTasks(pid);
+    var o=this.syncTaskOrder(),j=o.indexOf(key);
+    if(j!==-1)o.splice(j,1);
+    if(top)o.unshift(key);else o.push(key);
+  },
+  // A drag: `key` goes right before `beforeKey` (the task now below it), or
+  // right after `afterKey` when dropped last. pid = in that project's order,
+  // null = in the order across all projects. Nothing else moves.
+  moveTask:function(pid,key,beforeKey,afterKey){
+    var ref=beforeKey||afterKey;if(!ref||ref===key)return;
+    if(pid){
+      var arr=this.data.extraTasks[pid]||[],i=arr.findIndex(function(t){return t.key===key;});if(i===-1)return;
+      var t=arr.splice(i,1)[0],j=arr.findIndex(function(x){return x.key===ref;});
+      if(j===-1){arr.splice(i,0,t);return;}
+      arr.splice(beforeKey?j:j+1,0,t);this._sortTasks(pid);
+    } else {
+      var o=this.syncTaskOrder(),a=o.indexOf(key);if(a===-1)return;
+      o.splice(a,1);var b=o.indexOf(ref);
+      if(b===-1){o.splice(a,0,key);return;}
+      o.splice(beforeKey?b:b+1,0,key);
+    }
     this.save();
   },
   // The archived entry keeps the task's priority and notes, so Restore puts
@@ -3180,6 +3241,7 @@ var DB={
       dateISO:dStr(new Date())});
     for(var pid in this.data.extraTasks)
       this.data.extraTasks[pid]=this.data.extraTasks[pid].filter(function(t){return t.key!==key;});
+    if(Array.isArray(this.data.taskOrder))this.data.taskOrder=this.data.taskOrder.filter(function(k){return k!==key;});
     this.save();
   },
   // Puts a completed (or reset-away) task back into its project (found by
@@ -3198,8 +3260,9 @@ var DB={
     this.data.archived.splice(idx,1);
     this.data.doneKeys=this.data.doneKeys.filter(function(k){return k!==item.key;});
     if(!this.data.extraTasks[pid])this.data.extraTasks[pid]=[];
-    this.data.extraTasks[pid].push({key:'t'+Date.now()+Math.random().toString(36).slice(2),text:item.text,pri:item.pri||'bs',desc:item.desc||''});
-    this._sortTasks(pid);
+    var nk='t'+Date.now()+Math.random().toString(36).slice(2);
+    this.data.extraTasks[pid].push({key:nk,text:item.text,pri:item.pri||'bs',desc:item.desc||''});
+    this._placeTask(pid,nk); // back like a new task
     this.save();
     return '';
   },
@@ -3425,6 +3488,8 @@ var I18N=(function(){
     "Use a template":"Vorlage verwenden",
     "Pick one or more to start with":"Wähle eine oder mehrere für den Start",
     "Template":"Vorlage","Templates":"Vorlagen",
+    "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
+    "Where a new task goes among the tasks of the same priority — in its project and in Tasks. Hold a task to move it.":"Wo eine neue Aufgabe unter den Aufgaben derselben Priorität landet — im Projekt und in Aufgaben. Halte eine Aufgabe gedrückt, um sie zu verschieben.",
     "Pick one or more. Untick anything you don't want.":"Wähle eine oder mehrere. Entferne den Haken bei allem, was du nicht willst.",
     "Set up with AI":"Mit KI einrichten",
     'Import calendar':'Kalender importieren','Untitled':'Ohne Titel','Left out:':'Nicht übernommen:',
@@ -3458,7 +3523,7 @@ var I18N=(function(){
     'High':'Hoch','Medium':'Mittel','Low':'Niedrig','Overdue':'Überfällig',
     // states
     'All done':'Alles erledigt','No entries yet':'Noch keine Einträge','No tasks yet.':'Noch keine Aufgaben.','No list tasks yet.':'Noch keine Listenaufgaben.',
-    'No one-time tasks yet.':'Noch keine einmaligen Aufgaben.','Guide':'Anleitung','Hidden features':'Versteckte Funktionen','Move projects by holding':'Projekte durch Halten verschieben','Move habits by holding':'Gewohnheiten durch Halten verschieben','Zoom and scroll charts':'Diagramme zoomen und verschieben','Days':'Tage','Weeks':'Wochen','Months':'Monate',
+    'No one-time tasks yet.':'Noch keine einmaligen Aufgaben.','Guide':'Anleitung','Hidden features':'Versteckte Funktionen','Move projects by holding':'Projekte durch Halten verschieben','Move habits by holding':'Gewohnheiten durch Halten verschieben','Move tasks by holding':'Aufgaben durch Halten verschieben',"Hold a task — not its tick box — until it lifts, then drag it up or down. In Tasks this sets the order of all your tasks (also used in Today), in a project only that project's order. A task stays within its priority.":"Halte eine Aufgabe — nicht ihr Kästchen — bis sie sich anhebt, und zieh sie nach oben oder unten. In Aufgaben legst du so die Reihenfolge aller Aufgaben fest (auch für Heute), in einem Projekt nur die Reihenfolge dieses Projekts. Eine Aufgabe bleibt in ihrer Priorität.",'Zoom and scroll charts':'Diagramme zoomen und verschieben','Days':'Tage','Weeks':'Wochen','Months':'Monate',
     'Pinch a chart with two fingers to zoom. Zoomed out, the columns turn from days into weeks and then months. Drag a chart sideways to look back at older history.':'Zieh ein Diagramm mit zwei Fingern auf oder zu, um zu zoomen. Weiter herausgezoomt werden aus den Tagen Wochen und dann Monate. Wisch ein Diagramm seitwärts, um ältere Verläufe anzusehen.',
     "In Overview, hold a project for a second until it lifts, then drag it anywhere — also into another category, or to the top for no category. Hold a category's title to move the whole category.":'Halte in der Übersicht ein Projekt eine Sekunde lang, bis es sich anhebt, und ziehe es an eine beliebige Stelle — auch in eine andere Kategorie oder ganz nach oben für keine Kategorie. Halte den Titel einer Kategorie, um die ganze Kategorie zu verschieben.',
     "In Daily, hold a habit's bar — not its tick box — until it lifts, then drag it up or down. The order is the same on every day and in Today.":'Halte in Täglich den Balken einer Gewohnheit – nicht ihr Kästchen –, bis er sich anhebt, und ziehe ihn nach oben oder unten. Die Reihenfolge gilt an jedem Tag und auch in Heute.',
@@ -3615,6 +3680,7 @@ function renderWar(){
       }
     });
   }
+  var rk=DB.taskRank();vis.sort(function(a,b){return rk[a.key]-rk[b.key];});
   var box=document.getElementById('war-box');
   box.style.display=(vis.length&&DB.data.settings.showWarRoom!==false)?'block':'none';
 
@@ -3898,6 +3964,21 @@ function renderProj(pid){
     }
   });
   c.innerHTML=h?'<div class="card-list">'+h+'</div>':'';
+  var cl=c.querySelector('.card-list');
+  if(cl)wireTaskDrag(cl,isList?null:'data-pri',function(){return pid;},function(){renderProj(pid);});
+}
+// Hold a task row, then drag it: in the Tasks tab it moves in the order
+// across all projects (pidOf returns null), on a project page / in the List
+// view in its project's order. `same` = an attribute a task can't leave
+// (data-pri: it stays inside its priority; data-pid: inside its list).
+function wireTaskDrag(cl,same,pidOf,redraw){
+  DragReorder.init(cl,'.ti','.ti','list',function(container,el){
+    var keys=[].map.call(container.querySelectorAll('.ti[data-key]'),function(r){return r.getAttribute('data-key');});
+    if(same){var v=el.getAttribute(same);keys=[].filter.call(container.querySelectorAll('.ti[data-key]'),function(r){return r.getAttribute(same)===v;}).map(function(r){return r.getAttribute('data-key');});}
+    var key=el.getAttribute('data-key'),k=keys.indexOf(key);
+    if(k!==-1)DB.moveTask(pidOf(el),key,keys[k+1]||null,keys[k-1]||null);
+    redraw();
+  },same?{same:same}:null);
 }
 
 // Trash page: one tab per kind of deleted thing. "Completed" is the
@@ -3978,6 +4059,7 @@ function renderLockedIn(){
       all.push({text:t.text,pri:t.pri||'bs',section:p?p.name:pid,key:t.key,pid:pid,color:p?p.color:'c-grey'});
     });
   }
+  var rk=DB.taskRank();all.sort(function(a,b){return rk[a.key]-rk[b.key];});
   var c=document.getElementById('lockedin-list');
   if(!all.length){c.innerHTML='<div class="empty">No tasks yet.</div>';return;}
   // Grouped by priority tier — one header per tier instead of a badge on
@@ -3997,12 +4079,13 @@ function renderLockedIn(){
     }).join('')+'</div>';
   });
   c.innerHTML=h;
+  c.querySelectorAll('.card-list').forEach(function(cl){wireTaskDrag(cl,null,function(){return null;},renderLockedIn);});
 }
 
 function renderLockedInList(){
   var c=document.getElementById('lockedin-list');
   var h='';
-  DB.data.categoryOrder.forEach(function(catId){
+  projectGroups().forEach(function(catId){
     (DB.data.projectOrder[catId]||[]).forEach(function(pid){
       var p=DB.data.projects[pid];
       if(!p||p.type!=='list')return;
@@ -4018,6 +4101,8 @@ function renderLockedInList(){
     });
   });
   c.innerHTML=h?'<div class="card-list">'+h+'</div>':'<div class="empty">No list tasks yet.</div>';
+  var cl=c.querySelector('.card-list');
+  if(cl)wireTaskDrag(cl,'data-pid',function(el){return el.getAttribute('data-pid');},renderLockedInList);
 }
 
 function renderLockedInCalendar(){
@@ -4422,7 +4507,11 @@ function renderSettings(){
   document.getElementById('settings-tasks').innerHTML='<div class="opt-group"><div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Open on</div></div>'
     +customSelect([{value:'tasks',label:'Tasks'},{value:'list',label:'List'},{value:'calendar',label:'Calendar'}],LockedIn.startView(),'A.setTasksView(this.value)')
-    +'</div></div>';
+    +'</div><div class="opt-row" style="cursor:default">'
+    +'<div class="opt-text"><div class="opt-title">New tasks</div></div>'
+    +customSelect([{value:'bottom',label:'At the bottom'},{value:'top',label:'At the top'}],DB.data.settings.newTaskPos==='top'?'top':'bottom','A.setNewTaskPos(this.value)')
+    +'</div></div>'
+    +'<div class="data-note">Where a new task goes among the tasks of the same priority — in its project and in Tasks. Hold a task to move it.</div>';
 
   var refill=DB.data.settings.todayRefill;
   var vanish=DB.data.settings.todayHabitsDisappear;
@@ -4854,6 +4943,8 @@ var A={
       A._refreshAll();renderSettings();renderAppPage();renderAppearance();renderGeneral();
     },'Reset');
   },
+  // Menu > Tasks > New tasks: bottom or top of their priority (DB._placeTask)
+  setNewTaskPos:function(v){DB.data.settings.newTaskPos=v==='top'?'top':'bottom';DB.save();renderSettings();},
   // Menu > Tasks > Open on: which view the Tasks tab shows first
   setTasksView:function(v){
     DB.data.settings.tasksView=v;DB.save();
@@ -6146,11 +6237,13 @@ function todayTopTasks(){
     });
   }
   // Priority first; within a priority, tasks skipped on an earlier day
-  // come first again (a skip only lasts the day it was made).
-  var today0=pDate(0);
+  // come first again (a skip only lasts the day it was made), then the
+  // order across all projects.
+  var today0=pDate(0),rk=DB.taskRank();
   all.sort(function(a,b){
     var d=po(a.pri)-po(b.pri);if(d)return d;
-    return (a.skip&&a.skip<today0?0:1)-(b.skip&&b.skip<today0?0:1);
+    d=(a.skip&&a.skip<today0?0:1)-(b.skip&&b.skip<today0?0:1);if(d)return d;
+    return rk[a.key]-rk[b.key]; // then the order across all projects (Tasks tab)
   });
   var N=typeof DB.data.settings.todayTaskCount==='number'?DB.data.settings.todayTaskCount:3,top3;
   if(DB.data.settings.todayRefill){
@@ -8379,6 +8472,8 @@ var DragReorder={
   active:false,_endedAt:0,_timer:null,_el:null,_ph:null,_container:null,_itemSel:null,_mode:'grid',
   _onDrop:null,_startX:0,_startY:0,_offX:0,_offY:0,_preMove:null,_preEnd:null,
   _onMove:null,_onEnd:null,
+  // opts.same (task rows): an attribute — an item only swaps with items that
+  // have the same value (a task stays inside its priority).
   // opts (Overview's projects): {cross:true, zoneSel, flipSel, bodyClass} —
   // items can move between groups inside `container`: over another item they
   // swap/insert next to it, over an empty part of a group (zoneSel) they go
@@ -8388,9 +8483,9 @@ var DragReorder={
     var self=this;
     container.addEventListener('touchstart',function(e){
       if(self.active)return; // a drag already in progress elsewhere
-      // A habit row is two buttons, like its press grey: only the bar picks
-      // it up, never the tick box / tick zone.
-      var row=e.target.closest('.cali');
+      // A habit or task row is two buttons, like its press grey: only the
+      // bar picks it up, never the tick box / tick zone.
+      var row=e.target.closest('.cali,.ti');
       if(e.target.closest('input')||(row&&e.touches[0].clientX<=tickEdge(row)))return;
       var handle=e.target.closest(handleSel);
       if(!handle||!container.contains(handle))return;
@@ -8474,7 +8569,8 @@ var DragReorder={
     if(this._opts.cross){this._lastT={x:t.clientX,y:t.clientY};this._hitCross();this._edgeScroll();return;}
     // Real siblings only — the placeholder stands in for `el` among them
     // and is never itself a swap candidate.
-    var items=[].slice.call(this._container.querySelectorAll(this._itemSel)).filter(function(x){return x!==el;});
+    var same=this._opts.same,sv=same&&el.getAttribute(same);
+    var items=[].slice.call(this._container.querySelectorAll(this._itemSel)).filter(function(x){return x!==el&&(!same||x.getAttribute(same)===sv);});
     for(var i=0;i<items.length;i++){
       var it=items[i];
       // A swap pulls `it` into the gap the placeholder just vacated, which

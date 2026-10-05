@@ -1296,6 +1296,39 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   hold a Delete button, so removing its only delete path would leave it
   stuck in Daily permanently.
 
+- TASK ORDER (4.27, "like habits, a universal order for all tasks, and one
+  project-specific… new ones at the top or bottom of their priority…
+  drag them around in Tasks and in the projects"): priority still comes
+  first everywhere; the order only counts WITHIN a priority. Two orders:
+  (1) per project = `extraTasks[pid]` array order (kept sorted by priority
+  by `_sortTasks`, a stable sort); (2) across all projects =
+  `DB.data.taskOrder` (every task key once) — used by the Tasks tab, Today
+  (`todayTopTasks`: priority, then earlier-skipped first, then this) and
+  the War Room box. `DB.syncTaskOrder()` keeps it exact (drops gone keys,
+  appends unknown ones in the old for..in order — so the first load after
+  the update shows the same order as before; it runs in `_migrate`),
+  `DB.taskRank()` gives key → index for sorting. New task (`addTask`), a
+  priority change (`updateTask`) and a Trash restore (`restoreTask`) go
+  through `_placeTask`: bottom or top of the priority in BOTH orders,
+  Menu > Tasks > New tasks (`settings.newTaskPos` 'bottom' default / 'top';
+  the only setting, none in Overview). Dragging: `wireTaskDrag(cardList,
+  same,pidOf,redraw)` → `DB.moveTask(pid|null,key,before,after)` moves only
+  the dragged task (like moveDailyItem). Tasks tab: one card per priority,
+  pid null = the order across projects. Project page: its own order, with
+  DragReorder `opts.same:'data-pri'` (an item only swaps with rows having
+  the same attribute value — a task can't leave its priority; a List has
+  no constraint). Tasks > List view: `same:'data-pid'`, each list's own
+  order (that view also lists NO_CAT lists now — it used categoryOrder
+  only, so lists without a category were missing since 4.14). Today's
+  rows are NOT draggable (not asked; they're swipe rows). DragReorder's
+  tick-zone guard covers `.ti` too (holding the tick box never lifts a
+  task — matters in hold-to-complete mode, where the checkbox has
+  pointer-events:none and the row is the target). A lifted `.ti` gets the
+  card colour (`.card-list .ti` is transparent otherwise). Tested with
+  finger-style touches: drag in Tasks / project / List view, the priority
+  boundary, the tick zone, migration order unchanged. Testing note: after
+  an update, the What's New sheet covers the screen — close it before
+  dispatching touches (elementFromPoint hit the overlay).
 - Overview projects drag ACROSS categories (4.22, "drag them anywhere you
   want into other categories"): ONE DragReorder on #overview-grid (wired
   once) with opts `{cross:true, zoneSel:'[data-cat]>.agrid', flipSel:
