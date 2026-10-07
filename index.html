@@ -873,6 +873,13 @@ html:not(#x) .card-list .ti:only-child,html:not(#x) .card-list .sw.t:only-child,
 html:not(#x) .cali.row-first.row-last,html:not(#x) .opt-group .opt-row:only-child,
 html:not(#x) .el-card .el-row:only-child,html:not(#x) .cat-choice:only-child,
 html:not(#x) #daily-cat-list .el-row:only-child{border-radius:14px}
+/* Statistics > Habits widget */
+.sh-sub{font-size:12px;font-weight:500;line-height:16px;color:#999;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-pct{margin-left:auto;padding-left:10px;flex:none;font-size:15px;font-weight:500;color:#999}
+.sh-x{flex:none;width:30px;height:30px;margin:0 -6px 0 6px;border:none;border-radius:15px;background:none;color:#999;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+.sh-x:active{background:var(--press)}
+html:not(#x) #p-stats .stat-w .opt-group+.sl{margin-top:22px}
+html:not(#x) #p-stats .sh-ended .opt-title,html:not(#x) #p-stats .sh-ended .sh-pct{color:#999}
 /* Habit window: a name per weekday (DailyItemSheet, "Name per day") */
 .pd-card{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:8px}
 .pd-row{display:flex;align-items:center;gap:12px;height:46px;padding:0 14px}
@@ -1262,6 +1269,11 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
   </div>
   </div>
 
+  <div class="stat-w" data-w="habits">
+  <div class="sl">Habits</div>
+  <div id="stats-habits"></div>
+  </div>
+
   <div class="opt-group" id="stats-none" style="display:none"><div class="cal-none">All widgets are turned off</div></div>
 
 </div>
@@ -1596,7 +1608,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.28';
+var APP_VERSION='Beta 4.29';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2745,6 +2757,11 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.28',notes:[
     "Habits: Name per day. In a habit's window, turn on Name per day and give each of its days its own name — e.g. Workout is Chest day on Monday and Pull day on Wednesday. Today and the habit project's days show that day's name; the habit's page, Statistics and the Trash keep its main name. Days left empty use the main name"
+  ]},
+  {v:'Beta 4.29',notes:[
+    "Deleted habits keep their past in Statistics: Menu > Statistics > Deleted habits > Keep in statistics (on by default). A habit you delete from now on still counts for the days it existed — the ring, the chart and the perfect streak stay as they really were — instead of vanishing as if it was never done. Turn it off to leave deleted habits out. Best/worst only look at current habits",
+    "New Statistics widget: Habits — every habit your statistics count, with its score (tap one to open it), and below them the deleted ones that still count, with the dates they ran. The x next to a deleted one takes it out of the statistics. Restoring a habit from the Trash makes it a normal habit again; Reset all statistics also clears the deleted ones",
+    "Charts: the bars' round corners scale with the bar — thin bars (zoomed out, or a tracker with many entries) no longer end in half circles; wide bars look the same as before"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2847,7 +2864,8 @@ var USER_LOG={
   'Beta 4.25':["Starter templates"],
   'Beta 4.26':'both',
   'Beta 4.27':["Drag tasks to change their order","New tasks at the top or bottom"],
-  'Beta 4.28':["Habits can have a different name each day"]
+  'Beta 4.28':["Habits can have a different name each day"],
+  'Beta 4.29':["Deleted habits can stay in your statistics","Habits list in Statistics"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -2919,7 +2937,7 @@ var DEFAULT_SETTINGS={
   startTab:'today',hiddenTabs:['blocker'],holdToComplete:false,devMode:false,autoUpdate:true,language:'en',theme:'system',
   dayStartHour:3,todayHabitsDisappear:true,skipHabits:false,
   todayTaskCount:3,todayRefill:false,skipTasks:true,skipResetDaily:true,showWarRoom:true,
-  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,statsHidden:[],statsOrder:['score','chart','best','worst','perfect']
+  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,statsHidden:[],statsOrder:['score','chart','best','worst','perfect','habits'],keepDeletedHabits:true
 };
 // A plain notice card at the top of the screen for the rare data problems
 // in DB.load / DB.save — tap it to dismiss.
@@ -3023,6 +3041,7 @@ var DB={
     },[]);
     if(!d.dailyChecks)d.dailyChecks={};
     this.syncTaskOrder(); // the order across all projects (4.27): first time = the Tasks tab's order until now
+    if(!Array.isArray(d.endedHabits))d.endedHabits=[];
   },
   // A failed save (e.g. the phone's storage is full) used to fail silently —
   // changes just stopped sticking. Now it says so, once per session.
@@ -3121,6 +3140,7 @@ var DB={
       ord.splice(Math.min(Math.max(x.index,0),ord.length),0,x.snap.pid);
     } else if(t.type==='habit'){
       ensureDailyCat(x.cat);
+      if(d.endedHabits)d.endedHabits=d.endedHabits.filter(function(e){return e.id!==x.item.id;}); // a live habit again
       if(!d.dailyItems.some(function(it){return it.id===x.item.id;}))d.dailyItems.push(x.item);
     } else if(t.type==='entry'){
       if(!d.projects[x.pid])return 'Restore the project first.';
@@ -3301,6 +3321,7 @@ var DB={
     ids.forEach(function(hid){for(var ds in d.dailyChecks){delete d.dailyChecks[ds][hid];}});
     for(var ds in d.dailyChecks){if(!Object.keys(d.dailyChecks[ds]).length)delete d.dailyChecks[ds];}
     d.dailyItems.forEach(function(it){if(ids.indexOf(it.id)!==-1){it.created=today;if(it.trackerPid)it.statsFrom=now;}});
+    if(!id)d.endedHabits=[]; // a full reset also forgets deleted habits' past
     this.save();
     return ids.length;
   },
@@ -3407,12 +3428,30 @@ var DB={
   },
   deleteDailyItem:function(id){
     var d=this.data,item=d.dailyItems.find(function(x){return x.id===id;});
+    if(item&&d.settings.keepDeletedHabits!==false)this._endHabit(item);
     if(item){
       var cat=d.dailyCats.find(function(c){return c.id===item.catId;})||{id:item.catId,name:'Restored',icon:'📌'};
       var tp=item.trackerPid&&d.projects[item.trackerPid];
       this._trash('habit',item.text||(tp?tp.name:'Tracker'),cat.name,{item:item,cat:cat});
     }
     d.dailyItems=d.dailyItems.filter(function(x){return x.id!==id;});
+    this.save();
+  },
+  // Menu > Statistics > Keep deleted habits (on by default): a deleted
+  // habit's past keeps counting. A copy goes to endedHabits with `ended` =
+  // the first day it no longer counts (today; tomorrow if it was already
+  // done today) and its name then; Statistics counts it up to that day. Its
+  // ticks stay in dailyChecks under the same id (deleting never removed
+  // them). It's still in the Trash too — restoring it takes the copy out.
+  _endHabit:function(it){
+    var today=pDate(0),end=habitDayVal(it,today)?pDate(1):today;
+    if(end<=habitCreatedDs(it))return; // added today and not done: no past to keep
+    var snap=JSON.parse(JSON.stringify(it));snap.ended=end;snap.name=habitName(it);
+    this.data.endedHabits=(this.data.endedHabits||[]).filter(function(x){return x.id!==it.id;}).concat([snap]);
+  },
+  // Statistics > Habits > remove: a deleted habit stops counting
+  dropEndedHabit:function(id){
+    this.data.endedHabits=(this.data.endedHabits||[]).filter(function(x){return x.id!==id;});
     this.save();
   },
   renameDailyItem:function(id,text){
@@ -3510,6 +3549,8 @@ var I18N=(function(){
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
     "Name per day":"Name pro Tag","Pick the days first.":"Wähle zuerst die Tage.",
+    "Deleted":"Gelöscht","Deleted habits":"Gelöschte Gewohnheiten","Keep in statistics":"In der Statistik behalten","No habits yet.":"Noch keine Gewohnheiten.","Remove":"Entfernen",
+    "On: a habit you delete keeps its past days in your statistics, as they really were. Off: it's left out, as if it never existed. The Habits widget lists the deleted ones that still count.":"Ein: Eine gelöschte Gewohnheit behält ihre vergangenen Tage in deiner Statistik, so wie sie wirklich waren. Aus: Sie wird weggelassen, als hätte es sie nie gegeben. Das Widget Gewohnheiten zeigt die gelöschten, die noch zählen.",
     "Shown on that day instead of the name. Empty days use the name, and the habit's page keeps it as its title.":"Wird an diesem Tag statt des Namens angezeigt. Leere Tage nutzen den Namen, und die Seite der Gewohnheit behält ihn als Titel.",
     "Where a new task goes among the tasks of the same priority — in its project and in Tasks. Hold a task to move it.":"Wo eine neue Aufgabe unter den Aufgaben derselben Priorität landet — im Projekt und in Aufgaben. Halte eine Aufgabe gedrückt, um sie zu verschieben.",
     "Pick one or more. Untick anything you don't want.":"Wähle eine oder mehrere. Entferne den Haken bei allem, was du nicht willst.",
@@ -3603,6 +3644,7 @@ var I18N=(function(){
     [/^Goal: (.*)$/,'Ziel: $1'],
     [/^What's new in (.*)$/,'Neuigkeiten in $1'],
     [/^Category: (.*)$/,'Kategorie: $1'],
+    [/^Remove "(.*)" from statistics\? Its past days stop counting\.$/,'„$1“ aus der Statistik entfernen? Ihre vergangenen Tage zählen nicht mehr.'],
     [/^Delete all (\d+) items in this tab forever\?$/,'Alle $1 Einträge in diesem Tab endgültig löschen?'],
     [/^Delete category "(.*)"\? Its projects move to the Trash\.$/,'Kategorie „$1“ löschen? Ihre Projekte kommen in den Papierkorb.'],
     [/^Move project "(.*)" and all its tasks to the Trash\?$/,'Projekt „$1“ und alle seine Aufgaben in den Papierkorb legen?']
@@ -3904,7 +3946,7 @@ function trackerChart(pid,p,entries,goal){
     var slot=CW/entries.length,bw=Math.min(18,slot*0.6),y0=yOf(Math.max(0,lo));
     xs=entries.map(function(e,i){return PL+slot*(i+0.5);});
     entries.forEach(function(e,i){
-      var y=yOf(e.val),x=xs[i]-bw/2,h=Math.abs(y0-y),r=Math.min(3,bw/2,h/2),top=Math.min(y,y0);
+      var y=yOf(e.val),x=xs[i]-bw/2,h=Math.abs(y0-y),r=Math.min(3,bw/6,h/2),top=Math.min(y,y0); // corners in proportion to the bar (a full 18-wide bar: 3)
       if(h<=0)return;
       // rounded on top, flat on the baseline
       svg+='<path fill="'+colOf(e.val)+'" d="M'+x+','+(top+h)+'V'+(top+r)+'Q'+x+','+top+' '+(x+r)+','+top+'H'+(x+bw-r)+'Q'+(x+bw)+','+top+' '+(x+bw)+','+(top+r)+'V'+(top+h)+'Z"/>';
@@ -4524,6 +4566,12 @@ function renderSettings(){
     +'<div class="opt-text"><div class="opt-title">Time range</div></div>'
     +customSelect([{value:'all',label:'All time'},{value:'3m',label:'3 months'},{value:'1m',label:'1 month'},{value:'1w',label:'1 week'}],statsRange(),'A.setStatsRange(this.value)')
     +'</div></div>'
+    +'<div class="sl">Deleted habits</div>'
+    +'<div class="opt-group"><div class="opt-row" style="cursor:default">'
+    +'<div class="opt-text"><div class="opt-title">Keep in statistics</div></div>'
+    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.keepDeletedHabits!==false?'checked':'')+' onchange="A.setKeepDeleted(this.checked)"><span class="switch-slider"></span></label>'
+    +'</div></div>'
+    +'<div class="data-note">On: a habit you delete keeps its past days in your statistics, as they really were. Off: it\'s left out, as if it never existed. The Habits widget lists the deleted ones that still count.</div>'
     +'<div class="opt-group"><div class="opt-row btn-row" onclick="A.resetAllStats()"><div class="opt-text"><div class="opt-title">Reset all statistics</div></div></div></div>';
 
   document.getElementById('settings-tasks').innerHTML='<div class="opt-group"><div class="opt-row" style="cursor:default">'
@@ -4965,6 +5013,9 @@ var A={
       A._refreshAll();renderSettings();renderAppPage();renderAppearance();renderGeneral();
     },'Reset');
   },
+  // Menu > Statistics > Deleted habits > Keep in statistics (DB._endHabit);
+  // only decides for habits deleted from now on
+  setKeepDeleted:function(on){DB.data.settings.keepDeletedHabits=!!on;DB.save();renderSettings();},
   // Menu > Tasks > New tasks: bottom or top of their priority (DB._placeTask)
   setNewTaskPos:function(v){DB.data.settings.newTaskPos=v==='top'?'top':'bottom';DB.save();renderSettings();},
   // Menu > Tasks > Open on: which view the Tasks tab shows first
@@ -5558,6 +5609,15 @@ function wIdx(d){return (d.getDay()+6)%7;}
 // random — so nothing existing needs migrating. Days before this never
 // count for or against a habit: adding one today must not score you
 // against three months you couldn't have done it.
+// The habits Statistics counts: the live ones plus deleted ones kept for
+// their past (endedHabits, see DB._endHabit) — those only before `ended`.
+// A kept tracker habit whose tracker project is gone is left out (its values
+// went with the tracker). Best/worst only look at live habits.
+function statsHabits(){
+  var d=DB.data;
+  return d.dailyItems.concat((d.endedHabits||[]).filter(function(it){return !it.trackerPid||d.projects[it.trackerPid];}));
+}
+function habitCountsOn(it,ds){return ds>=habitCreatedDs(it)&&(!it.ended||ds<it.ended);}
 function habitCreatedDs(it){
   if(it.created)return it.created;
   var ms=parseInt(String(it.id||'').slice(2,15),10);
@@ -5584,7 +5644,7 @@ function habitConsistency(item,withToday,span){
   var completed=0,target=0,skipped=0;
   for(;dStr(d)<=todayS;d.setDate(d.getDate()+1)){
     var ds=dStr(d);
-    if(ds<created||days.indexOf(wIdx(d))===-1)continue;
+    if(ds<created||(item.ended&&ds>=item.ended)||days.indexOf(wIdx(d))===-1)continue;
     var v=habitDayVal(item,ds),done=!!v;
     if(ds===todayS&&!done&&!withToday)continue;
     target++;if(done){completed++;if(v==='skip')skipped++;}
@@ -5616,7 +5676,7 @@ function _sumDays(items,start,end){ // completed/scheduled/skipped over start..e
     var ds=dStr(cur);if(ds>todayS)break;
     var wi=wIdx(cur);
     items.forEach(function(it){
-      if(it.days.indexOf(wi)!==-1&&ds>=habitCreatedDs(it)){
+      if(it.days.indexOf(wi)!==-1&&habitCountsOn(it,ds)){
         s++;var v=habitDayVal(it,ds);if(v){c++;if(v==='skip')k++;}
       }
     });
@@ -5627,7 +5687,7 @@ function _sumDays(items,start,end){ // completed/scheduled/skipped over start..e
 function _dm(d){return d.getDate()+'.'+(d.getMonth()+1)+'.';}
 // item: one habit, or null for every habit with a schedule (Statistics)
 function chartSource(item){
-  var items=item?[item]:DB.data.dailyItems.filter(function(it){return it.days&&it.days.length;});
+  var items=item?[item]:statsHabits().filter(function(it){return it.days&&it.days.length;});
   var todayS=dStr(T),today0=new Date(T.getFullYear(),T.getMonth(),T.getDate());
   var floor=new Date(today0);floor.setFullYear(floor.getFullYear()-5);
   var earliest=items.reduce(function(m,it){var c=habitCreatedDs(it);return c<m?c:m;},todayS);
@@ -5723,7 +5783,9 @@ ZChart.prototype.render=function(){
   var bars='',labels='',every=Math.max(1,Math.ceil(24/step));
   function hOf(v){return Math.max(6,Math.round(v/maxVal*innerH));}
   for(var j=i1;j>=i0;j--){
-    var q=ps[j-i0],x=w-(j+1-o)*step+gap/2,rx=Math.min(4,bw/2);
+    // corners in proportion to the bar (28% of its width, at most 4 — the
+    // 14-day view's look); thin zoomed-out bars no longer end in half circles
+    var q=ps[j-i0],x=w-(j+1-o)*step+gap/2,rx=Math.min(4,bw*0.28);
     var empty=!q.completed&&!q.scheduled;
     var greyH=empty?3:hOf(Math.max(q.scheduled,q.completed));
     bars+='<rect x="'+x.toFixed(1)+'" y="'+(h-pb-greyH)+'" width="'+bw.toFixed(1)+'" height="'+greyH+'" rx="'+rx.toFixed(1)+'" class="hd-bar-empty"'+(empty?'':' data-i="'+j+'"')+'></rect>';
@@ -5927,7 +5989,7 @@ function habitStreaks(item){
 // doesn't break it yet. A tracker habit whose tracker is gone isn't shown
 // anywhere, so it can't be done — it's left out.
 function perfectStreaks(){
-  var items=DB.data.dailyItems.filter(function(it){return it.days&&it.days.length&&(!it.trackerPid||DB.data.projects[it.trackerPid]);});
+  var items=statsHabits().filter(function(it){return it.days&&it.days.length&&(!it.trackerPid||DB.data.projects[it.trackerPid]);});
   if(!items.length)return{best:0,current:0};
   var todayS=dStr(T),first=items.map(habitCreatedDs).sort()[0];
   var d=new Date(T);d.setDate(d.getDate()-400);
@@ -5935,7 +5997,7 @@ function perfectStreaks(){
   var best=0,run=0;
   for(var guard=0;dStr(d)<=todayS&&guard<800;guard++,d.setDate(d.getDate()+1)){
     var ds=dStr(d),wi=wIdx(d),due=0,done=0;
-    items.forEach(function(it){if(it.days.indexOf(wi)!==-1&&ds>=habitCreatedDs(it)){due++;if(habitDayVal(it,ds))done++;}});
+    items.forEach(function(it){if(it.days.indexOf(wi)!==-1&&habitCountsOn(it,ds)){due++;if(habitDayVal(it,ds))done++;}});
     if(!due)continue;
     if(done===due){run++;if(run>best)best=run;}
     else if(ds!==todayS)run=0;
@@ -5949,7 +6011,7 @@ var STATS_RANGES={all:0,'3m':90,'1m':30,'1w':7};
 function statsRange(){var r=DB.data.settings.statsRange;return STATS_RANGES.hasOwnProperty(r)?r:'3m';}
 function aggHabitConsistency(){
   var totalCompleted=0,totalTarget=0,totalSkipped=0,span=statsRange();
-  DB.data.dailyItems.forEach(function(it){
+  statsHabits().forEach(function(it){
     if(!it.days||!it.days.length)return;
     var s=habitConsistency(it,true,span);
     totalCompleted+=s.completed;totalTarget+=s.target;totalSkipped+=s.skipped||0;
@@ -5986,8 +6048,9 @@ function worstHabitConsistency(){
 // the round-joined stroke, like the app's other icons).
 var STAT_ICON_UP='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><polygon points="12 6.5 19.5 17.5 4.5 17.5"/></svg>';
 var STAT_ICON_DOWN='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><polygon points="12 17.5 19.5 6.5 4.5 6.5"/></svg>';
+var SH_X='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="7" x2="17" y2="17"/><line x1="17" y1="7" x2="7" y2="17"/></svg>';
 // The Statistics page's widgets, in page order: [key, name in the menu]
-var STAT_WIDGETS=[['score','Consistency score'],['chart','Chart'],['best','Best score'],['worst','Worst score'],['perfect','Perfect streak']];
+var STAT_WIDGETS=[['score','Consistency score'],['chart','Chart'],['best','Best score'],['worst','Worst score'],['perfect','Perfect streak'],['habits','Habits']];
 var Stats={
   view:'day',
   // With habits scheduled but nothing counted yet (e.g. right after a
@@ -6034,6 +6097,39 @@ var Stats={
       document.getElementById('stats-perfect').textContent=ps.current;
       document.getElementById('stats-perfect-best').textContent='Longest streak: '+ps.best;
     }
+    if(this.shown('habits'))this.renderHabits();
+  },
+  // The Habits widget: every habit Statistics counts. Live ones (Overview
+  // order, score like best/worst, tap = its page) and deleted ones kept for
+  // their past (when they counted, their score then, Remove = stop counting).
+  renderHabits:function(){
+    var d=DB.data,live=[],fmt=function(ds){return new Date(ds+'T12:00:00').toLocaleDateString('de-CH',{day:'numeric',month:'short'});};
+    habitsProjects().forEach(function(pid){d.dailyItems.forEach(function(it){if(habitPid(it)===pid&&it.days&&it.days.length)live.push(it);});});
+    var multi=habitsProjects().length>1;
+    var h='<div class="opt-group">'+(live.length?live.map(function(it){
+      var s=habitConsistency(it),go=it.trackerPid?"_projFromDaily='"+it.trackerPid+"';_trackerOrigin='stats';Nav.go('"+it.trackerPid+"')":"HabitDetail.open('"+it.id+"')";
+      return '<div class="opt-row" onclick="'+go+'"><div class="opt-text"><div class="opt-title">'+esc(habitName(it))+'</div>'
+        +(multi?'<div class="sh-sub">'+esc(habitsTitle(habitPid(it)))+'</div>':'')+'</div>'
+        +'<span class="sh-pct">'+(s.target?s.pct+'%':'–')+'</span>'
+        +'<span style="display:inline-flex;transform:rotate(-90deg);margin-left:-2px">'+ICON_CHEVRON+'</span></div>';
+    }).join(''):'<div class="cal-none">No habits yet.</div>')+'</div>';
+    var ended=statsHabits().filter(function(it){return it.ended;});
+    if(ended.length){
+      h+='<div class="sl">Deleted</div><div class="opt-group">'+ended.map(function(it){
+        var s=habitConsistency(it,false,'all'),last=new Date(it.ended+'T12:00:00');last.setDate(last.getDate()-1);
+        return '<div class="opt-row sh-ended"><div class="opt-text"><div class="opt-title">'+esc(it.name||habitName(it))+'</div>'
+          +'<div class="sh-sub">'+fmt(habitCreatedDs(it))+' – '+fmt(dStr(last))+'</div></div>'
+          +'<span class="sh-pct">'+(s.target?s.pct+'%':'–')+'</span>'
+          +'<button class="sh-x" onclick="Stats.dropEnded(\''+it.id+'\')" aria-label="Remove">'+SH_X+'</button></div>';
+      }).join('')+'</div>';
+    }
+    document.getElementById('stats-habits').innerHTML=h;
+  },
+  dropEnded:function(id){
+    var it=(DB.data.endedHabits||[]).find(function(x){return x.id===id;});if(!it)return;
+    Alert.confirm('Remove "'+(it.name||'this habit')+'" from statistics? Its past days stop counting.',function(){
+      DB.dropEndedHabit(id);Stats.render();
+    },'Remove');
   },
   // Best/worst habit as a one-line Settings row (icon, name, score, arrow)
   // that opens the habit's page — or a tracked project's page — with back
@@ -6450,7 +6546,7 @@ var SQ_BTNS='.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn',SQ
   document.addEventListener('touchend',release,{passive:true});
   document.addEventListener('touchcancel',release,{passive:true});
 })();
-var PRESS_ROWS='.cali:not([data-once]),.ti:not([data-once]),.wri,.opt-row:not(:has(.switch)):not(:has(.dsel-wrap))';
+var PRESS_ROWS='.cali:not([data-once]),.ti:not([data-once]),.wri,.opt-row:not(:has(.switch)):not(:has(.dsel-wrap)):not(.sh-ended)';
 (function(){
   var row=null,timer=null,sx=0,sy=0;
   function off(r){r.classList.remove('pressed-row');}
@@ -8427,7 +8523,7 @@ window.addEventListener('scroll',function(){_lastScrollAt=Date.now();},{passive:
 (function(){
   var TAPPABLE='.tab-item,.fab,.hdr-add,.menu-btn,.menu-item,.acard,.opt-row,'
     +'.back,.edit-proj-btn,.hh-btn,.hh-title-btn,.trash-act,.trash-x,.addbtn,.el-btn,.type-btn,'
-    +'.cat-choice,.dpill,.sheet-save,.seg-btn';
+    +'.cat-choice,.dpill,.sheet-save,.seg-btn,.sh-x';
   var sx=0,sy=0,moved=false,target=null;
   document.addEventListener('touchstart',function(e){
     // A toggle switch inside a TAPPABLE row (e.g. an .opt-row that's just

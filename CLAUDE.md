@@ -1284,6 +1284,39 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   AND isn't Today or Daily needs to set this explicitly too, the same
   way `HabitDetail.origin` already tracks it for the habit detail page.
 
+- DELETED HABITS IN STATISTICS (4.29, "if it gets deleted it looks like the
+  habit was never done… a setting under Statistics… a list of active and
+  deleted habits included in the stats, where I can remove deleted ones"):
+  Statistics used to count only `dailyItems`, so deleting a habit
+  recalculated every past day without it. Now Menu > Statistics > Deleted
+  habits > "Keep in statistics" (`settings.keepDeletedHabits`, default ON):
+  `DB.deleteDailyItem` (every habit delete path: the habit window, deleting
+  or resetting a Habits project) first calls `_endHabit` — a COPY of the
+  item goes to `DB.data.endedHabits` with `ended` (first day it no longer
+  counts: today, or tomorrow if it was already done today; nothing kept for
+  a habit made today and not done) and `name`; the habit still goes to the
+  Trash as before, and its ticks were never deleted (same id). Statistics
+  reads `statsHabits()` (dailyItems + endedHabits whose tracker still
+  exists) and `habitCountsOn(it,ds)` (created ≤ ds < ended): the ring
+  (`aggHabitConsistency`), the chart (`chartSource(null)`/`_sumDays`) and
+  the perfect streak; `habitConsistency` honours `ended`. Best/worst stay
+  live habits only (my call: you can't act on a deleted one). Restoring the
+  habit from the Trash drops its copy; "Reset all statistics" empties
+  endedHabits; a tracker project's deletion removes its link habit without
+  keeping it (its values went with the tracker). New widget `habits`
+  (STAT_WIDGETS, last): live habits in Overview order (score like best/
+  worst, project name under it with 2+ Habits projects, tap = page), then
+  "Deleted" rows (date range, all-time score, `.sh-x` → Alert → 
+  `DB.dropEndedHabit`). `.sh-x` is in TAPPABLE (else the row swallowed the
+  tap — the .switch/.dsel-real lesson), and `.sh-ended` rows are out of
+  PRESS_ROWS (they open nothing). Tested: past chart columns identical
+  before/after a delete, finger-style tap on ×, restore, setting off,
+  export keeps endedHabits.
+- Chart bar corners scale with the bar (4.29, "when the bars are really
+  thin the top is basically a half circle"): ZChart `rx=min(4,bw*0.28)`
+  (was min(4,bw/2)) — identical at the 14-day view (bw 14.5 → 4) and wider;
+  45-day bars (4.5 wide) get 1.2 instead of 2.25. Tracker bar chart
+  `r=min(3,bw/6,h/2)` (a full 18-wide bar keeps 3).
 - NAME PER DAY (4.28, "workout is one habit but one day I can call it
   chest day, other pull day… the title stays the current name"): a habit
   (not a tracker habit — its name is the tracker's) can have
