@@ -1312,6 +1312,14 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   PRESS_ROWS (they open nothing). Tested: past chart columns identical
   before/after a delete, finger-style tap on ×, restore, setting off,
   export keeps endedHabits.
+- 4.30 defaults: Best score / Worst score start OFF (`DEFAULT_SETTINGS.
+  statsHidden:['best','worst']`; new installs and Reset settings; stored
+  settings untouched). Like holdToComplete in 4.15, `A.importData` sets
+  statsHidden back to [] for an export older than 'Beta 4.30' that has no
+  statsHidden key (exports drop defaults). A Habits project's "+" window
+  is "Add habit" with "Habit" / "Add a tracker" (was "Add task":
+  "Repeating task" / "Track a project" — "a repeating task is just a
+  habit"). Code names (startRepeatingTask, startTrackerHabit) unchanged.
 - Chart bar corners scale with the bar (4.29, "when the bars are really
   thin the top is basically a half circle"): ZChart `rx=min(4,bw*0.28)`
   (was min(4,bw/2)) — identical at the 14-day view (bw 14.5 → 4) and wider;

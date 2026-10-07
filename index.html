@@ -1608,7 +1608,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.29';
+var APP_VERSION='Beta 4.30';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2762,6 +2762,10 @@ var CHANGELOG=[
     "Deleted habits keep their past in Statistics: Menu > Statistics > Deleted habits > Keep in statistics (on by default). A habit you delete from now on still counts for the days it existed — the ring, the chart and the perfect streak stay as they really were — instead of vanishing as if it was never done. Turn it off to leave deleted habits out. Best/worst only look at current habits",
     "New Statistics widget: Habits — every habit your statistics count, with its score (tap one to open it), and below them the deleted ones that still count, with the dates they ran. The x next to a deleted one takes it out of the statistics. Restoring a habit from the Trash makes it a normal habit again; Reset all statistics also clears the deleted ones",
     "Charts: the bars' round corners scale with the bar — thin bars (zoomed out, or a tracker with many entries) no longer end in half circles; wide bars look the same as before"
+  ]},
+  {v:'Beta 4.30',notes:[
+    "Statistics: on a new install (and after Reset settings) Best score and Worst score start switched off; the Habits list is on. Your current widgets stay as they are — switch them in Menu > Statistics",
+    "A Habits project's + window is called Add habit, and its choices are Habit and Add a tracker (were Add task: Repeating task / Track a project)"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2865,7 +2869,8 @@ var USER_LOG={
   'Beta 4.26':'both',
   'Beta 4.27':["Drag tasks to change their order","New tasks at the top or bottom"],
   'Beta 4.28':["Habits can have a different name each day"],
-  'Beta 4.29':["Deleted habits can stay in your statistics","Habits list in Statistics"]
+  'Beta 4.29':["Deleted habits can stay in your statistics","Habits list in Statistics"],
+  'Beta 4.30':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -2937,7 +2942,7 @@ var DEFAULT_SETTINGS={
   startTab:'today',hiddenTabs:['blocker'],holdToComplete:false,devMode:false,autoUpdate:true,language:'en',theme:'system',
   dayStartHour:3,todayHabitsDisappear:true,skipHabits:false,
   todayTaskCount:3,todayRefill:false,skipTasks:true,skipResetDaily:true,showWarRoom:true,
-  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,statsHidden:[],statsOrder:['score','chart','best','worst','perfect','habits'],keepDeletedHabits:true
+  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,statsHidden:['best','worst'],statsOrder:['score','chart','best','worst','perfect','habits'],keepDeletedHabits:true
 };
 // A plain notice card at the top of the screen for the rare data problems
 // in DB.load / DB.save — tap it to dismiss.
@@ -3548,7 +3553,7 @@ var I18N=(function(){
     "Pick one or more to start with":"Wähle eine oder mehrere für den Start",
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
-    "Name per day":"Name pro Tag","Pick the days first.":"Wähle zuerst die Tage.",
+    "Add a tracker":"Tracker hinzufügen","Name per day":"Name pro Tag","Pick the days first.":"Wähle zuerst die Tage.",
     "Deleted":"Gelöscht","Deleted habits":"Gelöschte Gewohnheiten","Keep in statistics":"In der Statistik behalten","No habits yet.":"Noch keine Gewohnheiten.","Remove":"Entfernen",
     "On: a habit you delete keeps its past days in your statistics, as they really were. Off: it's left out, as if it never existed. The Habits widget lists the deleted ones that still count.":"Ein: Eine gelöschte Gewohnheit behält ihre vergangenen Tage in deiner Statistik, so wie sie wirklich waren. Aus: Sie wird weggelassen, als hätte es sie nie gegeben. Das Widget Gewohnheiten zeigt die gelöschten, die noch zählen.",
     "Shown on that day instead of the name. Empty days use the name, and the habit's page keeps it as its title.":"Wird an diesem Tag statt des Namens angezeigt. Leere Tage nutzen den Namen, und die Seite der Gewohnheit behält ihn als Titel.",
@@ -4779,6 +4784,12 @@ var A={
         if(o&&o.settings&&!('holdToComplete' in o.settings)){
           var from=at(o.settings.lastSeenVersion);
           if(from!==-1&&from<at('Beta 4.15')){o.settings.holdToComplete=true;json=JSON.stringify(o);}
+        }
+        // Best/worst score are off by default since 4.30 — an older export
+        // without statsHidden had every widget on.
+        if(o&&o.settings&&!('statsHidden' in o.settings)){
+          var from2=at(o.settings.lastSeenVersion);
+          if(from2!==-1&&from2<at('Beta 4.30')){o.settings.statsHidden=[];json=JSON.stringify(o);}
         }
         step='save';localStorage.setItem('lifeos',json.trim());
         DB.load(); // from here on the app holds the imported data (nothing can save the old over it)
@@ -8281,9 +8292,9 @@ var TabPlus={
   tap:function(btn){
     var cur=Nav.cur;
     if(cur==='habits'){
-      AddChoice.show('Add task',[
-        {icon:'',label:'Repeating task',fn:function(){A.startRepeatingTask();}},
-        {icon:'',label:'Track a project',fn:function(){A.startTrackerHabit();}}
+      AddChoice.show('Add habit',[
+        {icon:'',label:'Habit',fn:function(){A.startRepeatingTask();}},
+        {icon:'',label:'Add a tracker',fn:function(){A.startTrackerHabit();}}
       ]);
       return;
     }
