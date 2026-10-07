@@ -1037,7 +1037,7 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
     <div class="hh-title">General</div>
   </div>
   <div id="general-top" style="margin-top:8px"></div>
-  <div class="sl">Menu</div>
+  <div class="sl">Tab bar</div>
   <div id="general-menu"></div>
   <div class="sl">Notifications</div>
   <div class="opt-group"><div class="cal-none">Coming soon</div></div>
@@ -1111,7 +1111,7 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
     </div>
     <div class="guide-item">
       <div class="guide-t">Move habits by holding</div>
-      <div class="guide-p">In Daily, hold a habit's bar — not its tick box — until it lifts, then drag it up or down. The order is the same on every day and in Today.</div>
+      <div class="guide-p">In a Habits project, hold a habit's bar — not its tick box — until it lifts, then drag it up or down. The order is the same on every day and in Today.</div>
     </div>
     <div class="guide-item">
       <div class="guide-t">Move tasks by holding</div>
@@ -1608,7 +1608,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.30';
+var APP_VERSION='Beta 4.31';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2766,6 +2766,10 @@ var CHANGELOG=[
   {v:'Beta 4.30',notes:[
     "Statistics: on a new install (and after Reset settings) Best score and Worst score start switched off; the Habits list is on. Your current widgets stay as they are — switch them in Menu > Statistics",
     "A Habits project's + window is called Add habit, and its choices are Habit and Add a tracker (were Add task: Repeating task / Track a project)"
+  ]},
+  {v:'Beta 4.31',notes:[
+    "Wording: in English the app now shows English weekdays (Mo Tu We Th Fr Sa Su) and English dates (Wed 7 Oct) everywhere — Today, Habits projects, Statistics, the Trash, trackers; in German everything stays as it was. Switching the language redraws them right away",
+    "Wording: a Habits project's card on Overview counts habits (\"2 habits\", was \"2 tasks\"); the Statistics ring says \"done\" (was \"habits\", but it counts habit days); Menu > General > Menu is now Tab bar; Hold to complete tasks is Hold to complete; Reset all statistics no longer mentions numbers that aren't there; the old name Daily is gone from the Guide, the tracker window (Add a tracker) and its message; paths in messages use → everywhere"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2870,7 +2874,8 @@ var USER_LOG={
   'Beta 4.27':["Drag tasks to change their order","New tasks at the top or bottom"],
   'Beta 4.28':["Habits can have a different name each day"],
   'Beta 4.29':["Deleted habits can stay in your statistics","Habits list in Statistics"],
-  'Beta 4.30':'design'
+  'Beta 4.30':'design',
+  'Beta 4.31':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -2956,11 +2961,11 @@ var DataNotice={
   loadFailed:function(kind){
     this.show(kind==='unavailable'
       ?"Your saved data couldn't be opened right now. Nothing will be saved over it — close the app completely and open it again."
-      :"Your saved data couldn't be read. It's kept safe and won't be overwritten — export a copy in Menu > Data. Changes you make now won't be saved.");
+      :"Your saved data couldn't be read. It's kept safe and won't be overwritten — export a copy in Menu → Data. Changes you make now won't be saved.");
   },
   saveFailed:function(){
     if(this._saveShown)return;this._saveShown=true;
-    this.show("Your latest changes couldn't be saved — your phone's storage refused them. Free up some space and export a backup in Menu > Data.");
+    this.show("Your latest changes couldn't be saved — your phone's storage refused them. Free up some space and export a backup in Menu → Data.");
   }
 };
 // Projects without a category: kept in projectOrder[NO_CAT], never in
@@ -3282,7 +3287,7 @@ var DB={
       (this.data.extraTasks[lp]||[]).forEach(function(t){if(t.key===key){task=t;var pr=self.data.projects[lp];fromList=!!(pr&&pr.type==='list');}});
     }
     this.data.archived.push({key:key,text:text,section:projName,list:fromList,pri:task&&task.pri,desc:task&&task.desc,
-      date:new Date().toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'numeric'}),
+      date:new Date().toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'}),
       dateISO:dStr(new Date())});
     for(var pid in this.data.extraTasks)
       this.data.extraTasks[pid]=this.data.extraTasks[pid].filter(function(t){return t.key!==key;});
@@ -3347,7 +3352,7 @@ var DB={
       });
       if(d.trackerEntries)d.trackerEntries[pid]=[];
     } else {
-      var isList=p.type==='list',when=new Date().toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'numeric'});
+      var isList=p.type==='list',when=new Date().toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'});
       (d.extraTasks[pid]||[]).forEach(function(t){
         // no dateISO: these were removed, not completed, so they stay out of the completed-per-day stats
         d.archived.push({key:t.key,text:t.text,section:p.name,list:isList,pri:t.pri,desc:t.desc,date:when,removed:true});n++;
@@ -3500,7 +3505,7 @@ var DB={
   completeOnce:function(id){
     var o=this.data.dailyOnce.find(function(x){return x.id===id;});
     if(o)this.data.archived.push({key:o.id,text:o.text,section:'One-time',once:true,due:o.date,
-      date:new Date().toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'numeric'}),
+      date:new Date().toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'}),
       dateISO:dStr(new Date())});
     this.data.dailyOnce=this.data.dailyOnce.filter(function(x){return x.id!==id;});
     this.save();
@@ -3553,7 +3558,9 @@ var I18N=(function(){
     "Pick one or more to start with":"Wähle eine oder mehrere für den Start",
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
-    "Add a tracker":"Tracker hinzufügen","Name per day":"Name pro Tag","Pick the days first.":"Wähle zuerst die Tage.",
+    "Add a tracker":"Tracker hinzufügen","Name per day":"Name pro Tag",
+    "Tab bar":"Tab-Leiste","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
+    "Tu":"Di","We":"Mi","Th":"Do","Su":"So","Pick the days first.":"Wähle zuerst die Tage.",
     "Deleted":"Gelöscht","Deleted habits":"Gelöschte Gewohnheiten","Keep in statistics":"In der Statistik behalten","No habits yet.":"Noch keine Gewohnheiten.","Remove":"Entfernen",
     "On: a habit you delete keeps its past days in your statistics, as they really were. Off: it's left out, as if it never existed. The Habits widget lists the deleted ones that still count.":"Ein: Eine gelöschte Gewohnheit behält ihre vergangenen Tage in deiner Statistik, so wie sie wirklich waren. Aus: Sie wird weggelassen, als hätte es sie nie gegeben. Das Widget Gewohnheiten zeigt die gelöschten, die noch zählen.",
     "Shown on that day instead of the name. Empty days use the name, and the habit's page keeps it as its title.":"Wird an diesem Tag statt des Namens angezeigt. Leere Tage nutzen den Namen, und die Seite der Gewohnheit behält ihn als Titel.",
@@ -3576,7 +3583,7 @@ var I18N=(function(){
     'Add':'Hinzufügen','Add task':'Aufgabe hinzufügen','Add habit':'Gewohnheit hinzufügen','Habit name':'Name der Gewohnheit','Edit habit':'Gewohnheit bearbeiten','Delete habit':'Gewohnheit löschen','Description (optional)':'Beschreibung (optional)','Add category':'Kategorie hinzufügen','Add project':'Projekt hinzufügen','Cancel':'Abbrechen','Close':'Schließen','Delete':'Löschen','Save':'Speichern','Restore':'Wiederherstellen',
     'Export':'Exportieren','Import':'Importieren','Skip':'Überspringen','Empty':'Leer','Empty trash':'Papierkorb leeren','OK':'OK','Enter':'Eingeben',
     '+ Add category':'+ Kategorie hinzufügen','+ Add project':'+ Projekt hinzufügen','Clear all':'Alle löschen',
-    'Reset skipped tasks':'Übersprungene Aufgaben zurücksetzen','Reset all statistics':'Alle Statistiken zurücksetzen','Reset all statistics? The history of every habit and the completed-tasks numbers start over.':'Alle Statistiken zurücksetzen? Der Verlauf jeder Gewohnheit und die Zahlen der erledigten Aufgaben beginnen von vorn.','Reset a project':'Projekt zurücksetzen','Choose…':'Wählen…','Open app on':'App öffnen mit','Open on':'Öffnen mit','Blocker':'Blocker','Coming soon':'Demnächst verfügbar','Notifications':'Mitteilungen','Minimal layout':'Minimales Layout','Sound':'Ton','Sounds':'Töne','App and website blocker: limits, warnings, screen time and app usage.':'App- und Website-Blocker: Limits, Warnungen, Bildschirmzeit und App-Nutzung.','Show War Room':'War Room anzeigen','Reset settings':'Einstellungen zurücksetzen','Reset all settings to the defaults? Your data stays.':'Alle Einstellungen auf die Standardwerte zurücksetzen? Deine Daten bleiben erhalten.','Skip tasks':'Aufgaben überspringen','Skip habits':'Gewohnheiten überspringen','Edit habit':'Gewohnheit bearbeiten','App':'App','Appearance':'Darstellung','Update automatically':'Automatisch aktualisieren','Menu':'Menü','Choose which tabs show in the bottom menu. Settings always stays.':'Wähle, welche Tabs im unteren Menü erscheinen. Einstellungen bleibt immer.','Version':'Version','Check for updates':'Nach Updates suchen','Track a project':'Projekt verfolgen','Track in Daily':'In Täglich verfolgen','Manage categories':'Kategorien verwalten',
+    'Reset skipped tasks':'Übersprungene Aufgaben zurücksetzen','Reset all statistics':'Alle Statistiken zurücksetzen',"Reset all statistics? Every habit's history starts over from today, and deleted habits stop counting.":'Alle Statistiken zurücksetzen? Der Verlauf jeder Gewohnheit beginnt ab heute neu, und gelöschte Gewohnheiten zählen nicht mehr.','Reset a project':'Projekt zurücksetzen','Choose…':'Wählen…','Open app on':'App öffnen mit','Open on':'Öffnen mit','Blocker':'Blocker','Coming soon':'Demnächst verfügbar','Notifications':'Mitteilungen','Minimal layout':'Minimales Layout','Sound':'Ton','Sounds':'Töne','App and website blocker: limits, warnings, screen time and app usage.':'App- und Website-Blocker: Limits, Warnungen, Bildschirmzeit und App-Nutzung.','Show War Room':'War Room anzeigen','Reset settings':'Einstellungen zurücksetzen','Reset all settings to the defaults? Your data stays.':'Alle Einstellungen auf die Standardwerte zurücksetzen? Deine Daten bleiben erhalten.','Skip tasks':'Aufgaben überspringen','Skip habits':'Gewohnheiten überspringen','Edit habit':'Gewohnheit bearbeiten','App':'App','Appearance':'Darstellung','Update automatically':'Automatisch aktualisieren','Menu':'Menü','Choose which tabs show in the bottom menu. Settings always stays.':'Wähle, welche Tabs im unteren Menü erscheinen. Einstellungen bleibt immer.','Version':'Version','Check for updates':'Nach Updates suchen','Track a project':'Projekt verfolgen','Track in Daily':'In Täglich verfolgen','Manage categories':'Kategorien verwalten',
     '📁 Category':'📁 Kategorie','➕ Project':'➕ Projekt','One-time task':'Einmalige Aufgabe','Repeating task':'Wiederkehrende Aufgabe','Rename habit':'Gewohnheit umbenennen','Rename category':'Kategorie umbenennen',
     'Move to project':'In Projekt verschieben','Pick category':'Kategorie wählen','Pick tracker':'Tracker wählen','Choose category':'Kategorie wählen','Choose color':'Farbe wählen',
     // form labels
@@ -3585,7 +3592,7 @@ var I18N=(function(){
     'Every day':'Jeden Tag','Moving average':'Gleitender Durchschnitt','Show moving average on chart':'Gleitenden Durchschnitt im Diagramm zeigen',
     'Unit (e.g. kg, kcal, h)':'Einheit (z. B. kg, kcal, h)','Category name':'Kategoriename','New category name':'Neuer Kategoriename','New category name…':'Neuer Kategoriename…',
     'Project name':'Projektname','Task name':'Aufgabenname','Short description (optional)':'Kurze Beschreibung (optional)','Add a task…':'Aufgabe hinzufügen…',
-    'Enter value':'Wert eingeben','Value':'Wert',"Your saved data couldn't be opened right now. Nothing will be saved over it — close the app completely and open it again.":'Deine gespeicherten Daten konnten gerade nicht geöffnet werden. Es wird nichts darüber gespeichert — schliesse die App ganz und öffne sie wieder.',"Your saved data couldn't be read. It's kept safe and won't be overwritten — export a copy in Menu > Data. Changes you make now won't be saved.":'Deine gespeicherten Daten konnten nicht gelesen werden. Sie bleiben erhalten und werden nicht überschrieben — exportiere eine Kopie unter Menü > Daten. Änderungen werden jetzt nicht gespeichert.',"Your latest changes couldn't be saved — your phone's storage refused them. Free up some space and export a backup in Menu > Data.":'Deine letzten Änderungen konnten nicht gespeichert werden — der Speicher deines Handys hat sie abgelehnt. Gib etwas Speicher frei und exportiere ein Backup unter Menü > Daten.','Goal (optional)':'Ziel (optional)','Done when this is reached':'Erledigt, sobald erreicht','Goal':'Ziel','None':'Keins','New project':'Neues Projekt','Edit project':'Projekt bearbeiten','Daily categories':'Tageskategorien','Daily habits':'Tägliche Gewohnheiten',
+    'Enter value':'Wert eingeben','Value':'Wert',"Your saved data couldn't be opened right now. Nothing will be saved over it — close the app completely and open it again.":'Deine gespeicherten Daten konnten gerade nicht geöffnet werden. Es wird nichts darüber gespeichert — schliesse die App ganz und öffne sie wieder.',"Your saved data couldn't be read. It's kept safe and won't be overwritten — export a copy in Menu → Data. Changes you make now won't be saved.":'Deine gespeicherten Daten konnten nicht gelesen werden. Sie bleiben erhalten und werden nicht überschrieben — exportiere eine Kopie unter Menü → Daten. Änderungen werden jetzt nicht gespeichert.',"Your latest changes couldn't be saved — your phone's storage refused them. Free up some space and export a backup in Menu → Data.":'Deine letzten Änderungen konnten nicht gespeichert werden — der Speicher deines Handys hat sie abgelehnt. Gib etwas Speicher frei und exportiere ein Backup unter Menü → Daten.','Goal (optional)':'Ziel (optional)','Done when this is reached':'Erledigt, sobald erreicht','Goal':'Ziel','None':'Keins','New project':'Neues Projekt','Edit project':'Projekt bearbeiten','Daily categories':'Tageskategorien','Daily habits':'Tägliche Gewohnheiten',
     'e.g. Business':'z. B. Business','e.g. Chores':'z. B. Haushalt','e.g. Health':'z. B. Gesundheit','Category:':'Kategorie:',
     // priorities
     'High':'Hoch','Medium':'Mittel','Low':'Niedrig','Overdue':'Überfällig',
@@ -3594,7 +3601,7 @@ var I18N=(function(){
     'No one-time tasks yet.':'Noch keine einmaligen Aufgaben.','Guide':'Anleitung','Hidden features':'Versteckte Funktionen','Move projects by holding':'Projekte durch Halten verschieben','Move habits by holding':'Gewohnheiten durch Halten verschieben','Move tasks by holding':'Aufgaben durch Halten verschieben',"Hold a task — not its tick box — until it lifts, then drag it up or down. In Tasks this sets the order of all your tasks (also used in Today), in a project only that project's order. A task stays within its priority.":"Halte eine Aufgabe — nicht ihr Kästchen — bis sie sich anhebt, und zieh sie nach oben oder unten. In Aufgaben legst du so die Reihenfolge aller Aufgaben fest (auch für Heute), in einem Projekt nur die Reihenfolge dieses Projekts. Eine Aufgabe bleibt in ihrer Priorität.",'Zoom and scroll charts':'Diagramme zoomen und verschieben','Days':'Tage','Weeks':'Wochen','Months':'Monate',
     'Pinch a chart with two fingers to zoom. Zoomed out, the columns turn from days into weeks and then months. Drag a chart sideways to look back at older history.':'Zieh ein Diagramm mit zwei Fingern auf oder zu, um zu zoomen. Weiter herausgezoomt werden aus den Tagen Wochen und dann Monate. Wisch ein Diagramm seitwärts, um ältere Verläufe anzusehen.',
     "In Overview, hold a project for a second until it lifts, then drag it anywhere — also into another category, or to the top for no category. Hold a category's title to move the whole category.":'Halte in der Übersicht ein Projekt eine Sekunde lang, bis es sich anhebt, und ziehe es an eine beliebige Stelle — auch in eine andere Kategorie oder ganz nach oben für keine Kategorie. Halte den Titel einer Kategorie, um die ganze Kategorie zu verschieben.',
-    "In Daily, hold a habit's bar — not its tick box — until it lifts, then drag it up or down. The order is the same on every day and in Today.":'Halte in Täglich den Balken einer Gewohnheit – nicht ihr Kästchen –, bis er sich anhebt, und ziehe ihn nach oben oder unten. Die Reihenfolge gilt an jedem Tag und auch in Heute.',
+    "In a Habits project, hold a habit's bar — not its tick box — until it lifts, then drag it up or down. The order is the same on every day and in Today.":'Halte in einem Gewohnheiten-Projekt den Balken einer Gewohnheit – nicht ihr Kästchen –, bis er sich anhebt, und ziehe ihn nach oben oder unten. Die Reihenfolge gilt an jedem Tag und auch in Heute.',
     'Reset skipped tasks every new day':'Übersprungene Aufgaben jeden Tag zurücksetzen',
     "In a Habits project, swipe a habit to the right to skip it on the day you're looking at — also a day in the past, if you were sick.":'Wische in einem Gewohnheiten-Projekt eine Gewohnheit nach rechts, um sie an dem angezeigten Tag zu überspringen — auch an einem vergangenen Tag, wenn du krank warst.',
     "A skipped habit shows in light green in Statistics and doesn't count against your score — for days when you're sick or away.":'Eine übersprungene Gewohnheit erscheint in der Statistik hellgrün und zählt nicht gegen deinen Wert — für Tage, an denen du krank oder unterwegs bist.',
@@ -3626,7 +3633,7 @@ var I18N=(function(){
     // confirms / alerts
     'Delete this forever?':'Endgültig löschen?','Move this entry to the Trash?':'Diesen Eintrag in den Papierkorb legen?','Move this habit to the Trash?':'Diese Gewohnheit in den Papierkorb legen?',
     'Delete this category? Its habits move to the Trash.':'Diese Kategorie löschen? Ihre Gewohnheiten kommen in den Papierkorb.','Restore the project first.':'Stelle zuerst das Projekt wieder her.',
-    'No tracker projects yet — create one first from Overview (+ > Project > Tracker), then come back here to add it to Daily.':'Noch keine Tracker-Projekte — erstelle zuerst eines in der Übersicht (+ > Projekt > Tracker) und füge es dann hier zu Täglich hinzu.',
+    'No tracker projects yet — create one first from Overview (+ → Project → Tracker), then come back here to add it to this Habits project.':'Noch keine Tracker-Projekte — erstelle zuerst eines in der Übersicht (+ → Projekt → Tracker) und füge es dann hier zu diesem Gewohnheiten-Projekt hinzu.',
     // colors
     'Grey':'Grau','Red':'Rot','Rose':'Rosé','Orange':'Orange','Amber':'Bernstein','Yellow':'Gelb','Lime':'Limette','Green':'Grün','Emerald':'Smaragd','Teal':'Petrol','Cyan':'Cyan','Sky':'Himmelblau',
     'Blue':'Blau','Indigo':'Indigo','Violet':'Violett','Purple':'Lila','Fuchsia':'Fuchsia','Pink':'Pink','Slate':'Schiefer','Black':'Schwarz'
@@ -3636,6 +3643,9 @@ var I18N=(function(){
     [/^(\d+) already added$/,'$1 schon vorhanden'],[/^Import (\d+)$/,'$1 importieren'],
     [/^(\d+) events added to your calendar\.$/,'$1 Termine zu deinem Kalender hinzugefügt.'],
     [/^1 tasks?$/,'1 Aufgabe'],[/^(\d+) tasks$/,'$1 Aufgaben'],
+    [/^1 habit$/,'1 Gewohnheit'],[/^(\d+) habits$/,'$1 Gewohnheiten'],
+    // a habit's days ("Mo, We, Fr") — weekday letters are English in the code
+    [/^(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:, (?:Mo|Tu|We|Th|Fr|Sa|Su))+$/,function(m){return m.replace(/Tu|We|Th|Su/g,function(x){return {Tu:'Di',We:'Mi',Th:'Do',Su:'So'}[x];});}],
     [/^(Skipped|Done|Not done) — (.*)$/,function(m,a,b){return DE[a]+' — '+b;}],
     [/^habits · (\d+) skipped$/,'Gewohnheiten · $1 übersprungen'],
     [/^scheduled days completed \((\d+) skipped\)$/,'geplante Tage erledigt ($1 übersprungen)'],
@@ -3725,6 +3735,9 @@ var I18N=(function(){
   };
 })();
 function t(s){return I18N.t(s);}
+// Dates follow the app's language: German = the Swiss format the app always
+// used ("Mi., 7. Okt."), English = British ("Wed 7 Oct").
+function dLoc(){return I18N.lang==='de'?'de-CH':'en-GB';}
 
 // ── CONSTANTS ─────────────────────────────────────────────
 var PLBL={bu:'War Room',bs:'High',bp:'Medium',bl:'Low'};
@@ -3809,7 +3822,7 @@ function projCard(pid){
       var done=!!habitDayVal(it,dsToday);
       if(!done)remaining++;
     });
-    cntLbl=remaining?(remaining+(remaining===1?' task':' tasks')):'All done';
+    cntLbl=remaining?(remaining+(remaining===1?' habit':' habits')):'All done';
   } else if(p.type==='tracker'){
     var trkEntries=((d.trackerEntries||{})[pid]||[]).slice().sort(function(a,b){return a.ts-b.ts;});
     cntLbl=trkEntries.length?(trkEntries[trkEntries.length-1].val+(p.unit?' '+p.unit:'')):'No entries yet';
@@ -3886,8 +3899,8 @@ function renderTracker(pid){
   // Entry list newest first
   var listH=entries.slice().reverse().map(function(e){
     var d=new Date(e.ts);
-    var ds=d.toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'2-digit'})
-      +' '+d.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    var ds=d.toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'2-digit'})
+      +' '+d.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'});
     var delBtn='<button class="trk-del" onclick="A.delTrackerEntry(\''+pid+'\','+e.ts+')">'+trashSvg(18,'currentColor')+'</button>';
     return '<div class="trk-entry"><div><div class="trk-entry-val">'+e.val+' '+unit+'</div>'
       +'<div class="trk-entry-date">'+ds+'</div></div>'+delBtn+'</div>';
@@ -3984,7 +3997,7 @@ function trackerChart(pid,p,entries,goal){
   }
   // x axis: first, middle, last entry
   [0,Math.floor((entries.length-1)/2),entries.length-1].filter(function(v,i,a){return a.indexOf(v)===i;}).forEach(function(i){
-    var lbl=new Date(entries[i].ts).toLocaleDateString('de-CH',{day:'numeric',month:'short'});
+    var lbl=new Date(entries[i].ts).toLocaleDateString(dLoc(),{day:'numeric',month:'short'});
     svg+='<text x="'+xs[i]+'" y="'+(H-4)+'" text-anchor="middle" fill="#bbb" font-size="9">'+lbl+'</text>';
   });
   return svg+'</svg>';
@@ -4089,11 +4102,12 @@ function renderArchive(){
     DB.data.archived.slice().reverse().forEach(function(item,ri){
       if(!!Trash.isList(item)!==wantList)return;
       var idx=DB.data.archived.length-1-ri;
-      h+=row(esc(item.text),esc(item.once?'Calendar':item.section)+' · '+item.date,'A.restore('+idx+')','A.trashDeleteCompleted('+idx+')');
+      var when=item.dateISO?new Date(item.dateISO+'T12:00:00').toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'}):item.date;
+      h+=row(esc(item.text),esc(item.once?'Calendar':item.section)+' · '+when,'A.restore('+idx+')','A.trashDeleteCompleted('+idx+')');
     });
   } else {
     items.slice().reverse().forEach(function(t){
-      var when=new Date(t.at).toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'numeric'});
+      var when=new Date(t.at).toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'});
       var icon=t.type==='project'&&t.sub?esc(t.sub)+' ':'';
       var sub=(t.type==='habit'||t.type==='entry')&&t.sub?esc(t.sub)+' · ':'';
       h+=row(icon+esc(t.label),sub+when,"A.trashRestore('"+t.id+"')","A.trashDelete('"+t.id+"')");
@@ -4182,7 +4196,7 @@ function renderLockedInCalendar(){
   c.innerHTML='<div class="card-list">'+items.map(function(o){
     var overdue=o.date<todayStr;
     var dl=new Date(o.date+'T00:00:00');
-    var dLbl=dl.toLocaleDateString('de-CH',{day:'numeric',month:'short',year:'numeric'});
+    var dLbl=dl.toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'});
     return '<div class="ti" data-once="'+o.id+'">'
       +'<input type="checkbox" onchange="A.completeOnce(this,\''+o.id+'\')">'
       +'<div style="flex:1"><div class="tt">'+esc(o.text)+'</div></div>'
@@ -4458,7 +4472,7 @@ function renderGeneralTop(){
     +'</div></div>'
     +'<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default">'
-    +'<div class="opt-text"><div class="opt-title">Hold to complete tasks</div></div>'
+    +'<div class="opt-text"><div class="opt-title">Hold to complete</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(hold?'checked':'')+' onchange="A.setHoldMode(this.checked)"><span class="switch-slider"></span></label>'
     +'</div>'
     // the click that plays when a hold completes something
@@ -4983,7 +4997,7 @@ var A={
     // No Nav.sd adjustment needed — it's an offset from today (0 = today),
     // so it keeps tracking "today" correctly on its own regardless of TI.
     var tlbl=document.getElementById('tlbl');
-    if(tlbl)tlbl.textContent=T.toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'});
+    if(tlbl)tlbl.textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
     renderSettings();renderToday();
     if(Nav.cur==='habits')renderHabits();
   },
@@ -5003,7 +5017,7 @@ var A={
   },
   // Settings > Statistics: wipes every habit's history and the completed-tasks numbers
   resetAllStats:function(){
-    Alert.confirm('Reset all statistics? The history of every habit and the completed-tasks numbers start over.',function(){
+    Alert.confirm("Reset all statistics? Every habit's history starts over from today, and deleted habits stop counting.",function(){
       DB.resetHabitStats(null);
       DB.resetTaskStats();
       A._refreshAll();renderSettings();
@@ -5105,6 +5119,11 @@ var A={
     DB.data.settings.language=val;DB.save();
     I18N.set(val);
     renderSettings();
+    // dates are formatted in the language when drawn — draw again
+    A._refreshAll();buildPills();updWL();
+    document.getElementById('tlbl').textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+    if(Nav.cur==='stats')Stats.render();
+    if(Nav.cur==='lockedin')renderLockedIn();
   },
   toggleDailyItemFor:function(cb,dayIdx){
     var id=cb.getAttribute('data-id');
@@ -5155,7 +5174,7 @@ var A={
   startTrackerHabit:function(){
     var trackers=Object.keys(DB.data.projects).filter(function(pid){return DB.data.projects[pid].type==='tracker';});
     if(!trackers.length){
-      Alert.info('No tracker projects yet — create one first from Overview (+ > Project > Tracker), then come back here to add it to Daily.');
+      Alert.info('No tracker projects yet — create one first from Overview (+ → Project → Tracker), then come back here to add it to this Habits project.');
       return;
     }
     function add(pid){DailyItemSheet.open(DB.habitCatId(),null,pid);}
@@ -5509,7 +5528,7 @@ function recomputeT(){
   T=d;TI=T.getDay();TI=TI===0?6:TI-1;
 }
 recomputeT();
-var DN=['Mo','Di','Mi','Do','Fr','Sa','So'];
+var DN=['Mo','Tu','We','Th','Fr','Sa','Su']; // English; German via I18N (Di, Mi, Do, So)
 // A habit scheduled on all 7 days reads as "Every day" instead of naming
 // each one — used anywhere a habit's schedule is shown as text.
 function daysLabel(days){
@@ -5695,7 +5714,7 @@ function _sumDays(items,start,end){ // completed/scheduled/skipped over start..e
   }
   return{completed:c,scheduled:s,skipped:k};
 }
-function _dm(d){return d.getDate()+'.'+(d.getMonth()+1)+'.';}
+function _dm(d){return I18N.lang==='de'?d.getDate()+'.'+(d.getMonth()+1)+'.':d.getDate()+'/'+(d.getMonth()+1);}
 // item: one habit, or null for every habit with a schedule (Statistics)
 function chartSource(item){
   var items=item?[item]:statsHabits().filter(function(it){return it.days&&it.days.length;});
@@ -5721,7 +5740,7 @@ function chartSource(item){
       if(item){d=schedDay(idx);if(!d)return cache[key]={label:'',title:'',completed:0,scheduled:0,skipped:0};}
       else{d=new Date(today0);d.setDate(d.getDate()-idx);}
       p=_sumDays(items,d,d);p.label=_dm(d);
-      p.title=d.toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'});
+      p.title=d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
     } else if(gran==='week'){
       var s=new Date(today0);s.setDate(s.getDate()-wIdx(today0)-7*idx);
       var e=new Date(s);e.setDate(e.getDate()+6);
@@ -5729,8 +5748,8 @@ function chartSource(item){
     } else {
       var ms=new Date(today0.getFullYear(),today0.getMonth()-idx,1),me=new Date(today0.getFullYear(),today0.getMonth()-idx+1,0);
       p=_sumDays(items,ms,me);
-      p.label=ms.getMonth()===0?String(ms.getFullYear()):ms.toLocaleDateString('de-CH',{month:'short'});
-      p.title=ms.toLocaleDateString('de-CH',{month:'long',year:'numeric'});
+      p.label=ms.getMonth()===0?String(ms.getFullYear()):ms.toLocaleDateString(dLoc(),{month:'short'});
+      p.title=ms.toLocaleDateString(dLoc(),{month:'long',year:'numeric'});
     }
     return cache[key]=p;
   }
@@ -6097,7 +6116,7 @@ var Stats={
       var agg=aggHabitConsistency();
       document.getElementById('stats-pie').innerHTML=renderPieChart(agg.pct,agg.skipped,agg.target);
       document.getElementById('stats-pie-text').innerHTML=agg.target
-        ?'<b>'+agg.completed+'</b> / <b>'+agg.target+'</b> habits'+(agg.skipped?' \u00b7 '+agg.skipped+' skipped':'')
+        ?'<b>'+agg.completed+'</b> / <b>'+agg.target+'</b> done'+(agg.skipped?' \u00b7 '+agg.skipped+' skipped':'')
         :this.emptyText();
     }
     if(this.shown('chart'))this.renderChart();
@@ -6114,7 +6133,7 @@ var Stats={
   // order, score like best/worst, tap = its page) and deleted ones kept for
   // their past (when they counted, their score then, Remove = stop counting).
   renderHabits:function(){
-    var d=DB.data,live=[],fmt=function(ds){return new Date(ds+'T12:00:00').toLocaleDateString('de-CH',{day:'numeric',month:'short'});};
+    var d=DB.data,live=[],fmt=function(ds){return new Date(ds+'T12:00:00').toLocaleDateString(dLoc(),{day:'numeric',month:'short'});};
     habitsProjects().forEach(function(pid){d.dailyItems.forEach(function(it){if(habitPid(it)===pid&&it.days&&it.days.length)live.push(it);});});
     var multi=habitsProjects().length>1;
     var h='<div class="opt-group">'+(live.length?live.map(function(it){
@@ -6827,7 +6846,7 @@ var IcsImport={
     document.getElementById('ics-list').innerHTML=list.map(function(o,i){
       var d=new Date(o.date+'T12:00:00');
       var opts={weekday:'short',day:'numeric',month:'short'};if(d.getFullYear()!==yr)opts.year='numeric';
-      return '<label class="ics-row"><input type="checkbox" checked data-i="'+i+'" onchange="IcsImport.count()"><span class="ics-t">'+esc(o.text)+'</span><span class="ics-d">'+d.toLocaleDateString('de-CH',opts)+'</span></label>';
+      return '<label class="ics-row"><input type="checkbox" checked data-i="'+i+'" onchange="IcsImport.count()"><span class="ics-t">'+esc(o.text)+'</span><span class="ics-d">'+d.toLocaleDateString(dLoc(),opts)+'</span></label>';
     }).join('');
     this.count();
     _overlayOpen('ics-sheet-overlay');
@@ -7323,7 +7342,7 @@ var DailyItemSheet={
     var desc=document.getElementById('daily-item-desc');
     if(this.trackerPid){
       var p=DB.data.projects[this.trackerPid];
-      title.textContent='Track in Daily';
+      title.textContent='Add a tracker';
       inp.style.display='none';
       lbl.style.display='';
       lbl.textContent='Tracking: '+(p?(p.icon||'📈')+' '+p.name:'');
@@ -7507,7 +7526,7 @@ function buildPills(){
 function updWL(){
   var sd=new Date(T);sd.setDate(T.getDate()+Nav.sd);
   // Same format and style (.tlbl) as the date next to Today's title.
-  document.getElementById('wlbl').textContent=sd.toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'});
+  document.getElementById('wlbl').textContent=sd.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
 }
 
 // ── HOLD TO COMPLETE ──────────────────────────────────────
@@ -8208,7 +8227,7 @@ var TrackerDaySheet={
     if(!p||dayIdx>0||pDate(dayIdx)<habitCreatedDs(it))return;
     this.itemId=itemId;this.dayIdx=dayIdx;
     var d=new Date(T);d.setDate(T.getDate()+dayIdx);
-    document.getElementById('trk-day-title').textContent=p.name+(dayIdx?' · '+d.toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'}):'');
+    document.getElementById('trk-day-title').textContent=p.name+(dayIdx?' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'}):'');
     document.getElementById('trk-day-unit').textContent=p.unit||'';
     var g=document.getElementById('trk-day-goal');
     g.textContent=hasGoal(it)?'Goal: '+fmtTrk(it.goal)+(p.unit?' '+p.unit:''):'';
@@ -9166,7 +9185,7 @@ buildProjPages();
 applyHoldMode();
 applyTheme();
 I18N.set(DB.data.settings.language);
-document.getElementById('tlbl').textContent=T.toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'});
+document.getElementById('tlbl').textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
 renderWar();
 renderGrids();
 renderToday();
@@ -9200,7 +9219,7 @@ document.addEventListener('visibilitychange',function(){
   recomputeT();
   if(pDate(0)===oldDs)return; // still the same day — nothing stale to fix
   var tlbl=document.getElementById('tlbl');
-  if(tlbl)tlbl.textContent=T.toLocaleDateString('de-CH',{weekday:'short',day:'numeric',month:'short'});
+  if(tlbl)tlbl.textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
   if(Nav.cur==='today')renderToday();
   else if(Nav.cur==='habits')renderHabits();
 });

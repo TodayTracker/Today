@@ -475,9 +475,25 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   override. Text built as one string from a label + user content
   ("Tracking: "+name) needs a rule, not a DE entry. A DE key that is an
   ordinary word can also translate a user's own item with that exact
-  name — acceptable, but avoid adding very generic keys. Dates already
-  used de-CH everywhere, so they were left alone; What's new notes stay
-  English. To find gaps, switch to German and walk every page/sheet
+  name — acceptable, but avoid adding very generic keys. What's new notes
+  stay English. DATES (4.31, "English mode shows German"): every
+  toLocaleDateString/TimeString uses `dLoc()` — 'de-CH' in German (the
+  old look, "Mi., 7. Okt."), 'en-GB' in English ("Wed 7 Oct"); chart day
+  labels `_dm` are "4.10." / "4/10"; the Trash shows a completed task's
+  date from its `dateISO` (the stored `date` string is only a fallback).
+  Dates are formatted when drawn, so `A.setLanguage` redraws
+  (_refreshAll, pills, Daily/Today date labels, Stats, Tasks). Never write
+  'de-CH' directly again. WEEKDAY LETTERS: `DN` is English (Mo Tu We Th Fr
+  Sa Su) — German comes from DE keys Tu/We/Th/Su and a RULE for comma
+  lists ("Mo, We, Fr" → "Mo, Mi, Fr", daysLabel). Before 4.31 DN was
+  German in both languages.
+  4.31 wording pass (asked: "any other terms or language that don't make
+  sense"): Habits card count says habits; the ring says "done" (it counts
+  habit days); General's tab switches section is "Tab bar" (was "Menu" →
+  Menu > General > Menu); "Hold to complete"; Reset all statistics' text
+  matches what it does; no "Daily" left in visible text (Guide, the
+  tracker window = "Add a tracker", its no-tracker message); visible
+  paths use → (Menu → Data). Code names unchanged. To find gaps, switch to German and walk every page/sheet
   listing text nodes that lack `__en`.
 
 - NAMING (3.57): the Settings tab/page is called "Menu" on screen (tab
