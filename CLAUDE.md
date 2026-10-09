@@ -2157,6 +2157,12 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   bottom; `UpdateOverlay.done()` fills the bar over what's left of the
   quote's reading time and every reload after it waits
   `UpdateOverlay.wait(min)` — so a fast update doesn't cut the quote off.
+  4.37: Menu → Developer has "Loading screen" (`QuoteSplash.show()`,
+  safe to call again while showing or fading — it clears `_t`/`_ht`) and
+  "Update screen" (`UpdateOverlay.demo()`: the real overlay with fake
+  progress 35/65/85, done(), then hide() after wait() — no network, no
+  reload; it clears 'lifeos-noquote' so the next start still shows a
+  quote).
 - DEVELOPER MODE (4.24, "a switch… where I can test stuff… but I don't
   want everyone to see it… you need an access code"): Menu > General >
   Developer > Developer mode (`settings.devMode`, default false, in

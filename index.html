@@ -1076,6 +1076,10 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
     <div class="opt-row" onclick="Welcome.open({install:'ios'})"><div class="opt-text"><div class="opt-title">Add to Home Screen · iPhone</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
     <div class="opt-row" onclick="Welcome.open({install:'android'})"><div class="opt-text"><div class="opt-title">Add to Home Screen · Android</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
   </div>
+  <div class="opt-group">
+    <div class="opt-row" onclick="QuoteSplash.show()"><div class="opt-text"><div class="opt-title">Loading screen</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+    <div class="opt-row" onclick="UpdateOverlay.demo()"><div class="opt-text"><div class="opt-title">Update screen</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+  </div>
   <div class="data-note">Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.</div>
 </div>
 
@@ -1637,7 +1641,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.36';
+var APP_VERSION='Beta 4.37';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2815,6 +2819,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.36',notes:[
     "Quotes: opening the app shows a random quote, big, in Apple's own serif font in italics — Marcus Aurelius, Seneca, Epictetus, Zeno and Luke Belmar. A bar at the very bottom fills while you read; it stays long enough to read the quote (3.5–7 seconds, by its length), a tap skips it. The update screen shows one the same way and doesn't reload before you've read it. Turn it off in Menu → General → Quote at start"
+  ]},
+  {v:'Beta 4.37',notes:[
+    "Developer: two new buttons on Menu → Developer — Loading screen shows the start quote screen, Update screen plays the whole update screen (quote, Updating, the bar filling) and then just closes, nothing is downloaded or reloaded"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2925,7 +2932,8 @@ var USER_LOG={
   'Beta 4.33':["Drag tasks into another priority"],
   'Beta 4.34':'design',
   'Beta 4.35':'design',
-  'Beta 4.36':["Quotes when the app opens"]
+  'Beta 4.36':["Quotes when the app opens"],
+  'Beta 4.37':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3605,7 +3613,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Loading screen":"Ladebildschirm","Update screen":"Update-Bildschirm","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -7972,7 +7980,7 @@ var QUOTES=[
 // update screen already showed one). Counts as an open overlay (no
 // swipe-back under it).
 var QuoteSplash={
-  _on:false,_t:null,
+  _on:false,_t:null,_ht:null,
   pick:function(){
     var last=-1;try{last=parseInt(localStorage.getItem('lifeos-quote'),10);}catch(e){}
     var i=Math.floor(Math.random()*QUOTES.length);if(QUOTES.length>1&&i===last)i=(i+1)%QUOTES.length;
@@ -7991,6 +7999,8 @@ var QuoteSplash={
     return this.readMs(text);
   },
   show:function(){
+    if(this._t){clearTimeout(this._t);this._t=null;}
+    if(this._ht){clearTimeout(this._ht);this._ht=null;}
     var ms=this.fill('qs-text','qs-by');
     var el=document.getElementById('qsplash'),bar=document.getElementById('qs-bar-fill');
     bar.style.transition='none';bar.style.width='0%';
@@ -8006,7 +8016,8 @@ var QuoteSplash={
     if(this._t){clearTimeout(this._t);this._t=null;}
     var el=document.getElementById('qsplash'),self=this;
     el.classList.add('out');
-    setTimeout(function(){
+    this._ht=setTimeout(function(){
+      self._ht=null;
       el.classList.remove('on','out');
       if(self._on){self._on=false;_overlayCount=Math.max(0,_overlayCount-1);if(_overlayCount===0)_unlockBodyScroll();}
     },450);
@@ -8037,6 +8048,21 @@ var UpdateOverlay={
   // How long to wait after done() before reloading: at least min, and
   // until the bar is full
   wait:function(min){return Math.max(min,this._rest+400);},
+  // Menu → Developer: the whole update screen as a fast update would show
+  // it, then it just closes — nothing is downloaded or reloaded
+  demo:function(){
+    var self=this;
+    this.show();this.progress(35);
+    setTimeout(function(){self.progress(65);},1100);
+    setTimeout(function(){self.progress(85);},2000);
+    setTimeout(function(){
+      self.done();
+      setTimeout(function(){
+        self.hide();
+        try{sessionStorage.removeItem('lifeos-noquote');}catch(e){}
+      },self.wait(2700));
+    },2800);
+  },
   hide:function(){
     document.getElementById('update-overlay').classList.remove('on');
     if(this._on){this._on=false;_overlayCount=Math.max(0,_overlayCount-1);if(_overlayCount===0)_unlockBodyScroll();}
