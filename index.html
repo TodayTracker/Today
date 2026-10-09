@@ -422,12 +422,20 @@ html[data-theme="light"] .switch-slider{background:#d1d1d1}
    screen should be tappable or scrollable until it's done (asked for,
    then un-asked-for, then asked for again in the same session — this is
    the one that stuck: frozen, not a background pill). */
-.update-overlay{display:none;position:fixed;inset:0;background:rgba(243,244,246,.97);z-index:600;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding-top:22vh}
-@media(prefers-color-scheme:dark){.update-overlay{background:rgba(26,25,23,.97)}}
-html[data-theme="dark"] .update-overlay{background:rgba(26,25,23,.97)}
-html[data-theme="light"] .update-overlay{background:rgba(243,244,246,.97)}
+.update-overlay{display:none;position:fixed;inset:0;background:var(--pg);z-index:600;align-items:center;justify-content:center;flex-direction:column;padding:0 28px 8vh}
 .update-overlay.on{display:flex}
 .update-overlay{touch-action:none}
+/* Quotes (QuoteSplash, the update screen): Apple's own serif (New York via
+   ui-serif — on the phone already, nothing downloaded), italic; the author
+   small and spaced like the section titles; the loading bar sits at the
+   very bottom of both */
+.qsplash{position:fixed;inset:0;z-index:640;background:var(--pg);display:none;align-items:center;justify-content:center;padding:0 28px 8vh;opacity:1;transition:opacity .45s ease;touch-action:none;-webkit-tap-highlight-color:transparent}
+.qsplash.on{display:flex}.qsplash.out{opacity:0}
+.qs-box{max-width:340px;text-align:center}
+.qs-text{font-family:ui-serif,"New York","Iowan Old Style",Georgia,"Times New Roman",serif;font-style:italic;font-weight:400;font-size:34px;line-height:42px;letter-spacing:-.015em;color:var(--ink);text-wrap:balance}
+.qs-by{margin-top:22px;font-size:12px;line-height:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#a3a3a3}
+.qs-foot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;align-items:center;gap:12px}
+.qs-foot .update-slot{height:auto}
 .update-slot{position:relative;width:160px;height:36px;display:flex;align-items:center;justify-content:center}
 .update-text{font-size:15px;font-weight:700;color:#000}
 @media(prefers-color-scheme:dark){.update-text{color:#fff}}
@@ -1385,10 +1393,18 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
 </div>
 
 <div class="update-overlay" id="update-overlay">
-  <div class="update-slot">
-    <div class="update-bar-track" id="update-bar-track"><div class="update-bar-fill" id="update-bar-fill"></div></div>
+  <div class="qs-box"><div class="qs-text" id="upd-q-text"></div><div class="qs-by" id="upd-q-by"></div></div>
+  <div class="qs-foot">
+    <div class="update-text" id="update-text">Updating</div>
+    <div class="update-slot">
+      <div class="update-bar-track" id="update-bar-track"><div class="update-bar-fill" id="update-bar-fill"></div></div>
+    </div>
   </div>
-  <div class="update-text" id="update-text">Updating</div>
+</div>
+
+<div class="qsplash" id="qsplash" onclick="QuoteSplash.hide()">
+  <div class="qs-box"><div class="qs-text" id="qs-text"></div><div class="qs-by" id="qs-by"></div></div>
+  <div class="qs-foot"><div class="update-bar-track"><div class="update-bar-fill" id="qs-bar-fill"></div></div></div>
 </div>
 
 <div class="sheet-overlay" id="whatsnew-overlay" onclick="if(event.target===this)WhatsNew.close()">
@@ -1621,7 +1637,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.35';
+var APP_VERSION='Beta 4.36';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2796,6 +2812,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.35',notes:[
     "Tasks: no blue outline around the other priority while dragging a task into it — only the blue line where it will land"
+  ]},
+  {v:'Beta 4.36',notes:[
+    "Quotes: opening the app shows a random quote, big, in Apple's own serif font in italics — Marcus Aurelius, Seneca, Epictetus, Zeno and Luke Belmar. A bar at the very bottom fills while you read; it stays long enough to read the quote (3.5–7 seconds, by its length), a tap skips it. The update screen shows one the same way and doesn't reload before you've read it. Turn it off in Menu → General → Quote at start"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2905,7 +2924,8 @@ var USER_LOG={
   'Beta 4.32':'both',
   'Beta 4.33':["Drag tasks into another priority"],
   'Beta 4.34':'design',
-  'Beta 4.35':'design'
+  'Beta 4.35':'design',
+  'Beta 4.36':["Quotes when the app opens"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -2977,7 +2997,7 @@ var DEFAULT_SETTINGS={
   startTab:'today',hiddenTabs:['blocker'],holdToComplete:false,devMode:false,autoUpdate:true,language:'en',theme:'system',
   dayStartHour:3,todayHabitsDisappear:true,skipHabits:false,
   todayTaskCount:3,todayRefill:false,skipTasks:true,skipResetDaily:true,showWarRoom:true,
-  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,statsHidden:['best','worst'],statsOrder:['score','chart','best','worst','perfect','habits'],keepDeletedHabits:true
+  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,startQuote:true,statsHidden:['best','worst'],statsOrder:['score','chart','best','worst','perfect','habits'],keepDeletedHabits:true
 };
 // A plain notice card at the top of the screen for the rare data problems
 // in DB.load / DB.save — tap it to dismiss.
@@ -3599,7 +3619,7 @@ var I18N=(function(){
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
     "Add a tracker":"Tracker hinzufügen","Name per day":"Name pro Tag",
-    "Tab bar":"Tab-Leiste","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
+    "Tab bar":"Tab-Leiste","Quote at start":"Zitat beim Start","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
     "Tu":"Di","We":"Mi","Th":"Do","Su":"So","Pick the days first.":"Wähle zuerst die Tage.",
     "Deleted":"Gelöscht","Deleted habits":"Gelöschte Gewohnheiten","Keep in statistics":"In der Statistik behalten","No habits yet.":"Noch keine Gewohnheiten.","Remove":"Entfernen",
     "On: a habit you delete keeps its past days in your statistics, as they really were. Off: it's left out, as if it never existed. The Habits widget lists the deleted ones that still count.":"Ein: Eine gelöschte Gewohnheit behält ihre vergangenen Tage in deiner Statistik, so wie sie wirklich waren. Aus: Sie wird weggelassen, als hätte es sie nie gegeben. Das Widget Gewohnheiten zeigt die gelöschten, die noch zählen.",
@@ -4534,6 +4554,10 @@ function renderGeneralTop(){
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Open app on</div></div>'
     +customSelect(startOpts,TabBar.startTab(),'A.setStartTab(this.value)')
+    +'</div>'
+    +'<div class="opt-row" style="cursor:default">'
+    +'<div class="opt-text"><div class="opt-title">Quote at start</div></div>'
+    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.startQuote!==false?'checked':'')+' onchange="A.setStartQuote(this.checked)"><span class="switch-slider"></span></label>'
     +'</div></div>'
     +'<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default">'
@@ -4905,7 +4929,7 @@ var A={
       .then(function(keys){return Promise.all(keys.map(function(k){return caches.delete(k);}));})
       .then(function(){
         UpdateOverlay.done();
-        setTimeout(function(){location.replace(location.pathname+'?v='+Date.now());},2800);
+        setTimeout(function(){location.replace(location.pathname+'?v='+Date.now());},UpdateOverlay.wait(2800));
       }).catch(function(){UpdateOverlay.hide();});
   },
   // silent: an automatic check — says nothing unless an update is found
@@ -4926,7 +4950,7 @@ var A={
         if(pollTimer)clearInterval(pollTimer);
         settled=true;
         UpdateOverlay.done();
-        setTimeout(function(){location.reload();},2800);
+        setTimeout(function(){location.reload();},UpdateOverlay.wait(2800));
       } else {
         done("Couldn't check for updates — try again later. Nothing was changed.");
       }
@@ -4967,7 +4991,7 @@ var A={
         // Keep it on screen a beat even if everything finished instantly —
         // otherwise a fast connection means it flashes by unseen.
         var wait=Math.max(0,3200-(Date.now()-shownAt));
-        setTimeout(function(){location.reload();},Math.max(wait,2700));
+        setTimeout(function(){location.reload();},UpdateOverlay.wait(Math.max(wait,2700)));
       }
       // Listen for 'updatefound' BEFORE calling update() — this is an event,
       // not a state poll, so it reliably fires even when install+activate
@@ -5159,6 +5183,7 @@ var A={
   },
   setStatsRange:function(val){DB.data.settings.statsRange=val;DB.save();renderSettings();},
   setSound:function(val){DB.data.settings.sound=val;DB.save();},
+  setStartQuote:function(val){DB.data.settings.startQuote=!!val;DB.save();},
   resetSkipped:function(){
     for(var pid in DB.data.extraTasks)(DB.data.extraTasks[pid]||[]).forEach(function(t){delete t.skip;});
     DB.save();renderSettings();renderToday();
@@ -7918,11 +7943,85 @@ function _overlayClose(id,instant){
 // It counts as an open overlay like a sheet does, so the page behind it
 // gets the same scroll lock and every drag on it is cancelled (see the
 // "nothing behind it may scroll" touchmove handler).
+// Quotes for the start screen and the update screen: [English, German,
+// author, author in German]. Stoics (old translations, German our own) and
+// Luke Belmar's lines (the funny ones on purpose).
+var QUOTES=[
+  ['Waste no more time arguing about what a good man should be. Be one.','Verschwende keine Zeit mehr damit, zu streiten, wie ein guter Mensch sein sollte. Sei einer.','Marcus Aurelius','Marc Aurel'],
+  ['What stands in the way becomes the way.','Was im Weg steht, wird zum Weg.','Marcus Aurelius','Marc Aurel'],
+  ['Very little is needed to make a happy life.','Für ein glückliches Leben braucht es sehr wenig.','Marcus Aurelius','Marc Aurel'],
+  ['If it is not right, do not do it; if it is not true, do not say it.','Wenn es nicht recht ist, tu es nicht; wenn es nicht wahr ist, sag es nicht.','Marcus Aurelius','Marc Aurel'],
+  ['The best revenge is not to be like your enemy.','Die beste Rache ist, nicht zu werden wie dein Feind.','Marcus Aurelius','Marc Aurel'],
+  ['We suffer more often in imagination than in reality.','Wir leiden öfter in der Vorstellung als in der Wirklichkeit.','Seneca','Seneca'],
+  ['It is not that we have a short time to live, but that we waste a lot of it.','Wir haben nicht zu wenig Zeit, wir verschwenden zu viel davon.','Seneca','Seneca'],
+  ['While we wait for life, life passes.','Während wir auf das Leben warten, zieht es vorbei.','Seneca','Seneca'],
+  ['Begin at once to live.','Fang sofort an zu leben.','Seneca','Seneca'],
+  ['No man is free who is not master of himself.','Niemand ist frei, der nicht Herr über sich selbst ist.','Epictetus','Epiktet'],
+  ['First say to yourself what you would be; then do what you have to do.','Sag dir zuerst, wer du sein willst; dann tu, was du tun musst.','Epictetus','Epiktet'],
+  ['People are not disturbed by things, but by the views they take of them.','Nicht die Dinge beunruhigen die Menschen, sondern ihre Ansichten über die Dinge.','Epictetus','Epiktet'],
+  ['Wealth consists not in having great possessions, but in having few wants.','Reichtum heisst nicht, viel zu besitzen, sondern wenig zu brauchen.','Epictetus','Epiktet'],
+  ['We have two ears and one mouth, so that we may listen more and speak less.','Wir haben zwei Ohren und einen Mund, damit wir mehr zuhören als reden.','Zeno of Citium','Zenon von Kition'],
+  ['Become indifferent to what makes no difference.','Werde gleichgültig gegenüber dem, was keinen Unterschied macht.','Luke Belmar','Luke Belmar'],
+  ['Never do business with a brokie.','Mach nie Geschäfte mit einem Brokie.','Luke Belmar','Luke Belmar']
+];
+// The start quote (Menu → General → Quote at start, on by default): a random
+// quote, never the same one twice in a row ('lifeos-quote'), shown long
+// enough to read it (readMs: by its number of words, 3.5–7s) while the bar
+// at the bottom fills — a tap skips it. Not on a new install (the welcome
+// screens come first) and not on the reload right after an update (the
+// update screen already showed one). Counts as an open overlay (no
+// swipe-back under it).
+var QuoteSplash={
+  _on:false,_t:null,
+  pick:function(){
+    var last=-1;try{last=parseInt(localStorage.getItem('lifeos-quote'),10);}catch(e){}
+    var i=Math.floor(Math.random()*QUOTES.length);if(QUOTES.length>1&&i===last)i=(i+1)%QUOTES.length;
+    try{localStorage.setItem('lifeos-quote',String(i));}catch(e){}
+    return QUOTES[i];
+  },
+  readMs:function(text){
+    var words=text.split(/\s+/).length;
+    return Math.min(7000,Math.max(3500,1800+words*320));
+  },
+  // Fills both elements, returns how long reading it takes
+  fill:function(textId,byId){
+    var q=this.pick(),de=I18N.lang==='de',text=de?q[1]:q[0];
+    document.getElementById(textId).textContent=de?'\u201E'+text+'\u201C':'\u201C'+text+'\u201D';
+    document.getElementById(byId).textContent=de?q[3]:q[2];
+    return this.readMs(text);
+  },
+  show:function(){
+    var ms=this.fill('qs-text','qs-by');
+    var el=document.getElementById('qsplash'),bar=document.getElementById('qs-bar-fill');
+    bar.style.transition='none';bar.style.width='0%';
+    el.classList.remove('out');el.classList.add('on');
+    if(!this._on){this._on=true;_overlayCount++;if(_overlayCount===1)_lockBodyScroll();}
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      bar.style.transition='width '+ms+'ms linear';bar.style.width='100%';
+    });});
+    var self=this;this._t=setTimeout(function(){self.hide();},ms+250);
+  },
+  hide:function(){
+    if(!this._on)return;
+    if(this._t){clearTimeout(this._t);this._t=null;}
+    var el=document.getElementById('qsplash'),self=this;
+    el.classList.add('out');
+    setTimeout(function(){
+      el.classList.remove('on','out');
+      if(self._on){self._on=false;_overlayCount=Math.max(0,_overlayCount-1);if(_overlayCount===0)_unlockBodyScroll();}
+    },450);
+  }
+};
+// It shows a quote too: once the update is ready, the bar fills over
+// whatever is left of the quote's reading time and the reload waits for it
+// (wait()), so a fast update doesn't cut the quote off.
 var UpdateOverlay={
-  _on:false,
+  _on:false,_shownAt:0,_readMs:0,_rest:0,
   show:function(){
     document.getElementById('update-text').textContent='Updating';
-    document.getElementById('update-bar-fill').style.width='0%';
+    var bar=document.getElementById('update-bar-fill');bar.style.transition='';bar.style.width='0%';
+    this._readMs=QuoteSplash.fill('upd-q-text','upd-q-by');this._shownAt=Date.now();
+    try{sessionStorage.setItem('lifeos-noquote','1');}catch(e){} // the reload after it skips the start quote
     document.getElementById('update-overlay').classList.add('on');
     if(!this._on){this._on=true;_overlayCount++;if(_overlayCount===1)_lockBodyScroll();}
   },
@@ -7930,8 +8029,14 @@ var UpdateOverlay={
     document.getElementById('update-bar-fill').style.width=pct+'%';
   },
   done:function(){
-    document.getElementById('update-bar-fill').style.width='100%';
+    var bar=document.getElementById('update-bar-fill');
+    this._rest=Math.max(1300,this._readMs-(Date.now()-this._shownAt));
+    if(this._rest>1300)bar.style.transition='width '+this._rest+'ms linear';
+    bar.style.width='100%';
   },
+  // How long to wait after done() before reloading: at least min, and
+  // until the bar is full
+  wait:function(min){return Math.max(min,this._rest+400);},
   hide:function(){
     document.getElementById('update-overlay').classList.remove('on');
     if(this._on){this._on=false;_overlayCount=Math.max(0,_overlayCount-1);if(_overlayCount===0)_unlockBodyScroll();}
@@ -9297,6 +9402,11 @@ if(navigator.storage&&navigator.storage.persist){
   navigator.storage.persisted().then(function(p){if(!p)return navigator.storage.persist();}).catch(function(){});
 }
 recomputeT();Nav.sd=0; // re-derive "today" now that the real dayStartHour setting is loaded
+I18N.set(DB.data.settings.language); // (again below) the start quote needs the language now
+(function(){
+  var skip=false;try{skip=sessionStorage.getItem('lifeos-noquote')==='1';sessionStorage.removeItem('lifeos-noquote');}catch(e){}
+  if(DB.data.settings.startQuote!==false&&!DB.data.settings.onboard&&!skip)QuoteSplash.show();
+})();
 buildProjPages();
 applyHoldMode();
 applyTheme();

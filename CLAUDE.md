@@ -2135,6 +2135,28 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   TEMPLATES (sub, cat, hp map, items), unique names vs the others.
   Changing a template's wording later = old installs won't match it as
   "already there" (dedupe is by name).
+- QUOTES (4.36, "quotes from Luke Belmar and old stoic philosophers… for
+  the loading screen", then "the loading bar at the very bottom, the text
+  very big, slow enough to read the quote"): `QUOTES` = [en, de, author,
+  author de] — Stoics (old public-domain translations, German our own)
+  and Luke Belmar. Add Belmar lines ONLY when the user gives the exact
+  text (copyright; the funny ones like "Never do business with a brokie"
+  are wanted). `QuoteSplash` (`#qsplash`, z-index 640, var(--pg), counts
+  in _overlayCount): on every start when Menu → General → Quote at start
+  (`settings.startQuote`, default on) is on, not on a new install
+  (`settings.onboard`), not on the reload right after an update
+  (sessionStorage 'lifeos-noquote', set by UpdateOverlay.show). Random,
+  never the same twice in a row ('lifeos-quote' = last index). Shown for
+  `readMs(text)` = 1.8s + 0.32s per word, 3.5–7s, while the bar at the
+  very bottom (`.qs-foot`, 24px above the safe area, the update screen's
+  160px track) fills linearly; a tap hides it. Text: ui-serif (New York
+  on the iPhone, nothing downloaded — the preview shows a fallback serif)
+  italic 34/42, `text-wrap:balance`; the longest German quote is 5 lines
+  at 375px. The update screen (now opaque var(--pg), was .97 see-through)
+  has the same big quote in the middle and "Updating" + the bar at the
+  bottom; `UpdateOverlay.done()` fills the bar over what's left of the
+  quote's reading time and every reload after it waits
+  `UpdateOverlay.wait(min)` — so a fast update doesn't cut the quote off.
 - DEVELOPER MODE (4.24, "a switch… where I can test stuff… but I don't
   want everyone to see it… you need an access code"): Menu > General >
   Developer > Developer mode (`settings.devMode`, default false, in
