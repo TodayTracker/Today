@@ -887,8 +887,17 @@ html:not(#x) #p-stats .sh-ended .opt-title,html:not(#x) #p-stats .sh-ended .sh-p
 .pd-day{flex:none;width:28px;font-size:15px;font-weight:500;color:#999}
 .pd-inp{flex:1;min-width:0;height:100%;border:none;outline:none;background:transparent;color:var(--ink);font-size:16px;font-weight:500;font-family:inherit;padding:0;margin:0}
 .pd-inp::placeholder{color:#bbb}
+/* Tasks view: an empty priority is hidden, and opens as a drop slot while a
+   task is dragged (wireTasksDrag) */
+#lockedin-list .sl.zone-empty{display:none}
+body.task-drag #lockedin-list .sl.zone-empty{display:block}
+html:not(#x) #lockedin-list .card-list.zone-empty{min-height:0;margin:0;overflow:visible;background:transparent;transition:min-height .2s ease,margin-bottom .2s ease,background-color .2s ease} /* overflow:visible — a clipping box would stop the margins around it from collapsing: 16px gap */
+html:not(#x) body.task-drag #lockedin-list .card-list.zone-empty{min-height:48px;margin-bottom:22px;background:color-mix(in srgb,var(--card) 55%,transparent)}
 /* a task row picked up to move (its card is transparent otherwise) */
 html:not(#x) .card-list .ti.dragging{background:var(--card)!important;border-radius:14px!important;border-bottom:none}
+/* the lifted row stays in its card (floating); the row before it is then the
+   last one you see, so it loses its divider like a real last row */
+html:not(#x) .card-list .ti:has(+.ti.dragging:last-child){border-bottom:none}
 /* tracker rows and entries */
 .trk-entry{padding:12px 0}
 /* Guide page: each tip is a title (row text) and a paragraph (paragraph role) */
@@ -1115,7 +1124,7 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
     </div>
     <div class="guide-item">
       <div class="guide-t">Move tasks by holding</div>
-      <div class="guide-p">Hold a task — not its tick box — until it lifts, then drag it up or down. In Tasks this sets the order of all your tasks (also used in Today), in a project only that project's order. A task stays within its priority.</div>
+      <div class="guide-p">Hold a task — not its tick box — until it lifts, then drag it up or down. In Tasks this sets the order of all your tasks (also used in Today), in a project only that project's order. Drag it into another priority to change its priority.</div>
     </div>
     <div class="guide-item">
       <div class="guide-t">Zoom and scroll charts</div>
@@ -1608,7 +1617,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.32';
+var APP_VERSION='Beta 4.33';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2774,6 +2783,9 @@ var CHANGELOG=[
   {v:'Beta 4.32',notes:[
     "Dragging a task (or a habit) to the top or bottom edge of the screen now scrolls the page, so you can move it past what's shown — like dragging projects on Overview already did",
     "Charts: the current week's and month's bar now count every habit due in that week or month — also the days still ahead — so the grey bar shows the whole period and the green part what you've done so far (it stopped at today)"
+  ]},
+  {v:'Beta 4.33',notes:[
+    "Tasks can be dragged into another priority. In Tasks, drag a task into another priority's card — it takes that priority; empty priorities (like War Room when it has no tasks) open as drop slots while you drag. On a project page, a task takes the priority of the last task you drag it over, and its badge shows the new priority while you hold it. Where it lands is its place in that order"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2880,7 +2892,8 @@ var USER_LOG={
   'Beta 4.29':["Deleted habits can stay in your statistics","Habits list in Statistics"],
   'Beta 4.30':'design',
   'Beta 4.31':'design',
-  'Beta 4.32':'both'
+  'Beta 4.32':'both',
+  'Beta 4.33':["Drag tasks into another priority"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3265,6 +3278,16 @@ var DB={
     if(j!==-1)o.splice(j,1);
     if(top)o.unshift(key);else o.push(key);
   },
+  // A drag that may change the priority (pri: the new one, or null). Its new
+  // priority places it like a new task in both orders (bottom/top), then the
+  // drop sets its place in the order it was dragged in — scope 'all' = across
+  // all projects (Tasks tab), 'proj' = its project's.
+  dragTask:function(pid,key,pri,beforeKey,afterKey,scope){
+    var t=(this.data.extraTasks[pid]||[]).find(function(x){return x.key===key;});if(!t)return;
+    if(PLBL[pri]&&pri!==(t.pri||'bs')){t.pri=pri;this._placeTask(pid,key);}
+    this.moveTask(scope==='all'?null:pid,key,beforeKey,afterKey);
+    this.save();
+  },
   // A drag: `key` goes right before `beforeKey` (the task now below it), or
   // right after `afterKey` when dropped last. pid = in that project's order,
   // null = in the order across all projects. Nothing else moves.
@@ -3603,7 +3626,7 @@ var I18N=(function(){
     'High':'Hoch','Medium':'Mittel','Low':'Niedrig','Overdue':'Überfällig',
     // states
     'All done':'Alles erledigt','No entries yet':'Noch keine Einträge','No tasks yet.':'Noch keine Aufgaben.','No list tasks yet.':'Noch keine Listenaufgaben.',
-    'No one-time tasks yet.':'Noch keine einmaligen Aufgaben.','Guide':'Anleitung','Hidden features':'Versteckte Funktionen','Move projects by holding':'Projekte durch Halten verschieben','Move habits by holding':'Gewohnheiten durch Halten verschieben','Move tasks by holding':'Aufgaben durch Halten verschieben',"Hold a task — not its tick box — until it lifts, then drag it up or down. In Tasks this sets the order of all your tasks (also used in Today), in a project only that project's order. A task stays within its priority.":"Halte eine Aufgabe — nicht ihr Kästchen — bis sie sich anhebt, und zieh sie nach oben oder unten. In Aufgaben legst du so die Reihenfolge aller Aufgaben fest (auch für Heute), in einem Projekt nur die Reihenfolge dieses Projekts. Eine Aufgabe bleibt in ihrer Priorität.",'Zoom and scroll charts':'Diagramme zoomen und verschieben','Days':'Tage','Weeks':'Wochen','Months':'Monate',
+    'No one-time tasks yet.':'Noch keine einmaligen Aufgaben.','Guide':'Anleitung','Hidden features':'Versteckte Funktionen','Move projects by holding':'Projekte durch Halten verschieben','Move habits by holding':'Gewohnheiten durch Halten verschieben','Move tasks by holding':'Aufgaben durch Halten verschieben',"Hold a task — not its tick box — until it lifts, then drag it up or down. In Tasks this sets the order of all your tasks (also used in Today), in a project only that project's order. Drag it into another priority to change its priority.":"Halte eine Aufgabe — nicht ihr Kästchen — bis sie sich anhebt, und zieh sie nach oben oder unten. In Aufgaben legst du so die Reihenfolge aller Aufgaben fest (auch für Heute), in einem Projekt nur die Reihenfolge dieses Projekts. Zieh sie in eine andere Priorität, um ihre Priorität zu ändern.",'Zoom and scroll charts':'Diagramme zoomen und verschieben','Days':'Tage','Weeks':'Wochen','Months':'Monate',
     'Pinch a chart with two fingers to zoom. Zoomed out, the columns turn from days into weeks and then months. Drag a chart sideways to look back at older history.':'Zieh ein Diagramm mit zwei Fingern auf oder zu, um zu zoomen. Weiter herausgezoomt werden aus den Tagen Wochen und dann Monate. Wisch ein Diagramm seitwärts, um ältere Verläufe anzusehen.',
     "In Overview, hold a project for a second until it lifts, then drag it anywhere — also into another category, or to the top for no category. Hold a category's title to move the whole category.":'Halte in der Übersicht ein Projekt eine Sekunde lang, bis es sich anhebt, und ziehe es an eine beliebige Stelle — auch in eine andere Kategorie oder ganz nach oben für keine Kategorie. Halte den Titel einer Kategorie, um die ganze Kategorie zu verschieben.',
     "In a Habits project, hold a habit's bar — not its tick box — until it lifts, then drag it up or down. The order is the same on every day and in Today.":'Halte in einem Gewohnheiten-Projekt den Balken einer Gewohnheit – nicht ihr Kästchen –, bis er sich anhebt, und ziehe ihn nach oben oder unten. Die Reihenfolge gilt an jedem Tag und auch in Heute.',
@@ -4052,20 +4075,42 @@ function renderProj(pid){
   });
   c.innerHTML=h?'<div class="card-list">'+h+'</div>':'';
   var cl=c.querySelector('.card-list');
-  if(cl)wireTaskDrag(cl,isList?null:'data-pri',function(){return pid;},function(){renderProj(pid);});
+  if(cl)wireTaskDrag(cl,{scope:'proj',pid:pid,pri:!isList,redraw:function(){renderProj(pid);}});
 }
-// Hold a task row, then drag it: in the Tasks tab it moves in the order
-// across all projects (pidOf returns null), on a project page / in the List
-// view in its project's order. `same` = an attribute a task can't leave
-// (data-pri: it stays inside its priority; data-pid: inside its list).
-function wireTaskDrag(cl,same,pidOf,redraw){
+// Hold a task row, then drag it — on a project page (scope 'proj': the
+// project's own order) or in Tasks > List view (`same:'data-pid'`: each
+// item stays in its list). With `pri` (a To-do's page, all priorities in one
+// card) a task may cross into another priority: it takes the priority of the
+// last row it was dragged over, and its badge shows that while it's lifted.
+// The Tasks view itself is wired by wireTasksDrag (one card per priority).
+function wireTaskDrag(cl,o){
   DragReorder.init(cl,'.ti','.ti','list',function(container,el){
-    var keys=[].map.call(container.querySelectorAll('.ti[data-key]'),function(r){return r.getAttribute('data-key');});
-    if(same){var v=el.getAttribute(same);keys=[].filter.call(container.querySelectorAll('.ti[data-key]'),function(r){return r.getAttribute(same)===v;}).map(function(r){return r.getAttribute('data-key');});}
+    var rows=[].filter.call(container.querySelectorAll('.ti[data-key]'),function(r){return !o.same||r.getAttribute(o.same)===el.getAttribute(o.same);});
+    var keys=rows.map(function(r){return r.getAttribute('data-key');}),key=el.getAttribute('data-key'),k=keys.indexOf(key);
+    if(k!==-1)DB.dragTask(o.pid||el.getAttribute('data-pid'),key,o.pri?el.getAttribute('data-pri'):null,keys[k+1]||null,keys[k-1]||null,'proj');
+    o.redraw();
+  },{same:o.same||null,onPlace:o.pri?function(el,ph,it){
+    var p=it&&it.getAttribute('data-pri');if(!PLBL[p])return;
+    el.setAttribute('data-pri',p);
+    var b=el.querySelector('.bdg');if(b){b.className='bdg '+p;b.textContent=PLBL[p];}
+  }:null});
+}
+// Tasks view: every priority is a card (#lockedin-list, wired once — the
+// List and Calendar views share the container, so only rows of a card with
+// data-pri are picked up). A task dragged into another card takes its
+// priority; empty priorities open as drop slots while dragging (.zone-empty,
+// body.task-drag). The drop sets its place in the order across all projects.
+function wireTasksDrag(c){
+  if(c.dataset.dragWired)return;c.dataset.dragWired='1';
+  var sel='.card-list[data-pri]>.ti';
+  DragReorder.init(c,sel,sel,'list',function(container,el){
+    var card=el.parentNode,keys=[].map.call(card.querySelectorAll('.ti[data-key]'),function(r){return r.getAttribute('data-key');});
     var key=el.getAttribute('data-key'),k=keys.indexOf(key);
-    if(k!==-1)DB.moveTask(pidOf(el),key,keys[k+1]||null,keys[k-1]||null);
-    redraw();
-  },same?{same:same}:null);
+    DB.dragTask(el.getAttribute('data-pid'),key,card.getAttribute('data-pri'),keys[k+1]||null,keys[k-1]||null,'all');
+    renderLockedIn();
+  },{cross:true,zoneSel:'.card-list[data-pri]',flipSel:'.ti,.sl',bodyClass:'task-drag',onPlace:function(el,ph){
+    var p=ph.parentNode&&ph.parentNode.getAttribute('data-pri');if(p)el.setAttribute('data-pri',p); // War Room's red box while it's there
+  }});
 }
 
 // Trash page: one tab per kind of deleted thing. "Completed" is the
@@ -4154,20 +4199,20 @@ function renderLockedIn(){
   // every row, and each row's badge shows its project (color + name)
   // instead of repeating the priority the header already says.
   var h='';
+  // an empty priority is still drawn, hidden — a drop slot while dragging
   ['bu','bs','bp','bl'].forEach(function(pri){
-    var items=all.filter(function(t){return t.pri===pri;});
-    if(!items.length)return;
-    h+='<div class="sl">'+PLBL[pri]+'</div>';
-    h+='<div class="card-list">'+items.map(function(t){
+    var items=all.filter(function(t){return t.pri===pri;}),z=items.length?'':' zone-empty';
+    h+='<div class="sl'+z+'">'+PLBL[pri]+'</div>';
+    h+='<div class="card-list'+z+'" data-pri="'+pri+'">'+items.map(function(t){
       var col=COLORS[t.color||'c-grey']||'#6b7280';
-      return '<div class="ti" data-key="'+t.key+'" data-sec="'+esc(t.section)+'" data-text="'+esc(t.text)+'" data-pri="'+t.pri+'" data-li="1">'
+      return '<div class="ti" data-key="'+t.key+'" data-sec="'+esc(t.section)+'" data-text="'+esc(t.text)+'" data-pri="'+t.pri+'" data-pid="'+t.pid+'" data-li="1">'
         +'<input type="checkbox" onchange="A.doneLockedIn(this)">'
         +'<div style="flex:1" onclick="TaskSheet.open(\''+t.pid+'\',\''+t.key+'\')"><div class="tt">'+esc(t.text)+'</div></div>'
         +'<span class="bdg" style="'+tintStyle(col)+'" onclick="TaskSheet.open(\''+t.pid+'\',\''+t.key+'\')">'+esc(t.section)+'</span></div>';
     }).join('')+'</div>';
   });
   c.innerHTML=h;
-  c.querySelectorAll('.card-list').forEach(function(cl){wireTaskDrag(cl,null,function(){return null;},renderLockedIn);});
+  wireTasksDrag(c);
 }
 
 function renderLockedInList(){
@@ -4190,7 +4235,7 @@ function renderLockedInList(){
   });
   c.innerHTML=h?'<div class="card-list">'+h+'</div>':'<div class="empty">No list tasks yet.</div>';
   var cl=c.querySelector('.card-list');
-  if(cl)wireTaskDrag(cl,'data-pid',function(el){return el.getAttribute('data-pid');},renderLockedInList);
+  if(cl)wireTaskDrag(cl,{same:'data-pid',redraw:renderLockedInList});
 }
 
 function renderLockedInCalendar(){
@@ -8674,8 +8719,8 @@ var DragReorder={
   active:false,_endedAt:0,_timer:null,_el:null,_ph:null,_container:null,_itemSel:null,_mode:'grid',
   _onDrop:null,_startX:0,_startY:0,_offX:0,_offY:0,_preMove:null,_preEnd:null,
   _onMove:null,_onEnd:null,
-  // opts.same (task rows): an attribute — an item only swaps with items that
-  // have the same value (a task stays inside its priority).
+  // opts.same (List view rows): an attribute — an item only swaps with items
+  // that have the same value (an item stays inside its list).
   // opts (Overview's projects): {cross:true, zoneSel, flipSel, bodyClass} —
   // items can move between groups inside `container`: over another item they
   // swap/insert next to it, over an empty part of a group (zoneSel) they go
@@ -8801,6 +8846,7 @@ var DragReorder={
       if(inX&&t.clientY>=r.top+my&&t.clientY<=r.bottom-my){
         this._swap(it);
         this._lastSwapWith=it;this._lastSwapAt=Date.now();
+        this._placed(it);
         break;
       }
     }
@@ -8840,21 +8886,26 @@ var DragReorder={
   },
   // cross mode: the item under the finger (middle 60%, like _move), else an
   // empty part of a group → the placeholder goes there
+  // In a list (mode 'list', the Tasks tab's priority cards) only up/down
+  // counts, and a row in ANOTHER group counts over its whole height (it goes
+  // above or below it by which half the finger is in).
   _hitCross:function(){
-    var x=this._lastT.x,y=this._lastT.y,el=this._el,ph=this._ph,self=this;
+    var x=this._lastT.x,y=this._lastT.y,el=this._el,ph=this._ph,self=this,list=this._mode==='list';
     var items=[].filter.call(this._container.querySelectorAll(this._itemSel),function(n){return n!==el;});
     for(var i=0;i<items.length;i++){
       var it=items[i];
       if(it===this._lastSwapWith&&Date.now()-this._lastSwapAt<250)continue;
-      var r=it.getBoundingClientRect(),mx=r.width*0.2,my=r.height*0.2;
-      if(x>=r.left+mx&&x<=r.right-mx&&y>=r.top+my&&y<=r.bottom-my){
+      var r=it.getBoundingClientRect(),own=ph.parentNode===it.parentNode;
+      var mx=r.width*0.2,my=list&&!own?0:r.height*0.2,inX=list||(x>=r.left+mx&&x<=r.right-mx);
+      if(inX&&y>=r.top+my&&y<=r.bottom-my){
         this._flip(function(){
-          if(ph.parentNode===it.parentNode){
+          if(own){
             var kids=[].slice.call(it.parentNode.children);
             it.parentNode.insertBefore(ph,kids.indexOf(ph)<kids.indexOf(it)?it.nextSibling:it);
-          } else it.parentNode.insertBefore(ph,x>r.left+r.width/2?it.nextSibling:it);
+          } else it.parentNode.insertBefore(ph,(list?y>r.top+r.height/2:x>r.left+r.width/2)?it.nextSibling:it);
         });
         this._lastSwapWith=it;this._lastSwapAt=Date.now();
+        this._placed(it);
         return;
       }
     }
@@ -8862,11 +8913,14 @@ var DragReorder={
     for(var j=0;j<zones.length;j++){
       var z=zones[j],zr=z.getBoundingClientRect();
       if(x>=zr.left&&x<=zr.right&&y>=zr.top&&y<=zr.bottom){
-        if(ph.parentNode!==z)this._flip(function(){z.appendChild(ph);});
+        if(ph.parentNode!==z){this._flip(function(){z.appendChild(ph);});this._placed(null);}
         return;
       }
     }
   },
+  // opts.onPlace(el, placeholder, rowItCrossed|null): after every move of the
+  // placeholder (tasks show the priority they're about to get)
+  _placed:function(it){if(this._opts.onPlace)this._opts.onPlace(this._el,this._ph,it);},
   // FLIP like _swap, for everything matching opts.flipSel in the container
   _flip:function(mutate){
     var el=this._el,ph=this._ph;

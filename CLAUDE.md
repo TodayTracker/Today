@@ -1336,6 +1336,29 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   is "Add habit" with "Habit" / "Add a tracker" (was "Add task":
   "Repeating task" / "Track a project" — "a repeating task is just a
   habit"). Code names (startRepeatingTask, startTrackerHabit) unchanged.
+- DRAG ACROSS PRIORITIES (4.33, "move tasks not only in the order of one
+  prio but also change the prio itself… drag them wherever I want"),
+  replacing 4.27's "a task can't leave its priority":
+  Tasks view = ONE cross-mode DragReorder on `#lockedin-list`
+  (`wireTasksDrag`, wired once — the List/Calendar views share the
+  container, so handle/item = `.card-list[data-pri]>.ti`). renderLockedIn
+  draws ALL four priorities; an empty one is `.sl.zone-empty` (display:none)
+  + `.card-list.zone-empty` (0 height, `overflow:visible` — a clipping box
+  stops margins collapsing through it: it pushed the first title down 16px)
+  and opens while `body.task-drag` (48px faint slot, title shown). Measured:
+  layout identical to no-slot for an empty top/middle/end priority. The drop
+  card's data-pri is the new priority. Project page (one card, badges):
+  no `same` constraint; DragReorder `opts.onPlace(el,ph,rowCrossed)` (new
+  hook, called after every placeholder move, both modes) sets the lifted
+  row's data-pri + badge to the last row it crossed — that's its new
+  priority. `DB.dragTask(pid,key,pri|null,before,after,'all'|'proj')`: a
+  changed priority goes through `_placeTask` (both orders, bottom/top per
+  setting), then `moveTask` puts it at the drop spot in the dragged order.
+  `_hitCross` in list mode: only up/down counts, a row in ANOTHER group
+  counts over its whole height, above/below by vertical half (grid mode
+  unchanged — Overview tested). List view keeps `same:'data-pid'`. CSS
+  `.ti:has(+.ti.dragging:last-child)` drops the divider above a lifted last
+  row (the floating row stays a DOM child — the row above looked unfinished).
 - 4.32: (1) edge auto-scroll for EVERY DragReorder drag ("when I move it
   to the top or bottom of the screen it should start scrolling"):
   `_move` stores `_lastT`, calls `_hit()` (cross → `_hitCross`, else the
@@ -1400,9 +1423,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   same,pidOf,redraw)` → `DB.moveTask(pid|null,key,before,after)` moves only
   the dragged task (like moveDailyItem). Tasks tab: one card per priority,
   pid null = the order across projects. Project page: its own order, with
-  DragReorder `opts.same:'data-pri'` (an item only swaps with rows having
-  the same attribute value — a task can't leave its priority; a List has
-  no constraint). Tasks > List view: `same:'data-pid'`, each list's own
+  (4.27 had DragReorder `opts.same:'data-pri'` — a task couldn't leave its
+  priority; since 4.33 it can, see DRAG ACROSS PRIORITIES). Tasks > List view: `same:'data-pid'`, each list's own
   order (that view also lists NO_CAT lists now — it used categoryOrder
   only, so lists without a category were missing since 4.14). Today's
   rows are NOT draggable (not asked; they're swipe rows). DragReorder's
