@@ -1359,6 +1359,26 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   unchanged — Overview tested). List view keeps `same:'data-pid'`. CSS
   `.ti:has(+.ti.dragging:last-child)` drops the divider above a lifted last
   row (the floating row stays a DOM child — the row above looked unfinished).
+- STABLE TITLES WHILE DRAGGING (4.34, "when I drag tasks across prios the
+  title of the prio moves, it should be stable"): the Tasks view's
+  DragReorder has `opts.lineAcross`. Inside its own card the gap moves and
+  rows make room as before; over ANOTHER card `_aim(parent,before,it)` only
+  sets `DragReorder._target` and shows a fixed `.drop-line` (blue, at the
+  insertion point, appended to body — it draws over the lifted row, which
+  always covers the drop spot) plus `.drop-into` (2px blue ring) on that
+  card; the gap stays home, so no card changes height. `_end` drops el at
+  the target (or at the gap when back home). onPlace reads the target card
+  for the War Room red box. Second cause of movement, also in every list
+  drag before: a row's 0.5px divider sits OUTSIDE its 48px and the last row
+  has none, but the gap copied the lifted row's full height — so a gap
+  moved to/from the end changed the card by ±0.5px. Now a gap in a
+  `.card-list` is the row's height without its divider, and CSS gives it
+  the divider like a row (`.drag-placeholder` border-bottom 0.5px
+  transparent, none when last or only followed by the lifted row). Measured:
+  every title identical to 0.01px at every step (first/middle/last row,
+  to top/bottom/another card). Empty priorities still OPEN as slots when a
+  drag starts (a one-time shift if one is empty) — offered alternative:
+  always show empty priorities.
 - 4.32: (1) edge auto-scroll for EVERY DragReorder drag ("when I move it
   to the top or bottom of the screen it should start scrolling"):
   `_move` stores `_lastT`, calls `_hit()` (cross → `_hitCross`, else the

@@ -893,11 +893,16 @@ html:not(#x) #p-stats .sh-ended .opt-title,html:not(#x) #p-stats .sh-ended .sh-p
 body.task-drag #lockedin-list .sl.zone-empty{display:block}
 html:not(#x) #lockedin-list .card-list.zone-empty{min-height:0;margin:0;overflow:visible;background:transparent;transition:min-height .2s ease,margin-bottom .2s ease,background-color .2s ease} /* overflow:visible — a clipping box would stop the margins around it from collapsing: 16px gap */
 html:not(#x) body.task-drag #lockedin-list .card-list.zone-empty{min-height:48px;margin-bottom:22px;background:color-mix(in srgb,var(--card) 55%,transparent)}
+/* where a dragged task will land in another priority (DragReorder._aim) */
+.drop-line{position:fixed;z-index:998;height:3px;border-radius:2px;background:var(--blue,#007aff);pointer-events:none;display:none}
+html:not(#x) #lockedin-list .card-list.drop-into{box-shadow:0 0 0 2px var(--blue,#007aff)}
 /* a task row picked up to move (its card is transparent otherwise) */
 html:not(#x) .card-list .ti.dragging{background:var(--card)!important;border-radius:14px!important;border-bottom:none}
 /* the lifted row stays in its card (floating); the row before it is then the
    last one you see, so it loses its divider like a real last row */
 html:not(#x) .card-list .ti:has(+.ti.dragging:last-child){border-bottom:none}
+html:not(#x) .card-list>.drag-placeholder{box-sizing:content-box;border-bottom:0.5px solid transparent}
+html:not(#x) .card-list>.drag-placeholder:last-child,html:not(#x) .card-list>.drag-placeholder:has(+.dragging:last-child){border-bottom:none}
 /* tracker rows and entries */
 .trk-entry{padding:12px 0}
 /* Guide page: each tip is a title (row text) and a paragraph (paragraph role) */
@@ -1617,7 +1622,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.33';
+var APP_VERSION='Beta 4.34';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2786,6 +2791,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.33',notes:[
     "Tasks can be dragged into another priority. In Tasks, drag a task into another priority's card — it takes that priority; empty priorities (like War Room when it has no tasks) open as drop slots while you drag. On a project page, a task takes the priority of the last task you drag it over, and its badge shows the new priority while you hold it. Where it lands is its place in that order"
+  ]},
+  {v:'Beta 4.34',notes:[
+    "Tasks: dragging a task into another priority no longer moves the priority titles. Inside its own priority the tasks still make room; over another priority that priority gets a blue outline and a blue line shows where it will land, and its old spot stays open until you let go. Also fixed: a card grew or shrank by half a pixel while a task moved to or from its end"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2893,7 +2901,8 @@ var USER_LOG={
   'Beta 4.30':'design',
   'Beta 4.31':'design',
   'Beta 4.32':'both',
-  'Beta 4.33':["Drag tasks into another priority"]
+  'Beta 4.33':["Drag tasks into another priority"],
+  'Beta 4.34':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4099,7 +4108,9 @@ function wireTaskDrag(cl,o){
 // List and Calendar views share the container, so only rows of a card with
 // data-pri are picked up). A task dragged into another card takes its
 // priority; empty priorities open as drop slots while dragging (.zone-empty,
-// body.task-drag). The drop sets its place in the order across all projects.
+// body.task-drag). Inside its own priority the rows make room; over another
+// one only a line shows where it'll land (lineAcross), so the titles never
+// move. The drop sets its place in the order across all projects.
 function wireTasksDrag(c){
   if(c.dataset.dragWired)return;c.dataset.dragWired='1';
   var sel='.card-list[data-pri]>.ti';
@@ -4108,8 +4119,9 @@ function wireTasksDrag(c){
     var key=el.getAttribute('data-key'),k=keys.indexOf(key);
     DB.dragTask(el.getAttribute('data-pid'),key,card.getAttribute('data-pri'),keys[k+1]||null,keys[k-1]||null,'all');
     renderLockedIn();
-  },{cross:true,zoneSel:'.card-list[data-pri]',flipSel:'.ti,.sl',bodyClass:'task-drag',onPlace:function(el,ph){
-    var p=ph.parentNode&&ph.parentNode.getAttribute('data-pri');if(p)el.setAttribute('data-pri',p); // War Room's red box while it's there
+  },{cross:true,lineAcross:true,zoneSel:'.card-list[data-pri]',flipSel:'.ti,.sl',bodyClass:'task-drag',onPlace:function(el,ph){
+    var t=DragReorder._target,card=t?t.parent:ph.parentNode,p=card&&card.getAttribute('data-pri');
+    if(p)el.setAttribute('data-pri',p); // War Room's red box while it's aimed there
   }});
 }
 
@@ -8774,14 +8786,19 @@ var DragReorder={
   _begin:function(){
     this._timer=null;this._cancelPre();
     this.active=true;
-    this._lastSwapWith=null;this._lastSwapAt=0;
+    this._lastSwapWith=null;this._lastSwapAt=0;this._target=null;
     try{if(navigator.vibrate)navigator.vibrate(8);}catch(e){}
     var el=this._el,r=el.getBoundingClientRect();
     this._offX=this._startX-r.left;this._offY=this._startY-r.top;
     var ph=document.createElement('div');
     ph.className='drag-placeholder';
-    ph.style.width=r.width+'px';ph.style.height=r.height+'px';
     var ecs=getComputedStyle(el);ph.style.marginTop=ecs.marginTop;ph.style.marginBottom=ecs.marginBottom; // so nothing around it shifts
+    // In a card of task rows the gap gets a row's own height without its
+    // divider; CSS gives it the divider wherever a row there would have one
+    // (not when it's last) — else the card grew/shrank half a pixel as the
+    // gap moved to or from the end (a row's divider sits outside its 48px).
+    var inCard=el.parentNode&&el.parentNode.classList.contains('card-list');
+    ph.style.width=r.width+'px';ph.style.height=(inCard?r.height-(parseFloat(ecs.borderBottomWidth)||0):r.height)+'px';
     el.parentNode.insertBefore(ph,el.nextSibling);
     this._ph=ph;
     el.style.boxSizing='border-box'; // the size below is the row's outer size
@@ -8898,11 +8915,15 @@ var DragReorder={
       var r=it.getBoundingClientRect(),own=ph.parentNode===it.parentNode;
       var mx=r.width*0.2,my=list&&!own?0:r.height*0.2,inX=list||(x>=r.left+mx&&x<=r.right-mx);
       if(inX&&y>=r.top+my&&y<=r.bottom-my){
+        var below=list?y>r.top+r.height/2:x>r.left+r.width/2;
+        // opts.lineAcross: another group only shows a line where it'll land
+        if(this._opts.lineAcross&&!own){this._aim(it.parentNode,below?it.nextElementSibling:it,it);return;}
+        if(this._opts.lineAcross)this._aim(null);
         this._flip(function(){
           if(own){
             var kids=[].slice.call(it.parentNode.children);
             it.parentNode.insertBefore(ph,kids.indexOf(ph)<kids.indexOf(it)?it.nextSibling:it);
-          } else it.parentNode.insertBefore(ph,(list?y>r.top+r.height/2:x>r.left+r.width/2)?it.nextSibling:it);
+          } else it.parentNode.insertBefore(ph,below?it.nextSibling:it);
         });
         this._lastSwapWith=it;this._lastSwapAt=Date.now();
         this._placed(it);
@@ -8913,10 +8934,30 @@ var DragReorder={
     for(var j=0;j<zones.length;j++){
       var z=zones[j],zr=z.getBoundingClientRect();
       if(x>=zr.left&&x<=zr.right&&y>=zr.top&&y<=zr.bottom){
+        if(this._opts.lineAcross){if(z===ph.parentNode)this._aim(null);else this._aim(z,null,null);return;}
         if(ph.parentNode!==z){this._flip(function(){z.appendChild(ph);});this._placed(null);}
         return;
       }
     }
+    if(this._target)this._aim(this._target.parent,this._target.before,null); // keep the line on it while the page scrolls
+  },
+  // opts.lineAcross (the Tasks tab): over ANOTHER group the placeholder stays
+  // home and a line shows the drop spot — no card changes height, so the
+  // group titles stay put. _target = {parent, before} until the finger is
+  // back over its own group; _end drops the item there.
+  _aim:function(parent,before,it){
+    var ln=this._line,old=this._target&&this._target.parent;
+    if(old&&old!==parent)old.classList.remove('drop-into');
+    if(!parent){if(this._target){this._target=null;if(ln)ln.style.display='none';this._placed(null);}return;}
+    parent.classList.add('drop-into'); // the target group gets a blue ring
+    this._target={parent:parent,before:before};
+    if(!ln){ln=this._line=document.createElement('div');ln.className='drop-line';document.body.appendChild(ln);}
+    var pr=parent.getBoundingClientRect(),items=parent.querySelectorAll(this._itemSel),y;
+    if(!items.length)y=pr.top+pr.height/2; // an empty priority's slot
+    else if(before)y=before.getBoundingClientRect().top;
+    else y=items[items.length-1].getBoundingClientRect().bottom;
+    ln.style.left=(pr.left+12)+'px';ln.style.width=(pr.width-24)+'px';ln.style.top=(y-1.5)+'px';ln.style.display='block';
+    this._placed(it);
   },
   // opts.onPlace(el, placeholder, rowItCrossed|null): after every move of the
   // placeholder (tasks show the priority they're about to get)
@@ -8968,7 +9009,11 @@ var DragReorder={
     el.removeEventListener('touchcancel',this._onEnd,{passive:false});
     el.style.position='';el.style.left='';el.style.top='';el.style.width='';el.style.height='';el.style.zIndex='';el.style.margin='';el.style.boxSizing='';
     el.classList.remove('dragging');
-    ph.parentNode.insertBefore(el,ph); // el takes over wherever the placeholder ended up
+    var tg=this._target;this._target=null;
+    if(this._line){this._line.remove();this._line=null;}
+    if(tg)tg.parent.classList.remove('drop-into');
+    if(tg)tg.parent.insertBefore(el,tg.before); // dropped on another group's line
+    else ph.parentNode.insertBefore(el,ph); // el takes over wherever the placeholder ended up
     ph.remove();
     this._ph=null;
     this.active=false;
