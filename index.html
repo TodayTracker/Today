@@ -895,7 +895,6 @@ html:not(#x) #lockedin-list .card-list.zone-empty{min-height:0;margin:0;overflow
 html:not(#x) body.task-drag #lockedin-list .card-list.zone-empty{min-height:48px;margin-bottom:22px;background:color-mix(in srgb,var(--card) 55%,transparent)}
 /* where a dragged task will land in another priority (DragReorder._aim) */
 .drop-line{position:fixed;z-index:998;height:3px;border-radius:2px;background:var(--blue,#007aff);pointer-events:none;display:none}
-html:not(#x) #lockedin-list .card-list.drop-into{box-shadow:0 0 0 2px var(--blue,#007aff)}
 /* a task row picked up to move (its card is transparent otherwise) */
 html:not(#x) .card-list .ti.dragging{background:var(--card)!important;border-radius:14px!important;border-bottom:none}
 /* the lifted row stays in its card (floating); the row before it is then the
@@ -1622,7 +1621,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.34';
+var APP_VERSION='Beta 4.35';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2793,7 +2792,10 @@ var CHANGELOG=[
     "Tasks can be dragged into another priority. In Tasks, drag a task into another priority's card — it takes that priority; empty priorities (like War Room when it has no tasks) open as drop slots while you drag. On a project page, a task takes the priority of the last task you drag it over, and its badge shows the new priority while you hold it. Where it lands is its place in that order"
   ]},
   {v:'Beta 4.34',notes:[
-    "Tasks: dragging a task into another priority no longer moves the priority titles. Inside its own priority the tasks still make room; over another priority that priority gets a blue outline and a blue line shows where it will land, and its old spot stays open until you let go. Also fixed: a card grew or shrank by half a pixel while a task moved to or from its end"
+    "Tasks: dragging a task into another priority no longer moves the priority titles. Inside its own priority the tasks still make room; over another priority a blue line shows where it will land, and its old spot stays open until you let go. Also fixed: a card grew or shrank by half a pixel while a task moved to or from its end"
+  ]},
+  {v:'Beta 4.35',notes:[
+    "Tasks: no blue outline around the other priority while dragging a task into it — only the blue line where it will land"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2902,7 +2904,8 @@ var USER_LOG={
   'Beta 4.31':'design',
   'Beta 4.32':'both',
   'Beta 4.33':["Drag tasks into another priority"],
-  'Beta 4.34':'design'
+  'Beta 4.34':'design',
+  'Beta 4.35':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -8946,10 +8949,8 @@ var DragReorder={
   // group titles stay put. _target = {parent, before} until the finger is
   // back over its own group; _end drops the item there.
   _aim:function(parent,before,it){
-    var ln=this._line,old=this._target&&this._target.parent;
-    if(old&&old!==parent)old.classList.remove('drop-into');
+    var ln=this._line;
     if(!parent){if(this._target){this._target=null;if(ln)ln.style.display='none';this._placed(null);}return;}
-    parent.classList.add('drop-into'); // the target group gets a blue ring
     this._target={parent:parent,before:before};
     if(!ln){ln=this._line=document.createElement('div');ln.className='drop-line';document.body.appendChild(ln);}
     var pr=parent.getBoundingClientRect(),items=parent.querySelectorAll(this._itemSel),y;
@@ -9011,7 +9012,6 @@ var DragReorder={
     el.classList.remove('dragging');
     var tg=this._target;this._target=null;
     if(this._line){this._line.remove();this._line=null;}
-    if(tg)tg.parent.classList.remove('drop-into');
     if(tg)tg.parent.insertBefore(el,tg.before); // dropped on another group's line
     else ph.parentNode.insertBefore(el,ph); // el takes over wherever the placeholder ended up
     ph.remove();

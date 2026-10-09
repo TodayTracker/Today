@@ -1365,8 +1365,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   rows make room as before; over ANOTHER card `_aim(parent,before,it)` only
   sets `DragReorder._target` and shows a fixed `.drop-line` (blue, at the
   insertion point, appended to body — it draws over the lifted row, which
-  always covers the drop spot) plus `.drop-into` (2px blue ring) on that
-  card; the gap stays home, so no card changes height. `_end` drops el at
+  always covers the drop spot); the gap stays home, so no card changes height. `_end` drops el at
   the target (or at the gap when back home). onPlace reads the target card
   for the War Room red box. Second cause of movement, also in every list
   drag before: a row's 0.5px divider sits OUTSIDE its 48px and the last row
@@ -1376,7 +1375,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   the divider like a row (`.drag-placeholder` border-bottom 0.5px
   transparent, none when last or only followed by the lifted row). Measured:
   every title identical to 0.01px at every step (first/middle/last row,
-  to top/bottom/another card). Empty priorities still OPEN as slots when a
+  to top/bottom/another card). 4.34 also ringed the target card in blue
+  (`.drop-into`) — removed in 4.35 ("the whole widget has blue lines
+  everywhere"); only the drop line is left. Empty priorities still OPEN as slots when a
   drag starts (a one-time shift if one is empty) — offered alternative:
   always show empty priorities.
 - 4.32: (1) edge auto-scroll for EVERY DragReorder drag ("when I move it
