@@ -1336,6 +1336,18 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   is "Add habit" with "Habit" / "Add a tracker" (was "Add task":
   "Repeating task" / "Track a project" — "a repeating task is just a
   habit"). Code names (startRepeatingTask, startTrackerHabit) unchanged.
+- 4.32: (1) edge auto-scroll for EVERY DragReorder drag ("when I move it
+  to the top or bottom of the screen it should start scrolling"):
+  `_move` stores `_lastT`, calls `_hit()` (cross → `_hitCross`, else the
+  old list/grid test, now `_hitList`) and `_edgeScroll()`, whose rAF loop
+  re-runs `_hit()` while the page moves under a still finger. Tasks tab,
+  project pages, List view, Habits panels and Overview categories all get
+  it (projects already had it since 4.22). Tested: 25 tasks, drag to the
+  bottom edge → page scrolls to the end, task lands last; and back up.
+  (2) `_sumDays` counts days AFTER today as scheduled only ("the current
+  month and week bar only include the past days, not the future days in
+  that period"): the current week/month's grey bar = everything due in
+  it, green = done so far. Day columns never reach the future anyway.
 - Chart bar corners scale with the bar (4.29, "when the bars are really
   thin the top is basically a half circle"): ZChart `rx=min(4,bw*0.28)`
   (was min(4,bw/2)) — identical at the 14-day view (bw 14.5 → 4) and wider;

@@ -1608,7 +1608,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.31';
+var APP_VERSION='Beta 4.32';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2770,6 +2770,10 @@ var CHANGELOG=[
   {v:'Beta 4.31',notes:[
     "Wording: in English the app now shows English weekdays (Mo Tu We Th Fr Sa Su) and English dates (Wed 7 Oct) everywhere — Today, Habits projects, Statistics, the Trash, trackers; in German everything stays as it was. Switching the language redraws them right away",
     "Wording: a Habits project's card on Overview counts habits (\"2 habits\", was \"2 tasks\"); the Statistics ring says \"done\" (was \"habits\", but it counts habit days); Menu > General > Menu is now Tab bar; Hold to complete tasks is Hold to complete; Reset all statistics no longer mentions numbers that aren't there; the old name Daily is gone from the Guide, the tracker window (Add a tracker) and its message; paths in messages use → everywhere"
+  ]},
+  {v:'Beta 4.32',notes:[
+    "Dragging a task (or a habit) to the top or bottom edge of the screen now scrolls the page, so you can move it past what's shown — like dragging projects on Overview already did",
+    "Charts: the current week's and month's bar now count every habit due in that week or month — also the days still ahead — so the grey bar shows the whole period and the green part what you've done so far (it stopped at today)"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2875,7 +2879,8 @@ var USER_LOG={
   'Beta 4.28':["Habits can have a different name each day"],
   'Beta 4.29':["Deleted habits can stay in your statistics","Habits list in Statistics"],
   'Beta 4.30':'design',
-  'Beta 4.31':'design'
+  'Beta 4.31':'design',
+  'Beta 4.32':'both'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -5700,14 +5705,18 @@ function habitConsistency(item,withToday,span){
 // when the data goes further back. A pinch scales the time span by the
 // finger distance to the power ZC_PINCH (4x closer = 8x the span).
 var ZC_MIN=7,ZC_DAY_MAX=45,ZC_WEEK_MAX=26,ZC_MONTH_MAX=60,ZC_DEFAULT=14,ZC_OUT_MIN=366,ZC_PINCH=1.5;
-function _sumDays(items,start,end){ // completed/scheduled/skipped over start..end (never past today)
+// completed/scheduled/skipped over start..end. Days after today (the rest of
+// the current week or month) count as scheduled only, so that period's grey
+// bar shows everything due in it, and the green part what's done so far.
+function _sumDays(items,start,end){
   var c=0,s=0,k=0,cur=new Date(start.getFullYear(),start.getMonth(),start.getDate()),todayS=dStr(T);
   while(cur<=end){
-    var ds=dStr(cur);if(ds>todayS)break;
+    var ds=dStr(cur),future=ds>todayS;
     var wi=wIdx(cur);
     items.forEach(function(it){
       if(it.days.indexOf(wi)!==-1&&habitCountsOn(it,ds)){
-        s++;var v=habitDayVal(it,ds);if(v){c++;if(v==='skip')k++;}
+        s++;if(future)return;
+        var v=habitDayVal(it,ds);if(v){c++;if(v==='skip')k++;}
       }
     });
     cur.setDate(cur.getDate()+1);
@@ -8759,7 +8768,14 @@ var DragReorder={
     var t=e.touches[0],el=this._el;
     el.style.left=(t.clientX-this._offX)+'px';
     el.style.top=(t.clientY-this._offY)+'px';
-    if(this._opts.cross){this._lastT={x:t.clientX,y:t.clientY};this._hitCross();this._edgeScroll();return;}
+    this._lastT={x:t.clientX,y:t.clientY};
+    this._hit();
+    this._edgeScroll(); // a finger near the page's top/bottom scrolls it, every kind of drag
+  },
+  _hit:function(){if(this._opts.cross)this._hitCross();else this._hitList();},
+  // list/grid mode: swap with the sibling under the finger (this._lastT)
+  _hitList:function(){
+    var t={clientX:this._lastT.x,clientY:this._lastT.y},el=this._el;
     // Real siblings only — the placeholder stands in for `el` among them
     // and is never itself a swap candidate.
     var same=this._opts.same,sv=same&&el.getAttribute(same);
@@ -8868,7 +8884,8 @@ var DragReorder={
       });});
     });
   },
-  // cross mode: a finger near the top/bottom of the page scrolls it
+  // a finger near the top/bottom of the page scrolls it (rAF, up to 12px a
+  // frame), and the row under the finger is checked again as the page moves
   _edgeScroll:function(){
     var self=this,pg=this._el&&this._el.closest('.page');if(!pg)return;
     var r=pg.getBoundingClientRect(),y=this._lastT.y,E=70,v=0;
@@ -8879,7 +8896,7 @@ var DragReorder={
       var step=function(){
         if(!self.active||!self._scrollV){self._scrollRaf=null;return;}
         var t0=pg.scrollTop;pg.scrollTop+=self._scrollV;
-        if(pg.scrollTop!==t0)self._hitCross();
+        if(pg.scrollTop!==t0)self._hit();
         self._scrollRaf=requestAnimationFrame(step);
       };
       this._scrollRaf=requestAnimationFrame(step);
