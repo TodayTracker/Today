@@ -436,16 +436,21 @@ html[data-theme="light"] .switch-slider{background:#d1d1d1}
 .qs-by{margin-top:22px;font-size:12px;line-height:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#a3a3a3}
 .qs-foot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;align-items:center;gap:12px}
 .qs-foot .update-slot{height:auto}
+/* Menu → Developer → Quotes: every quote, numbered */
+html:not(#x) .sp .opt-row.qrow{height:auto;min-height:0;padding-top:11px;padding-bottom:11px;align-items:flex-start}
+.qrow-n{flex:none;width:26px;font-size:13px;line-height:20px;font-weight:500;color:#999}
+.qrow-t{font-size:15px;line-height:20px;font-weight:500;color:var(--ink);white-space:normal}
+.qrow-a{margin-top:3px;font-size:12px;line-height:16px;font-weight:500;color:#999}
 .update-slot{position:relative;width:160px;height:36px;display:flex;align-items:center;justify-content:center}
 .update-text{font-size:15px;font-weight:700;color:#000}
 @media(prefers-color-scheme:dark){.update-text{color:#fff}}
 html[data-theme="dark"] .update-text{color:#fff}
 html[data-theme="light"] .update-text{color:#000}
-.update-bar-track{width:160px;height:6px;border-radius:99px;background:#e8e5e0;overflow:hidden;transition:opacity .25s ease}
+.update-bar-track{width:160px;height:6px;border-radius:99px;background:#e8e5e0;overflow:hidden;isolation:isolate;transition:opacity .25s ease}
 @media(prefers-color-scheme:dark){.update-bar-track{background:#333}}
 html[data-theme="dark"] .update-bar-track{background:#333}
 html[data-theme="light"] .update-bar-track{background:#e8e5e0}
-.update-bar-fill{height:100%;width:0%;background:#000;border-radius:inherit;transition:width 1.3s cubic-bezier(.25,.8,.3,1)}
+.update-bar-fill{height:100%;width:100%;background:#000;border-radius:inherit;transform:translateX(-100%)}
 @media(prefers-color-scheme:dark){.update-bar-fill{background:#fff}}
 html[data-theme="dark"] .update-bar-fill{background:#fff}
 html[data-theme="light"] .update-bar-fill{background:#000}
@@ -1079,8 +1084,18 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
   <div class="opt-group">
     <div class="opt-row" onclick="QuoteSplash.show()"><div class="opt-text"><div class="opt-title">Loading screen</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
     <div class="opt-row" onclick="UpdateOverlay.demo()"><div class="opt-text"><div class="opt-title">Update screen</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
+    <div class="opt-row" onclick="Nav.go('devquotes')"><div class="opt-text"><div class="opt-title">Quotes</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
   </div>
   <div class="data-note">Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.</div>
+</div>
+
+<div class="page sp" id="p-devquotes">
+  <div class="hh">
+    <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
+    <div class="hh-title">Quotes</div>
+  </div>
+  <div class="opt-group" id="devquotes-list" style="margin-top:8px"></div>
+  <div class="data-note" id="devquotes-note"></div>
 </div>
 
 <div class="page sp" id="p-appearance">
@@ -1641,7 +1656,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.37';
+var APP_VERSION='Beta 4.38';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2822,6 +2837,12 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.37',notes:[
     "Developer: two new buttons on Menu → Developer — Loading screen shows the start quote screen, Update screen plays the whole update screen (quote, Updating, the bar filling) and then just closes, nothing is downloaded or reloaded"
+  ]},
+  {v:'Beta 4.38',notes:[
+    "Quotes only on the update screen for now — opening the app no longer shows one (the Quote at start switch is gone)",
+    "The loading bar moves in one smooth motion: no more jumps from step to step — it glides toward the end while the update loads and then carries on to full at the same speed, easing in. It's moved with transform every frame instead of its width",
+    "22 more quotes (38 now): more Marcus Aurelius, Seneca and Epictetus, plus Zeno, Musonius Rufus and Diogenes",
+    "Developer: Menu → Developer → Quotes lists every quote, numbered, in the app's language; tap one to see it on the loading screen"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2933,7 +2954,8 @@ var USER_LOG={
   'Beta 4.34':'design',
   'Beta 4.35':'design',
   'Beta 4.36':["Quotes when the app opens"],
-  'Beta 4.37':'design'
+  'Beta 4.37':'design',
+  'Beta 4.38':["More quotes on the update screen"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3005,7 +3027,7 @@ var DEFAULT_SETTINGS={
   startTab:'today',hiddenTabs:['blocker'],holdToComplete:false,devMode:false,autoUpdate:true,language:'en',theme:'system',
   dayStartHour:3,todayHabitsDisappear:true,skipHabits:false,
   todayTaskCount:3,todayRefill:false,skipTasks:true,skipResetDaily:true,showWarRoom:true,
-  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,startQuote:true,statsHidden:['best','worst'],statsOrder:['score','chart','best','worst','perfect','habits'],keepDeletedHabits:true
+  statsRange:'3m',sound:true,tasksView:'tasks',newTaskPos:'bottom',todayOrder:['tasks','calendar','habits'],overviewMinimal:false,advancedUpdates:false,statsHidden:['best','worst'],statsOrder:['score','chart','best','worst','perfect','habits'],keepDeletedHabits:true
 };
 // A plain notice card at the top of the screen for the rare data problems
 // in DB.load / DB.save — tap it to dismiss.
@@ -3613,7 +3635,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Loading screen":"Ladebildschirm","Update screen":"Update-Bildschirm","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Loading screen":"Ladebildschirm","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -3627,7 +3649,7 @@ var I18N=(function(){
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
     "Add a tracker":"Tracker hinzufügen","Name per day":"Name pro Tag",
-    "Tab bar":"Tab-Leiste","Quote at start":"Zitat beim Start","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
+    "Tab bar":"Tab-Leiste","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
     "Tu":"Di","We":"Mi","Th":"Do","Su":"So","Pick the days first.":"Wähle zuerst die Tage.",
     "Deleted":"Gelöscht","Deleted habits":"Gelöschte Gewohnheiten","Keep in statistics":"In der Statistik behalten","No habits yet.":"Noch keine Gewohnheiten.","Remove":"Entfernen",
     "On: a habit you delete keeps its past days in your statistics, as they really were. Off: it's left out, as if it never existed. The Habits widget lists the deleted ones that still count.":"Ein: Eine gelöschte Gewohnheit behält ihre vergangenen Tage in deiner Statistik, so wie sie wirklich waren. Aus: Sie wird weggelassen, als hätte es sie nie gegeben. Das Widget Gewohnheiten zeigt die gelöschten, die noch zählen.",
@@ -3711,7 +3733,8 @@ var I18N=(function(){
     [/^(\d+) already added$/,'$1 schon vorhanden'],[/^Import (\d+)$/,'$1 importieren'],
     [/^(\d+) events added to your calendar\.$/,'$1 Termine zu deinem Kalender hinzugefügt.'],
     [/^1 tasks?$/,'1 Aufgabe'],[/^(\d+) tasks$/,'$1 Aufgaben'],
-    [/^1 habit$/,'1 Gewohnheit'],[/^(\d+) habits$/,'$1 Gewohnheiten'],
+    [/^1 habit$/,'1 Gewohnheit'],
+    [/^(\d+) quotes · tap one to see it on the loading screen\.$/,'$1 Zitate · tippe eines an, um es auf dem Ladebildschirm zu sehen.'],[/^(\d+) habits$/,'$1 Gewohnheiten'],
     // a habit's days ("Mo, We, Fr") — weekday letters are English in the code
     [/^(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:, (?:Mo|Tu|We|Th|Fr|Sa|Su))+$/,function(m){return m.replace(/Tu|We|Th|Su/g,function(x){return {Tu:'Di',We:'Mi',Th:'Do',Su:'So'}[x];});}],
     [/^(Skipped|Done|Not done) — (.*)$/,function(m,a,b){return DE[a]+' — '+b;}],
@@ -4562,10 +4585,6 @@ function renderGeneralTop(){
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Open app on</div></div>'
     +customSelect(startOpts,TabBar.startTab(),'A.setStartTab(this.value)')
-    +'</div>'
-    +'<div class="opt-row" style="cursor:default">'
-    +'<div class="opt-text"><div class="opt-title">Quote at start</div></div>'
-    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.startQuote!==false?'checked':'')+' onchange="A.setStartQuote(this.checked)"><span class="switch-slider"></span></label>'
     +'</div></div>'
     +'<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default">'
@@ -4930,7 +4949,7 @@ var A={
   // didn't take it: drop the worker and its caches (your data in
   // localStorage is untouched) and reload from the network.
   _hardUpdate:function(){
-    UpdateOverlay.show();UpdateOverlay.progress(35);
+    UpdateOverlay.show();
     var reg=navigator.serviceWorker.getRegistrations?navigator.serviceWorker.getRegistrations():Promise.resolve([]);
     reg.then(function(rs){return Promise.all(rs.map(function(r){return r.unregister();}));})
       .then(function(){return caches.keys();})
@@ -5012,8 +5031,6 @@ var A={
         var sw=reg.installing;if(!sw)return;
         UpdateOverlay.show();
         shownAt=Date.now();
-        var stageProgress={installing:20,installed:65,activating:85};
-        UpdateOverlay.progress(stageProgress[sw.state]||20);
         navigator.serviceWorker.addEventListener('controllerchange',function onCC(){
           navigator.serviceWorker.removeEventListener('controllerchange',onCC);
           finishUpdate();
@@ -5029,9 +5046,7 @@ var A={
           if(navigator.serviceWorker.controller&&navigator.serviceWorker.controller!==priorController)finishUpdate();
         },400);
         sw.addEventListener('statechange',function(){
-          if(sw.state==='redundant'){done('Update failed — try again later. Nothing was changed.');return;}
-          if(sw.state==='installed')UpdateOverlay.progress(65);
-          else if(sw.state==='activating')UpdateOverlay.progress(85);
+          if(sw.state==='redundant')done('Update failed — try again later. Nothing was changed.');
         });
       });
       // reg.update()'s own internal fetch of sw.js is still subject to
@@ -5191,7 +5206,6 @@ var A={
   },
   setStatsRange:function(val){DB.data.settings.statsRange=val;DB.save();renderSettings();},
   setSound:function(val){DB.data.settings.sound=val;DB.save();},
-  setStartQuote:function(val){DB.data.settings.startQuote=!!val;DB.save();},
   resetSkipped:function(){
     for(var pid in DB.data.extraTasks)(DB.data.extraTasks[pid]||[]).forEach(function(t){delete t.skip;});
     DB.save();renderSettings();renderToday();
@@ -5331,6 +5345,7 @@ function _renderPage(id){
   if(id==='editlayout')renderEditLayout();
   if(id==='statslayout')renderStatsLayout();
   if(id==='todaylayout')renderTodayLayout();
+  if(id==='devquotes')renderDevQuotes();
   if(id==='appearance')renderAppearance();
   if(id==='app')renderAppPage();
   if(['settoday','setoverview','settasks','setstats'].indexOf(id)!==-1)renderSettings();
@@ -5392,7 +5407,7 @@ function navSwitch(id){
 // back button (navBack with no arg) and the swipe-back gesture get the
 // right target without each call site needing to know about it.
 // Pages opened from the Settings list (back returns there; the Settings tab stays lit)
-var SETTINGS_SUBPAGES=['dev','guide','guide-hidden','guide-war','editlayout','statslayout','todaylayout','archive','app','general','appearance','data','settoday','setoverview','settasks','setstats','setblocker'];
+var SETTINGS_SUBPAGES=['dev','devquotes','guide','guide-hidden','guide-war','editlayout','statslayout','todaylayout','archive','app','general','appearance','data','settoday','setoverview','settasks','setstats','setblocker'];
 // Where back goes: the page this one was opened from (Nav.stack), skipping
 // any that no longer exist (e.g. a deleted project). The fixed rules below
 // only apply when there's no history (e.g. right after the app reopened).
@@ -5405,6 +5420,7 @@ function _backTarget(){
   // where they were actually opened from.
   if(cur&&(cur.id==='p-guide-hidden'||cur.id==='p-guide-war'))return 'guide'; // a Guide page, opened from the Guide list
   if(cur&&cur.id==='p-statslayout')return 'setstats';
+  if(cur&&cur.id==='p-devquotes')return 'dev';
   if(cur&&cur.id==='p-todaylayout')return 'settoday';
   if(cur&&SETTINGS_SUBPAGES.indexOf(cur.id.slice(2))!==-1)return 'settings';
   // A tracker project opened by tapping its row in Daily (see ciTracker())
@@ -7946,14 +7962,9 @@ function _overlayClose(id,instant){
   },SHEET_ANIM_MS);
 }
 
-// The update screen says one thing the whole time ("Updating")
-// while the bar fills; nothing changes at the end, the app just reloads.
-// It counts as an open overlay like a sheet does, so the page behind it
-// gets the same scroll lock and every drag on it is cancelled (see the
-// "nothing behind it may scroll" touchmove handler).
-// Quotes for the start screen and the update screen: [English, German,
-// author, author in German]. Stoics (old translations, German our own) and
-// Luke Belmar's lines (the funny ones on purpose).
+// Quotes for the update screen (and Menu → Developer): [English, German,
+// author, author in German]. Stoics (old translations, German our own),
+// Diogenes, and Luke Belmar's lines (the funny ones on purpose).
 var QUOTES=[
   ['Waste no more time arguing about what a good man should be. Be one.','Verschwende keine Zeit mehr damit, zu streiten, wie ein guter Mensch sein sollte. Sei einer.','Marcus Aurelius','Marc Aurel'],
   ['What stands in the way becomes the way.','Was im Weg steht, wird zum Weg.','Marcus Aurelius','Marc Aurel'],
@@ -7970,20 +7981,64 @@ var QUOTES=[
   ['Wealth consists not in having great possessions, but in having few wants.','Reichtum heisst nicht, viel zu besitzen, sondern wenig zu brauchen.','Epictetus','Epiktet'],
   ['We have two ears and one mouth, so that we may listen more and speak less.','Wir haben zwei Ohren und einen Mund, damit wir mehr zuhören als reden.','Zeno of Citium','Zenon von Kition'],
   ['Become indifferent to what makes no difference.','Werde gleichgültig gegenüber dem, was keinen Unterschied macht.','Luke Belmar','Luke Belmar'],
-  ['Never do business with a brokie.','Mach nie Geschäfte mit einem Brokie.','Luke Belmar','Luke Belmar']
+  ['Never do business with a brokie.','Mach nie Geschäfte mit einem Brokie.','Luke Belmar','Luke Belmar'],
+  ["The happiness of your life depends upon the quality of your thoughts.","Das Glück deines Lebens hängt von der Beschaffenheit deiner Gedanken ab.","Marcus Aurelius","Marc Aurel"],
+  ["The soul becomes dyed with the colour of its thoughts.","Die Seele nimmt die Farbe ihrer Gedanken an.","Marcus Aurelius","Marc Aurel"],
+  ["Loss is nothing else but change, and change is nature's delight.","Verlust ist nichts anderes als Wandel, und am Wandel hat die Natur ihre Freude.","Marcus Aurelius","Marc Aurel"],
+  ["Confine yourself to the present.","Beschränke dich auf die Gegenwart.","Marcus Aurelius","Marc Aurel"],
+  ["How much more grievous are the consequences of anger than the causes of it.","Wie viel schlimmer sind die Folgen des Zorns als seine Ursachen.","Marcus Aurelius","Marc Aurel"],
+  ["Look within. Within is the fountain of good.","Schau nach innen. Dort ist die Quelle des Guten.","Marcus Aurelius","Marc Aurel"],
+  ["Begin the morning by saying to yourself: today I shall meet the busybody, the ungrateful, the arrogant.","Sag dir jeden Morgen: Heute treffe ich auf Wichtigtuer, Undankbare und Überhebliche.","Marcus Aurelius","Marc Aurel"],
+  ["Difficulties strengthen the mind, as labour does the body.","Schwierigkeiten stärken den Geist, wie Arbeit den Körper stärkt.","Seneca","Seneca"],
+  ["If a man knows not to which port he sails, no wind is favourable.","Wer nicht weiss, welchen Hafen er ansteuert, für den ist kein Wind der richtige.","Seneca","Seneca"],
+  ["Associate with people who are likely to improve you.","Umgib dich mit Menschen, die dich besser machen.","Seneca","Seneca"],
+  ["Sometimes even to live is an act of courage.","Manchmal ist schon zu leben ein Akt des Mutes.","Seneca","Seneca"],
+  ["As is a tale, so is life: not how long it is, but how good it is, is what matters.","Wie bei einer Geschichte zählt beim Leben nicht, wie lang es ist, sondern wie gut.","Seneca","Seneca"],
+  ["No one is laughable who laughs at himself.","Niemand ist lächerlich, der über sich selbst lacht.","Seneca","Seneca"],
+  ["Fate leads the willing and drags along the reluctant.","Das Schicksal führt den Willigen und zerrt den Unwilligen mit.","Seneca","Seneca"],
+  ["Don't explain your philosophy. Embody it.","Erklär deine Philosophie nicht. Leb sie.","Epictetus","Epiktet"],
+  ["No great thing is created suddenly.","Nichts Grosses entsteht plötzlich.","Epictetus","Epiktet"],
+  ["If you want to improve, be content to be thought foolish and stupid.","Wenn du besser werden willst, nimm in Kauf, für dumm gehalten zu werden.","Epictetus","Epiktet"],
+  ["He is a wise man who does not grieve for the things which he has not, but rejoices for those which he has.","Weise ist, wer nicht dem nachtrauert, was er nicht hat, sondern sich über das freut, was er hat.","Epictetus","Epiktet"],
+  ["Make the best use of what is in your power, and take the rest as it happens.","Mach das Beste aus dem, was in deiner Macht steht, und nimm den Rest, wie er kommt.","Epictetus","Epiktet"],
+  ["Well-being is realised by small steps, but is truly no small thing.","Wohlbefinden entsteht in kleinen Schritten, ist aber wahrlich keine Kleinigkeit.","Zeno of Citium","Zenon von Kition"],
+  ["If you accomplish something good with hard work, the labour passes quickly, but the good endures.","Wenn du mit Mühe etwas Gutes vollbringst, vergeht die Mühe, das Gute aber bleibt.","Musonius Rufus","Musonius Rufus"],
+  ["Stand a little out of my sun.","Geh mir ein wenig aus der Sonne.","Diogenes","Diogenes"]
 ];
-// The start quote (Menu → General → Quote at start, on by default): a random
-// quote, never the same one twice in a row ('lifeos-quote'), shown long
-// enough to read it (readMs: by its number of words, 3.5–7s) while the bar
-// at the bottom fills — a tap skips it. Not on a new install (the welcome
-// screens come first) and not on the reload right after an update (the
-// update screen already showed one). Counts as an open overlay (no
-// swipe-back under it).
+// The quote screens' loading bar: a full-width fill moved with transform
+// every frame along one smooth curve — no steps, no stops — its round front
+// end sliding out of the track, which clips it.
+function LoadBar(id){this.id=id;this.p=0;this._raf=0;}
+LoadBar.prototype.set=function(p){
+  this.p=p;var el=document.getElementById(this.id);
+  if(el)el.style.transform='translateX('+((p-1)*100).toFixed(3)+'%)';
+};
+LoadBar.prototype.stop=function(){if(this._raf){cancelAnimationFrame(this._raf);this._raf=0;}};
+LoadBar.prototype.reset=function(){this.stop();this.set(0);};
+// Follows fn(ms since the first frame) → 0..1 for dur ms (Infinity: until stopped)
+LoadBar.prototype.play=function(fn,dur){
+  var self=this,t0=null;this.stop();
+  function step(now){
+    if(t0===null)t0=now;
+    var t=Math.min(now-t0,dur);
+    self.set(Math.max(0,Math.min(1,fn(t))));
+    self._raf=t<dur?requestAnimationFrame(step):0;
+  }
+  this._raf=requestAnimationFrame(step);
+};
+// The quote screen (Menu → Developer → Loading screen, or a quote in
+// Developer → Quotes; it showed on every start in 4.36–4.37, turned off
+// "for now"): a random quote, never the same one twice in a row
+// ('lifeos-quote'), shown long enough to read it (readMs: by its number of
+// words, 3.5–7s) while the bar at the bottom fills — a tap closes it.
+// Counts as an open overlay (no swipe-back under it).
 var QuoteSplash={
-  _on:false,_t:null,_ht:null,
-  pick:function(){
+  _on:false,_t:null,_ht:null,_bar:new LoadBar('qs-bar-fill'),
+  // i: a given quote (Developer → Quotes); none: a random one
+  pick:function(i){
+    if(typeof i==='number'&&QUOTES[i])return QUOTES[i];
     var last=-1;try{last=parseInt(localStorage.getItem('lifeos-quote'),10);}catch(e){}
-    var i=Math.floor(Math.random()*QUOTES.length);if(QUOTES.length>1&&i===last)i=(i+1)%QUOTES.length;
+    i=Math.floor(Math.random()*QUOTES.length);if(QUOTES.length>1&&i===last)i=(i+1)%QUOTES.length;
     try{localStorage.setItem('lifeos-quote',String(i));}catch(e){}
     return QUOTES[i];
   },
@@ -7992,23 +8047,21 @@ var QuoteSplash={
     return Math.min(7000,Math.max(3500,1800+words*320));
   },
   // Fills both elements, returns how long reading it takes
-  fill:function(textId,byId){
-    var q=this.pick(),de=I18N.lang==='de',text=de?q[1]:q[0];
+  fill:function(textId,byId,i){
+    var q=this.pick(i),de=I18N.lang==='de',text=de?q[1]:q[0];
     document.getElementById(textId).textContent=de?'\u201E'+text+'\u201C':'\u201C'+text+'\u201D';
     document.getElementById(byId).textContent=de?q[3]:q[2];
     return this.readMs(text);
   },
-  show:function(){
+  show:function(i){
     if(this._t){clearTimeout(this._t);this._t=null;}
     if(this._ht){clearTimeout(this._ht);this._ht=null;}
-    var ms=this.fill('qs-text','qs-by');
-    var el=document.getElementById('qsplash'),bar=document.getElementById('qs-bar-fill');
-    bar.style.transition='none';bar.style.width='0%';
+    var ms=this.fill('qs-text','qs-by',i);
+    var el=document.getElementById('qsplash');
     el.classList.remove('out');el.classList.add('on');
     if(!this._on){this._on=true;_overlayCount++;if(_overlayCount===1)_lockBodyScroll();}
-    requestAnimationFrame(function(){requestAnimationFrame(function(){
-      bar.style.transition='width '+ms+'ms linear';bar.style.width='100%';
-    });});
+    this._bar.reset();
+    this._bar.play(function(t){return t/ms;},ms);
     var self=this;this._t=setTimeout(function(){self.hide();},ms+250);
   },
   hide:function(){
@@ -8017,53 +8070,68 @@ var QuoteSplash={
     var el=document.getElementById('qsplash'),self=this;
     el.classList.add('out');
     this._ht=setTimeout(function(){
-      self._ht=null;
+      self._ht=null;self._bar.stop();
       el.classList.remove('on','out');
       if(self._on){self._on=false;_overlayCount=Math.max(0,_overlayCount-1);if(_overlayCount===0)_unlockBodyScroll();}
     },450);
   }
 };
-// It shows a quote too: once the update is ready, the bar fills over
-// whatever is left of the quote's reading time and the reload waits for it
-// (wait()), so a fast update doesn't cut the quote off.
+// Menu → Developer → Quotes: every quote in the app's language; a tap shows
+// that one on the quote screen
+function renderDevQuotes(){
+  var de=I18N.lang==='de';
+  setHTML('devquotes-list',QUOTES.map(function(q,i){
+    return '<div class="opt-row qrow" onclick="QuoteSplash.show('+i+')"><span class="qrow-n">'+(i+1)+'</span>'
+      +'<div class="opt-text"><div class="qrow-t">'+esc(de?q[1]:q[0])+'</div><div class="qrow-a">'+esc(de?q[3]:q[2])+'</div></div></div>';
+  }).join(''));
+  document.getElementById('devquotes-note').textContent=QUOTES.length+' quotes · tap one to see it on the loading screen.';
+}
+// The update screen: a quote in the middle, "Updating" and the bar at the
+// bottom. The bar never waits on the update's steps: from the start it
+// creeps toward 85% — quickly at first, then slower and slower — and once
+// the update is ready (done()) it carries on from where it is, at the speed
+// it has, to full when the quote's reading time is up (at least 1.3s),
+// easing into the end. The reload waits for that (wait()), so a fast
+// update doesn't cut the quote off. Counts as an open overlay like a sheet
+// (scroll lock; every drag on it is cancelled).
 var UpdateOverlay={
-  _on:false,_shownAt:0,_readMs:0,_rest:0,
+  _on:false,_shownAt:0,_readMs:0,_rest:0,_t0:0,_tau:1,_A:.85,_bar:new LoadBar('update-bar-fill'),
   show:function(){
     document.getElementById('update-text').textContent='Updating';
-    var bar=document.getElementById('update-bar-fill');bar.style.transition='';bar.style.width='0%';
     this._readMs=QuoteSplash.fill('upd-q-text','upd-q-by');this._shownAt=Date.now();
-    try{sessionStorage.setItem('lifeos-noquote','1');}catch(e){} // the reload after it skips the start quote
+    var A=this._A,tau=this._tau=this._readMs/2;
+    this._t0=performance.now();
+    this._bar.reset();
+    this._bar.play(function(t){return A*(1-Math.exp(-t/tau));},Infinity);
     document.getElementById('update-overlay').classList.add('on');
     if(!this._on){this._on=true;_overlayCount++;if(_overlayCount===1)_lockBodyScroll();}
   },
-  progress:function(pct){
-    document.getElementById('update-bar-fill').style.width=pct+'%';
-  },
   done:function(){
-    var bar=document.getElementById('update-bar-fill');
-    this._rest=Math.max(1300,this._readMs-(Date.now()-this._shownAt));
-    if(this._rest>1300)bar.style.transition='width '+this._rest+'ms linear';
-    bar.style.width='100%';
+    var b=this._bar,p0=b.p,t=performance.now()-this._t0;
+    var v=this._A/this._tau*Math.exp(-t/this._tau); // the creep's speed now, per ms
+    var rest=this._rest=Math.max(1300,this._readMs-(Date.now()-this._shownAt));
+    var m0=Math.min(v*rest,2*(1-p0));
+    // cubic Hermite: starts at p0 with the creep's speed, ends at 1 at rest
+    b.play(function(ms){
+      var s=ms/rest,s2=s*s,s3=s2*s;
+      return p0*(2*s3-3*s2+1)+m0*(s3-2*s2+s)+(3*s2-2*s3);
+    },rest);
   },
   // How long to wait after done() before reloading: at least min, and
   // until the bar is full
   wait:function(min){return Math.max(min,this._rest+400);},
-  // Menu → Developer: the whole update screen as a fast update would show
-  // it, then it just closes — nothing is downloaded or reloaded
+  // Menu → Developer: the whole update screen as a fast update shows it,
+  // then it just closes — nothing is downloaded or reloaded
   demo:function(){
     var self=this;
-    this.show();this.progress(35);
-    setTimeout(function(){self.progress(65);},1100);
-    setTimeout(function(){self.progress(85);},2000);
+    this.show();
     setTimeout(function(){
       self.done();
-      setTimeout(function(){
-        self.hide();
-        try{sessionStorage.removeItem('lifeos-noquote');}catch(e){}
-      },self.wait(2700));
-    },2800);
+      setTimeout(function(){self.hide();},self.wait(2700));
+    },1800);
   },
   hide:function(){
+    this._bar.stop();
     document.getElementById('update-overlay').classList.remove('on');
     if(this._on){this._on=false;_overlayCount=Math.max(0,_overlayCount-1);if(_overlayCount===0)_unlockBodyScroll();}
   }
@@ -9428,11 +9496,6 @@ if(navigator.storage&&navigator.storage.persist){
   navigator.storage.persisted().then(function(p){if(!p)return navigator.storage.persist();}).catch(function(){});
 }
 recomputeT();Nav.sd=0; // re-derive "today" now that the real dayStartHour setting is loaded
-I18N.set(DB.data.settings.language); // (again below) the start quote needs the language now
-(function(){
-  var skip=false;try{skip=sessionStorage.getItem('lifeos-noquote')==='1';sessionStorage.removeItem('lifeos-noquote');}catch(e){}
-  if(DB.data.settings.startQuote!==false&&!DB.data.settings.onboard&&!skip)QuoteSplash.show();
-})();
 buildProjPages();
 applyHoldMode();
 applyTheme();

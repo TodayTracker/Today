@@ -2138,31 +2138,44 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
 - QUOTES (4.36, "quotes from Luke Belmar and old stoic philosophers… for
   the loading screen", then "the loading bar at the very bottom, the text
   very big, slow enough to read the quote"): `QUOTES` = [en, de, author,
-  author de] — Stoics (old public-domain translations, German our own)
-  and Luke Belmar. Add Belmar lines ONLY when the user gives the exact
-  text (copyright; the funny ones like "Never do business with a brokie"
-  are wanted). `QuoteSplash` (`#qsplash`, z-index 640, var(--pg), counts
-  in _overlayCount): on every start when Menu → General → Quote at start
-  (`settings.startQuote`, default on) is on, not on a new install
-  (`settings.onboard`), not on the reload right after an update
-  (sessionStorage 'lifeos-noquote', set by UpdateOverlay.show). Random,
-  never the same twice in a row ('lifeos-quote' = last index). Shown for
-  `readMs(text)` = 1.8s + 0.32s per word, 3.5–7s, while the bar at the
-  very bottom (`.qs-foot`, 24px above the safe area, the update screen's
-  160px track) fills linearly; a tap hides it. Text: ui-serif (New York
-  on the iPhone, nothing downloaded — the preview shows a fallback serif)
-  italic 34/42, `text-wrap:balance`; the longest German quote is 5 lines
-  at 375px. The update screen (now opaque var(--pg), was .97 see-through)
-  has the same big quote in the middle and "Updating" + the bar at the
-  bottom; `UpdateOverlay.done()` fills the bar over what's left of the
-  quote's reading time and every reload after it waits
-  `UpdateOverlay.wait(min)` — so a fast update doesn't cut the quote off.
-  4.37: Menu → Developer has "Loading screen" (`QuoteSplash.show()`,
-  safe to call again while showing or fading — it clears `_t`/`_ht`) and
-  "Update screen" (`UpdateOverlay.demo()`: the real overlay with fake
-  progress 35/65/85, done(), then hide() after wait() — no network, no
-  reload; it clears 'lifeos-noquote' so the next start still shows a
-  quote).
+  author de] — 38 since 4.38: Stoics (old public-domain translations,
+  German our own), Diogenes, and Luke Belmar. Add Belmar lines ONLY when
+  the user gives the exact text (copyright; the funny ones like "Never do
+  business with a brokie" are wanted). New entries use double-quoted JS
+  strings (apostrophes). SHOWN ONLY ON THE UPDATE SCREEN since 4.38 ("don't
+  put the loading screen each time when loading, only for updating for
+  now"): 4.36–4.37 showed `QuoteSplash` on every start (Menu → General →
+  Quote at start, `settings.startQuote`, skipped on a new install and on
+  the reload after an update via sessionStorage 'lifeos-noquote') — the
+  startup call, the switch, the setting and the noquote key are gone; to
+  bring it back see git 83e5b42. `QuoteSplash` (`#qsplash`, z-index 640,
+  var(--pg), counts in _overlayCount) is now opened only from Menu →
+  Developer: "Loading screen" (random; never the same twice in a row,
+  'lifeos-quote' = last index) and Developer → Quotes (`#p-devquotes`,
+  `renderDevQuotes`, every quote numbered in the app's language; a tap =
+  `QuoteSplash.show(i)`). Shown for `readMs(text)` = 1.8s + 0.32s per word,
+  3.5–7s; a tap hides it; show() is safe while showing/fading. Text:
+  ui-serif (New York on the iPhone, nothing downloaded — the preview shows
+  a fallback serif) italic 34/42, `text-wrap:balance`; the longest quote
+  (#23) is 6 lines at 375px. The update screen (opaque var(--pg)) has the
+  same big quote in the middle and "Updating" + the bar at the very bottom
+  (`.qs-foot`, 24px above the safe area, 160px track).
+  THE BAR (4.38, "make the bar animation smoother"): `LoadBar(id)` moves a
+  full-width fill with `transform:translateX()` every rAF frame (it was a
+  `width` transition — layout every frame — and on the update screen it
+  jumped in steps 35/65/85 from the worker's states, each easing to a
+  stop). The track clips it (overflow:hidden + isolation:isolate), so the
+  front end stays round. UpdateOverlay: from show() it creeps toward 85%,
+  A·(1−e^(−t/τ)), τ = readMs/2; `done()` continues from the current spot
+  at the creep's current speed along a cubic Hermite to 100% when the
+  reading time is up (≥1.3s), ending at speed 0 — no kink, no stop. The
+  worker states no longer drive it (`progress()` is gone). Every reload
+  after done() waits `UpdateOverlay.wait(min)` so a fast update doesn't
+  cut the quote off. Developer → "Update screen" = `UpdateOverlay.demo()`
+  (show, done() after 1.8s, hide after wait() — no network, no reload).
+  Measured in the preview at 50ms samples: never backwards, ≤2.2% per
+  50ms, no jump at the hand-off. The quote screen's bar runs linearly
+  over readMs.
 - DEVELOPER MODE (4.24, "a switch… where I can test stuff… but I don't
   want everyone to see it… you need an access code"): Menu > General >
   Developer > Developer mode (`settings.devMode`, default false, in
