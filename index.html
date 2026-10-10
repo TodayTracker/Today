@@ -107,10 +107,14 @@ html[data-theme="light"] .wri{background:#fafaf8;border-color:#f0ede8}
 @media(prefers-color-scheme:dark){.acard{background:#1e1c1a;border-color:#2a2927}}
 html[data-theme="dark"] .acard{background:#1e1c1a;border-color:#2a2927}
 html[data-theme="light"] .acard{background:#fff;border-color:#e8e5e0}
-.dragging{transform:scale(1.06)!important;box-shadow:0 10px 24px rgba(0,0,0,.22)!important;opacity:.97;pointer-events:none;transition:box-shadow .15s ease,transform .15s ease}
-/* Left behind in the flow at the dragged item's spot (see DragReorder) —
-   plain empty space, nothing to paint. */
-.drag-placeholder{background:transparent}
+/* Drag to move (DragReorder): the lifted item is a little bigger with a
+   shadow (.dragging), then glides into place (.drag-landing). Its spot in
+   the list holds a faint copy of it (.drag-ghost) — where it will land. */
+.dragging{transform:scale(1.04)!important;box-shadow:0 12px 28px rgba(0,0,0,.22)!important;pointer-events:none;transition:box-shadow .2s ease,transform .2s ease}
+.drag-landing{pointer-events:none}
+.drag-placeholder{position:relative;background:transparent}
+.drag-ghost{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;margin:0!important;box-sizing:border-box!important;transform:none!important;transition:none!important;box-shadow:none!important;opacity:.28;pointer-events:none}
+.agrid>.drag-placeholder>.drag-ghost{opacity:.4}
 .aico{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;background:#f3f4f6;color:#374151;overflow:hidden}
 @media(prefers-color-scheme:dark){.aico{background:#1f2937;color:#9ca3af}}
 html[data-theme="dark"] .aico{background:#1f2937;color:#9ca3af}
@@ -708,6 +712,10 @@ html:not(#x) .el-card .el-row:last-child{border-bottom:none}
 html:not(#x) .el-row{padding:6px 8px 6px 14px;min-height:52px}
 html:not(#x) .el-btn{width:36px;height:36px;border:none;border-radius:10px;background:var(--pg);transition:background .12s ease}
 html:not(#x) .el-btn.danger{background:#dc2626}
+/* Edit layout rows: a handle on the right, dragged right away (DragReorder grip) */
+.el-grip{flex:none;width:40px;height:40px;margin-right:-4px;display:flex;align-items:center;justify-content:center;color:#999;touch-action:none;cursor:grab}
+/* No category in Overview's Edit layout: a faint empty card to drop into */
+html:not(#x) #el-content .el-card:empty{min-height:52px;background:color-mix(in srgb,var(--card) 55%,transparent)}
 .el-name{flex:1;min-width:0}
 .type-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}
 .type-grid.days{grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
@@ -903,13 +911,18 @@ html:not(#x) #p-stats .sh-ended .opt-title,html:not(#x) #p-stats .sh-ended .sh-p
 body.task-drag #lockedin-list .sl.zone-empty{display:block}
 html:not(#x) #lockedin-list .card-list.zone-empty{min-height:0;margin:0;overflow:visible;background:transparent;transition:min-height .2s ease,margin-bottom .2s ease,background-color .2s ease} /* overflow:visible — a clipping box would stop the margins around it from collapsing: 16px gap */
 html:not(#x) body.task-drag #lockedin-list .card-list.zone-empty{min-height:48px;margin-bottom:22px;background:color-mix(in srgb,var(--card) 55%,transparent)}
-/* where a dragged task will land in another priority (DragReorder._aim) */
-.drop-line{position:fixed;z-index:998;height:3px;border-radius:2px;background:var(--blue,#007aff);pointer-events:none;display:none}
-/* a task row picked up to move (its card is transparent otherwise) */
-html:not(#x) .card-list .ti.dragging{background:var(--card)!important;border-radius:14px!important;border-bottom:none}
+/* Anything lifted, landing, or held long enough to lift is white — the
+   press grey is for taps only (.press-lift fades it out just before the
+   lift; DragReorder._whiten). Lifted rows get the card's round corners. */
+html:not(#x) :is(.ti,.wri,.cali,.acard,.el-row,.opt-row):is(.dragging,.drag-landing,.press-lift),
+html:not(#x) :is(.dragging,.drag-landing) :is(.cali,.ti,.wri){background:var(--card)!important}
+html:not(#x) .press-lift{transition:background .2s ease!important}
+html:not(#x) .card-list .ti:is(.dragging,.drag-landing),html:not(#x) .el-row:is(.dragging,.drag-landing){border-radius:14px!important;border-bottom:none!important}
+.sw.h:is(.dragging,.drag-landing){border-radius:14px;overflow:hidden}
+.cat-block:is(.dragging,.drag-landing),.el-block:is(.dragging,.drag-landing){background:var(--pg);border-radius:16px}
 /* the lifted row stays in its card (floating); the row before it is then the
    last one you see, so it loses its divider like a real last row */
-html:not(#x) .card-list .ti:has(+.ti.dragging:last-child){border-bottom:none}
+html:not(#x) .card-list .ti:has(+.ti:is(.dragging,.drag-landing):last-child){border-bottom:none}
 html:not(#x) .card-list>.drag-placeholder{box-sizing:content-box;border-bottom:0.5px solid transparent}
 html:not(#x) .card-list>.drag-placeholder:last-child,html:not(#x) .card-list>.drag-placeholder:has(+.dragging:last-child){border-bottom:none}
 /* tracker rows and entries */
@@ -975,7 +988,10 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
 #p-overview.ov-min .acard:active .aico{filter:brightness(.82);transition:filter .2s ease}
 #p-overview.ov-min .albl{font-size:12px;line-height:15px;font-weight:500}
 #p-overview.ov-min .acard.dragging{box-shadow:none!important}
-#p-overview.ov-min .acard.dragging .aico{box-shadow:0 10px 24px rgba(0,0,0,.22)}
+#p-overview.ov-min .acard.dragging .aico{box-shadow:0 12px 28px rgba(0,0,0,.22)}
+#p-overview.ov-min .acard.drag-landing .aico{transition:box-shadow .22s ease}
+html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){background:transparent!important}
+#p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift) .aico{filter:none!important}
 /* Centred pop-up (Alert): short confirmations and messages in the middle
    of the screen, like iOS — bold title, optional smaller message, one or two
    buttons (Cancel blue, the action red; or a single OK). Opens with a fade
@@ -1645,7 +1661,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.39';
+var APP_VERSION='Beta 4.40';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2837,6 +2853,12 @@ var CHANGELOG=[
     "The loading screen is gone — quotes only appear on the update screen",
     "Advanced update info moved from Menu → App to Menu → Developer, and only counts while developer mode is on (otherwise everyone gets the simple update log)",
     "Developer: Update screen is a blue button like the app's other buttons, in one card with Advanced update info and Quotes; tapping a quote in Quotes plays the update screen with it"
+  ]},
+  {v:'Beta 4.40',notes:[
+    "Moving things works the same everywhere (style C2): hold a task, habit, project, category or widget and it lifts, white, a little bigger, with a shadow. A faint copy shows where it will land, and everything else slides out of the way, in its own group and in every other one. In lists it only moves up and down. Letting go glides it into place",
+    "No more blue line when dragging a task into another priority: that priority makes room like its own does, and the cards grow and shrink smoothly",
+    "Held items no longer stay grey: the grey is for taps, so a held row or project turns white again just before it lifts",
+    "Edit layout pages (Overview, Today, Statistics) have a drag handle on every row instead of up and down arrows; drag it right away, or hold the row. In Overview's Edit layout a project can be dragged into another category or into No category"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2950,7 +2972,8 @@ var USER_LOG={
   'Beta 4.36':["Quotes when the app opens"],
   'Beta 4.37':'design',
   'Beta 4.38':["More quotes on the update screen"],
-  'Beta 4.39':'design'
+  'Beta 4.39':'design',
+  'Beta 4.40':["New drag and drop everywhere"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3238,19 +3261,8 @@ var DB={
     this.save();
     return '';
   },
-  moveCategory:function(id,dir){
-    var arr=this.data.categoryOrder,i=arr.indexOf(id),j=i+dir;
-    if(i===-1||j<0||j>=arr.length)return;
-    var t=arr[i];arr[i]=arr[j];arr[j]=t;this.save();
-  },
-  moveProject:function(catId,id,dir){
-    var arr=this.data.projectOrder[catId]||[],i=arr.indexOf(id),j=i+dir;
-    if(i===-1||j<0||j>=arr.length)return;
-    var t=arr[i];arr[i]=arr[j];arr[j]=t;this.save();
-  },
   // Drag-to-reorder (see DragReorder) hands back the whole new order at
-  // once, read straight from the final DOM order, rather than one swap
-  // at a time like the Edit layout arrows above.
+  // once, read straight from the final DOM order.
   reorderCategories:function(orderedIds){this.data.categoryOrder=orderedIds;this.save();},
   reorderProjects:function(catId,orderedIds){this.data.projectOrder[catId]=orderedIds;this.save();},
   // After a drag on Overview: {groupKey:[pid,…]} read from the screen. A
@@ -4157,9 +4169,8 @@ function wireTaskDrag(cl,o){
 // List and Calendar views share the container, so only rows of a card with
 // data-pri are picked up). A task dragged into another card takes its
 // priority; empty priorities open as drop slots while dragging (.zone-empty,
-// body.task-drag). Inside its own priority the rows make room; over another
-// one only a line shows where it'll land (lineAcross), so the titles never
-// move. The drop sets its place in the order across all projects.
+// body.task-drag). Every priority makes room for it, and the cards grow and
+// shrink smoothly. The drop sets its place in the order across all projects.
 function wireTasksDrag(c){
   if(c.dataset.dragWired)return;c.dataset.dragWired='1';
   var sel='.card-list[data-pri]>.ti';
@@ -4168,9 +4179,9 @@ function wireTasksDrag(c){
     var key=el.getAttribute('data-key'),k=keys.indexOf(key);
     DB.dragTask(el.getAttribute('data-pid'),key,card.getAttribute('data-pri'),keys[k+1]||null,keys[k-1]||null,'all');
     renderLockedIn();
-  },{cross:true,lineAcross:true,zoneSel:'.card-list[data-pri]',flipSel:'.ti,.sl',bodyClass:'task-drag',onPlace:function(el,ph){
-    var t=DragReorder._target,card=t?t.parent:ph.parentNode,p=card&&card.getAttribute('data-pri');
-    if(p)el.setAttribute('data-pri',p); // War Room's red box while it's aimed there
+  },{cross:true,zoneSel:'.card-list[data-pri]',cards:'.card-list[data-pri]',flipSel:'.ti',bodyClass:'task-drag',onPlace:function(el,ph){
+    var p=ph.parentNode&&ph.parentNode.getAttribute('data-pri');
+    if(p)el.setAttribute('data-pri',p); // War Room's red box while it's over there
   }});
 }
 
@@ -4318,64 +4329,78 @@ function renderLockedInCalendar(){
 }
 
 function renderEditLayout(){
-  var d=DB.data;
-  var h='';
+  var d=DB.data,h='';
+  // No category: always there, so a project can be dragged out of its
+  // category (a faint empty card when it has none)
   var loose=d.projectOrder[NO_CAT]||[];
-  if(loose.some(function(pid){return d.projects[pid];})){
-    h+='<div class="el-grp">No category</div><div class="el-card">';
-    loose.forEach(function(pid,pi){h+=elProjRow(NO_CAT,pid,pi,loose.length);});
-    h+='</div>';
-  }
-  d.categoryOrder.forEach(function(catId,ci){
+  h+='<div class="el-block el-nocat" data-cat="'+NO_CAT+'"><div class="el-grp">No category</div><div class="el-card" data-cat="'+NO_CAT+'">'
+    +loose.map(function(pid){return elProjRow(NO_CAT,pid);}).join('')+'</div></div>';
+  d.categoryOrder.forEach(function(catId){
     var cat=d.categories[catId];if(!cat)return;
-    h+='<div class="el-grp">Category: '+cat.name+'</div>';
-    h+='<div class="el-card"><div class="el-row">';
-    h+='<div class="el-name">'+cat.name+'</div>';
-    h+='<div class="el-btns">';
-    h+='<button class="el-btn"'+(ci===0?' disabled style="opacity:.3"':'')+' onclick="A.moveCat(\''+catId+'\', -1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></button>';
-    h+='<button class="el-btn"'+(ci===d.categoryOrder.length-1?' disabled style="opacity:.3"':'')+' onclick="A.moveCat(\''+catId+'\', 1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>';
-    h+='<button class="el-btn danger" onclick="A.deleteCat(\''+catId+'\')">'+trashSvg(22,'#fff')+'</button>';
-    h+='</div></div>';
-    var projs=d.projectOrder[catId]||[];
-    projs.forEach(function(pid,pi){h+=elProjRow(catId,pid,pi,projs.length);});
-    h+='</div>';
+    h+='<div class="el-block" data-cat="'+catId+'"><div class="el-grp">Category: '+cat.name+'</div><div class="el-card" data-cat="'+catId+'">'
+      +'<div class="el-row el-catrow"><div class="el-name">'+cat.name+'</div>'
+      +'<div class="el-btns"><button class="el-btn danger" onclick="A.deleteCat(\''+catId+'\')">'+trashSvg(22,'#fff')+'</button></div>'+EL_GRIP+'</div>'
+      +(d.projectOrder[catId]||[]).map(function(pid){return elProjRow(catId,pid);}).join('')+'</div></div>';
   });
-  document.getElementById('el-content').innerHTML=h;
+  var c=document.getElementById('el-content');
+  c.innerHTML=h;
+  wireEditLayoutDrag(c);
 }
-// One project's row in Edit layout: up/down within its group, delete.
-// `pi`/`n` are its place in that group's projectOrder array.
-function elProjRow(catId,pid,pi,n){
-  var up='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
-  var down='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
-  var btns=function(id){return '<button class="el-btn"'+(pi===0?' disabled style="opacity:.3"':'')+' onclick="A.moveProj(\''+catId+'\',\''+id+'\',-1)">'+up+'</button>'
-    +'<button class="el-btn"'+(pi===n-1?' disabled style="opacity:.3"':'')+' onclick="A.moveProj(\''+catId+'\',\''+id+'\',1)">'+down+'</button>';};
-  if(pid==='habits')return '<div class="el-row"><div class="el-icon">🏃</div><div class="el-name">Daily habits</div><div class="el-btns">'+btns('habits')+'</div></div>';
+// One project's row in Edit layout: icon, name, delete, handle. (A legacy
+// 'habits' entry can't be moved or deleted — it isn't a real project.)
+function elProjRow(catId,pid){
+  if(pid==='habits')return '<div class="el-row"><div class="el-icon">🏃</div><div class="el-name">Daily habits</div></div>';
   var p=DB.data.projects[pid];if(!p)return '';
-  return '<div class="el-row"><div class="el-icon">'+iconOrPhoto(p)+'</div><div class="el-name">'+p.name+'</div><div class="el-btns">'
-    +btns(pid)+'<button class="el-btn danger" onclick="A.deleteProj(\''+catId+'\',\''+pid+'\')">'+trashSvg(22,'#fff')+'</button></div></div>';
+  return '<div class="el-row el-projrow" data-pid="'+pid+'"><div class="el-icon">'+iconOrPhoto(p)+'</div><div class="el-name">'+p.name+'</div>'
+    +'<div class="el-btns"><button class="el-btn danger" onclick="A.deleteProj(\''+catId+'\',\''+pid+'\')">'+trashSvg(22,'#fff')+'</button></div>'+EL_GRIP+'</div>';
 }
-
+// Overview's Edit layout (#el-content survives every render, so it's wired
+// once): a category's row moves its whole block; a project moves inside its
+// category or into another one — the handle right away, the row by holding.
+function wireEditLayoutDrag(c){
+  if(c.dataset.dragWired)return;c.dataset.dragWired='1';
+  DragReorder.init(c,'.el-catrow','.el-block:not(.el-nocat)','list',function(container){
+    DB.reorderCategories([].map.call(container.querySelectorAll('.el-block[data-cat]:not(.el-nocat)'),function(b){return b.getAttribute('data-cat');}));
+    renderGrids();renderEditLayout();
+  },{grip:'.el-catrow .el-grip'});
+  DragReorder.init(c,'.el-projrow','.el-projrow','list',function(container){
+    var groups={};
+    container.querySelectorAll('.el-card[data-cat]').forEach(function(card){
+      groups[card.getAttribute('data-cat')]=[].map.call(card.querySelectorAll('.el-projrow[data-pid]'),function(r){return r.getAttribute('data-pid');});
+    });
+    DB.setProjectGroups(groups);
+    renderGrids();renderEditLayout();
+  },{cross:true,zoneSel:'.el-card[data-cat]',cards:'.el-card[data-cat]',grip:'.el-projrow .el-grip'});
+}
+// The drag handle on Edit layout rows: three lines, dragged right away
+var EL_GRIP='<span class="el-grip" aria-label="Drag to move"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="5" y1="8" x2="19" y2="8"/><line x1="5" y1="12" x2="19" y2="12"/><line x1="5" y1="16" x2="19" y2="16"/></svg></span>';
 // A reorder list like Overview's Edit layout: one card, a row per item
-// (`list` = [[key,name]…] in order) with up/down buttons calling fn(key,±1).
-function orderCard(list,fn){
-  var arrow=function(pts){return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="'+pts+'"/></svg>';};
-  return '<div class="el-card">'+list.map(function(x,i){
-    return '<div class="el-row"><div class="el-name">'+x[1]+'</div><div class="el-btns">'
-      +'<button class="el-btn"'+(i===0?' disabled style="opacity:.3"':'')+' onclick="'+fn+'(\''+x[0]+'\',-1)">'+arrow('18 15 12 9 6 15')+'</button>'
-      +'<button class="el-btn"'+(i===list.length-1?' disabled style="opacity:.3"':'')+' onclick="'+fn+'(\''+x[0]+'\',1)">'+arrow('6 9 12 15 18 9')+'</button>'
-      +'</div></div>';
+// (`list` = [[key,name]…] in order) with a handle; wireOrderCard(card,fn)
+// hands fn the keys in their new order after a drag.
+function orderCard(list){
+  return '<div class="el-card">'+list.map(function(x){
+    return '<div class="el-row" data-k="'+x[0]+'"><div class="el-name">'+x[1]+'</div>'+EL_GRIP+'</div>';
   }).join('')+'</div>';
+}
+function wireOrderCard(card,fn){
+  if(!card)return;
+  DragReorder.init(card,'.el-row','.el-row','list',function(c){
+    fn([].map.call(c.querySelectorAll('.el-row[data-k]'),function(r){return r.getAttribute('data-k');}));
+  },{grip:'.el-grip'});
 }
 // Menu > Statistics > Edit layout: only the widgets that are turned on
 function renderStatsLayout(){
-  var o=Stats.order().filter(function(k){return Stats.shown(k);});
-  document.getElementById('stl-content').innerHTML=o.length
-    ?orderCard(o.map(function(k){return STAT_WIDGETS.find(function(x){return x[0]===k;});}),'A.moveStatWidget')
+  var o=Stats.order().filter(function(k){return Stats.shown(k);}),el=document.getElementById('stl-content');
+  el.innerHTML=o.length
+    ?orderCard(o.map(function(k){return STAT_WIDGETS.find(function(x){return x[0]===k;});}))
     :'<div class="opt-group"><div class="cal-none">All widgets are turned off</div></div>';
+  wireOrderCard(el.querySelector('.el-card'),A.orderStatWidgets);
 }
 // Menu > Today > Edit layout: Tasks, Calendar, Habits
 function renderTodayLayout(){
-  document.getElementById('tdl-content').innerHTML=orderCard(todayOrder().map(function(k){return TODAY_SECTIONS.find(function(x){return x[0]===k;});}),'A.moveTodaySection');
+  var el=document.getElementById('tdl-content');
+  el.innerHTML=orderCard(todayOrder().map(function(k){return TODAY_SECTIONS.find(function(x){return x[0]===k;});}));
+  wireOrderCard(el.querySelector('.el-card'),A.orderTodaySections);
 }
 
 // Custom line-icons for Settings rows, swapped in for plain-text emoji so
@@ -4853,14 +4878,12 @@ var A={
     });
   },
   newProject:function(){SheetEditor.openNew(null,'');},
-  moveCat:function(id,dir){DB.moveCategory(id,dir);renderEditLayout();renderGrids();},
   deleteCat:function(id){
     var n=DB.data.categories[id]?DB.data.categories[id].name:id;
     Alert.confirm('Delete category "'+n+'"? Its projects move to the Trash.',function(){
       DB.deleteCategory(id);buildProjPages();renderEditLayout();renderGrids();renderWar();
     });
   },
-  moveProj:function(catId,pid,dir){DB.moveProject(catId,pid,dir);renderEditLayout();renderGrids();},
   deleteProj:function(catId,pid){
     var n=DB.data.projects[pid]?DB.data.projects[pid].name:pid;
     Alert.confirm('Move project "'+n+'" and all its tasks to the Trash?',function(){
@@ -5174,20 +5197,14 @@ var A={
   setOverviewMinimal:function(val){DB.data.settings.overviewMinimal=val;DB.save();renderGrids();},
   // Menu > Statistics > Widgets: show or hide one Statistics widget (the
   // switch isn't redrawn, only the Statistics page)
-  moveTodaySection:function(k,dir){
-    var o=todayOrder(),i=o.indexOf(k),j=i+dir;
-    if(i===-1||j<0||j>=o.length)return;
-    o[i]=o[j];o[j]=k;
-    DB.data.settings.todayOrder=o;DB.save();
+  // Edit layout after a drag: the sections / visible widgets in their new
+  // order (a widget that's turned off keeps its place among them)
+  orderTodaySections:function(keys){
+    DB.data.settings.todayOrder=keys;DB.save();
     renderTodayLayout();applyTodayOrder();
   },
-  // swaps with the next widget that's turned on (hidden ones keep their place)
-  moveStatWidget:function(k,dir){
-    var o=Stats.order(),vis=o.filter(function(x){return Stats.shown(x);});
-    var vi=vis.indexOf(k),other=vis[vi+dir];
-    if(vi===-1||!other)return;
-    var i=o.indexOf(k),j=o.indexOf(other);
-    o[i]=other;o[j]=k;
+  orderStatWidgets:function(keys){
+    var i=0,o=Stats.order().map(function(k){return Stats.shown(k)?keys[i++]:k;});
     DB.data.settings.statsOrder=o;DB.save();
     renderStatsLayout();renderSettings();
   },
@@ -8897,50 +8914,52 @@ var TYPE_OPTS=[{value:'todo',label:'To-do',ico:TYPE_ICONS.todo},{value:'list',la
 // a photo can't sensibly be dropped in, so those keep falling back to the
 // emoji/a default glyph exactly as before.
 // ── DRAG TO REORDER ───────────────────────────────────────────
-// Long-press an item (like rearranging home-screen icons) to pick it up —
-// it pops up with a shadow as the only "you can move this now" signal (no
-// shiver on the others, by request) — then drag to swap it past its
-// neighbors; drop anywhere to commit. `handleSel` is what has to be
-// pressed to START a drag (a whole card, or just a category's title
-// text); `itemSel` is what actually gets picked up and swapped — the
-// nearest ancestor matching itemSel from wherever the press landed, so a
-// title press can drag its whole category block while a press anywhere
-// on a project card drags just that card. Scoping one `container` per
-// group of siblings (one category's own .agrid, not the whole page) is
-// what keeps a drag from crossing into a different category — swap
-// targets are only ever looked for inside that same container.
-// How long a project, category or habit must be held before it can be moved (ms).
-var DRAG_HOLD_MS=900;
+// One way of moving things everywhere (4.40, "C2", picked from a tappable
+// demo): hold an item DRAG_HOLD_MS — a handle (opts.grip) starts at once —
+// and it lifts: white, a little bigger, with a shadow. A FAINT COPY of it
+// stays in the list where it will land, and everything else slides out of
+// the way (FLIP), in its own group and in any other one (opts.cross). In a
+// list it only moves up and down, and its leading edge decides when the
+// next row makes room. Letting go glides it into the faint copy's spot;
+// then onDrop(container, el) reads the new order from the screen.
+// The press grey is for taps: DRAG_WHITE_MS before it lifts, a held item
+// turns white again (.press-lift), and nothing being moved is ever grey.
+// `handleSel` is what has to be pressed; `itemSel` is what moves (the
+// nearest ancestor matching it). opts: same (an attribute — items only
+// move among items with the same value, List view), cross + zoneSel
+// (several groups in the container), cards (groups whose height animates
+// instead of jumping), flipSel (what slides along; default itemSel),
+// bodyClass (on <body> while dragging), onPlace(el, faintCopy, itemPassed),
+// grip (a handle that starts the drag at once).
+var DRAG_HOLD_MS=900,DRAG_WHITE_MS=250,DRAG_ANIM='.22s cubic-bezier(.2,.8,.2,1)';
 var DragReorder={
-  active:false,_endedAt:0,_timer:null,_el:null,_ph:null,_container:null,_itemSel:null,_mode:'grid',
-  _onDrop:null,_startX:0,_startY:0,_offX:0,_offY:0,_preMove:null,_preEnd:null,
-  _onMove:null,_onEnd:null,
-  // opts.same (List view rows): an attribute — an item only swaps with items
-  // that have the same value (an item stays inside its list).
-  // opts (Overview's projects): {cross:true, zoneSel, flipSel, bodyClass} —
-  // items can move between groups inside `container`: over another item they
-  // swap/insert next to it, over an empty part of a group (zoneSel) they go
-  // to its end; flipSel = what slides along; bodyClass is on <body> while
-  // dragging; near the page's top/bottom edge the page scrolls.
+  active:false,_endedAt:0,_timer:null,_whiteT:null,_retry:null,_el:null,_ph:null,_container:null,_itemSel:null,_mode:'grid',
+  _onDrop:null,_opts:{},_startX:0,_startY:0,_offX:0,_offY:0,_preMove:null,_preEnd:null,_onMove:null,_onEnd:null,
   init:function(container,handleSel,itemSel,mode,onDrop,opts){
-    var self=this;
+    var self=this;opts=opts||{};
     container.addEventListener('touchstart',function(e){
-      if(self.active)return; // a drag already in progress elsewhere
+      if(self._el&&!document.body.contains(self._el))self._reset(); // its list was redrawn mid-drag
+      if(self.active||self._el)return; // a drag, or a hold, already going
+      if(e.target.closest('input,button'))return;
       // A habit or task row is two buttons, like its press grey: only the
       // bar picks it up, never the tick box / tick zone.
       var row=e.target.closest('.cali,.ti');
-      if(e.target.closest('input')||(row&&e.touches[0].clientX<=tickEdge(row)))return;
+      if(row&&e.touches[0].clientX<=tickEdge(row))return;
       var handle=e.target.closest(handleSel);
       if(!handle||!container.contains(handle))return;
       var item=handle.closest(itemSel);
       if(!item||!container.contains(item))return;
-      self._prime(item,container,itemSel,mode,onDrop,e.touches[0],opts);
-    },{passive:true});
+      var grip=!!(opts.grip&&e.target.closest(opts.grip));
+      if(grip&&e.cancelable)e.preventDefault(); // a handle drags right away and never scrolls
+      self._prime(item,container,itemSel,mode,onDrop,e.touches[0],opts,grip);
+    },{passive:!opts.grip});
   },
-  _prime:function(el,container,itemSel,mode,onDrop,touch,opts){
-    this._el=el;this._container=container;this._itemSel=itemSel;this._mode=mode;this._onDrop=onDrop;this._opts=opts||{};
+  _prime:function(el,container,itemSel,mode,onDrop,touch,opts,now){
+    this._el=el;this._container=container;this._itemSel=itemSel;this._mode=mode;this._onDrop=onDrop;this._opts=opts;
     this._startX=touch.clientX;this._startY=touch.clientY;
+    if(now){this._begin();return;}
     var self=this;
+    this._whiteT=setTimeout(function(){self._whiten(true);},DRAG_HOLD_MS-DRAG_WHITE_MS);
     this._timer=setTimeout(function(){self._begin();},DRAG_HOLD_MS);
     this._preMove=function(e){
       var t=e.touches[0];
@@ -8949,31 +8968,33 @@ var DragReorder={
     this._preEnd=function(){self._cancelPre();};
     document.addEventListener('touchmove',this._preMove,{passive:true});
     document.addEventListener('touchend',this._preEnd,{passive:true});
+    document.addEventListener('touchcancel',this._preEnd,{passive:true});
   },
+  // What can be grey from a press: the item itself, or the habit row inside
+  // a habit's swipe wrapper
+  _greyable:function(el){
+    if(el.matches('.cali,.ti,.wri,.acard,.opt-row'))return [el];
+    return el.classList.contains('sw')?[].slice.call(el.querySelectorAll('.cali')):[];
+  },
+  _whiten:function(on){if(this._el)this._greyable(this._el).forEach(function(n){n.classList.toggle('press-lift',on);});},
   _cancelPre:function(){
     if(this._timer){clearTimeout(this._timer);this._timer=null;}
+    if(this._whiteT){clearTimeout(this._whiteT);this._whiteT=null;}
     if(this._preMove){document.removeEventListener('touchmove',this._preMove,{passive:true});this._preMove=null;}
-    if(this._preEnd){document.removeEventListener('touchend',this._preEnd,{passive:true});this._preEnd=null;}
+    if(this._preEnd){document.removeEventListener('touchend',this._preEnd,{passive:true});document.removeEventListener('touchcancel',this._preEnd,{passive:true});this._preEnd=null;}
+    if(!this.active){this._whiten(false);this._el=null;}
   },
-  // `el` becomes `position:fixed` to float with the finger, which pulls it
-  // OUT of the grid/list entirely — great for the floating part, but it
-  // means reordering IT among the real siblings can never make them
-  // visibly "move and make place": a fixed element doesn't participate in
-  // layout at all, so the siblings already did their one-time reflow to
-  // close its gap the instant it went fixed, and shuffling its DOM
-  // position after that changes nothing further about their layout, no
-  // matter how the pointer moves. A plain, invisible placeholder — same
-  // size, left behind in the flow at el's spot — is what actually gets
-  // reordered among the real siblings instead; THAT causes real reflow
-  // every swap, which the FLIP animation below can actually animate. `el`
-  // itself just floats on top the whole time, oblivious to any of it.
+  // `el` itself floats (position:fixed) and stays the touch's target the
+  // whole time; what moves through the list is a placeholder of its size
+  // holding a faint copy of it — a real flow participant, so its moves
+  // reflow the others, which _flip animates.
   _begin:function(){
-    this._timer=null;this._cancelPre();
-    this.active=true;
-    this._lastSwapWith=null;this._lastSwapAt=0;this._target=null;
+    this.active=true;this._timer=null;this._cancelPre();
+    this._lastMoveAt=0;this._down=false;this._lastY=this._startY;this._lastT={x:this._startX,y:this._startY};
     try{if(navigator.vibrate)navigator.vibrate(8);}catch(e){}
+    _pressCancel(); // nothing being moved stays grey, and letting go won't flash it
     var el=this._el,r=el.getBoundingClientRect();
-    this._offX=this._startX-r.left;this._offY=this._startY-r.top;
+    this._r0=r;this._offX=this._startX-r.left;this._offY=this._startY-r.top;
     var ph=document.createElement('div');
     ph.className='drag-placeholder';
     var ecs=getComputedStyle(el);ph.style.marginTop=ecs.marginTop;ph.style.marginBottom=ecs.marginBottom; // so nothing around it shifts
@@ -8983,186 +9004,142 @@ var DragReorder={
     // gap moved to or from the end (a row's divider sits outside its 48px).
     var inCard=el.parentNode&&el.parentNode.classList.contains('card-list');
     ph.style.width=r.width+'px';ph.style.height=(inCard?r.height-(parseFloat(ecs.borderBottomWidth)||0):r.height)+'px';
+    var ghost=el.cloneNode(true);ghost.setAttribute('inert','');
+    [ghost].concat([].slice.call(ghost.querySelectorAll('*'))).forEach(function(n){
+      ['id','onclick','onchange','data-key','data-id','data-pid','data-cat','data-k'].forEach(function(a){n.removeAttribute(a);});
+      n.classList.remove('pressed-row','press-lift');
+    });
+    ghost.classList.add('drag-ghost');ghost.style.transform='';ghost.style.transition='';
+    ph.appendChild(ghost);
     el.parentNode.insertBefore(ph,el.nextSibling);
     this._ph=ph;
-    el.style.boxSizing='border-box'; // the size below is the row's outer size
+    el.style.transition='';el.style.transform='';
+    el.style.boxSizing='border-box'; // the size below is the item's outer size
     el.style.width=r.width+'px';el.style.height=r.height+'px';
     el.style.position='fixed';el.style.left=r.left+'px';el.style.top=r.top+'px';
     el.style.zIndex='999';el.style.margin='0';
     el.classList.add('dragging');
-    if(this._opts.bodyClass)document.body.classList.add(this._opts.bodyClass);
+    this._whiten(false);
+    if(this._opts.bodyClass){
+      var y0=ph.getBoundingClientRect().top;
+      document.body.classList.add(this._opts.bodyClass);
+      this._keepStill(y0);
+    }
     var self=this;
+    // Touch events keep targeting whatever touchstart hit, wherever the
+    // finger goes — so these are bound to `el`, which lets _end stop the
+    // release from reaching TAPPABLE's document listener.
     this._onMove=function(e){self._move(e);};
-    // Touch events always keep targeting whatever element touchstart
-    // actually hit, no matter where the finger wanders to — so these can
-    // all be bound straight to `el` instead of `document`. That matters
-    // here specifically: it lets `_end` stop the event from propagating
-    // any further (see below) to swallow the tap TAPPABLE — the generic
-    // touch-feedback IIFE further down — would otherwise still fire on
-    // release from ITS OWN separate `document`-level listener, without
-    // that same stopPropagation() also cutting off _end's own listener
-    // (which is exactly what happened the first time this used `kill` as
-    // a second, separate document-level listener: both were downstream
-    // of the same stopPropagation() call, so it silently ate its own).
     this._onEnd=function(e){self._end(e);};
     el.addEventListener('touchmove',this._onMove,{passive:false});
     el.addEventListener('touchend',this._onEnd,{passive:false});
     el.addEventListener('touchcancel',this._onEnd,{passive:false});
   },
+  // Empty groups opening as drop slots (bodyClass) push the list down; for
+  // their .2s the page scrolls along, so the list stays where it was under
+  // the finger (when the page is tall enough to scroll).
+  _keepStill:function(y0){
+    var ph=this._ph,pg=ph.closest('.page'),t0=Date.now(),self=this;
+    if(!pg)return;
+    (function step(){
+      if(!self.active||self._ph!==ph)return;
+      var d=ph.getBoundingClientRect().top-y0;
+      if(Math.abs(d)>=.5)pg.scrollTop+=d; // clamps by itself when the page can't scroll that far
+      if(Date.now()-t0<320)requestAnimationFrame(step);
+    })();
+  },
   _move:function(e){
     e.preventDefault();
     var t=e.touches[0],el=this._el;
-    el.style.left=(t.clientX-this._offX)+'px';
+    if(this._mode!=='list')el.style.left=(t.clientX-this._offX)+'px'; // in a list it only moves up and down
     el.style.top=(t.clientY-this._offY)+'px';
+    if(Math.abs(t.clientY-this._lastY)>2){this._down=t.clientY>this._lastY;this._lastY=t.clientY;}
     this._lastT={x:t.clientX,y:t.clientY};
     this._hit();
-    this._edgeScroll(); // a finger near the page's top/bottom scrolls it, every kind of drag
+    this._edgeScroll(); // a finger near the page's top/bottom scrolls it
   },
-  _hit:function(){if(this._opts.cross)this._hitCross();else this._hitList();},
-  // list/grid mode: swap with the sibling under the finger (this._lastT)
-  _hitList:function(){
-    var t={clientX:this._lastT.x,clientY:this._lastT.y},el=this._el;
-    // Real siblings only — the placeholder stands in for `el` among them
-    // and is never itself a swap candidate.
-    var same=this._opts.same,sv=same&&el.getAttribute(same);
-    var items=[].slice.call(this._container.querySelectorAll(this._itemSel)).filter(function(x){return x!==el&&(!same||x.getAttribute(same)===sv);});
-    for(var i=0;i<items.length;i++){
-      var it=items[i];
-      // A swap pulls `it` into the gap the placeholder just vacated, which
-      // can shift `it`'s own rect enough that the SAME pointer position
-      // still (or again) overlaps it on the very next move — swapping
-      // straight back and oscillating between the two orders every other
-      // frame. A short cooldown on re-swapping the SAME pair blocks that
-      // bounce without blocking a genuine, deliberate reversal (the user
-      // dragging back the other way for real takes longer than this).
-      if(it===this._lastSwapWith&&Date.now()-this._lastSwapAt<250)continue;
-      var r=it.getBoundingClientRect();
-      // The "invisible bubble": a swap only fires once the pointer is
-      // meaningfully INSIDE the neighbor (its middle 60%), not the moment
-      // it grazes an edge — same deliberate-feeling threshold Android/iOS
-      // home-screen reordering uses, rather than triggering on first touch.
-      // In a list only up/down counts (a finger near the row's edge still
-      // moves it); in a grid both directions do.
-      var mx=r.width*0.2,my=r.height*0.2,inX=this._mode==='list'||(t.clientX>=r.left+mx&&t.clientX<=r.right-mx);
-      if(inX&&t.clientY>=r.top+my&&t.clientY<=r.bottom-my){
-        this._swap(it);
-        this._lastSwapWith=it;this._lastSwapAt=Date.now();
-        this._placed(it);
-        break;
-      }
-    }
+  // Rect without a running slide offset — where it's going, not where it is
+  _layoutRect:function(n){
+    var r=n.getBoundingClientRect(),dx=0,dy=0;
+    if(n.style.transform){var m=new DOMMatrixReadOnly(getComputedStyle(n).transform);dx=m.m41;dy=m.m42;}
+    return {left:r.left-dx,top:r.top-dy,width:r.width,height:r.height};
   },
-  // FLIP (First-Last-Invert-Play, https://aerotwist.com/blog/flip-your-animations/)
-  // — the standard technique behind "make room" reordering on iOS/Android
-  // home screens: measure every real sibling BEFORE moving the placeholder
-  // in the DOM, move it, measure again, then offset each shifted sibling
-  // back to its OLD spot with a transform (invisible — pure position, no
-  // transition yet) and release that offset on the NEXT paint so the
-  // browser animates the slide from old to new instead of snapping there
-  // instantly. The double rAF (one frame isn't reliably enough — see the
-  // sheet-open animation elsewhere in this file for the same pattern)
-  // guarantees the "before" offset actually painted first.
-  _swap:function(it){
-    var ph=this._ph,el=this._el,itemSel=this._itemSel;
-    var kids=[].slice.call(this._container.children);
-    var phIdx=kids.indexOf(ph),itIdx=kids.indexOf(it);
-    var siblings=kids.filter(function(x){return x!==ph&&x!==el&&x.matches&&x.matches(itemSel);});
-    var before=new Map();
-    siblings.forEach(function(s){before.set(s,s.getBoundingClientRect());});
-    if(phIdx<itIdx)it.parentNode.insertBefore(ph,it.nextSibling);
-    else it.parentNode.insertBefore(ph,it);
-    siblings.forEach(function(s){
-      var b=before.get(s),a=s.getBoundingClientRect();
-      var dx=b.left-a.left,dy=b.top-a.top;
-      if(!dx&&!dy)return;
-      s.style.transition='none';
-      s.style.transform='translate('+dx+'px,'+dy+'px)';
-      requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          s.style.transition='transform .22s cubic-bezier(.22,.8,.2,1)';
-          s.style.transform='';
-        });
+  // The items of a group it can land between
+  _items:function(group){
+    var el=this._el,ph=this._ph,sel=this._itemSel,same=this._opts.same,sv=same&&el.getAttribute(same);
+    return [].filter.call(group.children,function(n){return n!==el&&n!==ph&&n.matches(sel)&&(!same||n.getAttribute(same)===sv);});
+  },
+  // Where it would land now: the group under the finger (opts.cross), then
+  // in a list the place its leading edge has reached (its lower part going
+  // down, its upper part going up), in a grid the side of the nearest item.
+  _hit:function(){
+    var x=this._lastT.x,y=this._lastT.y,ph=this._ph,group=ph.parentNode,self=this;
+    if(this._opts.cross){
+      var bd=1e9;
+      [].forEach.call(this._container.querySelectorAll(this._opts.zoneSel),function(z){
+        if(ph.contains(z))return;
+        var r=z.getBoundingClientRect();
+        var dy=y<r.top?r.top-y:y>r.bottom?y-r.bottom:0,dx=x<r.left?r.left-x:x>r.right?x-r.right:0,d=dy+dx*.5;
+        if(d<bd){bd=d;group=z;}
       });
-    });
-  },
-  // cross mode: the item under the finger (middle 60%, like _move), else an
-  // empty part of a group → the placeholder goes there
-  // In a list (mode 'list', the Tasks tab's priority cards) only up/down
-  // counts, and a row in ANOTHER group counts over its whole height (it goes
-  // above or below it by which half the finger is in).
-  _hitCross:function(){
-    var x=this._lastT.x,y=this._lastT.y,el=this._el,ph=this._ph,self=this,list=this._mode==='list';
-    var items=[].filter.call(this._container.querySelectorAll(this._itemSel),function(n){return n!==el;});
-    for(var i=0;i<items.length;i++){
-      var it=items[i];
-      if(it===this._lastSwapWith&&Date.now()-this._lastSwapAt<250)continue;
-      var r=it.getBoundingClientRect(),own=ph.parentNode===it.parentNode;
-      var mx=r.width*0.2,my=list&&!own?0:r.height*0.2,inX=list||(x>=r.left+mx&&x<=r.right-mx);
-      if(inX&&y>=r.top+my&&y<=r.bottom-my){
-        var below=list?y>r.top+r.height/2:x>r.left+r.width/2;
-        // opts.lineAcross: another group only shows a line where it'll land
-        if(this._opts.lineAcross&&!own){this._aim(it.parentNode,below?it.nextElementSibling:it,it);return;}
-        if(this._opts.lineAcross)this._aim(null);
-        this._flip(function(){
-          if(own){
-            var kids=[].slice.call(it.parentNode.children);
-            it.parentNode.insertBefore(ph,kids.indexOf(ph)<kids.indexOf(it)?it.nextSibling:it);
-          } else it.parentNode.insertBefore(ph,below?it.nextSibling:it);
-        });
-        this._lastSwapWith=it;this._lastSwapAt=Date.now();
-        this._placed(it);
-        return;
-      }
     }
-    var zones=this._container.querySelectorAll(this._opts.zoneSel);
-    for(var j=0;j<zones.length;j++){
-      var z=zones[j],zr=z.getBoundingClientRect();
-      if(x>=zr.left&&x<=zr.right&&y>=zr.top&&y<=zr.bottom){
-        if(this._opts.lineAcross){if(z===ph.parentNode)this._aim(null);else this._aim(z,null,null);return;}
-        if(ph.parentNode!==z){this._flip(function(){z.appendChild(ph);});this._placed(null);}
-        return;
-      }
+    var items=this._items(group),idx=0;
+    if(this._mode==='list'){
+      var top=y-this._offY,h=this._r0.height,probe=this._down?top+h*.85:top+h*.15;
+      items.forEach(function(it){var r=self._layoutRect(it);if(probe>r.top+r.height/2)idx++;});
+    } else if(items.length){
+      var bi=0,b2=1e18;
+      items.forEach(function(it,i){var r=self._layoutRect(it),cx=r.left+r.width/2,cy=r.top+r.height/2,q=(x-cx)*(x-cx)+(y-cy)*(y-cy)*1.4;if(q<b2){b2=q;bi=i;}});
+      var rr=self._layoutRect(items[bi]);idx=x>rr.left+rr.width/2?bi+1:bi;
     }
-    if(this._target)this._aim(this._target.parent,this._target.before,null); // keep the line on it while the page scrolls
+    this._moveTo(group,items,idx);
   },
-  // opts.lineAcross (the Tasks tab): over ANOTHER group the placeholder stays
-  // home and a line shows the drop spot — no card changes height, so the
-  // group titles stay put. _target = {parent, before} until the finger is
-  // back over its own group; _end drops the item there.
-  _aim:function(parent,before,it){
-    var ln=this._line;
-    if(!parent){if(this._target){this._target=null;if(ln)ln.style.display='none';this._placed(null);}return;}
-    this._target={parent:parent,before:before};
-    if(!ln){ln=this._line=document.createElement('div');ln.className='drop-line';document.body.appendChild(ln);}
-    var pr=parent.getBoundingClientRect(),items=parent.querySelectorAll(this._itemSel),y;
-    if(!items.length)y=pr.top+pr.height/2; // an empty priority's slot
-    else if(before)y=before.getBoundingClientRect().top;
-    else y=items[items.length-1].getBoundingClientRect().bottom;
-    ln.style.left=(pr.left+12)+'px';ln.style.width=(pr.width-24)+'px';ln.style.top=(y-1.5)+'px';ln.style.display='block';
-    this._placed(it);
+  // Moves the faint copy to place idx among `items` of `group` (a short
+  // pause after each move, so a row sliding past can't bounce it back)
+  _moveTo:function(group,items,idx){
+    var ph=this._ph,cur=-1,self=this;
+    if(ph.parentNode===group){cur=0;for(var c=group.firstElementChild;c&&c!==ph;c=c.nextElementSibling)if(items.indexOf(c)!==-1)cur++;}
+    if(cur===idx)return;
+    var wait=130-(Date.now()-this._lastMoveAt);
+    if(wait>0){clearTimeout(this._retry);this._retry=setTimeout(function(){if(self.active&&self._ph)self._hit();},wait+10);return;}
+    var ref=items[idx]||(items.length?items[items.length-1].nextSibling:null);
+    var passed=cur===-1?(items[idx]||items[idx-1]||null):(idx>cur?items[idx-1]:items[idx]); // the item it just went past
+    this._flip(function(){group.insertBefore(ph,ref);});
+    this._lastMoveAt=Date.now();
+    this._placed(passed);
   },
-  // opts.onPlace(el, placeholder, rowItCrossed|null): after every move of the
-  // placeholder (tasks show the priority they're about to get)
+  // opts.onPlace(el, faintCopy, itemPassed|null) after every move (tasks
+  // show the priority they're about to get)
   _placed:function(it){if(this._opts.onPlace)this._opts.onPlace(this._el,this._ph,it);},
-  // FLIP like _swap, for everything matching opts.flipSel in the container
+  // FLIP (https://aerotwist.com/blog/flip-your-animations/): measure, move,
+  // measure, offset everything back to where it was, then let it slide to
+  // its new place. Groups in opts.cards grow and shrink smoothly instead of
+  // jumping (the titles below them glide along).
   _flip:function(mutate){
-    var el=this._el,ph=this._ph;
-    var els=[].filter.call(this._container.querySelectorAll(this._opts.flipSel||this._itemSel),function(n){return n!==el&&n!==ph;});
+    var el=this._el,ph=this._ph,o=this._opts;
+    var els=[].filter.call(this._container.querySelectorAll(o.flipSel||this._itemSel),function(n){return n!==el&&n!==ph&&!ph.contains(n)&&!el.contains(n);});
+    var cards=o.cards?[].filter.call(this._container.querySelectorAll(o.cards),function(c){return !ph.contains(c);}):[];
     var before=els.map(function(n){return n.getBoundingClientRect();});
+    var oldH=cards.map(function(c){return c.getBoundingClientRect().height;});
     mutate();
-    els.forEach(function(s,i){
-      var b=before[i],a=s.getBoundingClientRect(),dx=b.left-a.left,dy=b.top-a.top;
-      if(!dx&&!dy)return;
-      s.style.transition='none';
-      s.style.transform='translate('+dx+'px,'+dy+'px)';
-      requestAnimationFrame(function(){requestAnimationFrame(function(){
-        s.style.transition='transform .22s cubic-bezier(.22,.8,.2,1)';
-        s.style.transform='';
-      });});
+    cards.forEach(function(c){c.style.transition='none';c.style.height='';});
+    var newH=cards.map(function(c){return c.getBoundingClientRect().height;});
+    cards.forEach(function(c,i){if(oldH[i]!==newH[i])c.style.height=oldH[i]+'px';});
+    els.forEach(function(n){n.style.transition='none';n.style.transform='';});
+    var after=els.map(function(n){return n.getBoundingClientRect();});
+    els.forEach(function(n,i){var dx=before[i].left-after[i].left,dy=before[i].top-after[i].top;if(dx||dy)n.style.transform='translate('+dx+'px,'+dy+'px)';});
+    void this._container.offsetHeight;
+    requestAnimationFrame(function(){
+      els.forEach(function(n){if(n.style.transform){n.style.transition='transform '+DRAG_ANIM;n.style.transform='';}else n.style.transition='';});
+      cards.forEach(function(c,i){if(oldH[i]!==newH[i]){c.style.transition='height '+DRAG_ANIM;c.style.height=newH[i]+'px';}else c.style.transition='';});
+      setTimeout(function(){
+        els.forEach(function(n){if(!n.style.transform)n.style.transition='';});
+        cards.forEach(function(c,i){if(c.style.height===newH[i]+'px'){c.style.height='';c.style.transition='';}});
+      },260);
     });
   },
   // a finger near the top/bottom of the page scrolls it (rAF, up to 12px a
-  // frame), and the row under the finger is checked again as the page moves
+  // frame), and the spot under the finger is checked again as the page moves
   _edgeScroll:function(){
     var self=this,pg=this._el&&this._el.closest('.page');if(!pg)return;
     var r=pg.getBoundingClientRect(),y=this._lastT.y,E=70,v=0;
@@ -9171,7 +9148,7 @@ var DragReorder={
     this._scrollV=v;
     if(v&&!this._scrollRaf){
       var step=function(){
-        if(!self.active||!self._scrollV){self._scrollRaf=null;return;}
+        if(!self.active||!self._scrollV||!self._ph){self._scrollRaf=null;return;}
         var t0=pg.scrollTop;pg.scrollTop+=self._scrollV;
         if(pg.scrollTop!==t0)self._hit();
         self._scrollRaf=requestAnimationFrame(step);
@@ -9179,25 +9156,41 @@ var DragReorder={
       this._scrollRaf=requestAnimationFrame(step);
     }
   },
+  // Letting go: it glides into the faint copy's spot and settles (lift and
+  // shadow go), then takes its place.
   _end:function(e){
     e.preventDefault();
     e.stopPropagation();
-    this._scrollV=0;
-    if(this._opts.bodyClass)document.body.classList.remove(this._opts.bodyClass);
+    this._scrollV=0;clearTimeout(this._retry);
     this._endedAt=Date.now(); // see the click guard below
-    var el=this._el,ph=this._ph;
+    var el=this._el,ph=this._ph,self=this;
     el.removeEventListener('touchmove',this._onMove,{passive:false});
     el.removeEventListener('touchend',this._onEnd,{passive:false});
     el.removeEventListener('touchcancel',this._onEnd,{passive:false});
-    el.style.position='';el.style.left='';el.style.top='';el.style.width='';el.style.height='';el.style.zIndex='';el.style.margin='';el.style.boxSizing='';
-    el.classList.remove('dragging');
-    var tg=this._target;this._target=null;
-    if(this._line){this._line.remove();this._line=null;}
-    if(tg)tg.parent.insertBefore(el,tg.before); // dropped on another group's line
-    else ph.parentNode.insertBefore(el,ph); // el takes over wherever the placeholder ended up
+    var r=ph.getBoundingClientRect();
+    el.style.transition='left '+DRAG_ANIM+',top '+DRAG_ANIM+',transform '+DRAG_ANIM+',box-shadow '+DRAG_ANIM;
+    el.classList.remove('dragging');el.classList.add('drag-landing');
+    el.style.left=r.left+'px';el.style.top=r.top+'px';
+    setTimeout(function(){self._land();},230);
+  },
+  // Gives up a drag whose item is gone (its list was redrawn), so the next
+  // hold works again
+  _reset:function(){
+    this._cancelPre();
+    if(this._ph&&this._ph.parentNode)this._ph.remove();
+    if(this._opts.bodyClass)document.body.classList.remove(this._opts.bodyClass);
+    clearTimeout(this._retry);this._scrollV=0;
+    this.active=false;this._ph=null;this._el=null;this._container=null;this._onDrop=null;
+  },
+  _land:function(){
+    var el=this._el,ph=this._ph;
+    if(!el||!ph||!ph.parentNode){this._reset();return;}
+    if(this._opts.bodyClass)document.body.classList.remove(this._opts.bodyClass);
+    el.style.position='';el.style.left='';el.style.top='';el.style.width='';el.style.height='';el.style.zIndex='';el.style.margin='';el.style.boxSizing='';el.style.transition='';
+    el.classList.remove('drag-landing');
+    ph.parentNode.insertBefore(el,ph);
     ph.remove();
-    this._ph=null;
-    this.active=false;
+    this._ph=null;this.active=false;
     var container=this._container,onDrop=this._onDrop;
     this._el=null;this._container=null;this._onDrop=null;
     if(onDrop)onDrop(container,el);

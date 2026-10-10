@@ -257,9 +257,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   "instead add a separate page in settings like we have for overview"):
   the DragReorder on #p-stats, its `.stat-w.dragging` CSS and ZChart's
   DragReorder.active check are gone. Order is changed on Menu > Statistics
-  > Edit layout (`#p-statslayout`, `renderStatsLayout`, up/down `.el-btn`s
-  like Overview's Edit layout, `A.moveStatWidget(k,dir)` swaps in
-  `Stats.order()` and saves statsOrder). The flow-root `.stat-w` layout
+  > Edit layout (`#p-statslayout`, `renderStatsLayout`; up/down arrows
+  until 4.39, a drag list with handles since 4.40 — `A.orderStatWidgets`). The flow-root `.stat-w` layout
   stays (pixel-identical, harmless). 4.11: the page lists only widgets
   that are turned on ("All widgets are turned off" when none); a move
   swaps with the next VISIBLE widget, hidden ones keep their slot in
@@ -385,8 +384,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   them in `todayOrder()` order (settings.todayOrder, default tasks/
   calendar/habits) before #today-none, only touching the DOM when it
   differs. Menu > Today > Edit layout (`#p-todaylayout`,
-  `renderTodayLayout`, `A.moveTodaySection`) — the up/down list is the
-  shared `orderCard(list,fn)`, also used by Statistics' Edit layout. When
+  `renderTodayLayout`) — since 4.40 a drag list with handles,
+  `orderCard(list)` + `wireOrderCard(card,A.orderTodaySections)`, shared
+  with Statistics' Edit layout (it had up/down arrows before). When
   a ticked habit (vanish mode) or calendar task leaves Today,
   `_dropEmptyCard(sec)` removes an emptied card WITH its title and re-runs
   syncTodaySections (before, the title stayed, and the last habit left a
@@ -1338,7 +1338,66 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   is "Add habit" with "Habit" / "Add a tracker" (was "Add task":
   "Repeating task" / "Track a project" — "a repeating task is just a
   habit"). Code names (startRepeatingTask, startTrackerHabit) unchanged.
-- DRAG ACROSS PRIORITIES (4.33, "move tasks not only in the order of one
+- DRAG = "C2" EVERYWHERE (4.40, picked from a tappable demo artifact —
+  https://claude.ai/artifact/E5DzY4WkzQpEssycHcNeDZ, presets A–D, then C1–C4,
+  then C2 + stripes; the user chose plain C2): ONE DragReorder behaviour for
+  tasks (Tasks tab, project pages, List view), habits, Overview projects and
+  categories, and the Edit layout pages. Hold DRAG_HOLD_MS (900) → the item
+  lifts: `.dragging` = scale 1.04 + shadow 0 12px 28px, always WHITE. A
+  placeholder holding a FAINT COPY of it (`.drag-ghost`, a clone with ids/
+  onclick/data-key/-id/-pid/-cat/-k stripped, `inert`, opacity .28 — .4 in
+  Overview's grid) moves through the list where it will land; everything
+  else slides (FLIP, DRAG_ANIM .22s cubic-bezier(.2,.8,.2,1)), in its own
+  group AND in every other one (opts.cross) — no more blue line
+  (`lineAcross`, `_aim`, `.drop-line`, `_target` are gone: the titles below
+  a group now glide with it instead of staying put, which the user accepted
+  by choosing C2). `opts.cards` = groups whose height animates (Tasks tab's
+  priority cards, Edit layout's cards). Lists: the lifted item only moves up
+  and down, and its LEADING EDGE decides (85% of its height going down, 15%
+  going up, vs the other items' middles; `_layoutRect` ignores a running
+  FLIP offset); grids: the side of the nearest item. 130ms pause after each
+  move (`_retry` re-checks). Letting go glides it into the copy's spot
+  (`.drag-landing`, 230ms) THEN onDrop runs (it's later than before — onDrop
+  used to run inside touchend). The old `_swap`/`_hitList`/`_hitCross`/
+  `_lastSwapWith` code is gone.
+  GREY ("the grey is only meant if I click, not hold… after holding make it
+  white and go into drag mode"): the lifted item kept its press grey for the
+  whole drag (the press IIFE's `.pressed-row`, `.acard:active`). Now
+  DRAG_WHITE_MS (250) before the lift `_whiten` adds `.press-lift` (white,
+  .2s fade) to the item (or the `.cali` inside a habit's `.sw`), `_begin`
+  calls `_pressCancel()` (no flash on release), and CSS keeps anything
+  `.dragging/.drag-landing/.press-lift` white with !important (the minimal
+  Overview tile stays transparent and its icon undimmed). Measured with
+  finger-style touches: grey at 300ms, white at 750ms, lifted white at 1s.
+  Empty groups opening as slots (bodyClass) used to push the list down at
+  pickup while the lifted item stayed put (very visible with the copy):
+  `_keepStill(y0)` scrolls the page along for 320ms so the copy stays where
+  the item was (works whenever the page can scroll; measured 0px shift).
+  A drag whose item was redrawn away resets itself on the next touch
+  (`_reset`), so a re-render mid-drag can't block dragging for good.
+  EDIT LAYOUT PAGES: up/down arrows replaced by a handle (`EL_GRIP`, three
+  lines, `.el-grip`, touch-action:none) on the right of every row — the
+  handle starts the drag at once (`opts.grip`: touchstart is non-passive and
+  preventDefault()ed only on the grip), holding the row works too.
+  `orderCard(list)` + `wireOrderCard(card,fn)` (Today → A.orderTodaySections,
+  Statistics → A.orderStatWidgets, which keeps turned-off widgets in their
+  slots). Overview's Edit layout: `.el-block[data-cat]` per category (title
+  + `.el-card`, category row `.el-catrow` with delete + handle); a category
+  row drags its whole block (DB.reorderCategories); a project row
+  (`.el-projrow`) moves inside its card or into another, incl. an always-
+  shown "No category" card (faint empty card when it has none) →
+  DB.setProjectGroups. `wireEditLayoutDrag` wires #el-content once. Gone:
+  A.moveCat/moveProj/moveTodaySection/moveStatWidget, DB.moveCategory/
+  moveProject. A legacy 'habits' entry row has no handle/delete.
+  Tested in the preview with finger-style touches (Touch on
+  elementFromPoint): Tasks tab High → Medium (saved bp, right spot), habits,
+  Overview Work → Personal, Edit layout project → No category and category
+  reorder via handle (instant), Today/Stats layouts, project page badge
+  switching to the passed task's priority. Not testable here: the real feel
+  of the lift/slide on the phone. Testing note: a simulated finger parked
+  near the screen edge keeps the auto-scroll going — park it mid-screen.
+- DRAG ACROSS PRIORITIES (4.33 — the mechanics below were replaced by the
+  C2 drag in 4.40, see above; priorities still change by dragging, "move tasks not only in the order of one
   prio but also change the prio itself… drag them wherever I want"),
   replacing 4.27's "a task can't leave its priority":
   Tasks view = ONE cross-mode DragReorder on `#lockedin-list`
@@ -1361,7 +1420,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   unchanged — Overview tested). List view keeps `same:'data-pid'`. CSS
   `.ti:has(+.ti.dragging:last-child)` drops the divider above a lifted last
   row (the floating row stays a DOM child — the row above looked unfinished).
-- STABLE TITLES WHILE DRAGGING (4.34, "when I drag tasks across prios the
+- STABLE TITLES WHILE DRAGGING (4.34 — SUPERSEDED by C2 in 4.40: no line,
+  every priority makes room and titles glide; kept for the history, "when I drag tasks across prios the
   title of the prio moves, it should be stable"): the Tasks view's
   DragReorder has `opts.lineAcross`. Inside its own card the gap moves and
   rows make room as before; over ANOTHER card `_aim(parent,before,it)` only
