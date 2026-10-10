@@ -1530,10 +1530,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   category title. `_edgeScroll`: a finger within 70px of the page's
   top/bottom scrolls it (rAF, up to 12px/frame) and re-hits. Every group
   ALWAYS renders its grid now; an empty one is `.agrid.zone-empty` — no
-  height/margin at rest (measured: layout identical), and while
-  body.proj-drag a 72px faint slot (55% card colour) with the normal 22px
-  margin, so empty categories and the no-category area can be dropped
-  into. On drop `DB.setProjectGroups({key:[pids]})` writes every group from
+  height/margin at rest (measured: layout identical). 4.22–4.40 opened
+  EVERY empty zone as a 72px faint slot while body.proj-drag; since 4.41
+  ("every time I drag, the space for no category appears… only when I drag
+  something there") an empty zone stays a 0-height line until the faint
+  copy goes INTO it (`:has(>.drag-placeholder)` gives it its 22px margin):
+  the C2 engine picks the nearest group, so dragging above the first
+  category opens No category, onto an empty category's title opens that
+  one. Measured: titles don't move at pickup; the zone opens (117px) over
+  Work's title and closes again when the copy leaves. On drop `DB.setProjectGroups({key:[pids]})` writes every group from
   the screen and sets each project's categoryId (entries that aren't real
   projects, e.g. legacy 'habits', are kept at the end of their group),
   then renderGrids. The -2px War Room rule skips a zone-empty grid (else a

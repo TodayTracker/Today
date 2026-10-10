@@ -754,11 +754,13 @@ html:not(#x) .ts-head .ts-pri{flex:none;margin:0}
 html:not(#x) .ts-head .ts-pri .opt-row{box-sizing:border-box;height:48px;min-height:48px;padding:0 10px 0 14px;border-bottom:none}
 /* Overview: projects without a category sit right under the War Room —
    card after card, so 20px apart like everywhere else (not 22). */
-html:not(#x) #war-box:not([style*="none"])+#overview-grid>.nocat-block:first-child>.agrid:not(.zone-empty){margin-top:-2px}
-/* Overview: an empty group's grid takes no room — until a project is being
-   dragged (body.proj-drag): then it opens as a faint slot to drop into */
-html:not(#x) #overview-grid .agrid.zone-empty{min-height:0;margin:0;border-radius:14px;background:transparent;transition:min-height .2s ease,margin-bottom .2s ease,background-color .2s ease}
-html:not(#x) body.proj-drag #overview-grid .agrid.zone-empty{min-height:72px;margin-bottom:22px;background:color-mix(in srgb,var(--card) 55%,transparent)}
+html:not(#x) #war-box:not([style*="none"])+#overview-grid>.nocat-block:first-child>.agrid:is(:not(.zone-empty),:has(>.drag-placeholder)){margin-top:-2px}
+/* Overview: an empty group's grid takes no room, also while a project is
+   dragged — it only opens when the dragged project's faint copy goes into
+   it (dragged above the first category, or onto an empty category's title;
+   DragReorder picks the nearest group, and an empty one is a line there) */
+html:not(#x) #overview-grid .agrid.zone-empty{min-height:0;margin:0;border-radius:14px;background:transparent}
+html:not(#x) #overview-grid .agrid.zone-empty:has(>.drag-placeholder){margin-bottom:22px}
 html:not(#x) #war-box:not([style*="none"])+#overview-grid>.add-block:first-child>.agrid{margin-top:-2px}
 /* Overview with no project yet: the "+" card (a project card's size) */
 .add-card .aico{color:var(--ink)}
@@ -1661,7 +1663,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.40';
+var APP_VERSION='Beta 4.41';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2859,6 +2861,9 @@ var CHANGELOG=[
     "No more blue line when dragging a task into another priority: that priority makes room like its own does, and the cards grow and shrink smoothly",
     "Held items no longer stay grey: the grey is for taps, so a held row or project turns white again just before it lifts",
     "Edit layout pages (Overview, Today, Statistics) have a drag handle on every row instead of up and down arrows; drag it right away, or hold the row. In Overview's Edit layout a project can be dragged into another category or into No category"
+  ]},
+  {v:'Beta 4.41',notes:[
+    "Overview: dragging a project no longer opens a space for No category (and for empty categories) every time. A space only opens when you drag the project there: above the first category for No category, or onto an empty category's title"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2973,7 +2978,8 @@ var USER_LOG={
   'Beta 4.37':'design',
   'Beta 4.38':["More quotes on the update screen"],
   'Beta 4.39':'design',
-  'Beta 4.40':["New drag and drop everywhere"]
+  'Beta 4.40':["New drag and drop everywhere"],
+  'Beta 4.41':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
