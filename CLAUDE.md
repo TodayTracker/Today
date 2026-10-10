@@ -593,10 +593,12 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (CW/4); rounded tops. The Moving average row is hidden while Bar chart is
   on (it's line-only). The big number has its unit next to it (`.trk-u`).
 - Two update logs (3.83, "no one is reading it — it's way too complicated"):
-  Menu > App has a switch "Advanced update info" (`settings.advancedUpdates`,
-  default OFF; 3.83 as its own card, since 3.84 the App page is ONE card in
-  the order asked for: Version, Advanced update info, Update automatically,
-  Check for updates). On = the detailed `CHANGELOG`
+  a switch "Advanced update info" (`settings.advancedUpdates`, default OFF)
+  — on Menu > App until 4.39, now on Menu → Developer ("move the advanced
+  update mode to dev mode"), and it only counts while developer mode is on:
+  read it through `advancedLog()` (devMode && advancedUpdates), never the
+  setting alone. The App page is one card: Version, Update automatically,
+  Check for updates. On = the detailed `CHANGELOG`
   as before (for the user as tester/dev). Off = `USER_LOG` (right after
   CHANGELOG), for everyone else: a version is either a real new feature,
   as an array of lines, or 'bug' / 'design' / 'both'. Feature lines are
@@ -2142,24 +2144,29 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   German our own), Diogenes, and Luke Belmar. Add Belmar lines ONLY when
   the user gives the exact text (copyright; the funny ones like "Never do
   business with a brokie" are wanted). New entries use double-quoted JS
-  strings (apostrophes). SHOWN ONLY ON THE UPDATE SCREEN since 4.38 ("don't
-  put the loading screen each time when loading, only for updating for
-  now"): 4.36–4.37 showed `QuoteSplash` on every start (Menu → General →
-  Quote at start, `settings.startQuote`, skipped on a new install and on
-  the reload after an update via sessionStorage 'lifeos-noquote') — the
-  startup call, the switch, the setting and the noquote key are gone; to
-  bring it back see git 83e5b42. `QuoteSplash` (`#qsplash`, z-index 640,
-  var(--pg), counts in _overlayCount) is now opened only from Menu →
-  Developer: "Loading screen" (random; never the same twice in a row,
-  'lifeos-quote' = last index) and Developer → Quotes (`#p-devquotes`,
-  `renderDevQuotes`, every quote numbered in the app's language; a tap =
-  `QuoteSplash.show(i)`). Shown for `readMs(text)` = 1.8s + 0.32s per word,
-  3.5–7s; a tap hides it; show() is safe while showing/fading. Text:
-  ui-serif (New York on the iPhone, nothing downloaded — the preview shows
-  a fallback serif) italic 34/42, `text-wrap:balance`; the longest quote
-  (#23) is 6 lines at 375px. The update screen (opaque var(--pg)) has the
-  same big quote in the middle and "Updating" + the bar at the very bottom
-  (`.qs-foot`, 24px above the safe area, 160px track).
+  strings (apostrophes). SHOWN ONLY ON THE UPDATE SCREEN. 4.36–4.37
+  showed a quote screen (`QuoteSplash`, `#qsplash`) on every start (Menu →
+  General → Quote at start, `settings.startQuote`, skipped on a new install
+  and on the reload after an update via sessionStorage 'lifeos-noquote');
+  4.38 took it off the start ("only for updating for now") and 4.39 deleted
+  it entirely ("we don't need it, we will just use the update screen") —
+  splash markup, CSS, show/hide, the switch, the setting, the noquote key
+  and the Developer "Loading screen" button are gone; git 83e5b42 has it.
+  What's left is `QuoteText` (pick: random, never the same twice in a row,
+  'lifeos-quote' = last index; `readMs(text)` = 1.8s + 0.32s per word,
+  3.5–7s; `fill(textId,byId,i)`), used by `UpdateOverlay.show(i)`. Menu →
+  Developer has one Updates card: Advanced update info (switch), Quotes ›
+  (`#p-devquotes`, `renderDevQuotes`, every quote numbered in the app's
+  language; a tap = `UpdateOverlay.demo(i)` with that quote) and "Update
+  screen", a blue `.btn-row` action ("blue like all the other ones" — the
+  app's action rows are blue text, no arrow; rows with › open a page).
+  The card is rendered by `renderDevPage()` (`#dev-updates`, from
+  _renderPage('dev')). Text: ui-serif (New York on the iPhone, nothing
+  downloaded — the preview shows a fallback serif) italic 34/42,
+  `text-wrap:balance`; the longest quote (#23) is 6 lines at 375px. The
+  update screen (opaque var(--pg)) has the quote in the middle and
+  "Updating" + the bar at the very bottom (`.qs-foot`, 24px above the safe
+  area, 160px track).
   THE BAR (4.38, "make the bar animation smoother"): `LoadBar(id)` moves a
   full-width fill with `transform:translateX()` every rAF frame (it was a
   `width` transition — layout every frame — and on the update screen it
@@ -2174,8 +2181,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   cut the quote off. Developer → "Update screen" = `UpdateOverlay.demo()`
   (show, done() after 1.8s, hide after wait() — no network, no reload).
   Measured in the preview at 50ms samples: never backwards, ≤2.2% per
-  50ms, no jump at the hand-off. The quote screen's bar runs linearly
-  over readMs.
+  50ms, no jump at the hand-off. demo() ties its timers to its own run
+  (`_demoRun`), so a leftover timer can't close a later demo.
 - DEVELOPER MODE (4.24, "a switch… where I can test stuff… but I don't
   want everyone to see it… you need an access code"): Menu > General >
   Developer > Developer mode (`settings.devMode`, default false, in
@@ -2187,7 +2194,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   digits offline. While on, Menu shows a Developer row (`#settings-dev`)
   → `#p-dev` (in SETTINGS_SUBPAGES): Welcome screens / Add to Home Screen
   · iPhone / · Android via `Welcome.open({install:false|'ios'|'android'})`
-  (replays never touch settings.onboard). New test tools go on #p-dev.
+  (replays never touch settings.onboard), then the Updates card (see
+  QUOTES). New test tools go on #p-dev.
 - Calendar import (4.16, Menu > Data > Import calendar, `IcsImport`):
   file input `#ics-file` (.ics, or Google's .zip — `_unzip` reads the
   zip's central directory, stored or deflate-raw via DecompressionStream).

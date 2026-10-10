@@ -425,12 +425,9 @@ html[data-theme="light"] .switch-slider{background:#d1d1d1}
 .update-overlay{display:none;position:fixed;inset:0;background:var(--pg);z-index:600;align-items:center;justify-content:center;flex-direction:column;padding:0 28px 8vh}
 .update-overlay.on{display:flex}
 .update-overlay{touch-action:none}
-/* Quotes (QuoteSplash, the update screen): Apple's own serif (New York via
-   ui-serif — on the phone already, nothing downloaded), italic; the author
-   small and spaced like the section titles; the loading bar sits at the
-   very bottom of both */
-.qsplash{position:fixed;inset:0;z-index:640;background:var(--pg);display:none;align-items:center;justify-content:center;padding:0 28px 8vh;opacity:1;transition:opacity .45s ease;touch-action:none;-webkit-tap-highlight-color:transparent}
-.qsplash.on{display:flex}.qsplash.out{opacity:0}
+/* The update screen's quote: Apple's own serif (New York via ui-serif — on
+   the phone already, nothing downloaded), italic; the author small and
+   spaced like the section titles; the loading bar at the very bottom */
 .qs-box{max-width:340px;text-align:center}
 .qs-text{font-family:ui-serif,"New York","Iowan Old Style",Georgia,"Times New Roman",serif;font-style:italic;font-weight:400;font-size:34px;line-height:42px;letter-spacing:-.015em;color:var(--ink);text-wrap:balance}
 .qs-by{margin-top:22px;font-size:12px;line-height:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#a3a3a3}
@@ -1081,11 +1078,7 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
     <div class="opt-row" onclick="Welcome.open({install:'ios'})"><div class="opt-text"><div class="opt-title">Add to Home Screen · iPhone</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
     <div class="opt-row" onclick="Welcome.open({install:'android'})"><div class="opt-text"><div class="opt-title">Add to Home Screen · Android</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
   </div>
-  <div class="opt-group">
-    <div class="opt-row" onclick="QuoteSplash.show()"><div class="opt-text"><div class="opt-title">Loading screen</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
-    <div class="opt-row" onclick="UpdateOverlay.demo()"><div class="opt-text"><div class="opt-title">Update screen</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
-    <div class="opt-row" onclick="Nav.go('devquotes')"><div class="opt-text"><div class="opt-title">Quotes</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
-  </div>
+  <div id="dev-updates"></div>
   <div class="data-note">Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.</div>
 </div>
 
@@ -1421,10 +1414,6 @@ html:not(#x) #p-overview.ov-min .acard:active{background:transparent}
   </div>
 </div>
 
-<div class="qsplash" id="qsplash" onclick="QuoteSplash.hide()">
-  <div class="qs-box"><div class="qs-text" id="qs-text"></div><div class="qs-by" id="qs-by"></div></div>
-  <div class="qs-foot"><div class="update-bar-track"><div class="update-bar-fill" id="qs-bar-fill"></div></div></div>
-</div>
 
 <div class="sheet-overlay" id="whatsnew-overlay" onclick="if(event.target===this)WhatsNew.close()">
   <div class="sheet">
@@ -1656,7 +1645,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.38';
+var APP_VERSION='Beta 4.39';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2843,6 +2832,11 @@ var CHANGELOG=[
     "The loading bar moves in one smooth motion: no more jumps from step to step — it glides toward the end while the update loads and then carries on to full at the same speed, easing in. It's moved with transform every frame instead of its width",
     "22 more quotes (38 now): more Marcus Aurelius, Seneca and Epictetus, plus Zeno, Musonius Rufus and Diogenes",
     "Developer: Menu → Developer → Quotes lists every quote, numbered, in the app's language; tap one to see it on the loading screen"
+  ]},
+  {v:'Beta 4.39',notes:[
+    "The loading screen is gone — quotes only appear on the update screen",
+    "Advanced update info moved from Menu → App to Menu → Developer, and only counts while developer mode is on (otherwise everyone gets the simple update log)",
+    "Developer: Update screen is a blue button like the app's other buttons, in one card with Advanced update info and Quotes; tapping a quote in Quotes plays the update screen with it"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2955,7 +2949,8 @@ var USER_LOG={
   'Beta 4.35':'design',
   'Beta 4.36':["Quotes when the app opens"],
   'Beta 4.37':'design',
-  'Beta 4.38':["More quotes on the update screen"]
+  'Beta 4.38':["More quotes on the update screen"],
+  'Beta 4.39':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3635,7 +3630,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Loading screen":"Ladebildschirm","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -3734,7 +3729,7 @@ var I18N=(function(){
     [/^(\d+) events added to your calendar\.$/,'$1 Termine zu deinem Kalender hinzugefügt.'],
     [/^1 tasks?$/,'1 Aufgabe'],[/^(\d+) tasks$/,'$1 Aufgaben'],
     [/^1 habit$/,'1 Gewohnheit'],
-    [/^(\d+) quotes · tap one to see it on the loading screen\.$/,'$1 Zitate · tippe eines an, um es auf dem Ladebildschirm zu sehen.'],[/^(\d+) habits$/,'$1 Gewohnheiten'],
+    [/^(\d+) quotes · tap one to see it on the update screen\.$/,'$1 Zitate · tippe eines an, um es auf dem Update-Bildschirm zu sehen.'],[/^(\d+) habits$/,'$1 Gewohnheiten'],
     // a habit's days ("Mo, We, Fr") — weekday letters are English in the code
     [/^(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:, (?:Mo|Tu|We|Th|Fr|Sa|Su))+$/,function(m){return m.replace(/Tu|We|Th|Su/g,function(x){return {Tu:'Di',We:'Mi',Th:'Do',Su:'So'}[x];});}],
     [/^(Skipped|Done|Not done) — (.*)$/,function(m,a,b){return DE[a]+' — '+b;}],
@@ -4546,11 +4541,6 @@ function renderAppPage(){
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Version</div></div>'
     +'<span style="margin-left:auto;font-size:15px;font-weight:500;color:#999">'+esc(APP_VERSION)+'</span></div>'
-    // which log Version history (and What's new) shows
-    +'<div class="opt-row" style="cursor:default">'
-    +'<div class="opt-text"><div class="opt-title">Advanced update info</div></div>'
-    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.advancedUpdates?'checked':'')+' onchange="A.setAdvancedUpdates(this.checked)"><span class="switch-slider"></span></label>'
-    +'</div>'
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Update automatically</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.autoUpdate?'checked':'')+' onchange="A.setAutoUpdate(this.checked)"><span class="switch-slider"></span></label>'
@@ -4560,12 +4550,15 @@ function renderAppPage(){
 ;
   renderAppHistory();
 }
-// Version history: every detailed CHANGELOG note (Advanced update info on),
-// or the simple log (USER_LOG via simpleHistory) everyone else gets.
+// The detailed update log: Menu → Developer → Advanced update info, and only
+// while developer mode is on — everyone else gets the simple log.
+function advancedLog(){var st=DB.data.settings;return !!(st.devMode&&st.advancedUpdates);}
+// Version history: every detailed CHANGELOG note (advancedLog()), or the
+// simple log (USER_LOG via simpleHistory) everyone else gets.
 function renderAppHistory(){
   var head=function(v){return '<div style="margin-bottom:18px"><div style="font-weight:700;font-size:15px;margin-bottom:6px">'+esc(v)+'</div>';};
   var bullets=function(a){return a.map(function(n){return '<div class="wn-item">• '+esc(n)+'</div>';}).join('');};
-  var h=DB.data.settings.advancedUpdates
+  var h=advancedLog()
     ?CHANGELOG.slice().reverse().map(function(e){return head(e.v)+bullets(e.notes)+'</div>';})
     :simpleHistory().map(function(r){return head(r.v)+(r.lines?bullets(r.lines):'<div class="wn-item wn-fix">'+r.fix+'</div>')+'</div>';});
   document.getElementById('app-history').innerHTML='<div class="calsec" style="padding:14px 15.5px 2px">'+h.join('')+'</div>';
@@ -5222,7 +5215,7 @@ var A={
     renderSettings();
   },
   // only the history below redraws, so the switch itself isn't replaced mid-flip
-  setAdvancedUpdates:function(val){DB.data.settings.advancedUpdates=val;DB.save();renderAppHistory();},
+  setAdvancedUpdates:function(val){DB.data.settings.advancedUpdates=val;DB.save();renderAppHistory();renderDevPage();},
   setAutoUpdate:function(val){
     DB.data.settings.autoUpdate=val;DB.save();
     if(val)A.checkForUpdate(true);
@@ -5345,6 +5338,7 @@ function _renderPage(id){
   if(id==='editlayout')renderEditLayout();
   if(id==='statslayout')renderStatsLayout();
   if(id==='todaylayout')renderTodayLayout();
+  if(id==='dev')renderDevPage();
   if(id==='devquotes')renderDevQuotes();
   if(id==='appearance')renderAppearance();
   if(id==='app')renderAppPage();
@@ -8026,14 +8020,10 @@ LoadBar.prototype.play=function(fn,dur){
   }
   this._raf=requestAnimationFrame(step);
 };
-// The quote screen (Menu → Developer → Loading screen, or a quote in
-// Developer → Quotes; it showed on every start in 4.36–4.37, turned off
-// "for now"): a random quote, never the same one twice in a row
-// ('lifeos-quote'), shown long enough to read it (readMs: by its number of
-// words, 3.5–7s) while the bar at the bottom fills — a tap closes it.
-// Counts as an open overlay (no swipe-back under it).
-var QuoteSplash={
-  _on:false,_t:null,_ht:null,_bar:new LoadBar('qs-bar-fill'),
+// The update screen's quote: a random one, never the same one twice in a
+// row ('lifeos-quote'), and how long it takes to read (readMs: by its
+// number of words, 3.5–7s)
+var QuoteText={
   // i: a given quote (Developer → Quotes); none: a random one
   pick:function(i){
     if(typeof i==='number'&&QUOTES[i])return QUOTES[i];
@@ -8052,39 +8042,28 @@ var QuoteSplash={
     document.getElementById(textId).textContent=de?'\u201E'+text+'\u201C':'\u201C'+text+'\u201D';
     document.getElementById(byId).textContent=de?q[3]:q[2];
     return this.readMs(text);
-  },
-  show:function(i){
-    if(this._t){clearTimeout(this._t);this._t=null;}
-    if(this._ht){clearTimeout(this._ht);this._ht=null;}
-    var ms=this.fill('qs-text','qs-by',i);
-    var el=document.getElementById('qsplash');
-    el.classList.remove('out');el.classList.add('on');
-    if(!this._on){this._on=true;_overlayCount++;if(_overlayCount===1)_lockBodyScroll();}
-    this._bar.reset();
-    this._bar.play(function(t){return t/ms;},ms);
-    var self=this;this._t=setTimeout(function(){self.hide();},ms+250);
-  },
-  hide:function(){
-    if(!this._on)return;
-    if(this._t){clearTimeout(this._t);this._t=null;}
-    var el=document.getElementById('qsplash'),self=this;
-    el.classList.add('out');
-    this._ht=setTimeout(function(){
-      self._ht=null;self._bar.stop();
-      el.classList.remove('on','out');
-      if(self._on){self._on=false;_overlayCount=Math.max(0,_overlayCount-1);if(_overlayCount===0)_unlockBodyScroll();}
-    },450);
   }
 };
-// Menu → Developer → Quotes: every quote in the app's language; a tap shows
-// that one on the quote screen
+// Menu → Developer: the Updates card — the detailed update log switch, the
+// quote list and a dry run of the update screen
+function renderDevPage(){
+  setHTML('dev-updates','<div class="opt-group">'
+    +'<div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Advanced update info</div></div>'
+    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.advancedUpdates?'checked':'')+' onchange="A.setAdvancedUpdates(this.checked)"><span class="switch-slider"></span></label></div>'
+    +'<div class="opt-row" onclick="Nav.go(\'devquotes\')"><div class="opt-text"><div class="opt-title">Quotes</div></div>'+DEV_CHEV+'</div>'
+    +'<div class="opt-row btn-row" onclick="UpdateOverlay.demo()"><div class="opt-text"><div class="opt-title">Update screen</div></div></div>'
+    +'</div>');
+}
+var DEV_CHEV='<span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span>';
+// Menu → Developer → Quotes: every quote in the app's language; a tap plays
+// the update screen with that one
 function renderDevQuotes(){
   var de=I18N.lang==='de';
   setHTML('devquotes-list',QUOTES.map(function(q,i){
-    return '<div class="opt-row qrow" onclick="QuoteSplash.show('+i+')"><span class="qrow-n">'+(i+1)+'</span>'
+    return '<div class="opt-row qrow" onclick="UpdateOverlay.demo('+i+')"><span class="qrow-n">'+(i+1)+'</span>'
       +'<div class="opt-text"><div class="qrow-t">'+esc(de?q[1]:q[0])+'</div><div class="qrow-a">'+esc(de?q[3]:q[2])+'</div></div></div>';
   }).join(''));
-  document.getElementById('devquotes-note').textContent=QUOTES.length+' quotes · tap one to see it on the loading screen.';
+  document.getElementById('devquotes-note').textContent=QUOTES.length+' quotes · tap one to see it on the update screen.';
 }
 // The update screen: a quote in the middle, "Updating" and the bar at the
 // bottom. The bar never waits on the update's steps: from the start it
@@ -8096,9 +8075,9 @@ function renderDevQuotes(){
 // (scroll lock; every drag on it is cancelled).
 var UpdateOverlay={
   _on:false,_shownAt:0,_readMs:0,_rest:0,_t0:0,_tau:1,_A:.85,_bar:new LoadBar('update-bar-fill'),
-  show:function(){
+  show:function(i){
     document.getElementById('update-text').textContent='Updating';
-    this._readMs=QuoteSplash.fill('upd-q-text','upd-q-by');this._shownAt=Date.now();
+    this._readMs=QuoteText.fill('upd-q-text','upd-q-by',i);this._shownAt=Date.now();
     var A=this._A,tau=this._tau=this._readMs/2;
     this._t0=performance.now();
     this._bar.reset();
@@ -8120,14 +8099,17 @@ var UpdateOverlay={
   // How long to wait after done() before reloading: at least min, and
   // until the bar is full
   wait:function(min){return Math.max(min,this._rest+400);},
-  // Menu → Developer: the whole update screen as a fast update shows it,
-  // then it just closes — nothing is downloaded or reloaded
-  demo:function(){
+  // Menu → Developer: the whole update screen as a fast update shows it
+  // (i: that quote), then it just closes — nothing is downloaded or reloaded
+  demo:function(i){
     var self=this;
-    this.show();
+    if(this._on)return;
+    var run=this._demoRun=(this._demoRun||0)+1;
+    this.show(i);
     setTimeout(function(){
+      if(self._demoRun!==run||!self._on)return;
       self.done();
-      setTimeout(function(){self.hide();},self.wait(2700));
+      setTimeout(function(){if(self._demoRun===run)self.hide();},self.wait(2700));
     },1800);
   },
   hide:function(){
@@ -8238,12 +8220,12 @@ var WhatsNew={
     var pending=CHANGELOG.slice(i+1);
     return pending.length?pending:[CHANGELOG[CHANGELOG.length-1]];
   },
-  // Simple log (Advanced update info off): only the new features, in plain
+  // Simple log (advancedLog() off): only the new features, in plain
   // words — an update with nothing but fixes doesn't pop up at all, it's
   // just marked as seen.
   open:function(){
     var list=this._pending();
-    if(!DB.data.settings.advancedUpdates){
+    if(!advancedLog()){
       list=list.filter(function(e){return !userLogKind(e);}).map(function(e){return{v:e.v,notes:USER_LOG[e.v]};});
       if(!list.length){DB.data.settings.lastSeenVersion=APP_VERSION;DB.save();return;}
     }
