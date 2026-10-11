@@ -1518,7 +1518,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   cards of Menu rows, the same in every window: Type/Category (new
   project), Unit (`.sh-rin`, right-aligned input — editable when editing a
   tracker too, saved to p.unit, new in 4.44), Goal (+ `.sh-unit`), Color
-  (row with swatch + name + chevron → ColorPicker), Bar chart / Moving
+  (row with the swatch + chevron → ColorPicker; since 4.46 the swatch is a
+  20px rounded square, radius 5 = the picker's quarter corner, and the
+  colour NAME is gone — "a square color icon… its round rn… and without
+  the text"; the name is only its aria-label now), Bar chart / Moving
   average, Days (`.sh-days-row`, the chips inside a row), Name per day,
   Start/End, Date, Priority; a red `.btn-row.danger` Delete row last.
   A tracker habit's name line is just "📈 Name" (no "Tracking:"). Number
