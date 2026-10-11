@@ -1628,7 +1628,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.44';
+var APP_VERSION='Beta 4.45';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2842,6 +2842,9 @@ var CHANGELOG=[
     "Every edit window has one look (style C, picked from the suggestions): Save at the top right, the name as a big title right on the window with the description or notes in grey under it, then the same white rows everywhere (Type, Category, Color, Unit, Goal, Priority, Days, Start/End, Date) and a red Delete row last. A project shows its icon big at the top: tap it to type an emoji, the small round button adds or changes a photo. Tracker values show big in the middle with their unit. Applies to tasks, projects (To-do, List, Tracker, Habits), habits (also tracker and temporary habits), Calendar, tracker values and the name windows",
     "A tracker's unit can now be changed when editing it; a new Calendar task starts on today's date; tapping a row's name (Unit, Goal, Start, Date) goes to its field",
     "Fixed: a new habit's description wasn't saved (only when editing it later)"
+  ]},
+  {v:'Beta 4.45',notes:[
+    "Every project's edit window has Delete project now, the main Habits project too (it was the only one without). If it's deleted, its habits go to the Trash and the next Habits project becomes the main one; restoring it from the Trash brings it back as a Habits project. The question before deleting names what goes with it: tasks, habits or entries"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2960,7 +2963,8 @@ var USER_LOG={
   'Beta 4.41':'design',
   'Beta 4.42':'design',
   'Beta 4.43':["Temporary habits with a start and end date"],
-  'Beta 4.44':'both'
+  'Beta 4.44':'both',
+  'Beta 4.45':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3202,15 +3206,20 @@ var DB={
     this.save();
   },
   deleteProject:function(catId,projId){
-    var d=this.data,p=d.projects[projId],self=this;
+    var d=this.data,p=d.projects[projId],self=this,hab=isHabitsProject(projId);
     // a Habits project's habits go to the Trash one by one, like any deleted habit
-    if(isHabitsProject(projId))d.dailyItems.filter(function(it){return habitPid(it)===projId;}).map(function(it){return it.id;}).forEach(function(id){self.deleteDailyItem(id);});
+    if(hab)d.dailyItems.filter(function(it){return habitPid(it)===projId;}).map(function(it){return it.id;}).forEach(function(id){self.deleteDailyItem(id);});
+    // (old data can have the main one typed as something else; from the
+    // Trash it must come back as a Habits project)
+    if(hab&&p)p.type='daily';
     var index=(d.projectOrder[catId]||[]).indexOf(projId);
     var cat=d.categories[catId];
     var snap=this._takeProject(projId);
     this._trash('project',p?p.name:projId,p?p.icon:'',{catId:catId,cat:cat,index:index,snap:snap});
     if(d.projectOrder[catId])
       d.projectOrder[catId]=d.projectOrder[catId].filter(function(x){return x!==projId;});
+    // the main Habits project went: the next one takes over (none left = no habits pages)
+    if(projId===d.habitsProjectId&&habitsProjects().length)d.habitsProjectId=habitsProjects()[0];
     this.save();
   },
   // Puts a trashed item back. Returns '' on success or a message on failure.
@@ -3747,7 +3756,9 @@ var I18N=(function(){
     [/^Remove "(.*)" from statistics\? Its past days stop counting\.$/,'„$1“ aus der Statistik entfernen? Ihre vergangenen Tage zählen nicht mehr.'],
     [/^Delete all (\d+) items in this tab forever\?$/,'Alle $1 Einträge in diesem Tab endgültig löschen?'],
     [/^Delete category "(.*)"\? Its projects move to the Trash\.$/,'Kategorie „$1“ löschen? Ihre Projekte kommen in den Papierkorb.'],
-    [/^Move project "(.*)" and all its tasks to the Trash\?$/,'Projekt „$1“ und alle seine Aufgaben in den Papierkorb legen?']
+    [/^Move project "(.*)" and all its tasks to the Trash\?$/,'Projekt „$1“ und alle seine Aufgaben in den Papierkorb legen?'],
+    [/^Move project "(.*)" and all its habits to the Trash\?$/,'Projekt „$1“ und alle seine Gewohnheiten in den Papierkorb legen?'],
+    [/^Move project "(.*)" and all its entries to the Trash\?$/,'Projekt „$1“ und alle seine Einträge in den Papierkorb legen?']
   ];
   var lang='en',ATTRS=['placeholder','title','aria-label'],SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1};
   function tr(s){
@@ -4896,10 +4907,9 @@ var A={
     });
   },
   deleteProj:function(catId,pid){
-    var n=DB.data.projects[pid]?DB.data.projects[pid].name:pid;
-    Alert.confirm('Move project "'+n+'" and all its tasks to the Trash?',function(){
+    Alert.confirm(projDeleteText(pid),function(){
       DB.deleteProject(catId,pid);buildProjPages();renderEditLayout();renderGrids();renderWar();
-      buildPanels();restoreChecks(Nav.sd);
+      buildPanels();restoreChecks(Nav.sd);renderToday();
     },'Move to Trash');
   },
   addTrackerEntry:function(pid,val){
@@ -6398,6 +6408,12 @@ function habitsProjects(){ // in Overview order
   projectGroups().forEach(function(c){(d.projectOrder[c]||[]).forEach(function(pid){if(isHabitsProject(pid)&&out.indexOf(pid)===-1)out.push(pid);});});
   Object.keys(d.projects).forEach(function(pid){if(isHabitsProject(pid)&&out.indexOf(pid)===-1)out.push(pid);});
   return out;
+}
+// The question before a project goes to the Trash, naming what goes with it
+function projDeleteText(pid){
+  var p=DB.data.projects[pid],n=p?p.name:pid;
+  var what=isHabitsProject(pid)?'habits':p&&p.type==='tracker'?'entries':'tasks';
+  return 'Move project "'+n+'" and all its '+what+' to the Trash?';
 }
 function mainHabitsPid(){var h=DB.data.habitsProjectId;return isHabitsProject(h)?h:(habitsProjects()[0]||null);}
 // the project a habit is shown under (a missing one — deleted project,
@@ -9344,8 +9360,7 @@ var SheetEditor={
     document.getElementById('sheet-goal-row').style.display=link?'':'none';
     document.getElementById('sheet-goal').value=link&&hasGoal(link)?fmtTrk(link.goal):'';
     document.getElementById('sheet-goal-unit').textContent=p.unit||'';
-    // Delete: any project but the Daily one (that's the Habits page itself)
-    document.getElementById('proj-delete-row').style.display=pid===DB.data.habitsProjectId?'none':'';
+    document.getElementById('proj-delete-row').style.display=''; // every project can be deleted
     _overlayOpen('proj-sheet-overlay');
   },
 
@@ -9369,15 +9384,16 @@ var SheetEditor={
   // goes back first and rebuilds the pages once that slide is done.
   remove:function(){
     var pid=this.pid,p=pid&&DB.data.projects[pid];
-    if(!p||pid===DB.data.habitsProjectId)return;
+    if(!p)return;
     var catId=p.categoryId;
     if(!catId||!(DB.data.projectOrder[catId]||[]).length)catId=Object.keys(DB.data.projectOrder).filter(function(c){return (DB.data.projectOrder[c]||[]).indexOf(pid)!==-1;})[0]||p.categoryId;
     this.close();
     setTimeout(function(){
-      Alert.confirm(t('Move project "'+p.name+'" and all its tasks to the Trash?'),function(){
-        var onPage=Nav.cur===pid;
+      Alert.confirm(projDeleteText(pid),function(){
+        // a Habits project is shown on the one Habits page, not its own
+        var onPage=Nav.cur===pid||(Nav.cur==='habits'&&curHabitsPid()===pid);
         DB.deleteProject(catId,pid);
-        function rebuild(){buildProjPages();renderGrids();renderWar();renderEditLayout();buildPanels();restoreChecks(Nav.sd);}
+        function rebuild(){buildProjPages();renderGrids();renderWar();renderEditLayout();buildPanels();restoreChecks(Nav.sd);renderToday();}
         if(onPage){navBack();setTimeout(rebuild,SLIDE_MS+80);}else rebuild();
       });
     },SHEET_ANIM_MS+30);

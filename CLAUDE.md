@@ -84,7 +84,16 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   one card per Habits project, titled with its name. `habitsProjectId`
   stays as the FIRST/main one: creating another Habits project no longer
   takes it over (it did — every habit was global, so a second one showed
-  the same habits), and its editor still hides Delete. Other Habits projects
+  the same habits). Since 4.45 EVERY project's edit window has Delete
+  ("make sure the delete project button is in every project"), the main
+  Habits project too (Edit layout could already delete it): DB.deleteProject
+  sets its type to 'daily' before the snapshot (old data can have the main
+  one typed 'todo'; from the Trash it must come back as Habits) and hands
+  habitsProjectId to the next Habits project if there is one (none left =
+  no Habits pages, like a fresh install). SheetEditor.remove goes back
+  first when you're on that project's Habits page (`Nav.cur==='habits'`
+  and curHabitsPid()). The confirm text is `projDeleteText(pid)`: tasks /
+  habits / entries. Habits projects
   can be deleted: their habits go to the Trash one by one (DB.deleteProject);
   "Reset a project" on one trashes only its habits (categories stay). A
   restored habit whose project is gone shows under the first one, and moves
@@ -440,8 +449,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (recreating a missing parent category from the snapshot; an entry needs
   its project to exist, else it returns a message).
   A project can also be deleted from its own edit window (3.30:
-  `SheetEditor.remove`, a red "Delete project" row shown only when editing
-  an existing project that isn't the Daily one) — same `DB.deleteProject`
+  `SheetEditor.remove`, a red "Delete project" row shown when editing any
+  existing project — since 4.45 the main Habits one too) — same `DB.deleteProject`
   as Edit layout. The confirm (a centred Alert since 3.67) opens after the
   edit sheet has closed; if you're on that project's page, it navigates
   back first and rebuilds the pages after the slide. Completed tasks are
