@@ -1097,6 +1097,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   the finger, else only if it's the single match). Any render function
   that runs on navigation and rebuilds the page you're LEAVING will cause
   this; prefer setHTML-style "only if changed" writes there.
+  4.43 — Overview's project cards (`.acard`) greyed through plain
+  `:active`, i.e. instantly, also when a scroll started on one ("it should
+  only go grey when I intend to click it… we have this already for the
+  bars"). `.acard` is now in PRESS_ROWS (the JS grey: PRESS_DELAY, any
+  >10px move cancels) with `.acard.pressed-row` CSS (minimal layout: the
+  icon dims instead, `.acard.pressed-row .aico`); being in PRESS_ROWS with
+  an onclick also means TAPPABLE leaves its tap to the native click.
+  Preview note: with the Browser pane hidden, transitions don't advance —
+  a computed colour reads the START value; check with transition:none.
   3.10 — "the grey in Settings still feels a touch weaker than Today's":
   color, fade timings and slide were measured identical. The real
   difference was WHO clicks: Today's rows open on the browser's own click,
@@ -1475,6 +1484,27 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (was min(4,bw/2)) — identical at the 14-day view (bw 14.5 → 4) and wider;
   45-day bars (4.5 wide) get 1.2 instead of 2.25. Tracker bar chart
   `r=min(3,bw/6,h/2)` (a full 18-wide bar keeps 3).
+- TEMPORARY HABITS (4.43, "a third option for the + in habits… all the
+  exact same function as a normal habit, but I can set a start and end
+  date"): Habits "+" → Habit / Temporary habit / Add a tracker
+  (`A.startTempHabit` → `DailyItemSheet.open(cat,null,null,true)`). A
+  temporary habit is a normal dailyItems entry with `created` = its START
+  (the existing "counts from" date — so it's hidden before it and stats
+  start there for free) and `until` = its LAST day (inclusive). NOT
+  `ended`: that marks deleted habits kept in Statistics (the Habits
+  widget lists anything with `ended` under "Deleted"). One check for "is
+  this habit on day ds": `habitActive(it,ds)` (created ≤ ds ≤ until);
+  `habitCountsOn` = habitActive + ended. Used by: Today (renderToday),
+  the project's day panels (buildPanels), Overview's Habits card count,
+  the checkbox guard, TrackerDaySheet, habitConsistency, habitStreaks,
+  chartSource's per-habit scheduled days, _sumDays/perfect streak (via
+  habitCountsOn). A NEW place that shows or counts a habit on a day must
+  use it. The window shows Start/End date fields (`#daily-item-dates`,
+  `showDates`/`readDates`, swapped into order) for a new temporary habit
+  (defaults: today → +29 days) and when editing one (`it.until` set);
+  normal habits never show them. The habit page's days line is
+  `habitWhen(it)` ("Every day · 9 Oct – 13 Oct"). Tested: on exactly its
+  days in Today, panels, score (3 days so far), edit window round trip.
 - NAME PER DAY (4.28, "workout is one habit but one day I can call it
   chest day, other pull day… the title stays the current name"): a habit
   (not a tracker habit — its name is the tracker's) can have
