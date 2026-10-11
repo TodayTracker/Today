@@ -1148,6 +1148,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   always stays in its project. It hides
   its Priority row (and the then-empty card) when the project is a List, in both add
   and edit mode — List projects don't sort by priority.
+  (4.13 layout below is SUPERSEDED by the 4.44 edit windows — see EDIT
+  WINDOWS: the name is a big title, Priority is a normal row in a card.)
   4.13 layout (asked for: "the title also in a white widget, the prio on
   the same level, small, on the right"): `.ts-head` = the name input as a
   white 48px widget (17/700) + `#task-sheet-rows.ts-pri`, a small white
@@ -1484,6 +1486,48 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (was min(4,bw/2)) — identical at the 14-day view (bw 14.5 → 4) and wider;
   45-day bars (4.5 wide) get 1.2 instead of 2.25. Tracker bar chart
   `r=min(3,bw/6,h/2)` (a full 18-wide bar keeps 3).
+- EDIT WINDOWS (4.44, style "C · Header", picked from a suggestions page
+  with A/B/C mockups — https://claude.ai/artifact/GAMky7fND1HABuT7vkimBX;
+  asked: "align all edit tabs design wise… compress… so it doesn't look this
+  cheap… tracker and habit edit as well as every other"): every window
+  that edits something is `.sheet.sh-win`: InputSheet, project (new/edit,
+  every type incl. Habits and tracker projects), habit (normal, tracker,
+  temporary), Calendar, task, tracker entry (TrackerAddSheet) and a day's
+  value (TrackerDaySheet). Layout: `.sh-bar` = centred `.sh-bar-t` title
+  (only for NEW things — "New project", "New task", "New habit",
+  "Temporary habit", "Add a tracker", "Calendar" — and number windows: the
+  tracker's name; empty when editing) + `.sh-save` (blue Save/OK, top
+  right, in TAPPABLE like .sheet-save was). No Save row at the bottom any
+  more. `.sh-hero`: the name as a big borderless title (`.sh-name`, 24/700)
+  and a grey line under it (`.sh-sub`: description, or a task's notes
+  `.sh-notes` min 120px; textareas grow via `_shGrow`/TaskSheet.autosize).
+  A project's hero is centred with a 76px icon tile (`.sh-ico`
+  #sheet-ico-tile, coloured by updateColorField like the Overview card):
+  the emoji input fills it; a photo (`#sheet-photo-preview`) covers it;
+  the small round `.sh-ico-btn` = pick a photo, or with one a DSel menu
+  Change photo / Remove photo (red, `cls:'danger'`). Then `.opt-group`
+  cards of Menu rows, the same in every window: Type/Category (new
+  project), Unit (`.sh-rin`, right-aligned input — editable when editing a
+  tracker too, saved to p.unit, new in 4.44), Goal (+ `.sh-unit`), Color
+  (row with swatch + name + chevron → ColorPicker), Bar chart / Moving
+  average, Days (`.sh-days-row`, the chips inside a row), Name per day,
+  Start/End, Date, Priority; a red `.btn-row.danger` Delete row last.
+  A tracker habit's name line is just "📈 Name" (no "Tracking:"). Number
+  windows: `.sh-val` = the value 48/700 centred, its width measured with a
+  canvas (`_shFitVal`) so the unit (`.sh-val-u`) sits right after it, goal
+  note under it (TrackerAddSheet shows the linked habit's goal too). A tap
+  on a field row's label focuses its field (date: showPicker) — a document
+  click listener, since TAPPABLE clicks the row. Field rows don't grey
+  (PRESS_ROWS `:not(:has(.sh-rin))`, `:not(.sh-days-row)`). A card whose
+  last row(s) are display:none drops the divider of the last shown row
+  (`:has(+.opt-row[style*="none"]:last-child)` rule). A new Calendar task
+  starts on today. Fixed with it: a NEW habit's description was never
+  saved (only on edit). Element ids all kept, so the JS is mostly
+  unchanged; gone: .ts-head/.ts-title/.ts-pri, the .color-field box,
+  .trk-add-row/.trk-add-unit, sheet-photo-btn-label/-remove-row. A NEW
+  edit window: same structure (sh-win, sh-bar, sh-hero, opt-group rows).
+  Not converted (not edit windows): What's New, Export, calendar import,
+  templates, category/colour pickers, AddChoice.
 - TEMPORARY HABITS (4.43, "a third option for the + in habits… all the
   exact same function as a normal habit, but I can set a start and end
   date"): Habits "+" → Habit / Temporary habit / Add a tracker

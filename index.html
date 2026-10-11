@@ -462,9 +462,6 @@ html[data-theme="light"] .sheet{background:#fff}
 #task-sheet-overlay .sheet{max-height:88vh;padding:18px 18px 20px}
 /* While the keyboard is up (see "must track the KEYBOARD"): never taller
    than what's visible above it, below the status bar. */
-.ts-title{width:100%;font-size:21px;font-weight:800;line-height:1.25;border:none;background:transparent;color:inherit;outline:none;padding:2px 0;margin-bottom:12px;font-family:inherit}
-.ts-title::placeholder{color:#bbb}
-.ts-notes{min-height:40vh;resize:none;line-height:1.5;font-family:inherit;font-size:16px;padding:14px;margin-bottom:14px;display:block}
 .sheet-drag-handle{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:44px;height:5px;border-radius:3px;background:#c4c4c9}
 /* one identical top spacing for every sheet (handle at 10px, content from 30px) */
 .sheet-overlay .sheet{padding-top:30px!important}
@@ -482,14 +479,7 @@ html[data-theme="light"] .sheet-inp{background:#fff;border-color:#e8e5e0;color:#
 html[data-theme="dark"] .sheet-inp:focus{border-color:#fff}
 html[data-theme="light"] .sheet-inp:focus{border-color:#000}
 .sheet-colors{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-.color-field{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid #e8e5e0;border-radius:14px;background:#fff;cursor:pointer;margin-bottom:14px}
-@media(prefers-color-scheme:dark){.color-field{background:#1e1c1a;border-color:#333;color:#fff}}
-html[data-theme="dark"] .color-field{background:#1e1c1a;border-color:#333;color:#fff}
-html[data-theme="light"] .color-field{background:#fff;border-color:#e8e5e0;color:#000}
-.color-field:active{opacity:.7}
 .color-field-swatch{width:26px;height:26px;border-radius:8px;flex-shrink:0}
-.color-field-label{flex:1;font-size:15px}
-.color-field-chev{color:#bbb;flex-shrink:0}
 .sheet-color{width:40px;height:40px;border-radius:10px;cursor:pointer;border:3px solid transparent}
 .sheet-color.sel{border-color:#000}
 @media(prefers-color-scheme:dark){.sheet-color.sel{border-color:#fff}}
@@ -649,7 +639,7 @@ html:not(#x) .dhdr{min-height:40px}
 .dsub{font-size:13px;font-weight:500}
 .tlbl{font-size:13px;font-weight:500;color:#999}
 /* text roles */
-.tt,.cali label,.wit,.el-name,.trk-entry-val,.cat-choice,.color-field-label{font-size:15px;font-weight:600}
+.tt,.cali label,.wit,.el-name,.trk-entry-val,.cat-choice{font-size:15px;font-weight:600}
 .ts,.trk-entry-date{font-size:12px;font-weight:500}
 .empty{font-size:14px;font-weight:500}
 .albl{font-size:12px;font-weight:600}
@@ -669,7 +659,6 @@ html:not(#x) .sheet-inp:focus,html:not(#x) .addinp:focus{border:none;box-shadow:
    ring while focused, so it's still obvious which window is selected. */
 html:not(#x) #sheet-icon:focus{background:var(--blue-tint);box-shadow:0 0 0 2px var(--blue);transition:background .15s ease,box-shadow .15s ease}
 .sheet-inp::placeholder,.addinp::placeholder{color:#bbb;font-weight:500}
-.ts-title{font-size:20px;font-weight:800}
 /* buttons in sheets: a white row with blue text, exactly like Settings' buttons */
 html:not(#x) .sheet-save{background:var(--card);border:none;border-radius:14px;height:46px;padding:0 14px;color:var(--blue);font-size:15px;font-weight:600;text-align:left;font-family:inherit;transition:background .12s ease}
 html:not(#x) .sheet-save:active{background:var(--press)}
@@ -684,7 +673,6 @@ html:not(#x) .cat-choice:last-child{border-bottom:none}
 /* option buttons (type, days, quick picks) */
 html:not(#x) .type-btn{border:none;background:var(--card);border-radius:12px;height:40px;padding:0 10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#999;transition:background .15s ease,color .15s ease}
 html:not(#x) .type-btn.active{background:var(--blue-tint);color:var(--blue);border:none}
-html:not(#x) .color-field{border:none;border-radius:14px;background:var(--card);height:46px;padding:0 14px}
 /* Daily day strip */
 html:not(#x) .dpill{border:none;background:var(--card)}
 html:not(#x) .dpill.today{background:#dcfce7}
@@ -700,6 +688,51 @@ html:not(#x) .el-card .el-row:last-child{border-bottom:none}
 html:not(#x) .el-row{padding:6px 8px 6px 14px;min-height:52px}
 html:not(#x) .el-btn{width:36px;height:36px;border:none;border-radius:10px;background:var(--pg);transition:background .12s ease}
 html:not(#x) .el-btn.danger{background:#dc2626}
+/* EDIT WINDOWS (4.44, style "C · Header", picked from a suggestions page):
+   every window that edits something (.sh-win) has Save at the top right,
+   with a centred title only for new things and number windows. The thing
+   itself is the header: its name a big title right on the window (no box)
+   with a grey line under it (description / notes); a project shows its
+   icon big above it (tap it to type an emoji; the small round button adds
+   or changes a photo). Then cards of Menu-style rows — the same rows in
+   every window, inputs right-aligned in their row — and a red Delete row
+   last. Number windows show the value big in the middle. */
+.sh-bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;min-height:30px;margin:-6px 0 12px}
+.sh-bar-t{grid-column:2;font-size:16px;line-height:22px;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}
+.sh-save{grid-column:3;justify-self:end;appearance:none;border:none;background:none;padding:4px 2px 4px 12px;font-family:inherit;font-size:17px;line-height:22px;font-weight:600;color:var(--blue);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s ease}
+.sh-save:active{opacity:.45}
+.sh-hero{display:flex;flex-direction:column;gap:4px;margin:0 2px 18px}
+.sh-hero.center{align-items:center;text-align:center}
+html:not(#x) .sh-name{display:block;width:100%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;color:var(--ink);font-family:inherit;font-size:24px;line-height:30px;font-weight:700;padding:0;margin:0;height:auto;min-height:0;text-align:inherit}
+html:not(#x) .sh-sub{display:block;width:100%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;color:var(--ink);font-family:inherit;font-size:15px;line-height:21px;font-weight:500;padding:0;margin:0;height:auto;min-height:21px;resize:none;overflow:hidden;text-align:inherit}
+.sh-name::placeholder{color:#c7c7cc;font-weight:700;opacity:1}
+.sh-sub::placeholder{color:#a3a3a3;opacity:1}
+html:not(#x) .sh-notes{min-height:120px}
+.sh-ico{position:relative;flex:none;width:76px;height:76px;border-radius:19px;margin:0 0 12px}
+html:not(#x) .sh-ico input{position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:inherit;background:transparent;font-size:42px;line-height:76px;text-align:center;caret-color:transparent;outline:none;padding:0;margin:0}
+#sheet-photo-preview{position:absolute;inset:0;border-radius:inherit;overflow:hidden;display:none;pointer-events:none}
+#sheet-photo-preview img{width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
+.sh-ico-btn{position:absolute;right:-7px;bottom:-7px;width:30px;height:30px;border-radius:50%;border:none;padding:0;background:var(--card);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sh-win .opt-group{margin-bottom:14px}
+.sh-rin{flex:1;min-width:0;align-self:stretch;border:none;background:transparent;outline:none;font-family:inherit;font-size:15px;font-weight:500;color:#8a8a8e;text-align:right;padding:0;margin:0}
+.sh-rin::placeholder{color:#c7c7cc;opacity:1}
+.sh-rin::-webkit-date-and-time-value{text-align:right}
+.sh-unit{flex:none;font-size:15px;font-weight:500;color:#8a8a8e;margin-left:-6px}
+.sh-rval{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;color:#8a8a8e}
+.sh-rval .color-field-swatch{width:16px;height:16px;border-radius:50%}
+.sh-chev{display:flex;color:#c7c7cc;margin-left:-4px}
+html:not(#x) .sheet .opt-row.sh-days-row{height:auto;min-height:0;padding:8px 10px}
+.sh-days-row .type-grid{flex:1;margin:0}
+html:not(#x) .sh-days-row .type-btn{background:var(--pg);height:34px}
+html:not(#x) .sh-days-row .type-btn.active{background:var(--ink);color:var(--card)}
+.sh-val{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:14px 0 6px}
+html:not(#x) .sh-val input{width:2ch;max-width:70%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;font-family:inherit;font-size:48px;line-height:56px;height:auto;font-weight:700;color:var(--ink);text-align:center;padding:0;margin:0}
+.sh-val input::placeholder{color:#c7c7cc;opacity:1}
+.sh-val-u{font-size:22px;line-height:28px;font-weight:600;color:#8a8a8e}
+.sh-val-note{text-align:center;font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;min-height:18px;margin-bottom:10px}
+/* a card whose last row(s) are hidden: the row above them is the last one
+   you see, so it has no divider */
+html:not(#x) .opt-group .opt-row:has(+.opt-row[style*="none"]:last-child),html:not(#x) .opt-group .opt-row:has(+.opt-row[style*="none"]+.opt-row[style*="none"]:last-child){border-bottom:none}
 /* Edit layout rows: a handle on the right, dragged right away (DragReorder grip) */
 .el-grip{flex:none;width:40px;height:40px;margin-right:-4px;display:flex;align-items:center;justify-content:center;color:#999;touch-action:none;cursor:grab}
 /* No category in Overview's Edit layout: a faint empty card to drop into */
@@ -733,13 +766,8 @@ html:not(#x) .card-list .sw.t .ti{border-bottom:none}
 .trk-entry:last-child{border-bottom:none}
 /* priority picker: four equal pills in a row (dimmed until chosen) */
 html:not(#x) .card-list .ti{padding:8px 10px}
-html:not(#x) .ts-notes{height:auto;min-height:26vh}
 /* Task window: the name in its own white widget, the priority a small
    widget on the same line, right (hidden for List projects). */
-html:not(#x) .ts-head{display:flex;gap:10px;align-items:stretch;margin-bottom:14px}
-html:not(#x) .ts-head .ts-title{flex:1;min-width:0;height:48px;box-sizing:border-box;margin:0;padding:0 14px;background:var(--card);border-radius:14px;font-size:17px;font-weight:700}
-html:not(#x) .ts-head .ts-pri{flex:none;margin:0}
-html:not(#x) .ts-head .ts-pri .opt-row{box-sizing:border-box;height:48px;min-height:48px;padding:0 10px 0 14px;border-bottom:none}
 /* Overview: projects without a category sit right under the War Room —
    card after card, so 20px apart like everywhere else (not 22). */
 html:not(#x) #war-box:not([style*="none"])+#overview-grid>.nocat-block:first-child>.agrid:is(:not(.zone-empty),:has(>.drag-placeholder)){margin-top:-2px}
@@ -799,9 +827,9 @@ html:not(#x) #war-box:not([style*="none"])+#overview-grid>.add-block:first-child
 .wdays{scrollbar-width:none}.wdays::-webkit-scrollbar{display:none}
 input,textarea,select{font-family:inherit}
 /* lighter weights: text 500 (was 600), titles and labels 700 (was 800) */
-html:not(#x) .opt-title,html:not(#x) .tt,html:not(#x) .cali label,html:not(#x) .wit,html:not(#x) .el-name,html:not(#x) .trk-entry-val,html:not(#x) .cat-choice,html:not(#x) .color-field-label,html:not(#x) .albl,html:not(#x) .bdg,html:not(#x) .wrt,html:not(#x) .sheet-save,html:not(#x) .type-btn,html:not(#x) .sheet-inp,html:not(#x) .addinp,html:not(#x) .row-num,html:not(#x) #cat-btn-list .type-btn,html:not(#x) .dsel-opt,html:not(#x) .tlbl{font-weight:500}
+html:not(#x) .opt-title,html:not(#x) .tt,html:not(#x) .cali label,html:not(#x) .wit,html:not(#x) .el-name,html:not(#x) .trk-entry-val,html:not(#x) .cat-choice,html:not(#x) .albl,html:not(#x) .bdg,html:not(#x) .wrt,html:not(#x) .sheet-save,html:not(#x) .type-btn,html:not(#x) .sheet-inp,html:not(#x) .addinp,html:not(#x) .row-num,html:not(#x) #cat-btn-list .type-btn,html:not(#x) .dsel-opt,html:not(#x) .tlbl{font-weight:500}
 html:not(#x) .dsel-opt.sel{font-weight:600}
-.dtitle,.hh-title,.sheet-title,.ts-title,.soon-t,.trk-val{font-weight:700}
+.dtitle,.hh-title,.sheet-title,.soon-t,.trk-val{font-weight:700}
 html:not(#x) .sl,html:not(#x) .shdr,html:not(#x) .caltitle,html:not(#x) .el-grp,html:not(#x) .sheet-label{font-weight:700}
 /* Tick boxes: soft grey tile that fills with colour (tasks: ink, habits: green,
    skipped: light green with an arrow) */
@@ -825,7 +853,7 @@ html:not(#x) .card-list .ti{padding-top:0;padding-bottom:0}
    :active — see "Press grey for task and habit rows" — because their tick
    box is a real touch target that must never grey, and a swipe to skip
    must never flash grey either. */
-html:not(#x) .cat-choice:active,html:not(#x) .color-field:active{background:var(--press)}
+html:not(#x) .cat-choice:active{background:var(--press)}
 html:not(#x) .cali.pressed-row,html:not(#x) .ti.pressed-row,html:not(#x) .wri.pressed-row,html:not(#x) .opt-row.pressed-row{background:var(--press)}
 .press-now{transition:none!important}
 html:not(#x) .acard.pressed-row{background:var(--press)}
@@ -842,8 +870,8 @@ html:not(#x) .calsec{border:none}
    release it stays .15s, then fades out over .4s. A transition uses the
    timing of the state it's going TO, so the fade-in lives on the pressed
    state and the linger + fade-out on the resting one. */
-html:not(#x) .opt-row,html:not(#x) .sheet-save,html:not(#x) .ti,html:not(#x) .wri,html:not(#x) .cali,html:not(#x) .cat-choice,html:not(#x) .color-field,html:not(#x) .acard{transition:background .4s ease .15s}
-html:not(#x) .sheet-save:active,html:not(#x) .cat-choice:active,html:not(#x) .color-field:active,html:not(#x) .pressed-row{transition:background .2s ease}
+html:not(#x) .opt-row,html:not(#x) .sheet-save,html:not(#x) .ti,html:not(#x) .wri,html:not(#x) .cali,html:not(#x) .cat-choice,html:not(#x) .acard{transition:background .4s ease .15s}
+html:not(#x) .sheet-save:active,html:not(#x) .cat-choice:active,html:not(#x) .pressed-row{transition:background .2s ease}
 /* Small square buttons (header +, back, Tasks' view button, edit, the
    Edit layout arrows) never grey — the grey is for rows/bars. They press
    in and spring back with a slight overshoot. `.sq-press` comes from
@@ -852,10 +880,6 @@ html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn
 html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn):is(:active,.sq-press){transform:scale(.86);opacity:1;transition:transform .12s ease-out}
 /* New tracker entry window: the tracker's unit sits inside the value field
    on the right. */
-.trk-add-row{position:relative}
-.trk-add-unit{position:absolute;right:14px;top:23px;transform:translateY(-50%);color:#999;font-size:15px;font-weight:500;pointer-events:none}
-html:not(#x) #trk-add-val,html:not(#x) #trk-day-val,html:not(#x) #daily-item-goal,html:not(#x) #sheet-goal{padding-right:64px}
-.trk-day-goal{font-size:13px;font-weight:500;color:#999;margin:-4px 2px 14px}
 /* A row with no border-radius of its own relies entirely on its card's
    overflow:hidden clip to look rounded — but that clip only cuts a SHARP
    corner down to the card's curve, it doesn't paint anything of its own
@@ -1457,12 +1481,9 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 </div>
 
 <div class="sheet-overlay" id="input-sheet-overlay" onclick="if(event.target===this)InputSheet.cancel()">
-  <div class="sheet">
-    <div id="input-sheet-title" class="sheet-title">Name</div>
-    <input id="input-sheet-field" class="sheet-inp" placeholder="">
-    <div class="sheet-btns">
-      <button class="sheet-save" onclick="InputSheet.confirm()">OK</button>
-    </div>
+  <div class="sheet sh-win">
+    <div class="sh-bar"><span class="sh-bar-t" id="input-sheet-title">Name</span><button type="button" class="sh-save" onclick="InputSheet.confirm()">OK</button></div>
+    <div class="sh-hero"><input id="input-sheet-field" class="sh-name" placeholder=""></div>
   </div>
 </div>
 
@@ -1488,87 +1509,59 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 </div>
 
 <div class="sheet-overlay" id="proj-sheet-overlay" onclick="if(event.target===this)SheetEditor.close()">
-  <div class="sheet" id="proj-sheet">
-    <div class="sheet-title">Edit project</div>
-    <div class="opt-group" id="new-proj-rows" style="display:none;margin-bottom:16px">
-      <div class="opt-row"><div class="opt-text"><div class="opt-title">Category</div></div><div id="new-proj-cat"></div></div>
+  <div class="sheet sh-win" id="proj-sheet">
+    <div class="sh-bar"><span class="sh-bar-t" id="proj-sheet-title"></span><button type="button" class="sh-save" onclick="SheetEditor.save()">Save</button></div>
+    <div class="sh-hero center">
+      <div class="sh-ico" id="sheet-ico-tile">
+        <input id="sheet-icon" placeholder="📁" oninput="A.iconInput(this)" aria-label="Emoji icon">
+        <div id="sheet-photo-preview"></div>
+        <button type="button" class="sh-ico-btn" id="sheet-photo-btn" onclick="SheetEditor.photoBtn(this)" aria-label="Photo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H8l1.5-2h5L16 6h1.5A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.2"/></svg></button>
+      </div>
+      <input type="file" id="sheet-photo-input" accept="image/*" style="display:none" onchange="SheetEditor.onPhotoPicked(this)">
+      <input class="sh-name" id="sheet-name" placeholder="Project name">
+      <input class="sh-sub" id="sheet-desc" placeholder="Description">
+    </div>
+    <div class="opt-group" id="new-proj-rows" style="display:none">
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Type</div></div><div id="new-proj-type"></div></div>
+      <div class="opt-row"><div class="opt-text"><div class="opt-title">Category</div></div><div id="new-proj-cat"></div></div>
     </div>
-    <div class="sheet-label">Name</div>
-    <input class="sheet-inp" id="sheet-name" placeholder="Project name">
-    <div id="sheet-unit-row" style="display:none"><div class="sheet-label">Unit (e.g. kg, kcal, h)</div><input class="sheet-inp" id="sheet-unit" placeholder="kg"></div>
-    <div class="sheet-label">Description</div>
-    <input class="sheet-inp" id="sheet-desc" placeholder="Short description (optional)">
-    <div class="sheet-label">Emoji icon</div>
-    <input class="sheet-inp" id="sheet-icon" placeholder="📁" style="font-size:24px;text-align:center;max-width:80px;caret-color:transparent" oninput="A.iconInput(this)">
-    <input type="file" id="sheet-photo-input" accept="image/*" style="display:none" onchange="SheetEditor.onPhotoPicked(this)">
-    <div class="opt-group" style="margin-top:10px">
-      <div class="opt-row btn-row" onclick="document.getElementById('sheet-photo-input').click()"><div class="opt-text"><div class="opt-title" id="sheet-photo-btn-label">Choose photo</div></div><div id="sheet-photo-preview" style="width:30px;height:30px;border-radius:8px;overflow:hidden;display:none;margin-left:auto;flex-shrink:0"></div></div>
-      <div class="opt-row btn-row" id="sheet-photo-remove-row" style="display:none" onclick="SheetEditor.removePhoto()"><div class="opt-text"><div class="opt-title" style="color:#dc2626">Remove photo</div></div></div>
+    <div class="opt-group">
+      <div class="opt-row" id="sheet-unit-row" style="display:none"><div class="opt-text"><div class="opt-title">Unit</div></div><input class="sh-rin" id="sheet-unit" placeholder="kg, kcal, h"></div>
+      <div class="opt-row" id="sheet-goal-row" style="display:none"><div class="opt-text"><div class="opt-title">Goal</div></div><input class="sh-rin" id="sheet-goal" type="number" inputmode="decimal" placeholder="Optional"><span class="sh-unit" id="sheet-goal-unit"></span></div>
+      <div class="opt-row" id="color-field" onclick="ColorPicker.open()"><div class="opt-text"><div class="opt-title">Color</div></div><span class="sh-rval"><span class="color-field-swatch" id="color-field-swatch"></span><span id="color-field-label">Grey</span></span><span class="sh-chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span></div>
     </div>
-    <div class="sheet-label">Color</div>
-    <div class="color-field" id="color-field" onclick="ColorPicker.open()">
-      <div class="color-field-swatch" id="color-field-swatch"></div>
-      <span class="color-field-label" id="color-field-label">Grey</span>
-      <svg class="color-field-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+    <div class="opt-group" id="ma-edit-row" style="display:none">
+      <div class="opt-row"><div class="opt-text"><div class="opt-title">Bar chart</div></div><label class="switch"><input type="checkbox" id="sheet-bar-chart" onchange="SheetEditor.syncChartRows()"><span class="switch-slider"></span></label></div>
+      <div class="opt-row" id="sheet-ma-row"><div class="opt-text"><div class="opt-title">Moving average</div></div><label class="switch"><input type="checkbox" id="sheet-ma-enabled"><span class="switch-slider"></span></label></div>
     </div>
-    <div id="sheet-goal-row" style="display:none">
-      <div class="sheet-label">Goal (optional)</div>
-      <div class="trk-add-row">
-        <input class="sheet-inp" id="sheet-goal" type="number" inputmode="decimal" placeholder="Done when this is reached">
-        <span class="trk-add-unit" id="sheet-goal-unit"></span>
-      </div>
-    </div>
-    <div id="ma-edit-row" style="display:none">
-      <div class="sheet-label">Chart</div>
-      <div class="opt-group">
-        <div class="opt-row"><div class="opt-text"><div class="opt-title">Bar chart</div></div><label class="switch"><input type="checkbox" id="sheet-bar-chart" onchange="SheetEditor.syncChartRows()"><span class="switch-slider"></span></label></div>
-        <div class="opt-row" id="sheet-ma-row"><div class="opt-text"><div class="opt-title">Moving average</div></div><label class="switch"><input type="checkbox" id="sheet-ma-enabled"><span class="switch-slider"></span></label></div>
-      </div>
-    </div>
-    <div class="sheet-btns">
-      <button class="sheet-save" onclick="SheetEditor.save()">Save</button>
-    </div>
-    <div class="sheet-btns" id="proj-delete-row" style="display:none;margin-top:8px">
-      <button class="sheet-save danger" onclick="SheetEditor.remove()">Delete project</button>
+    <div class="opt-group" id="proj-delete-row" style="display:none">
+      <div class="opt-row btn-row danger" onclick="SheetEditor.remove()"><div class="opt-text"><div class="opt-title">Delete project</div></div></div>
     </div>
   </div>
 </div>
 <div class="sheet-overlay" id="daily-item-sheet-overlay" onclick="if(event.target===this)DailyItemSheet.close()">
-  <div class="sheet">
-    <div class="sheet-title" id="daily-item-sheet-title">Add habit</div>
-    <input class="sheet-inp" id="daily-item-inp" placeholder="Habit name" oninput="DailyItemSheet.syncPh()">
-    <div class="sheet-label" id="daily-item-tracker-lbl" style="display:none"></div>
-    <textarea class="sheet-inp" id="daily-item-desc" placeholder="Description (optional)" style="min-height:70px;resize:none"></textarea>
-    <div id="daily-item-dates" style="display:none">
-      <div class="sheet-label">Start</div>
-      <input type="date" class="sheet-inp" id="daily-item-start">
-      <div class="sheet-label">End</div>
-      <input type="date" class="sheet-inp" id="daily-item-end">
+  <div class="sheet sh-win">
+    <div class="sh-bar"><span class="sh-bar-t" id="daily-item-sheet-title"></span><button type="button" class="sh-save" onclick="DailyItemSheet.save()">Save</button></div>
+    <div class="sh-hero">
+      <input class="sh-name" id="daily-item-inp" placeholder="Habit name" oninput="DailyItemSheet.syncPh()">
+      <div class="sh-name" id="daily-item-tracker-lbl" style="display:none"></div>
+      <textarea class="sh-sub" id="daily-item-desc" rows="1" placeholder="Description" oninput="_shGrow(this)"></textarea>
     </div>
-    <div id="daily-item-goal-wrap" style="display:none">
-      <div class="sheet-label">Goal (optional)</div>
-      <div class="trk-add-row">
-        <input class="sheet-inp" id="daily-item-goal" type="number" inputmode="decimal" placeholder="Done when this is reached">
-        <span class="trk-add-unit" id="daily-item-goal-unit"></span>
-      </div>
+    <div class="opt-group">
+      <div class="opt-row sh-days-row"><div class="type-grid days" id="daily-item-days"></div></div>
+      <div class="opt-row" id="daily-item-goal-wrap" style="display:none"><div class="opt-text"><div class="opt-title">Goal</div></div><input class="sh-rin" id="daily-item-goal" type="number" inputmode="decimal" placeholder="Optional"><span class="sh-unit" id="daily-item-goal-unit"></span></div>
+      <div class="opt-row" id="daily-item-pd-wrap"><div class="opt-text"><div class="opt-title">Name per day</div></div><label class="switch"><input type="checkbox" id="daily-item-pd" onchange="DailyItemSheet.setPerDay(this.checked)"><span class="switch-slider"></span></label></div>
     </div>
-    <div class="sheet-label">Days</div>
-    <div class="type-grid days" id="daily-item-days"></div>
-    <div id="daily-item-pd-wrap">
-      <div class="opt-group" style="margin-bottom:14px">
-        <div class="opt-row"><div class="opt-text"><div class="opt-title">Name per day</div></div><label class="switch"><input type="checkbox" id="daily-item-pd" onchange="DailyItemSheet.setPerDay(this.checked)"><span class="switch-slider"></span></label></div>
-      </div>
-      <div id="daily-item-pd-box" style="display:none">
-        <div class="pd-card" id="daily-item-pd-list"></div>
-        <div class="exp-note">Shown on that day instead of the name. Empty days use the name, and the habit's page keeps it as its title.</div>
-      </div>
+    <div id="daily-item-pd-box" style="display:none">
+      <div class="pd-card" id="daily-item-pd-list"></div>
+      <div class="exp-note">Shown on that day instead of the name. Empty days use the name, and the habit's page keeps it as its title.</div>
     </div>
-    <div class="sheet-btns">
-      <button class="sheet-save" onclick="DailyItemSheet.save()">Save</button>
+    <div class="opt-group" id="daily-item-dates" style="display:none">
+      <div class="opt-row"><div class="opt-text"><div class="opt-title">Start</div></div><input type="date" class="sh-rin" id="daily-item-start"></div>
+      <div class="opt-row"><div class="opt-text"><div class="opt-title">End</div></div><input type="date" class="sh-rin" id="daily-item-end"></div>
     </div>
-    <div class="sheet-btns" id="daily-item-delete-row" style="display:none;margin-top:8px">
-      <button class="sheet-save danger" onclick="DailyItemSheet.remove()">Delete habit</button>
+    <div class="opt-group" id="daily-item-delete-row" style="display:none">
+      <div class="opt-row btn-row danger" onclick="DailyItemSheet.remove()"><div class="opt-text"><div class="opt-title">Delete habit</div></div></div>
     </div>
   </div>
 </div>
@@ -1581,57 +1574,37 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 </div>
 
 <div class="sheet-overlay" id="once-add-sheet-overlay" onclick="if(event.target===this)OnceAddSheet.close()">
-  <div class="sheet">
-    <div class="sheet-title">Calendar</div>
-    <div class="sheet-label">Task</div>
-    <input class="sheet-inp" id="once-add-text" placeholder="Task">
-    <div class="sheet-label">Date</div>
-    <input type="date" class="sheet-inp" id="once-add-date">
-    <div class="sheet-btns">
-      <button class="sheet-save" onclick="OnceAddSheet.save()">Save</button>
-    </div>
+  <div class="sheet sh-win">
+    <div class="sh-bar"><span class="sh-bar-t">Calendar</span><button type="button" class="sh-save" onclick="OnceAddSheet.save()">Save</button></div>
+    <div class="sh-hero"><input class="sh-name" id="once-add-text" placeholder="Task"></div>
+    <div class="opt-group"><div class="opt-row"><div class="opt-text"><div class="opt-title">Date</div></div><input type="date" class="sh-rin" id="once-add-date"></div></div>
   </div>
 </div>
 
 <div class="sheet-overlay" id="task-sheet-overlay" onclick="if(event.target===this)TaskSheet.close()">
-  <div class="sheet">
-    <div class="ts-head">
-      <input class="ts-title" id="task-sheet-name" placeholder="Task name">
-      <div class="opt-group ts-pri" id="task-sheet-rows"></div>
+  <div class="sheet sh-win">
+    <div class="sh-bar"><span class="sh-bar-t" id="task-sheet-title"></span><button type="button" class="sh-save" onclick="TaskSheet.save()">Save</button></div>
+    <div class="sh-hero">
+      <input class="sh-name" id="task-sheet-name" placeholder="Task name">
+      <textarea class="sh-sub sh-notes" id="task-sheet-desc" placeholder="Notes" oninput="TaskSheet.autosize()"></textarea>
     </div>
-    <textarea id="task-sheet-desc" class="sheet-inp ts-notes" placeholder="Notes" oninput="TaskSheet.autosize()"></textarea>
-    <div class="sheet-btns">
-      <button class="sheet-save" onclick="TaskSheet.save()">Save</button>
-    </div>
+    <div class="opt-group" id="task-sheet-rows"></div>
   </div>
 </div>
 
 <div class="sheet-overlay" id="trk-day-sheet-overlay" onclick="if(event.target===this)TrackerDaySheet.close()">
-  <div class="sheet">
-    <div class="sheet-title" id="trk-day-title"></div>
-    <div class="sheet-label">Value</div>
-    <div class="trk-add-row">
-      <input class="sheet-inp" id="trk-day-val" type="number" inputmode="decimal" placeholder="Enter value">
-      <span class="trk-add-unit" id="trk-day-unit"></span>
-    </div>
-    <div class="trk-day-goal" id="trk-day-goal"></div>
-    <div class="sheet-btns">
-      <button class="sheet-save" onclick="TrackerDaySheet.save()">Save</button>
-    </div>
+  <div class="sheet sh-win">
+    <div class="sh-bar"><span class="sh-bar-t" id="trk-day-title"></span><button type="button" class="sh-save" onclick="TrackerDaySheet.save()">Save</button></div>
+    <div class="sh-val"><input id="trk-day-val" type="number" inputmode="decimal" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-u" id="trk-day-unit"></span></div>
+    <div class="sh-val-note" id="trk-day-goal"></div>
   </div>
 </div>
 
 <div class="sheet-overlay" id="trk-add-sheet-overlay" onclick="if(event.target===this)TrackerAddSheet.close()">
-  <div class="sheet">
-    <div class="sheet-title" id="trk-add-title"></div>
-    <div class="sheet-label">Value</div>
-    <div class="trk-add-row">
-      <input class="sheet-inp" id="trk-add-val" type="number" inputmode="decimal" placeholder="Enter value">
-      <span class="trk-add-unit" id="trk-add-unit"></span>
-    </div>
-    <div class="sheet-btns">
-      <button class="sheet-save" onclick="TrackerAddSheet.save()">Save</button>
-    </div>
+  <div class="sheet sh-win">
+    <div class="sh-bar"><span class="sh-bar-t" id="trk-add-title"></span><button type="button" class="sh-save" onclick="TrackerAddSheet.save()">Save</button></div>
+    <div class="sh-val"><input id="trk-add-val" type="number" inputmode="decimal" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-u" id="trk-add-unit"></span></div>
+    <div class="sh-val-note" id="trk-add-goal"></div>
   </div>
 </div>
 
@@ -1655,7 +1628,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.43';
+var APP_VERSION='Beta 4.44';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2864,6 +2837,11 @@ var CHANGELOG=[
   {v:'Beta 4.43',notes:[
     "Habits: the + has a third option, Temporary habit — a habit like any other, with a Start and an End date. It shows and counts only on its days between them (Today, the project's days, Statistics, streaks, charts), and its page shows the dates under the title. Editing it changes the dates",
     "Overview: a project card no longer turns grey while you scroll over it — the grey only comes when you really tap or hold it, like the rows"
+  ]},
+  {v:'Beta 4.44',notes:[
+    "Every edit window has one look (style C, picked from the suggestions): Save at the top right, the name as a big title right on the window with the description or notes in grey under it, then the same white rows everywhere (Type, Category, Color, Unit, Goal, Priority, Days, Start/End, Date) and a red Delete row last. A project shows its icon big at the top: tap it to type an emoji, the small round button adds or changes a photo. Tracker values show big in the middle with their unit. Applies to tasks, projects (To-do, List, Tracker, Habits), habits (also tracker and temporary habits), Calendar, tracker values and the name windows",
+    "A tracker's unit can now be changed when editing it; a new Calendar task starts on today's date; tapping a row's name (Unit, Goal, Start, Date) goes to its field",
+    "Fixed: a new habit's description wasn't saved (only when editing it later)"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2981,7 +2959,8 @@ var USER_LOG={
   'Beta 4.40':["New drag and drop everywhere"],
   'Beta 4.41':'design',
   'Beta 4.42':'design',
-  'Beta 4.43':["Temporary habits with a start and end date"]
+  'Beta 4.43':["Temporary habits with a start and end date"],
+  'Beta 4.44':'both'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3683,7 +3662,7 @@ var I18N=(function(){
     'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Your data as text. Keep it somewhere safe — Import in Menu → Data brings it back.':'Deine Daten als Text. Bewahre ihn sicher auf — Import in Menü → Daten holt sie zurück.','Copy':'Kopieren','characters':'Zeichen','Habit history':'Gewohnheits-Verlauf','Done tasks':'Erledigte Aufgaben','Projects & settings':'Projekte & Einstellungen','Copied':'Kopiert','Share':'Teilen','Preparing…':'Wird vorbereitet…','Tap and hold the text to copy it':'Halte den Text gedrückt, um ihn zu kopieren',"That isn't data from this app — copy the whole export and try again.":'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal.','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
-    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Tap something to restore it or delete it for good':'Tippe etwas an, um es wiederherzustellen oder endgültig zu löschen','Delete forever':'Endgültig löschen','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
+    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Tap something to restore it or delete it for good':'Tippe etwas an, um es wiederherzustellen oder endgültig zu löschen','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
     // actions
     'Add':'Hinzufügen','Add task':'Aufgabe hinzufügen','Add habit':'Gewohnheit hinzufügen','Habit name':'Name der Gewohnheit','Edit habit':'Gewohnheit bearbeiten','Delete habit':'Gewohnheit löschen','Description (optional)':'Beschreibung (optional)','Add category':'Kategorie hinzufügen','Add project':'Projekt hinzufügen','Cancel':'Abbrechen','Close':'Schließen','Delete':'Löschen','Save':'Speichern','Restore':'Wiederherstellen',
     'Export':'Exportieren','Import':'Importieren','Skip':'Überspringen','Empty':'Leer','Empty trash':'Papierkorb leeren','OK':'OK','Enter':'Eingeben',
@@ -6751,7 +6730,7 @@ var SQ_BTNS='.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn',SQ
   document.addEventListener('touchend',release,{passive:true});
   document.addEventListener('touchcancel',release,{passive:true});
 })();
-var PRESS_ROWS='.cali:not([data-once]),.ti:not([data-once]),.wri,.acard,.opt-row:not(:has(.switch)):not(:has(.dsel-wrap)):not(.sh-ended)';
+var PRESS_ROWS='.cali:not([data-once]),.ti:not([data-once]),.wri,.acard,.opt-row:not(:has(.switch)):not(:has(.dsel-wrap)):not(:has(.sh-rin)):not(.sh-days-row):not(.sh-ended)';
 (function(){
   var row=null,timer=null,sx=0,sy=0;
   function off(r){r.classList.remove('pressed-row');}
@@ -7520,14 +7499,14 @@ var DailyItemSheet={
       title.textContent='Add a tracker';
       inp.style.display='none';
       lbl.style.display='';
-      lbl.textContent='Tracking: '+(p?(p.icon||'📈')+' '+p.name:'');
+      lbl.textContent=p?(p.icon||'📈')+' '+p.name:'';
       desc.style.display='none';
     } else {
-      title.textContent=temp?'Temporary habit':'Add habit';
+      title.textContent=temp?'Temporary habit':'New habit';
       inp.style.display='';
       lbl.style.display='none';
       inp.value='';
-      desc.style.display='';desc.value='';
+      desc.style.display='';desc.value='';_shGrow(desc);
     }
     document.getElementById('daily-item-delete-row').style.display='none';
     this.showGoal(null);
@@ -7546,15 +7525,16 @@ var DailyItemSheet={
     this.selectedDays=(it.days||[]).slice();
     var inp=document.getElementById('daily-item-inp'),lbl=document.getElementById('daily-item-tracker-lbl');
     var desc=document.getElementById('daily-item-desc');
-    document.getElementById('daily-item-sheet-title').textContent='Edit habit';
+    document.getElementById('daily-item-sheet-title').textContent='';
     if(this.trackerPid){
       var p=DB.data.projects[this.trackerPid];
       inp.style.display='none';lbl.style.display='';
-      lbl.textContent='Tracking: '+(p?(p.icon||'📈')+' '+p.name:'');
+      lbl.textContent=p?(p.icon||'📈')+' '+p.name:'';
       desc.style.display='none';
     } else {
       inp.style.display='';lbl.style.display='none';inp.value=it.text||'';
       desc.style.display='';desc.value=it.desc||'';
+      setTimeout(function(){_shGrow(desc);},0);
     }
     document.getElementById('daily-item-delete-row').style.display='';
     this.showGoal(hasGoal(it)?it.goal:null);
@@ -7683,8 +7663,10 @@ var DailyItemSheet={
       var nid=DB.addDailyItem(this.catId,text,this.selectedDays.slice(),curHabitsPid());
       var ni=DB.data.dailyItems.find(function(x){return x.id===nid;});
       if(ni&&range){ni.created=range[0];ni.until=range[1];}
+      var nd=document.getElementById('daily-item-desc').value.trim();
+      if(ni&&nd)ni.desc=nd; // (a new habit's description used to be dropped)
       if(ni&&(this.perDay||Object.keys(this.dayNames).length))this._applyPerDay(ni);
-      if(ni&&(range||this.perDay||Object.keys(this.dayNames).length))DB.save();
+      if(ni&&(range||nd||this.perDay||Object.keys(this.dayNames).length))DB.save();
     }
     _overlayClose('daily-item-sheet-overlay');
     buildPanels();restoreChecks(Nav.sd);renderToday();renderGrids();
@@ -8424,7 +8406,7 @@ var AddChoice={
 var OnceAddSheet={
   open:function(){
     document.getElementById('once-add-text').value='';
-    document.getElementById('once-add-date').value='';
+    document.getElementById('once-add-date').value=dStr(T);
     _overlayOpen('once-add-sheet-overlay');
     setTimeout(function(){_autoFocus(document.getElementById('once-add-text'));},300);
   },
@@ -8456,6 +8438,7 @@ var TaskSheet={
     var t=(DB.data.extraTasks[pid]||[]).find(function(x){return x.key===key;});
     if(!t)return;
     this.pid=pid;this.key=key;this.pri=t.pri||'bs';
+    document.getElementById('task-sheet-title').textContent='';
     document.getElementById('task-sheet-name').value=t.text;
     document.getElementById('task-sheet-desc').value=t.desc||'';
     this.renderRows();
@@ -8464,6 +8447,7 @@ var TaskSheet={
   },
   openNew:function(pid){
     this.pid=pid;this.key=null;this.pri='bs';
+    document.getElementById('task-sheet-title').textContent='New task';
     document.getElementById('task-sheet-name').value='';
     document.getElementById('task-sheet-desc').value='';
     this.renderRows();
@@ -8483,7 +8467,7 @@ var TaskSheet={
     // List projects don't sort by priority, so there's nothing to pick there.
     var p=DB.data.projects[this.pid],isList=p&&p.type==='list';
     var rows=document.getElementById('task-sheet-rows');
-    rows.innerHTML=isList?'':'<div class="opt-row">'+customSelect(pri,this.pri,'TaskSheet.setPri(this.value)')+'</div>';
+    rows.innerHTML=isList?'':'<div class="opt-row"><div class="opt-text"><div class="opt-title">Priority</div></div>'+customSelect(pri,this.pri,'TaskSheet.setPri(this.value)')+'</div>';
     rows.style.display=isList?'none':'';
   },
   setPri:function(v){this.pri=v;this.renderRows();},
@@ -8515,7 +8499,9 @@ var TrackerAddSheet={
     this.pid=pid;
     document.getElementById('trk-add-title').textContent=p.name;
     document.getElementById('trk-add-unit').textContent=p.unit||'';
-    var inp=document.getElementById('trk-add-val');inp.value='';
+    var link=DB.data.dailyItems.find(function(x){return x.trackerPid===pid;});
+    document.getElementById('trk-add-goal').textContent=link&&hasGoal(link)?'Goal: '+fmtTrk(link.goal)+(p.unit?' '+p.unit:''):'';
+    var inp=document.getElementById('trk-add-val');inp.value='';_shFitVal(inp);
     _overlayOpen('trk-add-sheet-overlay');
     // focused right here, still inside the tap on "+": that's what lets iOS
     // open the keyboard (a focus from a timer only places the caret there)
@@ -8568,9 +8554,8 @@ var TrackerDaySheet={
     document.getElementById('trk-day-unit').textContent=p.unit||'';
     var g=document.getElementById('trk-day-goal');
     g.textContent=hasGoal(it)?'Goal: '+fmtTrk(it.goal)+(p.unit?' '+p.unit:''):'';
-    g.style.display=hasGoal(it)?'':'none';
     var v=trackerDayValue(it,pDate(dayIdx));
-    var inp=document.getElementById('trk-day-val');inp.value=v!=null?fmtTrk(v):'';
+    var inp=document.getElementById('trk-day-val');inp.value=v!=null?fmtTrk(v):'';_shFitVal(inp);
     _overlayOpen('trk-day-sheet-overlay');
     setTimeout(function(){_autoFocus(inp);},300);
   },
@@ -8706,6 +8691,23 @@ var IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='
 // left to iOS (the field already had focus), which slid the view up and
 // down. On iOS the user's tap focuses it (see the tap takeover below).
 function _autoFocus(el){if(el&&!IS_IOS)el.focus({preventScroll:true});}
+// Edit windows: a tap on a field row's label (Unit, Goal, Start, Date…) goes
+// to its field, like the rest of the row
+document.addEventListener('click',function(e){
+  var row=e.target.closest&&e.target.closest('.sh-win .opt-row');
+  var f=row&&!e.target.closest('input')&&row.querySelector('.sh-rin');
+  if(!f)return;
+  if(f.type==='date'){try{f.showPicker();}catch(x){f.focus();}}
+  else f.focus({preventScroll:true});
+});
+// Edit windows: a description box grows with its text; a big value field
+// is as wide as its number (so the unit sits right after it)
+function _shGrow(ta){ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';}
+function _shFitVal(inp){
+  var c=_shFitVal.c||(_shFitVal.c=document.createElement('canvas').getContext('2d')),cs=getComputedStyle(inp);
+  c.font=cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily;
+  inp.style.width=Math.ceil(c.measureText(inp.value||inp.placeholder||'').width)+4+'px'; // +4: room for the caret
+}
 // Where the caret's line ends (viewport y) in a textarea: a hidden copy with
 // the same box and the text up to the caret, measured.
 function _caretBottom(ta){
@@ -8891,7 +8893,7 @@ window.addEventListener('scroll',function(){_lastScrollAt=Date.now();},{passive:
 (function(){
   var TAPPABLE='.tab-item,.fab,.hdr-add,.menu-btn,.menu-item,.acard,.opt-row,'
     +'.back,.edit-proj-btn,.hh-btn,.hh-title-btn,.addbtn,.el-btn,.type-btn,'
-    +'.cat-choice,.dpill,.sheet-save,.seg-btn,.sh-x';
+    +'.cat-choice,.dpill,.sheet-save,.sh-save,.seg-btn,.sh-x';
   var sx=0,sy=0,moved=false,target=null;
   document.addEventListener('touchstart',function(e){
     // A toggle switch inside a TAPPABLE row (e.g. an .opt-row that's just
@@ -9301,11 +9303,12 @@ var SheetEditor={
     document.getElementById('new-proj-type').innerHTML=customSelect(TYPE_OPTS,this.projectType,'SheetEditor.setType(this.value)');
     document.getElementById('new-proj-rows').style.display='block';
     var sur=document.getElementById('sheet-unit-row');if(sur)sur.style.display='none';
+    document.getElementById('sheet-unit').value='';
     document.getElementById('sheet-name').value=name||'';
     document.getElementById('sheet-desc').value='';
     document.getElementById('sheet-icon').value='📁';document.getElementById('sheet-icon').dataset.lastGood='📁';
     this.photo=null;this.renderPhotoUI();
-    document.querySelector('#proj-sheet .sheet-title').textContent='New project';
+    document.getElementById('proj-sheet-title').textContent='New project';
     this.selectedColor='c-grey';
     this.renderColors();
     var mar=document.getElementById('ma-edit-row');if(mar)mar.style.display='none';
@@ -9319,9 +9322,12 @@ var SheetEditor={
     this.pid=pid;
     this.newCatId=null;
     this.projectType=null;
-    document.querySelector('#proj-sheet .sheet-title').textContent='Edit project';
+    document.getElementById('proj-sheet-title').textContent='';
     document.getElementById('new-proj-rows').style.display='none';
     var p=DB.data.projects[pid];
+    // a tracker's unit can be changed later too
+    document.getElementById('sheet-unit-row').style.display=p.type==='tracker'?'':'none';
+    document.getElementById('sheet-unit').value=p.unit||'';
     document.getElementById('sheet-name').value=p.name||'';
     document.getElementById('sheet-desc').value=p.sub||p.desc||'';
     document.getElementById('sheet-icon').value=p.icon||'📁';document.getElementById('sheet-icon').dataset.lastGood=p.icon||'📁';
@@ -9354,7 +9360,7 @@ var SheetEditor={
   setType:function(t){
     this.projectType=t;
     document.getElementById('new-proj-type').innerHTML=customSelect(TYPE_OPTS,t,'SheetEditor.setType(this.value)');
-    var sur2=document.getElementById('sheet-unit-row');if(sur2)sur2.style.display=t==='tracker'?'block':'none';
+    var sur2=document.getElementById('sheet-unit-row');if(sur2)sur2.style.display=t==='tracker'?'':'none';
     var mar=document.getElementById('ma-edit-row');if(mar)mar.style.display=t==='tracker'?'block':'none';
   },
   // Moves the project (and its tasks/entries) to the Trash, like Edit
@@ -9414,21 +9420,25 @@ var SheetEditor={
     input.value='';
   },
   removePhoto:function(){this.photo=null;this.renderPhotoUI();},
+  // The icon's small round button: no photo yet → pick one; with a photo →
+  // change or remove it
+  photoBtn:function(btn){
+    var inp=document.getElementById('sheet-photo-input');
+    if(!this.photo){inp.click();return;}
+    DSel.menu(btn,[{value:'change',label:'Change photo'},{value:'remove',label:'Remove photo',cls:'danger'}],null,function(v){
+      if(v==='change')inp.click();else SheetEditor.removePhoto();
+    });
+  },
+  // The big icon tile shows the photo, else the emoji (its colour comes from
+  // updateColorField)
   renderPhotoUI:function(){
-    var prev=document.getElementById('sheet-photo-preview');
-    var lbl=document.getElementById('sheet-photo-btn-label');
-    var rmRow=document.getElementById('sheet-photo-remove-row');
+    var prev=document.getElementById('sheet-photo-preview'),emo=document.getElementById('sheet-icon');
     if(this.photo){
-      // the chosen color behind it, like on the project's card
-      var col=themeCol(COLORS[this.selectedColor]||'#6b7280');
-      prev.style.background=col+(isDarkNow()?'2e':'20');
-      prev.style.display='block';prev.innerHTML='<img src="'+this.photo+'" style="width:100%;height:100%;object-fit:cover">';
-      lbl.textContent='Change photo';
-      rmRow.style.display='';
+      prev.style.display='block';prev.innerHTML='<img src="'+this.photo+'" alt="" draggable="false">';
+      emo.style.visibility='hidden';
     } else {
       prev.style.display='none';prev.innerHTML='';
-      lbl.textContent='Choose photo';
-      rmRow.style.display='none';
+      emo.style.visibility='';
     }
   },
 
@@ -9446,8 +9456,7 @@ var SheetEditor={
         self.selectedColor=id;
         c.querySelectorAll('.sheet-color').forEach(function(x){x.classList.remove('sel');});
         sw.classList.add('sel');
-        self.updateColorField();
-        self.renderPhotoUI(); // a see-through photo's preview shows the new color
+        self.updateColorField(); // the icon tile too: a see-through photo shows the new color
         ColorPicker.close();
       };
       c.appendChild(sw);
@@ -9461,6 +9470,8 @@ var SheetEditor={
     var lbl=document.getElementById('color-field-label');
     if(swEl)swEl.style.background=hex;
     if(lbl)lbl.textContent=name;
+    // the big icon tile: the colour behind the emoji or photo, like the card on Overview
+    document.getElementById('sheet-ico-tile').style.background=themeCol(hex)+(isDarkNow()?'2e':'20');
   },
 
   save:function(){
@@ -9488,6 +9499,9 @@ var SheetEditor={
       var p=DB.data.projects[this.pid];
       p.name=name; p.sub=desc; p.desc=desc;
       p.icon=icon; p.color=this.selectedColor;
+      if(p.type==='tracker'){
+        p.unit=document.getElementById('sheet-unit').value.trim(); // renderTracker below redraws it
+      }
       if(this.photo)p.photo=this.photo; else delete p.photo;
       if(p.type==='tracker'){
         p.maEnabled=document.getElementById('sheet-ma-enabled').checked;
