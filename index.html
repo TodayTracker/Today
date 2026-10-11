@@ -177,24 +177,6 @@ html[data-theme="dark"] .addbtn{border-color:#fff;background:#1e1c1a;color:#fff}
 html[data-theme="light"] .addbtn{border-color:#000;background:#fff;color:#000}
 .empty{text-align:center;padding:36px 16px;color:#ccc;font-size:14px;line-height:1.6}
 
-.archbox{background:#fff;border:1.5px solid #e8e5e0;border-radius:16px;overflow:hidden}
-@media(prefers-color-scheme:dark){.archbox{background:#1e1c1a;border-color:#2a2927}}
-html[data-theme="dark"] .archbox{background:#1e1c1a;border-color:#2a2927}
-html[data-theme="light"] .archbox{background:#fff;border-color:#e8e5e0}
-.archi{padding:11px 15.5px;border-bottom:1.5px solid #f0ede8;display:flex;align-items:center;gap:12px;min-height:58px}
-.archi:last-child{border-bottom:none}
-.archi-txt{flex:1;min-width:0}
-.archi-title{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.archi-sub{font-size:12px;color:#999;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.archi-acts{display:flex;gap:4px;flex-shrink:0}
-.trash-x{color:#dc2626}
-.trash-act,.trash-x{background:none;border:none;font-size:14px;font-weight:600;cursor:pointer;padding:9px 6px;white-space:nowrap;font-family:inherit}
-.trash-act{color:#007aff}
-.trash-act:active,.trash-x:active{opacity:.6}
-html[data-theme="dark"] .trash-act{color:#0a84ff}
-@media(prefers-color-scheme:dark){html:not([data-theme="light"]) .trash-act{color:#0a84ff}}
-.hh-btn.hh-txt{width:auto;padding:0 14px;font-size:14px;font-weight:600;white-space:nowrap}
-.seg-btn i{font-style:normal;opacity:.6;margin-left:4px}
 
 .wdays{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
 .dpill{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 8px;border-radius:14px;border:1.5px solid #e8e5e0;cursor:pointer;background:#fff;min-width:46px;transition:transform .1s}
@@ -538,13 +520,22 @@ html[data-theme="dark"] .type-btn{border-color:#2a2927}
 html[data-theme="light"] .type-btn{border-color:#e8e5e0}
 .type-btn.active{border-color:#000;color:#000;background:#f3f4f6}
 
-.seg-row{display:flex;flex:none;gap:2px;padding:2px;border-radius:99px;background:rgba(127,127,127,.15)}
-.seg-btn{padding:4px 10px;border:none;border-radius:99px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;color:#999;background:transparent}
-.seg-btn.active{background:#fff;color:#000;box-shadow:0 1px 2px rgba(0,0,0,.14)}
-@media(prefers-color-scheme:dark){.seg-btn.active{background:#3a3836;color:#fff;box-shadow:none}}
-html[data-theme="dark"] .seg-btn.active{background:#3a3836;color:#fff;box-shadow:none}
-html[data-theme="light"] .seg-btn.active{background:#fff;color:#000;box-shadow:0 1px 2px rgba(0,0,0,.14)}
-.seg-btn:active{opacity:.7}
+/* Trash (4.42): a full-width segmented control for the kinds of things, then
+   the items by day — a section label and one card per day, Menu-style rows.
+   A row opens a small menu (Restore / Delete forever); the last card is
+   "Delete all forever" for the kind shown. */
+.seg-row{display:flex;gap:2px;padding:2px;border-radius:9px;background:rgba(118,118,128,.12)}
+.seg-btn{flex:1 1 auto;min-width:0;padding:7px 2px;border:none;border-radius:7px;font-family:inherit;font-size:13px;line-height:16px;font-weight:600;cursor:pointer;color:var(--ink);background:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg-btn.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+@media(prefers-color-scheme:dark){html:not([data-theme="light"]) .seg-row{background:rgba(118,118,128,.24)}html:not([data-theme="light"]) .seg-btn.active{background:#636366;box-shadow:none}}
+html[data-theme="dark"] .seg-row{background:rgba(118,118,128,.24)}
+html[data-theme="dark"] .seg-btn.active{background:#636366;box-shadow:none}
+html:not(#x) .sp .opt-row.trash-row{height:auto;min-height:46px;padding-top:8px;padding-bottom:8px}
+.trash-row .opt-title{line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trash-sub{font-size:12px;line-height:16px;font-weight:500;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trash-ico{flex:none;width:30px;height:30px;border-radius:8px;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.trash-more{flex:none;margin-left:auto;color:#999;display:flex}
+html:not(#x) .btn-row.danger .opt-title,.dsel-opt.danger{color:var(--red)}
 .chart-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;min-height:24px}
 .zchart{touch-action:pan-y;-webkit-user-select:none;user-select:none}
 /* the chart redraws while a finger is on it: the drawing must never be the touch's target (see ZChart._wire) */
@@ -567,7 +558,7 @@ html[data-theme="light"] .type-btn.active{border-color:#000;color:#000;backgroun
    shift). html:not(#x) gives id-level specificity to beat the theme-specific
    border rules. The red War Room outline and the hairline dividers inside
    .opt-group are kept. */
-html:not(#x) .acard,html:not(#x) .ti,html:not(#x) .wri,html:not(#x) .calsec,html:not(#x) .archbox,html:not(#x) .el-row,html:not(#x) .opt-row,html:not(#x) .opt-group{border-color:transparent}
+html:not(#x) .acard,html:not(#x) .ti,html:not(#x) .wri,html:not(#x) .calsec,html:not(#x) .el-row,html:not(#x) .opt-row,html:not(#x) .opt-group{border-color:transparent}
 /* Header of the habit pages (Daily and a single habit): a row of two soft
    buttons, then a large title with a muted line under it — same soft,
    outline-free look as Settings */
@@ -636,10 +627,9 @@ html:not(#x) .wri:last-child{border-bottom:none}
    grey (it did at the bottom until 2.77 and at the top until 2.89). The
    rows carry their own 14px edge padding. */
 #today-daily .calsec,#today-cal .calsec,[id^="dp-"] .calsec{border:none;padding:0;overflow:hidden}
-html:not(#x) .archbox{border:none}
 /* project badge in task rows: a touch slimmer than the default 30px */
 .ti .bdg{height:27px;min-height:27px;display:inline-flex;align-items:center;padding-top:0;padding-bottom:0}
-html:not(#x) .cali,html:not(#x) .sw.h,html:not(#x) .archi,html:not(#x) .trk-entry{border-bottom-color:var(--line);border-bottom-width:0.5px}
+html:not(#x) .cali,html:not(#x) .sw.h,html:not(#x) .trk-entry{border-bottom-color:var(--line);border-bottom-width:0.5px}
 html:not(#x) .opt-group .opt-row{border-bottom:0.5px solid var(--line)}
 html:not(#x) .opt-group .opt-row:last-child{border-bottom:none}
 /* ══ DESIGN SYSTEM ══ the Settings look, applied to every page, sheet and button.
@@ -659,15 +649,13 @@ html:not(#x) .dhdr{min-height:40px}
 .dsub{font-size:13px;font-weight:500}
 .tlbl{font-size:13px;font-weight:500;color:#999}
 /* text roles */
-.tt,.cali label,.wit,.el-name,.trk-entry-val,.archi-title,.cat-choice,.color-field-label{font-size:15px;font-weight:600}
-.ts,.archi-sub,.trk-entry-date{font-size:12px;font-weight:500}
+.tt,.cali label,.wit,.el-name,.trk-entry-val,.cat-choice,.color-field-label{font-size:15px;font-weight:600}
+.ts,.trk-entry-date{font-size:12px;font-weight:500}
 .empty{font-size:14px;font-weight:500}
 .albl{font-size:12px;font-weight:600}
 .acnt{font-size:11px;font-weight:500;color:#999}
 .wrt{font-weight:600}.wrd{font-size:12px;font-weight:500}
 .bdg{font-size:12px;font-weight:600}
-.seg-btn{font-size:12px;font-weight:600}
-.trash-act,.trash-x,.hh-btn.hh-txt{font-size:15px;font-weight:600}
 /* Sheets: grey grouped background, white inputs/rows, like a Settings page */
 html:not(#x) .sheet{background:var(--pg);padding-left:16px;padding-right:16px}
 .sheet-title{font-size:20px;font-weight:800;margin-bottom:16px}
@@ -811,7 +799,7 @@ html:not(#x) #war-box:not([style*="none"])+#overview-grid>.add-block:first-child
 .wdays{scrollbar-width:none}.wdays::-webkit-scrollbar{display:none}
 input,textarea,select{font-family:inherit}
 /* lighter weights: text 500 (was 600), titles and labels 700 (was 800) */
-html:not(#x) .opt-title,html:not(#x) .tt,html:not(#x) .cali label,html:not(#x) .wit,html:not(#x) .el-name,html:not(#x) .trk-entry-val,html:not(#x) .archi-title,html:not(#x) .cat-choice,html:not(#x) .color-field-label,html:not(#x) .albl,html:not(#x) .bdg,html:not(#x) .wrt,html:not(#x) .seg-btn,html:not(#x) .trash-act,html:not(#x) .trash-x,html:not(#x) .hh-btn.hh-txt,html:not(#x) .sheet-save,html:not(#x) .type-btn,html:not(#x) .sheet-inp,html:not(#x) .addinp,html:not(#x) .row-num,html:not(#x) #cat-btn-list .type-btn,html:not(#x) .dsel-opt,html:not(#x) .tlbl{font-weight:500}
+html:not(#x) .opt-title,html:not(#x) .tt,html:not(#x) .cali label,html:not(#x) .wit,html:not(#x) .el-name,html:not(#x) .trk-entry-val,html:not(#x) .cat-choice,html:not(#x) .color-field-label,html:not(#x) .albl,html:not(#x) .bdg,html:not(#x) .wrt,html:not(#x) .sheet-save,html:not(#x) .type-btn,html:not(#x) .sheet-inp,html:not(#x) .addinp,html:not(#x) .row-num,html:not(#x) #cat-btn-list .type-btn,html:not(#x) .dsel-opt,html:not(#x) .tlbl{font-weight:500}
 html:not(#x) .dsel-opt.sel{font-weight:600}
 .dtitle,.hh-title,.sheet-title,.ts-title,.soon-t,.trk-val{font-weight:700}
 html:not(#x) .sl,html:not(#x) .shdr,html:not(#x) .caltitle,html:not(#x) .el-grp,html:not(#x) .sheet-label{font-weight:700}
@@ -1060,15 +1048,13 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   </div>
 </div>
 
-<div class="page" id="p-archive">
+<div class="page sp" id="p-archive">
   <div class="hh">
-    <div class="hh-bar">
-      <button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <button class="hh-btn hh-txt" style="color:#dc2626" onclick="A.trashEmpty()">Empty trash</button>
-    </div>
+    <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
     <div class="hh-title">Trash</div>
+    <div class="hh-sub">Tap something to restore it or delete it for good</div>
   </div>
-  <div class="seg-row" id="trash-tabs" style="margin:14px 0 14px;width:max-content;max-width:100%"></div>
+  <div class="seg-row" id="trash-tabs" style="margin-top:14px"></div>
   <div id="arch-list"></div>
 </div>
 
@@ -1663,7 +1649,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.41';
+var APP_VERSION='Beta 4.42';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2864,6 +2850,10 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.41',notes:[
     "Overview: dragging a project no longer opens a space for No category (and for empty categories) every time. A space only opens when you drag the project there: above the first category for No category, or onto an empty category's title"
+  ]},
+  {v:'Beta 4.42',notes:[
+    "Trash redesigned in the app's current look: a full-width switch for Tasks, Lists, Habits, Projects and Entries (no counts), then everything grouped by day (Today, Yesterday, the date) in white cards. Tap something to restore it or delete it for good; Delete all forever is at the bottom",
+    "Tracker \"+\": the number pad opens right away with the new entry window"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2979,7 +2969,8 @@ var USER_LOG={
   'Beta 4.38':["More quotes on the update screen"],
   'Beta 4.39':'design',
   'Beta 4.40':["New drag and drop everywhere"],
-  'Beta 4.41':'design'
+  'Beta 4.41':'design',
+  'Beta 4.42':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3681,7 +3672,7 @@ var I18N=(function(){
     'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Your data as text. Keep it somewhere safe — Import in Menu → Data brings it back.':'Deine Daten als Text. Bewahre ihn sicher auf — Import in Menü → Daten holt sie zurück.','Copy':'Kopieren','characters':'Zeichen','Habit history':'Gewohnheits-Verlauf','Done tasks':'Erledigte Aufgaben','Projects & settings':'Projekte & Einstellungen','Copied':'Kopiert','Share':'Teilen','Preparing…':'Wird vorbereitet…','Tap and hold the text to copy it':'Halte den Text gedrückt, um ihn zu kopieren',"That isn't data from this app — copy the whole export and try again.":'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal.','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
-    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.',
+    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Tap something to restore it or delete it for good':'Tippe etwas an, um es wiederherzustellen oder endgültig zu löschen','Delete forever':'Endgültig löschen','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
     // actions
     'Add':'Hinzufügen','Add task':'Aufgabe hinzufügen','Add habit':'Gewohnheit hinzufügen','Habit name':'Name der Gewohnheit','Edit habit':'Gewohnheit bearbeiten','Delete habit':'Gewohnheit löschen','Description (optional)':'Beschreibung (optional)','Add category':'Kategorie hinzufügen','Add project':'Projekt hinzufügen','Cancel':'Abbrechen','Close':'Schließen','Delete':'Löschen','Save':'Speichern','Restore':'Wiederherstellen',
     'Export':'Exportieren','Import':'Importieren','Skip':'Überspringen','Empty':'Leer','Empty trash':'Papierkorb leeren','OK':'OK','Enter':'Eingeben',
@@ -4210,38 +4201,62 @@ var Trash={
     return false;
   },
   archivedTab:function(tab){return tab==='completed'||tab==='lists';},
+  // A row's menu: Restore / Delete forever ('a' = a done task in
+  // `archived`, by index; 't' = a Trash entry, by id)
+  menu:function(row,kind,key){
+    DSel.menu(row,[{value:'restore',label:'Restore'},{value:'delete',label:'Delete forever',cls:'danger'}],null,function(v){
+      if(kind==='a'){if(v==='restore')A.restore(key);else A.trashDeleteCompleted(key);}
+      else{if(v==='restore')A.trashRestore(key);else A.trashDelete(key);}
+    });
+  },
   total:function(){return DB.data.archived.length+DB.data.trash.length;}
 };
 function renderArchive(){
   var c=document.getElementById('arch-list');
-  document.getElementById('trash-tabs').innerHTML=Trash.TABS.map(function(t){
-    var n=Trash.items(t.id).length;
-    return '<button class="seg-btn'+(Trash.tab===t.id?' active':'')+'" onclick="A.trashTab(\''+t.id+'\')">'+t.label+(n?'<i>'+n+'</i>':'')+'</button>';
-  }).join('');
-  var items=Trash.items(Trash.tab);
-  if(!items.length){c.innerHTML='<div class="empty">Nothing here.</div>';return;}
-  function row(title,sub,restore,del){
-    return '<div class="archi"><div class="archi-txt"><div class="archi-title">'+title+'</div><div class="archi-sub">'+sub+'</div></div>'
-      +'<div class="archi-acts"><button class="trash-act" onclick="'+restore+'">Restore</button><button class="trash-x" onclick="'+del+'">Delete</button></div></div>';
-  }
-  var h='<div class="archbox">';
+  setHTML('trash-tabs',Trash.TABS.map(function(t){
+    return '<button class="seg-btn'+(Trash.tab===t.id?' active':'')+'" onclick="A.trashTab(\''+t.id+'\')">'+t.label+'</button>';
+  }).join(''));
+  // every row of this kind with the day it was done/deleted, newest first
+  var rows=[];
   if(Trash.archivedTab(Trash.tab)){
     var wantList=Trash.tab==='lists';
-    DB.data.archived.slice().reverse().forEach(function(item,ri){
+    DB.data.archived.forEach(function(item,idx){
       if(!!Trash.isList(item)!==wantList)return;
-      var idx=DB.data.archived.length-1-ri;
-      var when=item.dateISO?new Date(item.dateISO+'T12:00:00').toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'}):item.date;
-      h+=row(esc(item.text),esc(item.once?'Calendar':item.section)+' · '+when,'A.restore('+idx+')','A.trashDeleteCompleted('+idx+')');
+      rows.push({ds:item.dateISO||'',title:esc(item.text),sub:esc(item.once?'Calendar':item.section),act:"Trash.menu(this,'a',"+idx+")"});
     });
   } else {
-    items.slice().reverse().forEach(function(t){
-      var when=new Date(t.at).toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'});
-      var icon=t.type==='project'&&t.sub?esc(t.sub)+' ':'';
-      var sub=(t.type==='habit'||t.type==='entry')&&t.sub?esc(t.sub)+' · ':'';
-      h+=row(icon+esc(t.label),sub+when,"A.trashRestore('"+t.id+"')","A.trashDelete('"+t.id+"')");
+    DB.data.trash.forEach(function(t){
+      if(t.type!==Trash.tab)return;
+      var n=t.type==='project'&&t.data&&t.data.tasks?t.data.tasks.length:0;
+      rows.push({ds:dStr(new Date(t.at)),title:esc(t.label),act:"Trash.menu(this,'t','"+t.id+"')",
+        ico:t.type==='project'?'<div class="trash-ico">'+esc(t.sub||'📁')+'</div>':'',
+        sub:t.type==='project'?(n?(n===1?'1 task':n+' tasks'):''):esc(t.sub||'')});
     });
   }
-  c.innerHTML=h+'</div>';
+  rows.reverse();
+  rows.sort(function(x,y){return x.ds===y.ds?0:!x.ds?1:!y.ds?-1:x.ds<y.ds?1:-1;}); // stable: same day keeps newest first
+  if(!rows.length){c.innerHTML='<div class="opt-group" style="margin-top:22px"><div class="cal-none">Nothing here.</div></div>';return;}
+  var h='',cur=null;
+  rows.forEach(function(r){
+    if(r.ds!==cur){if(cur!==null)h+='</div>';cur=r.ds;h+='<div class="sl">'+trashDay(r.ds)+'</div><div class="opt-group">';}
+    h+='<div class="opt-row trash-row" onclick="'+r.act+'">'+(r.ico||'')
+      +'<div class="opt-text"><div class="opt-title">'+r.title+'</div>'+(r.sub?'<div class="trash-sub">'+r.sub+'</div>':'')+'</div>'
+      +'<span class="trash-more">'+TRASH_MORE+'</span></div>';
+  });
+  h+='</div><div class="opt-group"><div class="opt-row btn-row danger" onclick="A.trashEmpty()"><div class="opt-text"><div class="opt-title">Delete all forever</div></div></div></div>';
+  c.innerHTML=h;
+}
+var TRASH_MORE='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg>';
+// The Trash's day labels: Today, Yesterday, else the date ("Earlier" for
+// old entries that never recorded one)
+function trashDay(ds){
+  if(!ds)return 'Earlier';
+  var now=new Date(),y=new Date();y.setDate(y.getDate()-1);
+  if(ds===dStr(now))return 'Today';
+  if(ds===dStr(y))return 'Yesterday';
+  var d=new Date(ds+'T12:00:00'),o={weekday:'short',day:'numeric',month:'short'};
+  if(d.getFullYear()!==now.getFullYear())o.year='numeric';
+  return d.toLocaleDateString(dLoc(),o);
 }
 
 var LockedIn={
@@ -4500,7 +4515,7 @@ var DSel=(function(){
     menu.innerHTML=opts.map(function(o,i){
       // an option may carry an icon (`ico`, SVG markup) shown before its name
       var body=o.ico?'<span class="dsel-ico">'+o.ico+'</span><span class="dsel-lbl">'+esc(o.label)+'</span>':esc(o.label);
-      return '<div class="dsel-opt'+(cur!=null&&String(o.value)===String(cur)?' sel':'')+'" data-i="'+i+'">'+body+'</div>';
+      return '<div class="dsel-opt'+(o.cls?' '+o.cls:'')+(cur!=null&&String(o.value)===String(cur)?' sel':'')+'" data-i="'+i+'">'+body+'</div>';
     }).join('');
     menu.addEventListener('click',function(e){
       var it=e.target.closest('.dsel-opt');if(!it)return;
@@ -4875,7 +4890,7 @@ var A={
       if(Trash.archivedTab(Trash.tab))DB.data.archived=DB.data.archived.filter(function(a){return items.indexOf(a)===-1;});
       else{var ids=items.map(function(t){return t.id;});DB.data.trash=DB.data.trash.filter(function(t){return ids.indexOf(t.id)===-1;});}
       DB.save();renderGrids();renderArchive();
-    },'Empty trash');
+    },'Delete all');
   },
   newCategory:function(){
     InputSheet.show('Category name','e.g. Business',function(name){
@@ -8445,7 +8460,8 @@ var TaskSheet={
 document.getElementById('task-sheet-name').addEventListener('keydown',function(e){if(e.key==='Enter')TaskSheet.save();});
 
 // New tracker entry — the tracker page's "+". The unit sits inside the
-// field on the right, so the title can just be the tracker's name.
+// field on the right, so the title can just be the tracker's name; the
+// number pad opens with the window.
 var TrackerAddSheet={
   pid:null,
   open:function(pid){
@@ -8455,7 +8471,9 @@ var TrackerAddSheet={
     document.getElementById('trk-add-unit').textContent=p.unit||'';
     var inp=document.getElementById('trk-add-val');inp.value='';
     _overlayOpen('trk-add-sheet-overlay');
-    setTimeout(function(){_autoFocus(inp);},300);
+    // focused right here, still inside the tap on "+": that's what lets iOS
+    // open the keyboard (a focus from a timer only places the caret there)
+    try{inp.focus({preventScroll:true});}catch(e){}
   },
   save:function(){
     if(!_sheetLive('trk-add-sheet-overlay'))return; // already saved, window closing
@@ -8825,7 +8843,7 @@ var _lastScrollAt=0;
 window.addEventListener('scroll',function(){_lastScrollAt=Date.now();},{passive:true,capture:true});
 (function(){
   var TAPPABLE='.tab-item,.fab,.hdr-add,.menu-btn,.menu-item,.acard,.opt-row,'
-    +'.back,.edit-proj-btn,.hh-btn,.hh-title-btn,.trash-act,.trash-x,.addbtn,.el-btn,.type-btn,'
+    +'.back,.edit-proj-btn,.hh-btn,.hh-title-btn,.addbtn,.el-btn,.type-btn,'
     +'.cat-choice,.dpill,.sheet-save,.seg-btn,.sh-x';
   var sx=0,sy=0,moved=false,target=null;
   document.addEventListener('touchstart',function(e){

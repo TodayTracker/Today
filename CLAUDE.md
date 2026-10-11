@@ -455,6 +455,22 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   `habit` items and its categories are removed. Ticking a one-time task (`dailyOnce`) archives it
   (`section:'One-time', once:true, due`) into Trash > Tasks (2.58); `restoreTask` puts a
   `once` entry back on the calendar with its old date.
+  4.42 REDESIGN ("redesign the trash, it's still from the old design"):
+  `#p-archive` is a `.sp` page; header subtitle "Tap something to restore
+  it or delete it for good"; a full-width segmented control (`.seg-row`/
+  `.seg-btn`, restyled — only the Trash uses it; flex so German
+  "Gewohnheiten" fits; NO counts, like everywhere else) for Tasks / Lists
+  / Habits / Projects / Entries; rows grouped by DAY (`trashDay(ds)`:
+  Today / Yesterday / weekday+date via dLoc(), year if not this year,
+  "Earlier" for done tasks without `dateISO`), one `.opt-group` per day,
+  Menu-style `.opt-row.trash-row` (title, `.trash-sub` = project / habit's
+  project / tracker; a deleted project shows its emoji `.trash-ico` and
+  "N tasks"), a "⋯" at the right. A row tap opens `Trash.menu` = a DSel
+  dropdown (Restore / Delete forever — DSel options can carry `cls`, here
+  'danger' = red); Delete forever still confirms. The red "Empty trash"
+  header button became a red `.btn-row.danger` "Delete all forever" card
+  at the bottom (empties the kind shown, Alert button "Delete all"). The
+  old `.archbox/.archi*/.trash-act/.trash-x/.hh-txt` CSS is gone.
   3.98: `DB.completeTask` (ticking a task off) now stores the task's `pri`
   and `desc` on the archived entry — it only kept key/text/section, and
   `restoreTask` falls back to `pri||'bs'`, so every restored task came back
@@ -2552,6 +2568,13 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   field (at load, and on touchstart/focusin for fields rendered later). iOS
   may still show an empty or AutoFill-only bar above the keyboard; pages
   can't remove that bar entirely.
+  4.42 — tracker "+" (`TrackerAddSheet.open`) focuses its field
+  SYNCHRONOUSLY right after _overlayOpen, inside the tap on "+" ("it should
+  open the keyboard automatically"): a focus inside the user's tap is what
+  lets iOS open the keyboard (number pad); the 300ms `_autoFocus` only
+  placed the caret on iOS. preventScroll:true, same as the tap takeover.
+  Verified here only that focus lands synchronously; the real keyboard
+  needs the phone. Other windows still use `_autoFocus` (not asked).
   3.30 — still bumped when creating a category: windows that focus their
   field by themselves (InputSheet, new task/habit/one-time/tracker value)
   did so from a 300ms timer; on iOS that puts focus in the field WITHOUT
