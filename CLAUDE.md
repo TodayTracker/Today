@@ -1586,6 +1586,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (was min(4,bw/2)) — identical at the 14-day view (bw 14.5 → 4) and wider;
   45-day bars (4.5 wide) get 1.2 instead of 2.25. Tracker bar chart
   `r=min(3,bw/6,h/2)` (a full 18-wide bar keeps 3).
+- PROJECT PAGE HEADER (4.54, "B1" from https://claude.ai/artifact/X3HTEt4LwewjuQzFvXVK6t —
+  D1–D3 description only, B1–B5 icon + description; the user first said B2,
+  then "b1 for now", so keep that page for a later re-pick): `#ph-<pid>`
+  built by `projHeadHTML(pid)` in buildProjPages = `.ph-row` (48px `.ph-ico`
+  tile — the Overview tile: tintStyle(col,true) + iconOrPhoto — and the
+  `.hh-title-btn`, both → editProjPage) + the tracker days line `#hsub-<pid>`
+  + `.ph-desc` (grey 13/18, 3-line clamp, tap toggles `.open`, pre-wrap).
+  `refreshProjHead(pid)` redraws it (only when its HTML changed; refills a
+  tracker's days line via renderTracker) — called by SheetEditor.save
+  (replaced the old `.dico/.dsub` inline updates; `.dico` stays display:none
+  CSS for other pages) and by _renderPage on every visit, since the tile's
+  tint is JS-picked for light/dark and a theme change redraws nothing.
+  Habits pages (#p-habits) were NOT changed. Testing note: a "null .style"
+  error in _slideUnit after hand-hiding pages in the preview is my test
+  (no `.page.active` left), not the app.
 - EDIT WINDOWS (4.44, style "C · Header", picked from a suggestions page
   with A/B/C mockups — https://claude.ai/artifact/GAMky7fND1HABuT7vkimBX;
   asked: "align all edit tabs design wise… compress… so it doesn't look this

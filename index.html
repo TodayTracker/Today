@@ -688,6 +688,15 @@ html:not(#x) .el-card .el-row:last-child{border-bottom:none}
 html:not(#x) .el-row{padding:6px 8px 6px 14px;min-height:52px}
 html:not(#x) .el-btn{width:36px;height:36px;border:none;border-radius:10px;background:var(--pg);transition:background .12s ease}
 html:not(#x) .el-btn.danger{background:#dc2626}
+/* PROJECT PAGE HEADER (4.54, "B1"): the project's tile left of its name,
+   the description under them (3 lines, a tap shows the rest) */
+.ph-row{display:flex;align-items:center;gap:12px;min-width:0}
+.ph-row .hh-title-btn{flex:1;min-width:0}
+.ph-ico{flex:none;width:48px;height:48px;border-radius:12px;border:none;padding:0;display:flex;align-items:center;justify-content:center;font-size:26px;line-height:1;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ph-ico .proj-photo{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.ph-head .hh-sub{margin-top:8px}
+.ph-desc{margin-top:8px;font-size:13px;line-height:18px;font-weight:500;color:#999;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.ph-desc.open{display:block;-webkit-line-clamp:unset}
 /* CHARTS (4.52, "D · Edge to edge" from the chart suggestions page): a
    chart card has no padding at the sides — the bars, a tracker's line and
    its fade run to the card's edges, the labels sit inside. No big number in
@@ -1644,7 +1653,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.53';
+var APP_VERSION='Beta 4.54';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2889,6 +2898,9 @@ var CHANGELOG=[
     "Fixed: a tracker's line made loops and swung past its values (with entries at uneven times, or several on one day). It now always runs forward in time and stays between the values it joins",
     "A tracker's line can be scrolled and zoomed like the habit charts: it starts on the last 30 days, drag sideways to go back and forth in time, pinch to fit more days in (points closer together) or fewer, from 7 days up to all of it",
     "Fixed: a long description in an edit window stayed on one line instead of wrapping to up to 5 lines"
+  ]},
+  {v:'Beta 4.54',notes:[
+    "A project's page shows its emoji or photo on its colour left of the name, and its description in grey under them (3 lines; tap it to read the rest). Tapping the picture or the name opens the edit window, as before with the name"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3016,7 +3028,8 @@ var USER_LOG={
   'Beta 4.50':["Trackers added as habits can be edited and removed from habits in their edit window"],
   'Beta 4.51':["The same tracker in two habit projects counts separately","Separate edit windows for a tracker and its habits"],
   'Beta 4.52':["New chart look"],
-  'Beta 4.53':["Tracker charts can be scrolled and zoomed"]
+  'Beta 4.53':["Tracker charts can be scrolled and zoomed"],
+  'Beta 4.54':["Project pages show their picture and description"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -5594,7 +5607,7 @@ function _slideUnit(a,b,from,to,dur,done){
 }
 
 function _renderPage(id){
-  if(DB.data.projects[id])renderProj(id);
+  if(DB.data.projects[id]){refreshProjHead(id);renderProj(id);}
   if(id==='overview'){renderWar();renderGrids();}
   if(id==='archive')renderArchive();
   if(id==='lockedin')renderLockedIn();
@@ -5871,6 +5884,28 @@ var Menu={
 // ── PROJECT PAGES ─────────────────────────────────────────
 var BACK_SVG='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
 var PLUS_SVG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+// A project page's header ("B1", 4.54, picked from the project page
+// suggestions): the project's emoji or photo on its colour (the Overview
+// tile, 48px) left of the name — both open its edit window — and the
+// description in grey under them, 3 lines (a tap shows all of it). A
+// tracker added as a habit has its days line (#hsub-, renderTracker) between.
+function projHeadHTML(pid){
+  var p=DB.data.projects[pid];if(!p)return '';
+  var col=COLORS[p.color||'c-grey']||'#6b7280',desc=p.sub||p.desc||'';
+  return '<div class="ph-row"><button class="ph-ico" style="'+tintStyle(col,true)+'" onclick="editProjPage(\''+pid+'\')" aria-label="Edit project">'+iconOrPhoto(p)+'</button>'
+    +'<button class="hh-title-btn" onclick="editProjPage(\''+pid+'\')"><span class="hh-title">'+esc(p.name)+'</span></button></div>'
+    +'<div class="hh-sub" id="hsub-'+pid+'" style="display:none"></div>'
+    +(desc?'<div class="ph-desc" onclick="this.classList.toggle(\'open\')">'+esc(desc)+'</div>':'');
+}
+// Redraws a project page's header (after an edit; and on every visit, so
+// the tile's tint follows a theme change)
+function refreshProjHead(pid){
+  var h=document.getElementById('ph-'+pid);if(!h)return;
+  var html=projHeadHTML(pid);
+  if(h._html===html)return;
+  h.innerHTML=html;h._html=html;
+  var p=DB.data.projects[pid];if(p&&p.type==='tracker')renderTracker(pid); // refills the days line
+}
 function buildProjPages(){
   var h='';
   for(var pid in DB.data.projects){
@@ -5879,8 +5914,7 @@ function buildProjPages(){
     h+='<div class="hh"><div class="hh-bar">';
     h+='<button class="hh-btn" onclick="navBack()">'+BACK_SVG+'</button>';
     h+='<button class="hh-btn" onclick="TabPlus.tap()">'+PLUS_SVG+'</button>';
-    h+='</div><button class="hh-title-btn" onclick="editProjPage(\''+pid+'\')"><span class="hh-title">'+p.name+'</span></button>';
-    h+='<div class="hh-sub" id="hsub-'+pid+'" style="display:none"></div></div>'; // a tracked habit's days (renderTracker)
+    h+='</div><div class="ph-head" id="ph-'+pid+'">'+projHeadHTML(pid)+'</div></div>';
     h+='<div id="sc-'+pid+'"></div>';
     h+='</div>';
   }
@@ -9833,17 +9867,10 @@ var SheetEditor={
         if(trackerLinks(this.pid).length){buildPanels();restoreChecks(Nav.sd);renderToday();} // a new unit shows in its habit rows
       }
       DB.save();
-      // Update header inline without navigation
-      var pcol=themeCol(COLORS[this.selectedColor]||'#6b7280');
-      var dico=document.querySelector('#p-'+this.pid+' .dico');
-      var dtitle=document.querySelector('#p-'+this.pid+' .hh-title');
-      var dsub=document.querySelector('#p-'+this.pid+' .dsub');
-      if(dico){dico.style.background=isDarkNow()?pcol+'2e':pcol+'20';dico.style.color=isDarkNow()?pcol+'d9':pcol;dico.textContent=icon;}
-      if(dtitle)dtitle.textContent=name;
-      if(dsub)dsub.textContent=desc;
+      refreshProjHead(this.pid); // its page's header: icon, name, description
       // The Daily project's live page is #p-habits, not #p-<pid> (Nav.go
       // redirects habitsProjectId to the 'habits' page id), so the
-      // selectors above never touch its header — update it directly.
+      // header above isn't its page — update that title directly.
       if(isHabitsProject(this.pid)){
         if(this.pid===curHabitsPid()){var ht=document.getElementById('habits-dtitle');if(ht)ht.textContent=name;}
         buildPanels();restoreChecks(Nav.sd);renderToday(); // the habit cards carry its name
