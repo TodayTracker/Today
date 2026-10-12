@@ -99,6 +99,12 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   restored habit whose project is gone shows under the first one, and moves
   back if that project is restored. Anything new that lists or counts habits
   must filter by habitPid — don't treat dailyItems as one global list.
+  4.48 ("change the habit project that it's in… very simple in the edit
+  tab"): the habit window (DailyItemSheet, EDIT only, any habit incl.
+  tracker habits) has a Project row (`#daily-item-proj-card`, customSelect
+  of habitsProjects(), `showProj(pid)` → `movePid`), shown only with 2+
+  Habits projects; Save sets `it.pid`. Nothing else moves: ticks are keyed
+  by habit id, the array order is universal, dailyCats are global.
 - CATEGORIES ARE OPTIONAL (4.14, "strictly a visual feature… projects
   don't need one; the ones without a category go on top"): a project with
   no category lives in `projectOrder[NO_CAT]` (NO_CAT = '_none'), never in

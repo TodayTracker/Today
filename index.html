@@ -1559,6 +1559,9 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Start</div></div><input type="date" class="sh-rin" id="daily-item-start"></div>
       <div class="opt-row"><div class="opt-text"><div class="opt-title">End</div></div><input type="date" class="sh-rin" id="daily-item-end"></div>
     </div>
+    <div class="opt-group" id="daily-item-proj-card" style="display:none">
+      <div class="opt-row"><div class="opt-text"><div class="opt-title">Project</div></div><div id="daily-item-proj"></div></div>
+    </div>
     <div class="opt-group" id="daily-item-delete-row" style="display:none">
       <div class="opt-row btn-row danger" onclick="DailyItemSheet.remove()"><div class="opt-text"><div class="opt-title">Delete habit</div></div></div>
     </div>
@@ -1627,7 +1630,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.47';
+var APP_VERSION='Beta 4.48';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2850,6 +2853,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.47',notes:[
     "Menu → Today → Edit layout lists every Habits project as its own row instead of one Habits row, so each project's card can go anywhere in Today: above Tasks, between two others, below Calendar. Your order is kept (the projects stand where Habits stood); a new Habits project joins after the last one"
+  ]},
+  {v:'Beta 4.48',notes:[
+    "A habit can be moved to another Habits project: its edit window has a Project row (shown when you have two or more Habits projects). Its ticks and history go with it"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2971,7 +2977,8 @@ var USER_LOG={
   'Beta 4.44':'both',
   'Beta 4.45':'design',
   'Beta 4.46':'design',
-  'Beta 4.47':["Each habit project can be placed on its own in Today"]
+  'Beta 4.47':["Each habit project can be placed on its own in Today"],
+  'Beta 4.48':["Habits can be moved to another habit project"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -7554,6 +7561,7 @@ var DailyItemSheet={
       desc.style.display='';desc.value='';_shGrow(desc);
     }
     document.getElementById('daily-item-delete-row').style.display='none';
+    this.showProj(null);
     this.showGoal(null);
     var end=new Date(T);end.setDate(end.getDate()+29); // a 30-day run to start from
     this.showDates(!!temp&&!this.trackerPid,dStr(T),dStr(end));
@@ -7582,11 +7590,22 @@ var DailyItemSheet={
       setTimeout(function(){_shGrow(desc);},0);
     }
     document.getElementById('daily-item-delete-row').style.display='';
+    this.showProj(habitPid(it));
     this.showGoal(hasGoal(it)?it.goal:null);
     this.showDates(!!it.until,habitCreatedDs(it),it.until||'');
     this.perDay=!!it.perDay;this.dayNames=Object.assign({},it.dayNames||{});this.showPerDay();
     this.renderDays();
     _overlayOpen('daily-item-sheet-overlay');
+  },
+  // Project (editing, with 2+ Habits projects): which Habits project the
+  // habit is in; Save moves it there (its ticks and history go with it)
+  movePid:null,
+  showProj:function(pid){
+    this.movePid=pid;
+    var hp=habitsProjects(),card=document.getElementById('daily-item-proj-card');
+    card.style.display=pid&&hp.length>1?'':'none';
+    if(card.style.display==='none')return;
+    document.getElementById('daily-item-proj').innerHTML=customSelect(hp.map(function(p){return {value:p,label:habitsTitle(p)};}),pid,'DailyItemSheet.showProj(this.value)');
   },
   // Goal (tracker habits only): done on a day once that day's value
   // reaches it (see habitDayVal). Empty = done whenever anything is logged.
@@ -7689,6 +7708,7 @@ var DailyItemSheet={
           if(g==null)delete it.goal;else it.goal=g;
         }
         it.days=this.selectedDays.slice().sort();
+        if(this.movePid&&isHabitsProject(this.movePid))it.pid=this.movePid; // the Project row
         DB.save();
       }
       this.editId=null;
