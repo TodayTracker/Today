@@ -1409,7 +1409,14 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   priority cards, Edit layout's cards). Lists: the lifted item only moves up
   and down, and its LEADING EDGE decides (85% of its height going down, 15%
   going up, vs the other items' middles; `_layoutRect` ignores a running
-  FLIP offset); grids: the side of the nearest item. 130ms pause after each
+  FLIP offset); grids: the CELL nearest the finger, the faint copy's own
+  cell included — the copy moves INTO it (4.49; before, "the side of the
+  nearest item" with positions measured while the copy held a cell put it
+  in the wrong row at the edges: before a row's first item = the end of the
+  row above, and it stuck there — "far left shows it far right in the row
+  above"; reproduced and checked with finger-style touches, normal and
+  minimal layout); coming from another group, past the middle of its last
+  item = after it. 130ms pause after each
   move (`_retry` re-checks). Letting go glides it into the copy's spot
   (`.drag-landing`, 230ms) THEN onDrop runs (it's later than before — onDrop
   used to run inside touchend). The old `_swap`/`_hitList`/`_hitCross`/

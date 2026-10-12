@@ -1630,7 +1630,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.48';
+var APP_VERSION='Beta 4.49';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2856,6 +2856,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.48',notes:[
     "A habit can be moved to another Habits project: its edit window has a Project row (shown when you have two or more Habits projects). Its ticks and history go with it"
+  ]},
+  {v:'Beta 4.49',notes:[
+    "Fixed: dragging a project on Overview to the far left of a row showed its faint copy at the far right of the row above, and the far right of a row showed it at the start of the row below. The copy now always goes into the spot under your finger"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2978,7 +2981,8 @@ var USER_LOG={
   'Beta 4.45':'design',
   'Beta 4.46':'design',
   'Beta 4.47':["Each habit project can be placed on its own in Today"],
-  'Beta 4.48':["Habits can be moved to another habit project"]
+  'Beta 4.48':["Habits can be moved to another habit project"],
+  'Beta 4.49':'bug'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -9226,9 +9230,16 @@ var DragReorder={
       var top=y-this._offY,h=this._r0.height,probe=this._down?top+h*.85:top+h*.15;
       items.forEach(function(it){var r=self._layoutRect(it);if(probe>r.top+r.height/2)idx++;});
     } else if(items.length){
+      // A grid's cells stay where they are while their contents move, so the
+      // faint copy goes INTO the cell nearest the finger (its own counts).
+      // "Before the nearest item" put it in the wrong row at the edges: before
+      // the first item of a row is the end of the row above.
+      var cells=ph.parentNode===group?[].filter.call(group.children,function(n){return n===ph||items.indexOf(n)!==-1;}):items;
       var bi=0,b2=1e18;
-      items.forEach(function(it,i){var r=self._layoutRect(it),cx=r.left+r.width/2,cy=r.top+r.height/2,q=(x-cx)*(x-cx)+(y-cy)*(y-cy)*1.4;if(q<b2){b2=q;bi=i;}});
-      var rr=self._layoutRect(items[bi]);idx=x>rr.left+rr.width/2?bi+1:bi;
+      cells.forEach(function(c,i){var r=self._layoutRect(c),cx=r.left+r.width/2,cy=r.top+r.height/2,q=(x-cx)*(x-cx)+(y-cy)*(y-cy)*1.4;if(q<b2){b2=q;bi=i;}});
+      var rr=self._layoutRect(cells[bi]);idx=bi;
+      // coming from another group, past the middle of its last item = after it
+      if(cells===items&&bi===items.length-1&&x>rr.left+rr.width/2)idx=items.length;
     }
     this._moveTo(group,items,idx);
   },
