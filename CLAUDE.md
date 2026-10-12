@@ -651,7 +651,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   number (tallest bar) just above its top at the left, no axis line, the
   header row (readout, Days/Weeks/Months) padded 12px, bars clipped 1px
   outside the plot (a slice of the next column showed at the edge at rest).
-  Tracker LINE (`trackerLine`, `.calsec.trk-card`; the Bar chart switch
+  4.53: the line is a window of time like the habit bars, `TrkZ(card,…)`
+  (made by renderTracker in `.calsec.trk-card.zchart` › `.trk-plot`): last
+  30 days to start, sideways drag scrolls (fling; clamped between "first
+  entry still in view" and now), pinch zooms 7 days … all the data
+  (ZC_PINCH, right edge kept), y range from what's in view; view kept per
+  tracker in TRK_VIEW while the app runs (`live` = at now). The curve is
+  `monotonePath` (monotone cubic in x, Fritsch–Carlson / d3 curveMonotoneX):
+  4.52's Catmull-Rom LOOPED with entries at uneven times or minutes apart
+  ("there are literally loops inside the chart") — never use Catmull-Rom on
+  time-spaced data. Test: every C control point's x must be ≥ the previous.
+  Also 4.53: the edit-window description class is `.sh-text` — it was
+  `.sh-sub`, which is ALSO the Statistics habits list's one-line subtitle
+  (white-space:nowrap), so long text never wrapped; my first test used
+  newline-separated lines and passed. Test wrapping with one long line.
+  Tracker LINE (4.52: `trackerLine`, now TrkZ; `.calsec.trk-card`; the Bar chart switch
   still uses the old `trackerChart` bars, in a padded card without the big
   number): one smooth green line (Catmull-Rom curves, 2.5px) from the
   card's left edge, a green fade to the card's bottom edge, NO dots, the

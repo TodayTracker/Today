@@ -714,11 +714,11 @@ html:not(#x) .trk-card .trk-chart{display:block;width:100%;height:auto;margin:0}
 .sh-hero{display:flex;flex-direction:column;gap:4px;margin:0 2px 18px}
 .sh-hero.center{align-items:center;text-align:center}
 html:not(#x) .sh-name{display:block;width:100%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;color:var(--ink);font-family:inherit;font-size:24px;line-height:30px;font-weight:700;padding:0;margin:0;height:auto;min-height:0;text-align:inherit}
-html:not(#x) .sh-sub{display:block;width:100%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;color:var(--ink);font-family:inherit;font-size:15px;line-height:21px;font-weight:500;padding:0;margin:0;height:auto;min-height:21px;resize:none;overflow:hidden;text-align:inherit}
+html:not(#x) .sh-text{display:block;width:100%;white-space:pre-wrap;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;color:var(--ink);font-family:inherit;font-size:15px;line-height:21px;font-weight:500;padding:0;margin:0;height:auto;min-height:21px;resize:none;overflow:hidden;text-align:inherit}
 .sh-name::placeholder{color:#c7c7cc;font-weight:700;opacity:1}
-.sh-sub::placeholder{color:#a3a3a3;opacity:1}
+.sh-text::placeholder{color:#a3a3a3;opacity:1}
 html:not(#x) .sh-notes{min-height:120px}
-html:not(#x) .sh-sub:not(.sh-notes){max-height:105px} /* a description: up to 5 lines, then it scrolls */
+html:not(#x) .sh-text:not(.sh-notes){max-height:105px} /* a description: up to 5 lines, then it scrolls */
 .sh-ico{position:relative;flex:none;width:76px;height:76px;border-radius:19px;margin:0 0 12px}
 html:not(#x) .sh-ico input{position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:inherit;background:transparent;font-size:42px;line-height:76px;text-align:center;caret-color:transparent;outline:none;padding:0;margin:0}
 #sheet-photo-preview{position:absolute;inset:0;border-radius:inherit;overflow:hidden;display:none;pointer-events:none}
@@ -1529,7 +1529,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
       </div>
       <input type="file" id="sheet-photo-input" accept="image/*" style="display:none" onchange="SheetEditor.onPhotoPicked(this)">
       <input class="sh-name" id="sheet-name" placeholder="Project name">
-      <textarea class="sh-sub" id="sheet-desc" rows="1" placeholder="Description" oninput="_shGrow(this)"></textarea>
+      <textarea class="sh-text" id="sheet-desc" rows="1" placeholder="Description" oninput="_shGrow(this)"></textarea>
     </div>
     <div class="opt-group" id="new-proj-rows" style="display:none">
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Type</div></div><div id="new-proj-type"></div></div>
@@ -1555,7 +1555,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     <div class="sh-hero">
       <input class="sh-name" id="daily-item-inp" placeholder="Habit name" oninput="DailyItemSheet.syncPh()">
       <div class="sh-name" id="daily-item-tracker-lbl" style="display:none"></div>
-      <textarea class="sh-sub" id="daily-item-desc" rows="1" placeholder="Description" oninput="_shGrow(this)"></textarea>
+      <textarea class="sh-text" id="daily-item-desc" rows="1" placeholder="Description" oninput="_shGrow(this)"></textarea>
     </div>
     <div class="opt-group">
       <div class="opt-row sh-days-row"><div class="type-grid days" id="daily-item-days"></div></div>
@@ -1602,7 +1602,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     <div class="sh-bar"><span class="sh-bar-t" id="task-sheet-title"></span><button type="button" class="sh-save" onclick="TaskSheet.save()">Save</button></div>
     <div class="sh-hero">
       <input class="sh-name" id="task-sheet-name" placeholder="Task name">
-      <textarea class="sh-sub sh-notes" id="task-sheet-desc" placeholder="Notes" oninput="TaskSheet.autosize()"></textarea>
+      <textarea class="sh-text sh-notes" id="task-sheet-desc" placeholder="Notes" oninput="TaskSheet.autosize()"></textarea>
     </div>
     <div class="opt-group" id="task-sheet-rows"></div>
   </div>
@@ -1644,7 +1644,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.52';
+var APP_VERSION='Beta 4.53';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2884,6 +2884,11 @@ var CHANGELOG=[
   {v:'Beta 4.52',notes:[
     "A description in an edit window shows up to 5 lines (it grows as you type, then scrolls inside), so you can read what you wrote; a project's description was a single line",
     "New chart look (D from the chart suggestions): charts run to the edges of their card with the labels inside, and there's no big number in the card any more. A tracker's line is one smooth green line with a soft fade, its latest value written next to the last point, a soft dotted goal line and one number for the highest value; tap the line to see an entry's value and day. With Moving average on, each entry hangs from the average line as a short soft green bar. The habit and Statistics bar charts run edge to edge the same way"
+  ]},
+  {v:'Beta 4.53',notes:[
+    "Fixed: a tracker's line made loops and swung past its values (with entries at uneven times, or several on one day). It now always runs forward in time and stays between the values it joins",
+    "A tracker's line can be scrolled and zoomed like the habit charts: it starts on the last 30 days, drag sideways to go back and forth in time, pinch to fit more days in (points closer together) or fewer, from 7 days up to all of it",
+    "Fixed: a long description in an edit window stayed on one line instead of wrapping to up to 5 lines"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3010,7 +3015,8 @@ var USER_LOG={
   'Beta 4.49':'bug',
   'Beta 4.50':["Trackers added as habits can be edited and removed from habits in their edit window"],
   'Beta 4.51':["The same tracker in two habit projects counts separately","Separate edit windows for a tracker and its habits"],
-  'Beta 4.52':["New chart look"]
+  'Beta 4.52':["New chart look"],
+  'Beta 4.53':["Tracker charts can be scrolled and zoomed"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4033,7 +4039,7 @@ function renderTracker(pid){
   // the page was opened from, else its first habit
   var ctx=trackerLinkFor(pid),links=trackerLinks(pid),link=ctx||links[0]||null;
   var goal=link&&hasGoal(link)?link.goal:null;
-  var svgH=p.chartBars?trackerChart(pid,p,entries,goal):trackerLine(pid,p,entries,goal);
+  var svgH=p.chartBars?trackerChart(pid,p,entries,goal):'';
   // That habit's days under the name, like a habit's page — tap them for
   // its window (days, goal, project, remove from habits). Opened as the
   // project with 2+ habits, there's no one habit to show.
@@ -4065,9 +4071,10 @@ function renderTracker(pid){
   else entriesH='<div class="sl">Entries</div><div class="calsec" style="padding:2px 14px">'+listH+'</div>';
   c.innerHTML=(p.chartBars
       ?'<div class="calsec" style="padding:16px 14px 6px">'+svgH+'</div>'
-      :'<div class="calsec trk-card" onclick="trkTap(event,\''+pid+'\')"><div class="chart-hdr"><div class="chart-readout" id="trk-ro-'+pid+'">&nbsp;</div></div>'+svgH+'</div>')
+      :'<div class="calsec trk-card zchart"><div class="chart-hdr"><div class="chart-readout">&nbsp;</div></div><div class="trk-plot"></div></div>')
     +entriesH
     +(link?TrackerPage.habitHTML(pid,link):'');
+  if(!p.chartBars)new TrkZ(c.querySelector('.trk-card'),pid,p,entries,goal);
 }
 // A tracker's chart (its own entries, oldest → newest). Line (default): a
 // 3px line in the Statistics green with a small dark grey dot on every
@@ -4081,66 +4088,164 @@ function renderTracker(pid){
 var TRK_GREEN='#30d158';
 // The tracker's line, "D · Edge to edge" (4.52, picked from the chart
 // suggestions page): one smooth green line with a soft fade down to the
-// card's edge, from the left edge of the card; the latest value written
-// next to the last point (a ring); one number, the highest value, at its
-// height; a soft dotted goal line labelled on the left; dates inside along
-// the bottom. No dots. With the moving average (the last 7 entries) the line
-// is the average and each entry hangs from it as a short soft green bar
-// ("I5"). A tap shows the nearest entry (_trkPts, trkTap).
-var _trkPts={};
-function trackerLine(pid,p,entries,goal){
-  var W=300,H=172,T=42,B=24,unit=p.unit||''; // T: room for the tap readout above the line
-  if(!entries.length){_trkPts[pid]=[];return '<div class="empty" style="padding:36px 0">No data yet</div>';}
-  var vals=entries.map(function(e){return e.val;}),has=goal!=null;
-  var avg=p.maEnabled?entries.map(function(e,i){var sl=entries.slice(Math.max(0,i-6),i+1);return sl.reduce(function(a,x){return a+x.val;},0)/sl.length;}):null;
-  var endV=avg?avg[avg.length-1]:vals[vals.length-1],endTxt=fmtTrk(Math.round(endV*10)/10);
-  var R=Math.max(30,Math.ceil(16+endTxt.length*7.2+(unit?(unit.length+1)*6:0))); // room for the latest value beside the last point
-  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),top=hi;
+// card's edge, the latest value written next to the last point (a ring), one
+// number (the highest value shown) at its height, a soft dotted goal line
+// labelled on the left, dates inside along the bottom; no dots. With the
+// moving average (the last 7 entries) the line is the average and each entry
+// hangs from it as a short soft green bar ("I5"). A window of time like the
+// habit bars (4.53): last 30 days to start, a sideways drag scrolls back and
+// forth (with a fling), a pinch zooms from 7 days out to all the data (the
+// right edge stays put); the y range follows what's in view. Where it was
+// left is kept per tracker while the app runs (TRK_VIEW). A tap shows the
+// nearest entry. The card is the touch target (.zchart: its svg ignores
+// touches, the page still scrolls up and down, swipe-back leaves it alone).
+var TRK_VIEW={},DAY_MS=864e5;
+function TrkZ(card,pid,p,entries,goal){
+  this.card=card;this.plot=card.querySelector('.trk-plot');this.ro=card.querySelector('.chart-readout');
+  this.pid=pid;this.e=entries;this.goal=goal;this.unit=p.unit||'';
+  this.avg=p.maEnabled?entries.map(function(x,i){var sl=entries.slice(Math.max(0,i-6),i+1);return sl.reduce(function(a,y){return a+y.val;},0)/sl.length;}):null;
+  this.now=Date.now();this.t0=entries.length?entries[0].ts:this.now;
+  this.Dmin=7;this.Dmax=Math.max(30,(this.now-this.t0)/DAY_MS*1.08+2);
+  var v=TRK_VIEW[pid]||{D:30,live:true};
+  this.D=Math.max(this.Dmin,Math.min(this.Dmax,v.D));this.end=v.live?this.now:v.end;this._clamp();
+  var n=entries.length,last=n?(this.avg?this.avg[n-1]:entries[n-1].val):0;
+  this.endTxt=fmtTrk(Math.round(last*10)/10);
+  this.R=Math.max(30,Math.ceil(16+this.endTxt.length*7.2+(this.unit?(this.unit.length+1)*6:0))); // room for the latest value
+  this._wire();this.render();
+}
+// keeps the right edge between "the first entry still in view" and now; true if it had to
+TrkZ.prototype._clamp=function(){
+  var min=Math.min(this.now,this.t0+this.D*DAY_MS*.92),e=Math.max(min,Math.min(this.now,this.end)),hit=e!==this.end;
+  this.end=e;TRK_VIEW[this.pid]={D:this.D,end:e,live:e>=this.now-1};
+  return hit;
+};
+TrkZ.prototype.zoom=function(D){this.D=Math.max(this.Dmin,Math.min(this.Dmax,D));this._clamp();};
+TrkZ.prototype.render=function(){
+  var W=300,H=172,T=42,B=24,R=this.R,PW=W-R,E=this.e,n=E.length,self=this; // T: room for the tap readout
+  if(!n){this._pts=[];this.plot.innerHTML='<div class="empty" style="padding:36px 0">No data yet</div>';return;}
+  var Dms=this.D*DAY_MS,left=this.end-Dms,end=this.end;
+  function x(ts){return (ts-left)/Dms*PW;}
+  function f(v){return v.toFixed(1);}
+  // what's in view, plus one entry on each side so the line runs off the edges
+  var a=0,b=n-1,i;
+  while(a<n-1&&E[a+1].ts<left)a++;
+  while(b>0&&E[b-1].ts>end)b--;
+  var vis=[];for(i=a;i<=b;i++)if(E[i].ts>=left&&E[i].ts<=end)vis.push(i);
+  if(!vis.length)vis=a===b?[a]:[a,b];
+  var lo=Infinity,hi=-Infinity,top=-Infinity;
+  vis.forEach(function(k){var v=E[k].val;top=Math.max(top,v);lo=Math.min(lo,v);hi=Math.max(hi,v);if(self.avg){lo=Math.min(lo,self.avg[k]);hi=Math.max(hi,self.avg[k]);}});
+  var has=this.goal!=null,goal=this.goal;
   if(has){lo=Math.min(lo,goal);hi=Math.max(hi,goal);}
   var pad=(hi-lo)*.12||Math.abs(hi)*.05||1;lo-=pad;hi+=pad;
   function y(v){return T+(hi-v)/(hi-lo)*(H-T-B);}
-  var t0=entries[0].ts,t1=entries[entries.length-1].ts,one=entries.length===1;
-  function x(ts){return one?(W-R)/2:(ts-t0)/((t1-t0)||1)*(W-R);}
-  function f(n){return n.toFixed(1);}
-  var raw=entries.map(function(e){return [x(e.ts),y(e.val)];});
-  var pts=avg?entries.map(function(e,i){return [raw[i][0],y(avg[i])];}):raw;
-  _trkPts[pid]=entries.map(function(e,i){return {x:raw[i][0],v:e.val,ts:e.ts};});
-  var gid='trkf-'+pid,s='<svg class="trk-chart" viewBox="0 0 '+W+' '+H+'">';
+  var idx=[];for(i=a;i<=b;i++)idx.push(i);
+  var one=n===1,raw=idx.map(function(k){return [one?PW/2:x(E[k].ts),y(E[k].val)];});
+  var pts=this.avg?idx.map(function(k,j){return [raw[j][0],y(self.avg[k])];}):raw;
+  this._pts=idx.map(function(k,j){return {x:raw[j][0],v:E[k].val,ts:E[k].ts};});
+  var gid='trkf-'+this.pid,s='<svg class="trk-chart" viewBox="0 0 '+W+' '+H+'">';
   s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+TRK_GREEN+'" stop-opacity=".22"/><stop offset="1" stop-color="'+TRK_GREEN+'" stop-opacity="0"/></linearGradient></defs>';
   var gy=has?y(goal):null;
   if(!has||Math.abs(y(top)-gy)>14)s+='<text class="hd-bar-label" x="10" y="'+f(y(top)-6)+'" font-size="9">'+esc(fmtTrk(top))+'</text>';
   if(has)s+='<line class="trk-goal" x1="0" x2="'+W+'" y1="'+f(gy)+'" y2="'+f(gy)+'"/><text class="hd-bar-label" x="10" y="'+f(gy-5)+'" font-size="9">'+esc(t('Goal')+' '+fmtTrk(goal))+'</text>';
-  // smooth line through the points (Catmull-Rom as curves)
-  var d='M'+f(pts[0][0])+','+f(pts[0][1]);
-  for(var i=0;i<pts.length-1;i++){
-    var a=pts[i-1]||pts[i],b=pts[i],c=pts[i+1],e=pts[i+2]||c;
-    d+='C'+f(b[0]+(c[0]-a[0])/6)+','+f(b[1]+(c[1]-a[1])/6)+' '+f(c[0]-(e[0]-b[0])/6)+','+f(c[1]-(e[1]-b[1])/6)+' '+f(c[0])+','+f(c[1]);
+  var d=monotonePath(pts),lp=pts[pts.length-1];
+  if(pts.length>1)s+='<path d="'+d+'L'+f(lp[0])+','+H+'L'+f(pts[0][0])+','+H+'Z" fill="url(#'+gid+')"/>';
+  if(this.avg)raw.forEach(function(q,j){s+='<line x1="'+f(q[0])+'" x2="'+f(q[0])+'" y1="'+f(q[1])+'" y2="'+f(pts[j][1])+'" stroke="'+TRK_GREEN+'" stroke-opacity=".28" stroke-width="3" stroke-linecap="round"/>';});
+  if(pts.length>1)s+='<path d="'+d+'" fill="none" stroke="'+TRK_GREEN+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  // the latest value, when the latest entry is in view
+  if(b===n-1&&(one||E[n-1].ts<=end)){
+    s+='<circle cx="'+f(lp[0])+'" cy="'+f(lp[1])+'" r="4.5" style="fill:var(--card)" stroke="'+TRK_GREEN+'" stroke-width="2.5"/>'
+      +'<text x="'+f(lp[0]+9)+'" y="'+f(lp[1]+4)+'" font-size="12" font-weight="700" style="fill:var(--ink)">'+esc(this.endTxt)
+      +(this.unit?'<tspan class="hd-bar-label" font-size="10" font-weight="600"> '+esc(this.unit)+'</tspan>':'')+'</text>';
   }
-  var last=pts[pts.length-1];
-  if(!one)s+='<path d="'+d+'L'+f(last[0])+','+H+'L'+f(pts[0][0])+','+H+'Z" fill="url(#'+gid+')"/>';
-  if(avg)raw.forEach(function(q,i){s+='<line x1="'+f(q[0])+'" x2="'+f(q[0])+'" y1="'+f(q[1])+'" y2="'+f(pts[i][1])+'" stroke="'+TRK_GREEN+'" stroke-opacity=".28" stroke-width="3" stroke-linecap="round"/>';});
-  if(!one)s+='<path d="'+d+'" fill="none" stroke="'+TRK_GREEN+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-  s+='<circle cx="'+f(last[0])+'" cy="'+f(last[1])+'" r="4.5" style="fill:var(--card)" stroke="'+TRK_GREEN+'" stroke-width="2.5"/>'
-    +'<text x="'+f(last[0]+9)+'" y="'+f(last[1]+4)+'" font-size="12" font-weight="700" style="fill:var(--ink)">'+esc(endTxt)
-    +(unit?'<tspan class="hd-bar-label" font-size="10" font-weight="600"> '+esc(unit)+'</tspan>':'')+'</text>';
   // dates along the bottom, inside the card
-  var marks=one?[t0]:[0,1,2,3,4].map(function(k){return t0+(t1-t0)*k/4;}),seen={};
-  marks.forEach(function(ts,k){
-    var lbl=_dm(new Date(ts));if(seen[lbl])return;seen[lbl]=1;
-    var xx=x(ts),an='middle';
-    if(!one&&k===0){an='start';xx=10;}else if(!one&&k===marks.length-1){an='end';xx=W-R+4;}
+  var seen={};
+  [0,1,2,3,4].forEach(function(k){
+    var ts=left+Dms*k/4,lbl=_dm(new Date(ts));if(seen[lbl])return;seen[lbl]=1;
+    var xx=PW*k/4,an=k===0?'start':k===4?'end':'middle';if(k===0)xx=10;if(k===4)xx=PW+4;
     s+='<text class="hd-bar-label" x="'+f(xx)+'" y="'+(H-8)+'" font-size="9" text-anchor="'+an+'">'+lbl+'</text>';
   });
-  return s+'</svg>';
-}
-// A tap on a tracker's line: the nearest entry's value and day
-function trkTap(ev,pid){
-  var card=ev.currentTarget,svg=card.querySelector('svg'),pts=_trkPts[pid],ro=document.getElementById('trk-ro-'+pid);
-  if(!svg||!pts||!pts.length||!ro)return;
-  var r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*300,best=pts[0];
-  pts.forEach(function(q){if(Math.abs(q.x-x)<Math.abs(best.x-x))best=q;});
-  var p=DB.data.projects[pid],d=new Date(best.ts);
-  ro.textContent=fmtTrk(best.v)+(p&&p.unit?' '+p.unit:'')+' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+  this.plot.innerHTML=s+'</svg>';
+};
+TrkZ.prototype._wire=function(){
+  var self=this,h=this.card,mode=0,sx=0,sy=0,e0=0,d0=1,D0=0,moves=[],raf=0,anim=0;
+  function dist(ts){var dx=ts[0].clientX-ts[1].clientX,dy=ts[0].clientY-ts[1].clientY;return Math.sqrt(dx*dx+dy*dy)||1;}
+  function pxPerMs(){return h.getBoundingClientRect().width/300*(300-self.R)/(self.D*DAY_MS);}
+  function draw(){if(!raf)raf=requestAnimationFrame(function(){raf=0;self.render();});}
+  function stop(){if(anim){cancelAnimationFrame(anim);anim=0;}}
+  function clear(){self.ro.innerHTML='&nbsp;';}
+  // modes as in ZChart: 1 touched, 2 sideways drag, 3 pinch, 4 pinch over (wait for all fingers up)
+  h.addEventListener('touchstart',function(e){
+    stop();
+    if(e.touches.length>=2){mode=3;d0=dist(e.touches);D0=self.D;clear();}
+    else if(mode!==3&&mode!==4){mode=1;sx=e.touches[0].clientX;sy=e.touches[0].clientY;e0=self.end;moves=[];}
+  },{passive:true});
+  h.addEventListener('touchmove',function(e){
+    if(mode===3){if(e.touches.length<2)return;e.preventDefault();self.zoom(D0*Math.pow(d0/dist(e.touches),ZC_PINCH));draw();return;}
+    if(mode===4){e.preventDefault();return;}
+    if(mode===1){
+      var dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
+      if(Math.abs(dy)>8&&Math.abs(dy)>Math.abs(dx)){mode=0;return;} // the page scrolls
+      if(Math.abs(dx)<=8)return;
+      mode=2;clear();sx=e.touches[0].clientX;e0=self.end;
+    }
+    if(mode===2){
+      e.preventDefault();
+      var x=e.touches[0].clientX;
+      self.end=e0-(x-sx)/pxPerMs();self._clamp(); // finger right = back in time
+      moves.push({x:x,t:performance.now()});if(moves.length>5)moves.shift();
+      draw();
+    }
+  },{passive:false});
+  function end(e){
+    if(e.touches.length){if(mode===3)mode=4;return;}
+    if(mode===2&&moves.length>1){
+      var a=moves[0],b=moves[moves.length-1],dt=b.t-a.t;
+      var v=(dt>0&&performance.now()-b.t<80)?-(b.x-a.x)/dt/pxPerMs():0; // ms of time per ms
+      if(Math.abs(v)*pxPerMs()>0.05){
+        var last=performance.now();
+        var frame=function(now){
+          var st=Math.min(40,now-last);last=now;
+          self.end+=v*st;var hit=self._clamp();v*=Math.pow(0.94,st/16);self.render();
+          anim=!hit&&Math.abs(v)*pxPerMs()>0.02?requestAnimationFrame(frame):0;
+        };
+        anim=requestAnimationFrame(frame);
+      }
+    }
+    mode=0;
+  }
+  h.addEventListener('touchend',end,{passive:true});
+  h.addEventListener('touchcancel',end,{passive:true});
+  h.addEventListener('gesturestart',function(e){e.preventDefault();}); // iOS: no page zoom
+  // a tap: the nearest entry's value and day
+  h.addEventListener('click',function(e){
+    var pts=self._pts,svg=self.plot.querySelector('svg');if(!pts||!pts.length||!svg)return;
+    var r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*300,best=pts[0];
+    pts.forEach(function(q){if(Math.abs(q.x-x)<Math.abs(best.x-x))best=q;});
+    var d=new Date(best.ts);
+    self.ro.textContent=fmtTrk(best.v)+(self.unit?' '+self.unit:'')+' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+  });
+};
+// A smooth line through points in time order that only ever goes forward
+// and never swings past the values it joins (monotone cubic, Fritsch–
+// Carlson — what d3's curveMonotoneX draws). 4.52 used Catmull-Rom curves:
+// with entries at uneven times (several on one day) they looped backwards.
+function monotonePath(p){
+  var n=p.length,f=function(v){return v.toFixed(1);};
+  if(n<2)return n?'M'+f(p[0][0])+','+f(p[0][1]):'';
+  var h=[],s=[],m=[],i;
+  for(i=0;i<n-1;i++){h[i]=p[i+1][0]-p[i][0];s[i]=h[i]>1e-6?(p[i+1][1]-p[i][1])/h[i]:0;}
+  m[0]=s[0];m[n-1]=s[n-2];
+  for(i=1;i<n-1;i++){
+    if(s[i-1]*s[i]<=0||h[i-1]<=1e-6||h[i]<=1e-6){m[i]=0;continue;}
+    var q=(s[i-1]*h[i]+s[i]*h[i-1])/(h[i-1]+h[i]);
+    m[i]=(s[i]>0?1:-1)*Math.min(Math.abs(s[i-1]),Math.abs(s[i]),Math.abs(q)/2)*2;
+  }
+  var d='M'+f(p[0][0])+','+f(p[0][1]);
+  for(i=0;i<n-1;i++){
+    var k=h[i]/3;
+    d+='C'+f(p[i][0]+k)+','+f(p[i][1]+m[i]*k)+' '+f(p[i+1][0]-k)+','+f(p[i+1][1]-m[i+1]*k)+' '+f(p[i+1][0])+','+f(p[i+1][1]);
+  }
+  return d;
 }
 // The bar version (Bar chart switch in the tracker's window)
 function trackerChart(pid,p,entries,goal){
