@@ -642,6 +642,29 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   on resume after 5 min. Every release must still bump CACHE_NAME (that's what the
   comparison keys on).
 
+- CHART LOOK "D · Edge to edge" + "I5" (4.52, picked by elimination on
+  https://claude.ai/artifact/1E5WuHAob9Jz6HFwuNMVTG — layouts 1/A–E, dot
+  styles G1–G5/I1–I5; the user wants those options KEPT to choose again
+  later, so don't delete that page): chart cards have no side padding and
+  no big number. Habit/Statistics bars (`.calsec.zc-card`, ZChart): 10px
+  from the card edges (`_padL`/`_padR`, used by colPx and the tap), the one
+  number (tallest bar) just above its top at the left, no axis line, the
+  header row (readout, Days/Weeks/Months) padded 12px, bars clipped 1px
+  outside the plot (a slice of the next column showed at the edge at rest).
+  Tracker LINE (`trackerLine`, `.calsec.trk-card`; the Bar chart switch
+  still uses the old `trackerChart` bars, in a padded card without the big
+  number): one smooth green line (Catmull-Rom curves, 2.5px) from the
+  card's left edge, a green fade to the card's bottom edge, NO dots, the
+  latest value (rounded to .1, the average when the moving average is on)
+  in ink next to a ring on the last point (`R` = room sized from that
+  label's length — 46 cut off "kg"), one number (highest value) at its
+  height top-left (left out within 14px of the goal line), a dotted
+  `.trk-goal` line labelled "Goal N" on the left, dates (`_dm`) inside along
+  the bottom, T=42 so the tap readout (`trkTap`, `_trkPts`: nearest entry's
+  value + day in `#trk-ro-<pid>`) clears the top number. No red below the
+  goal any more (option 1 is all green). Moving average on = "I5": the line
+  is the 7-entry average and each entry hangs from it as a 3px round soft
+  green stroke (opacity .28). The old line description below is history.
 - Tracker charts (3.89, `trackerChart(pid,p,entries,goal)`, drawn by
   renderTracker; asked for with a CoinMarketCap screenshot): ONE line style
   — 3px, round, `TRK_GREEN` #30d158 (the Statistics ring green), a dot on
@@ -1563,7 +1586,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   right, in TAPPABLE like .sheet-save was). No Save row at the bottom any
   more. `.sh-hero`: the name as a big borderless title (`.sh-name`, 24/700)
   and a grey line under it (`.sh-sub`: description, or a task's notes
-  `.sh-notes` min 120px; textareas grow via `_shGrow`/TaskSheet.autosize).
+  `.sh-notes` min 120px; textareas grow via `_shGrow`/TaskSheet.autosize;
+  since 4.52 a description — project too, it was a one-line input — shows
+  up to 5 lines (`.sh-sub:not(.sh-notes)` max-height 105px, `_shGrow` turns
+  on scrolling past it): "so I can actually read what I wrote").
   A project's hero is centred with a 76px icon tile (`.sh-ico`
   #sheet-ico-tile, coloured by updateColorField like the Overview card):
   the emoji input fills it; a photo (`#sheet-photo-preview`) covers it;

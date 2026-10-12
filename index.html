@@ -688,6 +688,16 @@ html:not(#x) .el-card .el-row:last-child{border-bottom:none}
 html:not(#x) .el-row{padding:6px 8px 6px 14px;min-height:52px}
 html:not(#x) .el-btn{width:36px;height:36px;border:none;border-radius:10px;background:var(--pg);transition:background .12s ease}
 html:not(#x) .el-btn.danger{background:#dc2626}
+/* CHARTS (4.52, "D · Edge to edge" from the chart suggestions page): a
+   chart card has no padding at the sides — the bars, a tracker's line and
+   its fade run to the card's edges, the labels sit inside. No big number in
+   the card: a tracker's latest value is written next to the last point. */
+html:not(#x) .calsec.zc-card{padding:10px 0 0;overflow:hidden}
+.zc-card .chart-hdr{padding:0 12px;margin-bottom:2px}
+html:not(#x) .calsec.trk-card{padding:0;overflow:hidden;position:relative;cursor:pointer}
+.trk-card .chart-hdr{position:absolute;top:9px;left:12px;right:12px;margin:0;pointer-events:none}
+html:not(#x) .trk-card .trk-chart{display:block;width:100%;height:auto;margin:0}
+.trk-goal{stroke:#9a9a9a;stroke-opacity:.6;stroke-width:1;stroke-dasharray:2 4;stroke-linecap:round}
 /* EDIT WINDOWS (4.44, style "C · Header", picked from a suggestions page):
    every window that edits something (.sh-win) has Save at the top right,
    with a centred title only for new things and number windows. The thing
@@ -708,6 +718,7 @@ html:not(#x) .sh-sub{display:block;width:100%;border:none;border-radius:0;backgr
 .sh-name::placeholder{color:#c7c7cc;font-weight:700;opacity:1}
 .sh-sub::placeholder{color:#a3a3a3;opacity:1}
 html:not(#x) .sh-notes{min-height:120px}
+html:not(#x) .sh-sub:not(.sh-notes){max-height:105px} /* a description: up to 5 lines, then it scrolls */
 .sh-ico{position:relative;flex:none;width:76px;height:76px;border-radius:19px;margin:0 0 12px}
 html:not(#x) .sh-ico input{position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:inherit;background:transparent;font-size:42px;line-height:76px;text-align:center;caret-color:transparent;outline:none;padding:0;margin:0}
 #sheet-photo-preview{position:absolute;inset:0;border-radius:inherit;overflow:hidden;display:none;pointer-events:none}
@@ -1301,7 +1312,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   </div>
 
   <div class="stat-w" data-w="chart">
-  <div class="calsec" style="padding:12px 14px 10px">
+  <div class="calsec zc-card">
     <div class="chart-hdr">
       <div id="stats-chart-readout" class="chart-readout">&nbsp;</div>
       <div class="chart-scale" id="stats-scale"></div>
@@ -1403,7 +1414,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     <div class="hh-sub" id="hd-sub"></div>
     <div class="hh-desc" id="hd-desc" style="display:none"></div>
   </div>
-  <div class="calsec" style="padding:12px 14px 10px">
+  <div class="calsec zc-card">
     <div class="chart-hdr">
       <div id="hd-chart-readout" class="chart-readout">&nbsp;</div>
       <div class="chart-scale" id="hd-scale"></div>
@@ -1518,7 +1529,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
       </div>
       <input type="file" id="sheet-photo-input" accept="image/*" style="display:none" onchange="SheetEditor.onPhotoPicked(this)">
       <input class="sh-name" id="sheet-name" placeholder="Project name">
-      <input class="sh-sub" id="sheet-desc" placeholder="Description">
+      <textarea class="sh-sub" id="sheet-desc" rows="1" placeholder="Description" oninput="_shGrow(this)"></textarea>
     </div>
     <div class="opt-group" id="new-proj-rows" style="display:none">
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Type</div></div><div id="new-proj-type"></div></div>
@@ -1633,7 +1644,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.51';
+var APP_VERSION='Beta 4.52';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2869,6 +2880,10 @@ var CHANGELOG=[
   {v:'Beta 4.51',notes:[
     "The same tracker added as a habit in two Habits projects is two separate habits now: a value logged in one only counts for that one (it used to tick both). Values logged before, or on the tracker opened from Overview, count for its first habit",
     "Two edit windows for a tracker that's a habit: opened from a habit (Today, a Habits project, Statistics), tapping its name edits that habit (days, goal, project, Remove from habits) with a Project settings row to the tracker's own window; opened from Overview it edits the project (name, icon, unit, colour, chart) with a row for each of its habits (\"Habit in …\"). The goal now lives only in the habit's window, since each habit has its own"
+  ]},
+  {v:'Beta 4.52',notes:[
+    "A description in an edit window shows up to 5 lines (it grows as you type, then scrolls inside), so you can read what you wrote; a project's description was a single line",
+    "New chart look (D from the chart suggestions): charts run to the edges of their card with the labels inside, and there's no big number in the card any more. A tracker's line is one smooth green line with a soft fade, its latest value written next to the last point, a soft dotted goal line and one number for the highest value; tap the line to see an entry's value and day. With Moving average on, each entry hangs from the average line as a short soft green bar. The habit and Statistics bar charts run edge to edge the same way"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2994,7 +3009,8 @@ var USER_LOG={
   'Beta 4.48':["Habits can be moved to another habit project"],
   'Beta 4.49':'bug',
   'Beta 4.50':["Trackers added as habits can be edited and removed from habits in their edit window"],
-  'Beta 4.51':["The same tracker in two habit projects counts separately","Separate edit windows for a tracker and its habits"]
+  'Beta 4.51':["The same tracker in two habit projects counts separately","Separate edit windows for a tracker and its habits"],
+  'Beta 4.52':["New chart look"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4012,12 +4028,12 @@ function renderTracker(pid){
   var c=document.getElementById('sc-'+pid);if(!c)return;
   var entries=((DB.data.trackerEntries||{})[pid]||[]).slice().sort(function(a,b){return a.ts-b.ts;});
   var unit=p.unit||'';
-  var latest=entries.length?entries[entries.length-1].val:'--';
 
   // A tracker added as a habit can have a goal (on the habit): the habit
   // the page was opened from, else its first habit
   var ctx=trackerLinkFor(pid),links=trackerLinks(pid),link=ctx||links[0]||null;
-  var svgH=trackerChart(pid,p,entries,link&&hasGoal(link)?link.goal:null);
+  var goal=link&&hasGoal(link)?link.goal:null;
+  var svgH=p.chartBars?trackerChart(pid,p,entries,goal):trackerLine(pid,p,entries,goal);
   // That habit's days under the name, like a habit's page — tap them for
   // its window (days, goal, project, remove from habits). Opened as the
   // project with 2+ habits, there's no one habit to show.
@@ -4047,8 +4063,9 @@ function renderTracker(pid){
     +'<span class="trk-entries-n">'+entries.length+'</span><span class="trk-entries-chev">'+ICON_CHEVRON+'</span></div>'
     +'<div class="trk-entries-list">'+listH+'</div></div>';
   else entriesH='<div class="sl">Entries</div><div class="calsec" style="padding:2px 14px">'+listH+'</div>';
-  c.innerHTML='<div class="calsec" style="padding:16px 14px 6px"><div class="trk-val">'+latest+(unit&&entries.length?'<span class="trk-u">'+esc(unit)+'</span>':'')+'</div>'
-    +svgH+'</div>'
+  c.innerHTML=(p.chartBars
+      ?'<div class="calsec" style="padding:16px 14px 6px">'+svgH+'</div>'
+      :'<div class="calsec trk-card" onclick="trkTap(event,\''+pid+'\')"><div class="chart-hdr"><div class="chart-readout" id="trk-ro-'+pid+'">&nbsp;</div></div>'+svgH+'</div>')
     +entriesH
     +(link?TrackerPage.habitHTML(pid,link):'');
 }
@@ -4062,6 +4079,70 @@ function renderTracker(pid){
 // and the goal; bars are coloured by their own value (reaching the goal =
 // green, like habitDayVal).
 var TRK_GREEN='#30d158';
+// The tracker's line, "D · Edge to edge" (4.52, picked from the chart
+// suggestions page): one smooth green line with a soft fade down to the
+// card's edge, from the left edge of the card; the latest value written
+// next to the last point (a ring); one number, the highest value, at its
+// height; a soft dotted goal line labelled on the left; dates inside along
+// the bottom. No dots. With the moving average (the last 7 entries) the line
+// is the average and each entry hangs from it as a short soft green bar
+// ("I5"). A tap shows the nearest entry (_trkPts, trkTap).
+var _trkPts={};
+function trackerLine(pid,p,entries,goal){
+  var W=300,H=172,T=42,B=24,unit=p.unit||''; // T: room for the tap readout above the line
+  if(!entries.length){_trkPts[pid]=[];return '<div class="empty" style="padding:36px 0">No data yet</div>';}
+  var vals=entries.map(function(e){return e.val;}),has=goal!=null;
+  var avg=p.maEnabled?entries.map(function(e,i){var sl=entries.slice(Math.max(0,i-6),i+1);return sl.reduce(function(a,x){return a+x.val;},0)/sl.length;}):null;
+  var endV=avg?avg[avg.length-1]:vals[vals.length-1],endTxt=fmtTrk(Math.round(endV*10)/10);
+  var R=Math.max(30,Math.ceil(16+endTxt.length*7.2+(unit?(unit.length+1)*6:0))); // room for the latest value beside the last point
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),top=hi;
+  if(has){lo=Math.min(lo,goal);hi=Math.max(hi,goal);}
+  var pad=(hi-lo)*.12||Math.abs(hi)*.05||1;lo-=pad;hi+=pad;
+  function y(v){return T+(hi-v)/(hi-lo)*(H-T-B);}
+  var t0=entries[0].ts,t1=entries[entries.length-1].ts,one=entries.length===1;
+  function x(ts){return one?(W-R)/2:(ts-t0)/((t1-t0)||1)*(W-R);}
+  function f(n){return n.toFixed(1);}
+  var raw=entries.map(function(e){return [x(e.ts),y(e.val)];});
+  var pts=avg?entries.map(function(e,i){return [raw[i][0],y(avg[i])];}):raw;
+  _trkPts[pid]=entries.map(function(e,i){return {x:raw[i][0],v:e.val,ts:e.ts};});
+  var gid='trkf-'+pid,s='<svg class="trk-chart" viewBox="0 0 '+W+' '+H+'">';
+  s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+TRK_GREEN+'" stop-opacity=".22"/><stop offset="1" stop-color="'+TRK_GREEN+'" stop-opacity="0"/></linearGradient></defs>';
+  var gy=has?y(goal):null;
+  if(!has||Math.abs(y(top)-gy)>14)s+='<text class="hd-bar-label" x="10" y="'+f(y(top)-6)+'" font-size="9">'+esc(fmtTrk(top))+'</text>';
+  if(has)s+='<line class="trk-goal" x1="0" x2="'+W+'" y1="'+f(gy)+'" y2="'+f(gy)+'"/><text class="hd-bar-label" x="10" y="'+f(gy-5)+'" font-size="9">'+esc(t('Goal')+' '+fmtTrk(goal))+'</text>';
+  // smooth line through the points (Catmull-Rom as curves)
+  var d='M'+f(pts[0][0])+','+f(pts[0][1]);
+  for(var i=0;i<pts.length-1;i++){
+    var a=pts[i-1]||pts[i],b=pts[i],c=pts[i+1],e=pts[i+2]||c;
+    d+='C'+f(b[0]+(c[0]-a[0])/6)+','+f(b[1]+(c[1]-a[1])/6)+' '+f(c[0]-(e[0]-b[0])/6)+','+f(c[1]-(e[1]-b[1])/6)+' '+f(c[0])+','+f(c[1]);
+  }
+  var last=pts[pts.length-1];
+  if(!one)s+='<path d="'+d+'L'+f(last[0])+','+H+'L'+f(pts[0][0])+','+H+'Z" fill="url(#'+gid+')"/>';
+  if(avg)raw.forEach(function(q,i){s+='<line x1="'+f(q[0])+'" x2="'+f(q[0])+'" y1="'+f(q[1])+'" y2="'+f(pts[i][1])+'" stroke="'+TRK_GREEN+'" stroke-opacity=".28" stroke-width="3" stroke-linecap="round"/>';});
+  if(!one)s+='<path d="'+d+'" fill="none" stroke="'+TRK_GREEN+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  s+='<circle cx="'+f(last[0])+'" cy="'+f(last[1])+'" r="4.5" style="fill:var(--card)" stroke="'+TRK_GREEN+'" stroke-width="2.5"/>'
+    +'<text x="'+f(last[0]+9)+'" y="'+f(last[1]+4)+'" font-size="12" font-weight="700" style="fill:var(--ink)">'+esc(endTxt)
+    +(unit?'<tspan class="hd-bar-label" font-size="10" font-weight="600"> '+esc(unit)+'</tspan>':'')+'</text>';
+  // dates along the bottom, inside the card
+  var marks=one?[t0]:[0,1,2,3,4].map(function(k){return t0+(t1-t0)*k/4;}),seen={};
+  marks.forEach(function(ts,k){
+    var lbl=_dm(new Date(ts));if(seen[lbl])return;seen[lbl]=1;
+    var xx=x(ts),an='middle';
+    if(!one&&k===0){an='start';xx=10;}else if(!one&&k===marks.length-1){an='end';xx=W-R+4;}
+    s+='<text class="hd-bar-label" x="'+f(xx)+'" y="'+(H-8)+'" font-size="9" text-anchor="'+an+'">'+lbl+'</text>';
+  });
+  return s+'</svg>';
+}
+// A tap on a tracker's line: the nearest entry's value and day
+function trkTap(ev,pid){
+  var card=ev.currentTarget,svg=card.querySelector('svg'),pts=_trkPts[pid],ro=document.getElementById('trk-ro-'+pid);
+  if(!svg||!pts||!pts.length||!ro)return;
+  var r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*300,best=pts[0];
+  pts.forEach(function(q){if(Math.abs(q.x-x)<Math.abs(best.x-x))best=q;});
+  var p=DB.data.projects[pid],d=new Date(best.ts);
+  ro.textContent=fmtTrk(best.v)+(p&&p.unit?' '+p.unit:'')+' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+}
+// The bar version (Bar chart switch in the tracker's window)
 function trackerChart(pid,p,entries,goal){
   var PL=44,PR=12,PT=12,PB=28,W=300,H=140,CW=W-PL-PR,CH=H-PT-PB;
   var dark=isDarkNow(),RED=dark?'#ff453a':'#ff3b30',gridCol=dark?'#333':'#e8e5e0',goalCol='#9a9a9a';
@@ -6022,14 +6103,14 @@ ZChart.prototype.zoomTo=function(D){ // keeps the right edge where it is in time
 ZChart.prototype.render=function(){
   var host=this.host,src=this.src,id=host.id;
   if(src.single&&src.empty){host.innerHTML='<div class="empty" style="padding:20px 0">No schedule set for this habit.</div>';return;}
-  var g=this.gran,n=this.count,o=this.offset,w=300,h=110,pb=18,pt=6,innerH=h-pt-pb;
+  var g=this.gran,n=this.count,o=this.offset,w=300,h=112,pb=18,pt=14,innerH=h-pt-pb;
   // every visible column, also the ones older than the first habit (they
   // get the low grey stripe); scrolling still stops at the oldest data
   var i0=Math.max(0,Math.floor(o)),i1=Math.ceil(o+n);
   var ps=[],maxVal=1,tallest=0;
   for(var i=i0;i<=i1;i++){var p=src.period(g,i);ps.push(p);maxVal=Math.max(maxVal,p.completed,p.scheduled);tallest=Math.max(tallest,p.completed,p.scheduled);}
-  var padL=String(Math.max(1,tallest)).length*4.5+9;this._padL=padL;
-  var step=(w-padL)/n,gap=Math.min(6,step*0.3),bw=Math.max(1,step-gap);this._step=step;
+  var padL=10,padR=10;this._padL=padL;this._padR=padR; // the card has no side padding: bars run 10px from its edges
+  var step=(w-padL-padR)/n,gap=Math.min(6,step*0.3),bw=Math.max(1,step-gap);this._step=step;
   // Every column: a grey bar as tall as the habits it had (a low grey stripe
   // when it had none — before any habit existed, or nothing scheduled), and
   // the done part in green (skipped in light green) growing up inside it.
@@ -6038,7 +6119,7 @@ ZChart.prototype.render=function(){
   for(var j=i1;j>=i0;j--){
     // corners in proportion to the bar (28% of its width, at most 4 — the
     // 14-day view's look); thin zoomed-out bars no longer end in half circles
-    var q=ps[j-i0],x=w-(j+1-o)*step+gap/2,rx=Math.min(4,bw*0.28);
+    var q=ps[j-i0],x=w-padR-(j+1-o)*step+gap/2,rx=Math.min(4,bw*0.28);
     var empty=!q.completed&&!q.scheduled;
     var greyH=empty?3:hOf(Math.max(q.scheduled,q.completed));
     bars+='<rect x="'+x.toFixed(1)+'" y="'+(h-pb-greyH)+'" width="'+bw.toFixed(1)+'" height="'+greyH+'" rx="'+rx.toFixed(1)+'" class="hd-bar-empty"'+(empty?'':' data-i="'+j+'"')+'></rect>';
@@ -6060,14 +6141,12 @@ ZChart.prototype.render=function(){
     }
     if(j%every===0&&q.label)labels+='<text class="hd-bar-label" x="'+(x+bw/2).toFixed(1)+'" y="'+(h-4)+'" font-size="7.5" text-anchor="middle">'+esc(q.label)+'</text>';
   }
-  var ax=(padL-4).toFixed(1),axis='<line class="hd-axis" x1="'+ax+'" y1="'+pt+'" x2="'+ax+'" y2="'+(h-pb)+'"/>';
-  if(tallest>0){ // ONE number on the axis: the tallest bar's (grey or green), at its height
-    var ty=h-pb-hOf(tallest);
-    axis+='<line class="hd-axis" x1="'+(padL-6.5).toFixed(1)+'" y1="'+ty+'" x2="'+ax+'" y2="'+ty+'"/>'
-      +'<text class="hd-bar-label" x="'+(padL-8).toFixed(1)+'" y="'+(ty+2.7)+'" font-size="7.5" text-anchor="end">'+tallest+'</text>';
-  }
-  host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:120px;display:block">'
-    +'<defs><clipPath id="'+id+'-plot"><rect x="'+(padL-2).toFixed(1)+'" y="0" width="'+(w-padL+2).toFixed(1)+'" height="'+h+'"></rect></clipPath></defs>'
+  // ONE number: the tallest bar's (grey or green), just above its top, inside the card
+  var axis=tallest>0?'<text class="hd-bar-label" x="'+padL+'" y="'+(h-pb-hOf(tallest)-4)+'" font-size="7.5">'+tallest+'</text>':'';
+  // columns sliding past are cut just inside the card (a slice of the next
+  // column would show at the edge at rest)
+  host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:122px;display:block">'
+    +'<defs><clipPath id="'+id+'-plot"><rect x="'+(padL-1)+'" y="0" width="'+(w-padL-padR+2)+'" height="'+h+'"></rect></clipPath></defs>'
     +axis+'<g clip-path="url(#'+id+'-plot)">'+bars+labels+'</g></svg>';
   if(this.scale)this.scale.textContent=t({day:'Days',week:'Weeks',month:'Months'}[g]);
 };
@@ -6101,7 +6180,7 @@ ZChart.prototype._settle=function(){
 ZChart.prototype._wire=function(){
   var self=this,h=this.host,mode=0,sx=0,sy=0,o0=0,d0=1,D0=0,moves=[],raf=0;
   function dist(ts){var dx=ts[0].clientX-ts[1].clientX,dy=ts[0].clientY-ts[1].clientY;return Math.sqrt(dx*dx+dy*dy)||1;}
-  function colPx(){return h.getBoundingClientRect().width/300*((300-(self._padL||20))/self.count);}
+  function colPx(){return h.getBoundingClientRect().width/300*((300-(self._padL||10)-(self._padR||10))/self.count);}
   function draw(){if(!raf)raf=requestAnimationFrame(function(){raf=0;self.render();});}
   function clear(){if(self.readout)self.readout.innerHTML='&nbsp;';}
   // modes: 1 = touched, direction not decided; 2 = sideways drag; 3 = pinch; 4 = pinch over, wait for all fingers up
@@ -6147,8 +6226,8 @@ ZChart.prototype._wire=function(){
   h.addEventListener('click',function(e){
     if(!self.readout||!self._step)return;
     var r=h.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*300;
-    if(x<(self._padL||0))return;
-    var q=self.src.period(self.gran,Math.floor((300-x)/self._step+self.offset));
+    if(x<(self._padL||0)||x>300-(self._padR||0))return;
+    var q=self.src.period(self.gran,Math.floor((300-(self._padR||0)-x)/self._step+self.offset));
     if(!q.completed&&!q.scheduled)return;
     self.readout.textContent=barReadout(q);
   });
@@ -8825,7 +8904,11 @@ document.addEventListener('click',function(e){
 });
 // Edit windows: a description box grows with its text; a big value field
 // is as wide as its number (so the unit sits right after it)
-function _shGrow(ta){ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';}
+// (a description shows up to 5 lines, then scrolls inside — its CSS max-height)
+function _shGrow(ta){
+  ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
+  ta.style.overflowY=ta.scrollHeight>ta.clientHeight+1?'auto':'hidden';
+}
 function _shFitVal(inp){
   var c=_shFitVal.c||(_shFitVal.c=document.createElement('canvas').getContext('2d')),cs=getComputedStyle(inp);
   c.font=cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily;
@@ -9435,7 +9518,7 @@ var SheetEditor={
     var sur=document.getElementById('sheet-unit-row');if(sur)sur.style.display='none';
     document.getElementById('sheet-unit').value='';
     document.getElementById('sheet-name').value=name||'';
-    document.getElementById('sheet-desc').value='';
+    document.getElementById('sheet-desc').value='';_shGrow(document.getElementById('sheet-desc'));
     document.getElementById('sheet-icon').value='📁';document.getElementById('sheet-icon').dataset.lastGood='📁';
     this.photo=null;this.renderPhotoUI();
     document.getElementById('proj-sheet-title').textContent='New project';
@@ -9460,6 +9543,7 @@ var SheetEditor={
     document.getElementById('sheet-unit').value=p.unit||'';
     document.getElementById('sheet-name').value=p.name||'';
     document.getElementById('sheet-desc').value=p.sub||p.desc||'';
+    setTimeout(function(){_shGrow(document.getElementById('sheet-desc'));},0); // measured once the window shows
     document.getElementById('sheet-icon').value=p.icon||'📁';document.getElementById('sheet-icon').dataset.lastGood=p.icon||'📁';
     this.photo=p.photo||null;this.renderPhotoUI();
     this.selectedColor=p.color||'c-grey';
