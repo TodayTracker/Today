@@ -1528,17 +1528,12 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
       <div class="opt-row" id="sheet-unit-row" style="display:none"><div class="opt-text"><div class="opt-title">Unit</div></div><input class="sh-rin" id="sheet-unit" placeholder="kg, kcal, h"></div>
       <div class="opt-row" id="color-field" onclick="ColorPicker.open()"><div class="opt-text"><div class="opt-title">Color</div></div><span class="sh-rval"><span class="color-field-swatch" id="color-field-swatch"></span></span><span class="sh-chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span></div>
     </div>
-    <div class="opt-group" id="sheet-habit-card" style="display:none">
-      <div class="opt-row sh-days-row"><div class="type-grid days" id="sheet-days"></div></div>
-      <div class="opt-row" id="sheet-goal-row" style="display:none"><div class="opt-text"><div class="opt-title">Goal</div></div><input class="sh-rin" id="sheet-goal" type="number" inputmode="decimal" placeholder="Optional"><span class="sh-unit" id="sheet-goal-unit"></span></div>
-      <div class="opt-row" id="sheet-hproj-row" style="display:none"><div class="opt-text"><div class="opt-title">Project</div></div><div id="sheet-hproj"></div></div>
-    </div>
+    <div class="opt-group" id="sheet-links" style="display:none"></div>
     <div class="opt-group" id="ma-edit-row" style="display:none">
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Bar chart</div></div><label class="switch"><input type="checkbox" id="sheet-bar-chart" onchange="SheetEditor.syncChartRows()"><span class="switch-slider"></span></label></div>
       <div class="opt-row" id="sheet-ma-row"><div class="opt-text"><div class="opt-title">Moving average</div></div><label class="switch"><input type="checkbox" id="sheet-ma-enabled"><span class="switch-slider"></span></label></div>
     </div>
     <div class="opt-group" id="proj-delete-row" style="display:none">
-      <div class="opt-row btn-row danger" id="sheet-unhabit" style="display:none" onclick="SheetEditor.unhabit()"><div class="opt-text"><div class="opt-title">Remove from habits</div></div></div>
       <div class="opt-row btn-row danger" onclick="SheetEditor.remove()"><div class="opt-text"><div class="opt-title">Delete project</div></div></div>
     </div>
   </div>
@@ -1567,8 +1562,11 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     <div class="opt-group" id="daily-item-proj-card" style="display:none">
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Project</div></div><div id="daily-item-proj"></div></div>
     </div>
+    <div class="opt-group" id="daily-item-trk-card" style="display:none">
+      <div class="opt-row" onclick="DailyItemSheet.toProject()"><div class="opt-text"><div class="opt-title">Project settings</div></div><span class="sh-chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span></div>
+    </div>
     <div class="opt-group" id="daily-item-delete-row" style="display:none">
-      <div class="opt-row btn-row danger" onclick="DailyItemSheet.remove()"><div class="opt-text"><div class="opt-title">Delete habit</div></div></div>
+      <div class="opt-row btn-row danger" onclick="DailyItemSheet.remove()"><div class="opt-text"><div class="opt-title" id="daily-item-delete-t">Delete habit</div></div></div>
     </div>
   </div>
 </div>
@@ -1635,7 +1633,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.50';
+var APP_VERSION='Beta 4.51';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2867,6 +2865,10 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.50',notes:[
     "A tracker added as a habit has its habit side in its own edit window (tap its name on the tracker page): the days, the goal, which Habits project it's in (with two or more), and Remove from habits, which takes it off your habits while the tracker and its entries stay. Before, the habit could only be changed or removed through the days line under the title"
+  ]},
+  {v:'Beta 4.51',notes:[
+    "The same tracker added as a habit in two Habits projects is two separate habits now: a value logged in one only counts for that one (it used to tick both). Values logged before, or on the tracker opened from Overview, count for its first habit",
+    "Two edit windows for a tracker that's a habit: opened from a habit (Today, a Habits project, Statistics), tapping its name edits that habit (days, goal, project, Remove from habits) with a Project settings row to the tracker's own window; opened from Overview it edits the project (name, icon, unit, colour, chart) with a row for each of its habits (\"Habit in …\"). The goal now lives only in the habit's window, since each habit has its own"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2991,7 +2993,8 @@ var USER_LOG={
   'Beta 4.47':["Each habit project can be placed on its own in Today"],
   'Beta 4.48':["Habits can be moved to another habit project"],
   'Beta 4.49':'bug',
-  'Beta 4.50':["Trackers added as habits can be edited and removed from habits in their edit window"]
+  'Beta 4.50':["Trackers added as habits can be edited and removed from habits in their edit window"],
+  'Beta 4.51':["The same tracker in two habit projects counts separately","Separate edit windows for a tracker and its habits"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3542,17 +3545,20 @@ var DB={
   // (now, if that day is the calendar day it is now; otherwise noon), so
   // trackerDayValue buckets it onto `ds`. Entries from before a statistics
   // reset are never edited here; they stay as they were.
-  setTrackerDayValue:function(pid,ds,val,from){
+  // hid: the habit it's logged for — only that habit's entries are changed,
+  // and a new one carries it (see trackerDayValue)
+  setTrackerDayValue:function(pid,ds,val,from,hid){
     from=from||0;
     if(!this.data.trackerEntries)this.data.trackerEntries={};
     var list=this.data.trackerEntries[pid]=this.data.trackerEntries[pid]||[];
-    var last=null;
-    list.forEach(function(e){if(e.ts>=from&&dStr(new Date(e.ts))===ds&&(!last||e.ts>=last.ts))last=e;});
+    var last=null,first=trackerFirstHabit(pid);
+    list.forEach(function(e){if(e.ts>=from&&(!hid||trackerEntryCounts(e,hid,first))&&dStr(new Date(e.ts))===ds&&(!last||e.ts>=last.ts))last=e;});
     if(last)last.val=val;
     else{
       var p=ds.split('-'),ts=dStr(new Date())===ds?Date.now():new Date(+p[0],+p[1]-1,+p[2],12).getTime();
       if(ts<from&&dStr(new Date(from))===ds)ts=from;
-      list.push({val:val,ts:ts});
+      var e={val:val,ts:ts};if(hid)e.hid=hid;
+      list.push(e);
     }
     this.save();
   },
@@ -3698,7 +3704,7 @@ var I18N=(function(){
     'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Your data as text. Keep it somewhere safe — Import in Menu → Data brings it back.':'Deine Daten als Text. Bewahre ihn sicher auf — Import in Menü → Daten holt sie zurück.','Copy':'Kopieren','characters':'Zeichen','Habit history':'Gewohnheits-Verlauf','Done tasks':'Erledigte Aufgaben','Projects & settings':'Projekte & Einstellungen','Copied':'Kopiert','Share':'Teilen','Preparing…':'Wird vorbereitet…','Tap and hold the text to copy it':'Halte den Text gedrückt, um ihn zu kopieren',"That isn't data from this app — copy the whole export and try again.":'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal.','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
-    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Tap something to restore it or delete it for good':'Tippe etwas an, um es wiederherzustellen oder endgültig zu löschen','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
+    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Tap something to restore it or delete it for good':'Tippe etwas an, um es wiederherzustellen oder endgültig zu löschen','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
     // actions
     'Add':'Hinzufügen','Add task':'Aufgabe hinzufügen','Add habit':'Gewohnheit hinzufügen','Habit name':'Name der Gewohnheit','Edit habit':'Gewohnheit bearbeiten','Delete habit':'Gewohnheit löschen','Description (optional)':'Beschreibung (optional)','Add category':'Kategorie hinzufügen','Add project':'Projekt hinzufügen','Cancel':'Abbrechen','Close':'Schließen','Delete':'Löschen','Save':'Speichern','Restore':'Wiederherstellen',
     'Export':'Exportieren','Import':'Importieren','Skip':'Überspringen','Empty':'Leer','Empty trash':'Papierkorb leeren','OK':'OK','Enter':'Eingeben',
@@ -3772,6 +3778,7 @@ var I18N=(function(){
     [/^scheduled days completed \((\d+) skipped\)$/,'geplante Tage erledigt ($1 übersprungen)'],
     [/ \((\d+) skipped\)/g,' ($1 übersprungen)'],
     [/^Tracking: (.*)$/,'Verfolge: $1'],
+    [/^Habit in (.*)$/,'Gewohnheit in $1'],
     [/^Move all (habits and categories|habits|entries|tasks) of "(.*)" to the Trash\?$/,function(m,w,n){return 'Alle '+({'habits and categories':'Gewohnheiten und Kategorien','habits':'Gewohnheiten','entries':'Einträge','tasks':'Aufgaben'})[w]+' von „'+n+'“ in den Papierkorb legen?';}],
     [/^Current streak: (\d+)$/,'Aktuelle Serie: $1'],
     [/^That isn't data from this app — copy the whole export and try again\. Pasted: (\d+) characters, starting with "(.*)"$/,'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal. Eingefügt: $1 Zeichen, beginnend mit „$2“'],
@@ -3952,7 +3959,7 @@ function projCard(pid){
   } else {
     cntLbl=n?n+' tasks':'Empty';
   }
-  return '<div class="acard" data-pid="'+pid+'" onclick="_projFromDaily=null;_trackerOrigin=null;Nav.go(\''+pid+'\')">'
+  return '<div class="acard" data-pid="'+pid+'" onclick="_projFromDaily=null;_trackerLink=null;_trackerOrigin=null;Nav.go(\''+pid+'\')">'
     +'<div class="aico" style="'+(d.settings.overviewMinimal?solidTintStyle(col):tintStyle(col,true))+'">'+iconOrPhoto(p)+'</div>'
     +'<div class="albl">'+p.name+'</div>'
     +'<div class="acnt">'+cntLbl+'</div></div>';
@@ -4007,14 +4014,16 @@ function renderTracker(pid){
   var unit=p.unit||'';
   var latest=entries.length?entries[entries.length-1].val:'--';
 
-  // A tracker added as a habit can have a goal (on its Daily habit)
-  var link=DB.data.dailyItems.find(function(x){return x.trackerPid===pid;});
+  // A tracker added as a habit can have a goal (on the habit): the habit
+  // the page was opened from, else its first habit
+  var ctx=trackerLinkFor(pid),links=trackerLinks(pid),link=ctx||links[0]||null;
   var svgH=trackerChart(pid,p,entries,link&&hasGoal(link)?link.goal:null);
-  // Added as a habit: its days under the name, like a habit's page — tap
-  // them for the habit's window (days, goal, remove from habits)
-  var sub=document.getElementById('hsub-'+pid);
+  // That habit's days under the name, like a habit's page — tap them for
+  // its window (days, goal, project, remove from habits). Opened as the
+  // project with 2+ habits, there's no one habit to show.
+  var sub=document.getElementById('hsub-'+pid),showSub=!!link&&(!!ctx||links.length===1);
   if(sub){
-    sub.style.display=link?'':'none';
+    sub.style.display=showSub?'':'none';
     sub.textContent=link?daysLabel(link.days):'';
     sub.onclick=link?function(){DailyItemSheet.openEdit(link.id);}:null;
   }
@@ -4939,10 +4948,12 @@ var A={
       buildPanels();restoreChecks(Nav.sd);renderToday();
     },'Move to Trash');
   },
-  addTrackerEntry:function(pid,val){
+  addTrackerEntry:function(pid,val,hid){
     if(!DB.data.trackerEntries)DB.data.trackerEntries={};
     if(!DB.data.trackerEntries[pid])DB.data.trackerEntries[pid]=[];
-    DB.data.trackerEntries[pid].push({val:val,ts:Date.now()});
+    var e={val:val,ts:Date.now()};if(hid)e.hid=hid; // logged for that habit (see trackerDayValue)
+    DB.data.trackerEntries[pid].push(e);
+    if(hid){buildPanels();restoreChecks(Nav.sd);renderToday();}
     DB.save();
     renderTracker(pid);
   },
@@ -5682,7 +5693,7 @@ function buildProjPages(){
     h+='<div class="hh"><div class="hh-bar">';
     h+='<button class="hh-btn" onclick="navBack()">'+BACK_SVG+'</button>';
     h+='<button class="hh-btn" onclick="TabPlus.tap()">'+PLUS_SVG+'</button>';
-    h+='</div><button class="hh-title-btn" onclick="SheetEditor.open(\''+pid+'\')"><span class="hh-title">'+p.name+'</span></button>';
+    h+='</div><button class="hh-title-btn" onclick="editProjPage(\''+pid+'\')"><span class="hh-title">'+p.name+'</span></button>';
     h+='<div class="hh-sub" id="hsub-'+pid+'" style="display:none"></div></div>'; // a tracked habit's days (renderTracker)
     h+='<div id="sc-'+pid+'"></div>';
     h+='</div>';
@@ -5763,10 +5774,17 @@ function ciEdit(itemId,text,dayIdx){
 // — those stay in the tracker, they just don't count. null if none.
 // Entries are timestamped, not bucketed by day at write time, so this
 // buckets them by day only when asked.
+// Each entry counts for the habit it was logged from (e.hid, since 4.51 —
+// one tracker can be a habit in several Habits projects, and one value used
+// to tick all of them); an entry without one (logged on the tracker page
+// opened as the project, or before 4.51) counts for the tracker's FIRST
+// habit only, so a tracker that's one habit works exactly as before.
+function trackerEntryCounts(e,hid,first){return e.hid?e.hid===hid:hid===first;}
+function trackerFirstHabit(pid){var f=DB.data.dailyItems.find(function(x){return x.trackerPid===pid;});return f?f.id:null;}
 function trackerDayValue(it,ds){
-  var from=it.statsFrom||0,entries=((DB.data.trackerEntries||{})[it.trackerPid])||[];
+  var from=it.statsFrom||0,entries=((DB.data.trackerEntries||{})[it.trackerPid])||[],first=trackerFirstHabit(it.trackerPid);
   var match=null,mts=-1;
-  entries.forEach(function(e){if(e.ts>=from&&e.ts>=mts&&dStr(new Date(e.ts))===ds){match=e.val;mts=e.ts;}});
+  entries.forEach(function(e){if(e.ts>=from&&e.ts>=mts&&trackerEntryCounts(e,it.id,first)&&dStr(new Date(e.ts))===ds){match=e.val;mts=e.ts;}});
   return match;
 }
 // Remembers which tracker project a Daily row was opened from, so
@@ -5781,6 +5799,21 @@ var _projFromDaily=null;
 // alone isn't enough to know where back should go; it used to always
 // assume Daily and sent Today's tap back to Habits instead of Today.
 var _trackerOrigin=null;
+// Which habit a tracker page was opened from — one tracker can be a habit in
+// several Habits projects, each with its own values, days and goal. Set with
+// _projFromDaily by a habit row (Today, a Habits project, Statistics) and
+// cleared by Overview's card: trackerLinkFor(pid) is that habit, or null
+// when the page was opened as the project.
+var _trackerLink=null;
+function trackerLinkFor(pid){
+  if(_projFromDaily!==pid||!_trackerLink)return null;
+  var it=DB.data.dailyItems.find(function(x){return x.id===_trackerLink;});
+  return it&&it.trackerPid===pid?it:null;
+}
+function trackerLinks(pid){return DB.data.dailyItems.filter(function(x){return x.trackerPid===pid;});}
+// The title of a project page: a tracker opened from one of its habits
+// edits that habit; otherwise the project
+function editProjPage(pid){var l=trackerLinkFor(pid);if(l)DailyItemSheet.openEdit(l.id);else SheetEditor.open(pid);}
 // A tracker linked into Daily (dailyItems entry with trackerPid instead of
 // its own text). Same two-button row as a habit (see ci()), with the very
 // same tick box: ticked once the day counts as done (see habitDayVal: goal
@@ -5796,7 +5829,7 @@ function ciTracker(it,dayIdx,editable){
   var look=hv?'text-decoration:line-through;opacity:.35':''; // as paintCheck (skipped looks like done)
   return '<div class="cali split trk-row'+(hv==='skip'?' skipped':'')+'" data-id="'+it.id+'" data-tracker="'+it.id+'" data-day="'+dayIdx+'">'
     +'<span class="cali-tick" onclick="TrackerDaySheet.tap(\''+it.id+'\','+dayIdx+')"><input type="checkbox" tabindex="-1"'+(hv?' checked':'')+' onclick="event.preventDefault()"></span>'
-    +'<label style="'+look+'" onclick="_projFromDaily=\''+it.trackerPid+'\';_trackerOrigin=\''+(editable?'habits':'today')+'\';Nav.go(\''+it.trackerPid+'\')">'+esc(p.name)+'</label>'
+    +'<label style="'+look+'" onclick="_projFromDaily=\''+it.trackerPid+'\';_trackerLink=\''+it.id+'\';_trackerOrigin=\''+(editable?'habits':'today')+'\';Nav.go(\''+it.trackerPid+'\')">'+esc(p.name)+'</label>'
     +(val!=null?'<span class="cali-val" onclick="this.parentNode.querySelector(\'label\').click()">'+esc(fmtTrk(val)+(p.unit?' '+p.unit:''))+'</span>':'')
     +CALI_CHEV+'</div>';
 }
@@ -6327,7 +6360,7 @@ var Stats={
     habitsProjects().forEach(function(pid){d.dailyItems.forEach(function(it){if(habitPid(it)===pid&&it.days&&it.days.length)live.push(it);});});
     var multi=habitsProjects().length>1;
     var h='<div class="opt-group">'+(live.length?live.map(function(it){
-      var s=habitConsistency(it),go=it.trackerPid?"_projFromDaily='"+it.trackerPid+"';_trackerOrigin='stats';Nav.go('"+it.trackerPid+"')":"HabitDetail.open('"+it.id+"')";
+      var s=habitConsistency(it),go=it.trackerPid?"_projFromDaily='"+it.trackerPid+"';_trackerLink='"+it.id+"';_trackerOrigin='stats';Nav.go('"+it.trackerPid+"')":"HabitDetail.open('"+it.id+"')";
       return '<div class="opt-row" onclick="'+go+'"><div class="opt-text"><div class="opt-title">'+esc(habitName(it))+'</div>'
         +(multi?'<div class="sh-sub">'+esc(habitsTitle(habitPid(it)))+'</div>':'')+'</div>'
         +'<span class="sh-pct">'+(s.target?s.pct+'%':'–')+'</span>'
@@ -6357,7 +6390,7 @@ var Stats={
   habitRow:function(r,icon,color){
     if(!r)return '<div class="opt-group"><div class="cal-none">'+this.emptyText()+'</div></div>';
     var it=r.item,go=it.trackerPid
-      ?"_projFromDaily='"+it.trackerPid+"';_trackerOrigin='stats';Nav.go('"+it.trackerPid+"')"
+      ?"_projFromDaily='"+it.trackerPid+"';_trackerLink='"+it.id+"';_trackerOrigin='stats';Nav.go('"+it.trackerPid+"')"
       :"HabitDetail.open('"+it.id+"')";
     return '<div class="opt-group"><div class="opt-row" onclick="'+go+'">'
       +'<div class="opt-ico" style="background:'+color+'">'+icon+'</div>'
@@ -7574,6 +7607,7 @@ var DailyItemSheet={
       desc.style.display='';desc.value='';_shGrow(desc);
     }
     document.getElementById('daily-item-delete-row').style.display='none';
+    document.getElementById('daily-item-trk-card').style.display='none';
     this.showProj(null);
     this.showGoal(null);
     var end=new Date(T);end.setDate(end.getDate()+29); // a 30-day run to start from
@@ -7603,6 +7637,10 @@ var DailyItemSheet={
       setTimeout(function(){_shGrow(desc);},0);
     }
     document.getElementById('daily-item-delete-row').style.display='';
+    // a tracker habit: its project's own window is one tap away, and removing
+    // it only takes it off the habits (the tracker stays)
+    document.getElementById('daily-item-trk-card').style.display=this.trackerPid?'':'none';
+    document.getElementById('daily-item-delete-t').textContent=this.trackerPid?'Remove from habits':'Delete habit';
     this.showProj(habitPid(it));
     this.showGoal(hasGoal(it)?it.goal:null);
     this.showDates(!!it.until,habitCreatedDs(it),it.until||'');
@@ -7692,16 +7730,21 @@ var DailyItemSheet={
   // Delete from inside the Edit habit sheet — the row's own inline trash
   // icon was removed (2.64) so this is now the only way; same Trash/
   // confirm path A.deleteDailyItem used.
+  toProject:function(){
+    var pid=this.trackerPid;if(!pid)return;
+    this.close();
+    setTimeout(function(){SheetEditor.open(pid);},SHEET_ANIM_MS+30);
+  },
   remove:function(){
-    var id=this.editId;if(!id)return;
-    Alert.confirm('Move this habit to the Trash?',function(){
+    var id=this.editId,trk=this.trackerPid;if(!id)return;
+    Alert.confirm(trk?'Remove this tracker from your habits? The tracker and its entries stay.':'Move this habit to the Trash?',function(){
       DB.deleteDailyItem(id);
       DailyItemSheet.editId=null;
       _overlayClose('daily-item-sheet-overlay');
       if(Nav.cur==='habit-detail')navBack();
-      buildPanels();restoreChecks(Nav.sd);renderToday();
+      buildPanels();restoreChecks(Nav.sd);renderToday();renderGrids();
       if(DB.data.projects[Nav.cur])renderProj(Nav.cur);
-    },'Move to Trash');
+    },trk?'Remove':'Move to Trash');
   },
   save:function(){
     if(!_sheetLive('daily-item-sheet-overlay'))return; // already saved, window closing
@@ -8577,7 +8620,9 @@ var TrackerAddSheet={
     this.pid=pid;
     document.getElementById('trk-add-title').textContent=p.name;
     document.getElementById('trk-add-unit').textContent=p.unit||'';
-    var link=DB.data.dailyItems.find(function(x){return x.trackerPid===pid;});
+    // opened from a habit: the entry is that habit's (else the first habit's)
+    var link=trackerLinkFor(pid);this.hid=link?link.id:null;
+    link=link||trackerLinks(pid)[0];
     document.getElementById('trk-add-goal').textContent=link&&hasGoal(link)?'Goal: '+fmtTrk(link.goal)+(p.unit?' '+p.unit:''):'';
     var inp=document.getElementById('trk-add-val');inp.value='';_shFitVal(inp);
     _overlayOpen('trk-add-sheet-overlay');
@@ -8589,7 +8634,7 @@ var TrackerAddSheet={
     if(!_sheetLive('trk-add-sheet-overlay'))return; // already saved, window closing
     var val=parseFloat(document.getElementById('trk-add-val').value);
     if(isNaN(val))return;
-    A.addTrackerEntry(this.pid,val);
+    A.addTrackerEntry(this.pid,val,this.hid);
     _overlayClose('trk-add-sheet-overlay');
   },
   close:function(){_overlayClose('trk-add-sheet-overlay');}
@@ -8643,7 +8688,7 @@ var TrackerDaySheet={
     var val=parseFloat(document.getElementById('trk-day-val').value);
     if(!it||isNaN(val))return;
     var ds=pDate(this.dayIdx);
-    DB.setTrackerDayValue(it.trackerPid,ds,val,it.statsFrom);
+    DB.setTrackerDayValue(it.trackerPid,ds,val,it.statsFrom,it.id);
     if(dcv(ds,it.id)==='skip')DB.toggleDailyCheck(it.id,ds,false);
     _overlayClose('trk-day-sheet-overlay');
     renderToday();buildPanels();restoreChecks(Nav.sd);renderGrids();renderTracker(it.trackerPid);
@@ -9399,8 +9444,7 @@ var SheetEditor={
     var mar=document.getElementById('ma-edit-row');if(mar)mar.style.display='none';
     document.getElementById('sheet-ma-enabled').checked=false;
     document.getElementById('sheet-bar-chart').checked=false;this.syncChartRows();
-    document.getElementById('sheet-goal-row').style.display='none';
-    this.showHabit(null);
+    document.getElementById('sheet-links').style.display='none';
     document.getElementById('proj-delete-row').style.display='none';
     _overlayOpen('proj-sheet-overlay');
   },
@@ -9424,13 +9468,13 @@ var SheetEditor={
     if(mar)mar.style.display=p.type==='tracker'?'block':'none';
     document.getElementById('sheet-ma-enabled').checked=!!p.maEnabled;
     document.getElementById('sheet-bar-chart').checked=!!p.chartBars;this.syncChartRows();
-    // A tracker added as a habit: its goal, here as well as in the habit's
-    // own window (the same value — it lives on the habit)
-    var link=p.type==='tracker'&&DB.data.dailyItems.find(function(x){return x.trackerPid===pid;});
-    document.getElementById('sheet-goal-row').style.display=link?'':'none';
-    document.getElementById('sheet-goal').value=link&&hasGoal(link)?fmtTrk(link.goal):'';
-    document.getElementById('sheet-goal-unit').textContent=p.unit||'';
-    this.showHabit(link||null);
+    // A tracker added as a habit (in one or more Habits projects): a row per
+    // habit, opening that habit's own window (days, goal, project, remove)
+    var links=p.type==='tracker'?trackerLinks(pid):[],lc=document.getElementById('sheet-links');
+    lc.style.display=links.length?'':'none';
+    lc.innerHTML=links.map(function(l){
+      return '<div class="opt-row" onclick="SheetEditor.toLink(\''+l.id+'\')"><div class="opt-text"><div class="opt-title">Habit in '+esc(habitsTitle(habitPid(l)))+'</div></div><span class="sh-rval">'+esc(daysLabel(l.days))+'</span><span class="sh-chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span></div>';
+    }).join('');
     document.getElementById('proj-delete-row').style.display=''; // every project can be deleted
     _overlayOpen('proj-sheet-overlay');
   },
@@ -9439,38 +9483,10 @@ var SheetEditor={
     this.newCatId=v;
     document.getElementById('new-proj-cat').innerHTML=customSelect(this.catOpts(),v,'SheetEditor.setCat(this.value)');
   },
-  // A tracker added as a habit: its habit side right here — the days, the
-  // goal, which Habits project (with 2+), and "Remove from habits" (the
-  // tracker and its entries stay). Saved with the rest of the window.
-  days:[],hpid:null,
-  showHabit:function(link){
-    document.getElementById('sheet-habit-card').style.display=link?'':'none';
-    document.getElementById('sheet-unhabit').style.display=link?'':'none';
-    if(!link)return;
-    this.days=(link.days||[]).slice();this.renderDays();this.showHProj(habitPid(link));
-  },
-  renderDays:function(){
-    var self=this;
-    document.getElementById('sheet-days').innerHTML=DN.map(function(n,i){
-      return '<div class="type-btn'+(self.days.indexOf(i)!==-1?' active':'')+'" onclick="SheetEditor.toggleDay('+i+')">'+n+'</div>';
-    }).join('');
-  },
-  toggleDay:function(i){var k=this.days.indexOf(i);if(k===-1)this.days.push(i);else this.days.splice(k,1);this.renderDays();},
-  showHProj:function(pid){
-    this.hpid=pid;
-    var hp=habitsProjects(),row=document.getElementById('sheet-hproj-row');
-    row.style.display=pid&&hp.length>1?'':'none';
-    if(row.style.display!=='none')document.getElementById('sheet-hproj').innerHTML=customSelect(hp.map(function(x){return {value:x,label:habitsTitle(x)};}),pid,'SheetEditor.showHProj(this.value)');
-  },
-  unhabit:function(){
-    var pid=this.pid,link=pid&&DB.data.dailyItems.find(function(x){return x.trackerPid===pid;});
-    if(!link)return;
-    Alert.confirm('Remove this tracker from your habits? The tracker and its entries stay.',function(){
-      DB.deleteDailyItem(link.id);
-      SheetEditor.showHabit(null);
-      document.getElementById('sheet-goal-row').style.display='none';
-      buildPanels();restoreChecks(Nav.sd);renderToday();renderGrids();renderTracker(pid);
-    },'Remove');
+  // From a tracker's window to one of its habits' windows
+  toLink:function(id){
+    this.close();
+    setTimeout(function(){DailyItemSheet.openEdit(id);},SHEET_ANIM_MS+30);
   },
   // Tracker chart options: the moving average only belongs to the line chart
   syncChartRows:function(){
@@ -9625,15 +9641,7 @@ var SheetEditor={
         p.maEnabled=document.getElementById('sheet-ma-enabled').checked;
         p.chartBars=document.getElementById('sheet-bar-chart').checked;
         delete p.maWindow; // always 7 now
-        var link=DB.data.dailyItems.find(function(x){return x.trackerPid===this.pid;},this);
-        if(link){
-          var g=parseFloat(document.getElementById('sheet-goal').value);
-          if(isNaN(g))delete link.goal;else link.goal=g;
-          if(this.days.length)link.days=this.days.slice().sort(); // no day picked = keep the old days
-          if(this.hpid&&isHabitsProject(this.hpid))link.pid=this.hpid;
-          // the goal decides whether the habit counts as done
-          buildPanels();restoreChecks(Nav.sd);renderToday();
-        }
+        if(trackerLinks(this.pid).length){buildPanels();restoreChecks(Nav.sd);renderToday();} // a new unit shows in its habit rows
       }
       DB.save();
       // Update header inline without navigation

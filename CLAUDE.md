@@ -206,20 +206,42 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   a "Daily habit" card with Days/Goal rows, removed by request: the goal
   shows as the chart's goal line, and the days sit under the title like on
   a habit page; `#hsub-<pid>` in buildProjPages' header, filled/hidden by
-  renderTracker). That line stays tappable, but since 4.50 ("when I add a
-  tracker as a habit I can't edit the habit side… can't remove the habit
-  without deleting the project") the tracker's own edit window (SheetEditor,
-  tap the name) has the habit side too: `#sheet-habit-card` (Days chips
-  `#sheet-days`, the Goal row, Project row with 2+ Habits projects —
-  `showHabit(link)`, `renderDays`/`toggleDay`, `showHProj`; saved with the
-  window: no day picked = old days kept) and a red "Remove from habits" row
-  (`#sheet-unhabit` → `SheetEditor.unhabit()`: Alert, DB.deleteDailyItem on
-  the link only — tracker and entries stay, the window stays open). The GOAL is also editable in the
+  renderTracker). 4.50 put the habit side (days/goal/project/remove) INTO
+  the tracker's project window; 4.51 replaced that by request ("2 separate
+  tabs… from Overview I get the project edit, from habits the habit edit…
+  buttons to change menu… if I have 2 I need 2 different ones"):
+  TWO WINDOWS BY CONTEXT. `_trackerLink` (habit id) is set with
+  _projFromDaily by every habit row that opens a tracker (ciTracker in
+  Today/Habits, Statistics' rows) and cleared by Overview's card;
+  `trackerLinkFor(pid)` = that habit or null. The page title calls
+  `editProjPage(pid)`: habit context → DailyItemSheet.openEdit(link) (Days,
+  Goal, Project, a "Project settings ›" row → `DailyItemSheet.toProject()`,
+  red "Remove from habits" — the tracker stays); otherwise SheetEditor
+  (name, icon, unit, colour, chart, Delete project) with one "Habit in <Habits
+  project> ›" row per habit (`#sheet-links` → `SheetEditor.toLink(id)`).
+  Switching closes one sheet and opens the other after SHEET_ANIM_MS
+  (unsaved changes in the closed one are dropped). The GOAL is only in the
+  habit window now (each habit has its own) — this reverses 3.92's "keep
+  both places". renderTracker uses the context habit, else the first one,
+  for the chart's goal line, the ring/streak and the days line (hidden when
+  opened as the project with 2+ habits).
+  PER-HABIT VALUES (4.51, "2 of the same tracker in 2 habit projects… I added
+  one input and it ticked off both"): a tracker entry can carry `hid` (the
+  habit it was logged for). `trackerDayValue(it,ds)` counts an entry for
+  habit `it` when e.hid===it.id, or — no hid (logged before 4.51, or on the
+  tracker page opened as the project) — when `it` is the tracker's FIRST
+  habit (`trackerFirstHabit`, dailyItems order), so a one-habit tracker
+  works as before. `setTrackerDayValue(pid,ds,val,from,hid)` only edits that
+  habit's entries and tags new ones; TrackerDaySheet passes it.id;
+  TrackerAddSheet ("+") tags with the context habit. The tracker page's
+  chart and Entries list still show every entry. Export keeps hid (it's
+  mapped with the ids — checked). The GOAL is also editable in the
   project's own edit window (SheetEditor, tap the name; `#sheet-goal-row`,
   shown only for a tracker added as a habit, writes the habit's `goal`) —
   3.92, after 3.90 read "remove the goal widget" as the Days/Goal card and
   the user then missed the goal setting there ("only meant to be removed
-  in the project tab, not the project edit tab"). Keep both places.
+  in the project tab, not the project edit tab"). (Superseded in 4.51: the
+  goal is only in the habit's window — see TWO WINDOWS BY CONTEXT below.)
   A tracker page for a Daily-linked tracker (`renderTracker` +
   `TrackerPage`): entries fold behind one "Entries N ›" row (closed by
   default, state kept per pid while the app runs), then the Consistency
