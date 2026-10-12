@@ -206,8 +206,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   a "Daily habit" card with Days/Goal rows, removed by request: the goal
   shows as the chart's goal line, and the days sit under the title like on
   a habit page; `#hsub-<pid>` in buildProjPages' header, filled/hidden by
-  renderTracker). That line is the only way from the tracker page to the
-  habit's days/delete — keep it tappable. The GOAL is also editable in the
+  renderTracker). That line stays tappable, but since 4.50 ("when I add a
+  tracker as a habit I can't edit the habit side… can't remove the habit
+  without deleting the project") the tracker's own edit window (SheetEditor,
+  tap the name) has the habit side too: `#sheet-habit-card` (Days chips
+  `#sheet-days`, the Goal row, Project row with 2+ Habits projects —
+  `showHabit(link)`, `renderDays`/`toggleDay`, `showHProj`; saved with the
+  window: no day picked = old days kept) and a red "Remove from habits" row
+  (`#sheet-unhabit` → `SheetEditor.unhabit()`: Alert, DB.deleteDailyItem on
+  the link only — tracker and entries stay, the window stays open). The GOAL is also editable in the
   project's own edit window (SheetEditor, tap the name; `#sheet-goal-row`,
   shown only for a tracker added as a habit, writes the habit's `goal`) —
   3.92, after 3.90 read "remove the goal widget" as the Days/Goal card and

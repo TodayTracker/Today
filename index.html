@@ -1526,14 +1526,19 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     </div>
     <div class="opt-group">
       <div class="opt-row" id="sheet-unit-row" style="display:none"><div class="opt-text"><div class="opt-title">Unit</div></div><input class="sh-rin" id="sheet-unit" placeholder="kg, kcal, h"></div>
-      <div class="opt-row" id="sheet-goal-row" style="display:none"><div class="opt-text"><div class="opt-title">Goal</div></div><input class="sh-rin" id="sheet-goal" type="number" inputmode="decimal" placeholder="Optional"><span class="sh-unit" id="sheet-goal-unit"></span></div>
       <div class="opt-row" id="color-field" onclick="ColorPicker.open()"><div class="opt-text"><div class="opt-title">Color</div></div><span class="sh-rval"><span class="color-field-swatch" id="color-field-swatch"></span></span><span class="sh-chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></span></div>
+    </div>
+    <div class="opt-group" id="sheet-habit-card" style="display:none">
+      <div class="opt-row sh-days-row"><div class="type-grid days" id="sheet-days"></div></div>
+      <div class="opt-row" id="sheet-goal-row" style="display:none"><div class="opt-text"><div class="opt-title">Goal</div></div><input class="sh-rin" id="sheet-goal" type="number" inputmode="decimal" placeholder="Optional"><span class="sh-unit" id="sheet-goal-unit"></span></div>
+      <div class="opt-row" id="sheet-hproj-row" style="display:none"><div class="opt-text"><div class="opt-title">Project</div></div><div id="sheet-hproj"></div></div>
     </div>
     <div class="opt-group" id="ma-edit-row" style="display:none">
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Bar chart</div></div><label class="switch"><input type="checkbox" id="sheet-bar-chart" onchange="SheetEditor.syncChartRows()"><span class="switch-slider"></span></label></div>
       <div class="opt-row" id="sheet-ma-row"><div class="opt-text"><div class="opt-title">Moving average</div></div><label class="switch"><input type="checkbox" id="sheet-ma-enabled"><span class="switch-slider"></span></label></div>
     </div>
     <div class="opt-group" id="proj-delete-row" style="display:none">
+      <div class="opt-row btn-row danger" id="sheet-unhabit" style="display:none" onclick="SheetEditor.unhabit()"><div class="opt-text"><div class="opt-title">Remove from habits</div></div></div>
       <div class="opt-row btn-row danger" onclick="SheetEditor.remove()"><div class="opt-text"><div class="opt-title">Delete project</div></div></div>
     </div>
   </div>
@@ -1630,7 +1635,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.49';
+var APP_VERSION='Beta 4.50';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2859,6 +2864,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.49',notes:[
     "Fixed: dragging a project on Overview to the far left of a row showed its faint copy at the far right of the row above, and the far right of a row showed it at the start of the row below. The copy now always goes into the spot under your finger"
+  ]},
+  {v:'Beta 4.50',notes:[
+    "A tracker added as a habit has its habit side in its own edit window (tap its name on the tracker page): the days, the goal, which Habits project it's in (with two or more), and Remove from habits, which takes it off your habits while the tracker and its entries stay. Before, the habit could only be changed or removed through the days line under the title"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2982,7 +2990,8 @@ var USER_LOG={
   'Beta 4.46':'design',
   'Beta 4.47':["Each habit project can be placed on its own in Today"],
   'Beta 4.48':["Habits can be moved to another habit project"],
-  'Beta 4.49':'bug'
+  'Beta 4.49':'bug',
+  'Beta 4.50':["Trackers added as habits can be edited and removed from habits in their edit window"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3689,7 +3698,7 @@ var I18N=(function(){
     'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Your data as text. Keep it somewhere safe — Import in Menu → Data brings it back.':'Deine Daten als Text. Bewahre ihn sicher auf — Import in Menü → Daten holt sie zurück.','Copy':'Kopieren','characters':'Zeichen','Habit history':'Gewohnheits-Verlauf','Done tasks':'Erledigte Aufgaben','Projects & settings':'Projekte & Einstellungen','Copied':'Kopiert','Share':'Teilen','Preparing…':'Wird vorbereitet…','Tap and hold the text to copy it':'Halte den Text gedrückt, um ihn zu kopieren',"That isn't data from this app — copy the whole export and try again.":'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal.','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
-    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Tap something to restore it or delete it for good':'Tippe etwas an, um es wiederherzustellen oder endgültig zu löschen','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
+    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Tap something to restore it or delete it for good':'Tippe etwas an, um es wiederherzustellen oder endgültig zu löschen','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
     // actions
     'Add':'Hinzufügen','Add task':'Aufgabe hinzufügen','Add habit':'Gewohnheit hinzufügen','Habit name':'Name der Gewohnheit','Edit habit':'Gewohnheit bearbeiten','Delete habit':'Gewohnheit löschen','Description (optional)':'Beschreibung (optional)','Add category':'Kategorie hinzufügen','Add project':'Projekt hinzufügen','Cancel':'Abbrechen','Close':'Schließen','Delete':'Löschen','Save':'Speichern','Restore':'Wiederherstellen',
     'Export':'Exportieren','Import':'Importieren','Skip':'Überspringen','Empty':'Leer','Empty trash':'Papierkorb leeren','OK':'OK','Enter':'Eingeben',
@@ -9391,6 +9400,7 @@ var SheetEditor={
     document.getElementById('sheet-ma-enabled').checked=false;
     document.getElementById('sheet-bar-chart').checked=false;this.syncChartRows();
     document.getElementById('sheet-goal-row').style.display='none';
+    this.showHabit(null);
     document.getElementById('proj-delete-row').style.display='none';
     _overlayOpen('proj-sheet-overlay');
   },
@@ -9420,6 +9430,7 @@ var SheetEditor={
     document.getElementById('sheet-goal-row').style.display=link?'':'none';
     document.getElementById('sheet-goal').value=link&&hasGoal(link)?fmtTrk(link.goal):'';
     document.getElementById('sheet-goal-unit').textContent=p.unit||'';
+    this.showHabit(link||null);
     document.getElementById('proj-delete-row').style.display=''; // every project can be deleted
     _overlayOpen('proj-sheet-overlay');
   },
@@ -9427,6 +9438,39 @@ var SheetEditor={
   setCat:function(v){
     this.newCatId=v;
     document.getElementById('new-proj-cat').innerHTML=customSelect(this.catOpts(),v,'SheetEditor.setCat(this.value)');
+  },
+  // A tracker added as a habit: its habit side right here — the days, the
+  // goal, which Habits project (with 2+), and "Remove from habits" (the
+  // tracker and its entries stay). Saved with the rest of the window.
+  days:[],hpid:null,
+  showHabit:function(link){
+    document.getElementById('sheet-habit-card').style.display=link?'':'none';
+    document.getElementById('sheet-unhabit').style.display=link?'':'none';
+    if(!link)return;
+    this.days=(link.days||[]).slice();this.renderDays();this.showHProj(habitPid(link));
+  },
+  renderDays:function(){
+    var self=this;
+    document.getElementById('sheet-days').innerHTML=DN.map(function(n,i){
+      return '<div class="type-btn'+(self.days.indexOf(i)!==-1?' active':'')+'" onclick="SheetEditor.toggleDay('+i+')">'+n+'</div>';
+    }).join('');
+  },
+  toggleDay:function(i){var k=this.days.indexOf(i);if(k===-1)this.days.push(i);else this.days.splice(k,1);this.renderDays();},
+  showHProj:function(pid){
+    this.hpid=pid;
+    var hp=habitsProjects(),row=document.getElementById('sheet-hproj-row');
+    row.style.display=pid&&hp.length>1?'':'none';
+    if(row.style.display!=='none')document.getElementById('sheet-hproj').innerHTML=customSelect(hp.map(function(x){return {value:x,label:habitsTitle(x)};}),pid,'SheetEditor.showHProj(this.value)');
+  },
+  unhabit:function(){
+    var pid=this.pid,link=pid&&DB.data.dailyItems.find(function(x){return x.trackerPid===pid;});
+    if(!link)return;
+    Alert.confirm('Remove this tracker from your habits? The tracker and its entries stay.',function(){
+      DB.deleteDailyItem(link.id);
+      SheetEditor.showHabit(null);
+      document.getElementById('sheet-goal-row').style.display='none';
+      buildPanels();restoreChecks(Nav.sd);renderToday();renderGrids();renderTracker(pid);
+    },'Remove');
   },
   // Tracker chart options: the moving average only belongs to the line chart
   syncChartRows:function(){
@@ -9585,6 +9629,8 @@ var SheetEditor={
         if(link){
           var g=parseFloat(document.getElementById('sheet-goal').value);
           if(isNaN(g))delete link.goal;else link.goal=g;
+          if(this.days.length)link.days=this.days.slice().sort(); // no day picked = keep the old days
+          if(this.hpid&&isHabitsProject(this.hpid))link.pid=this.hpid;
           // the goal decides whether the habit counts as done
           buildPanels();restoreChecks(Nav.sd);renderToday();
         }
