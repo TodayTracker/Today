@@ -616,7 +616,7 @@ html:not(#x) .wri:last-child{border-bottom:none}
    here shows as a strip of the card's own white next to a pressed row's
    grey (it did at the bottom until 2.77 and at the top until 2.89). The
    rows carry their own 14px edge padding. */
-#today-daily .calsec,#today-cal .calsec,[id^="dp-"] .calsec{border:none;padding:0;overflow:hidden}
+.today-hab .calsec,#today-cal .calsec,[id^="dp-"] .calsec{border:none;padding:0;overflow:hidden}
 /* project badge in task rows: a touch slimmer than the default 30px */
 .ti .bdg{height:27px;min-height:27px;display:inline-flex;align-items:center;padding-top:0;padding-bottom:0}
 html:not(#x) .cali,html:not(#x) .sw.h,html:not(#x) .trk-entry{border-bottom-color:var(--line);border-bottom-width:0.5px}
@@ -1267,7 +1267,6 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   <div class="today-sec" data-s="tasks"><div class="shdr" id="today-tasks-hdr">Tasks</div>
   <div id="today-priorities" class="card-list"></div></div>
   <div class="today-sec" data-s="calendar" id="today-cal"></div>
-  <div class="today-sec" data-s="habits" id="today-daily"></div>
   <div class="empty" id="today-none" style="display:none">Nothing to do today.</div>
 </div>
 
@@ -1628,7 +1627,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.46';
+var APP_VERSION='Beta 4.47';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2848,6 +2847,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.46',notes:[
     "The colour in a project's edit window is a small rounded square (like the colour picker) instead of a dot, without its name"
+  ]},
+  {v:'Beta 4.47',notes:[
+    "Menu → Today → Edit layout lists every Habits project as its own row instead of one Habits row, so each project's card can go anywhere in Today: above Tasks, between two others, below Calendar. Your order is kept (the projects stand where Habits stood); a new Habits project joins after the last one"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -2968,7 +2970,8 @@ var USER_LOG={
   'Beta 4.43':["Temporary habits with a start and end date"],
   'Beta 4.44':'both',
   'Beta 4.45':'design',
-  'Beta 4.46':'design'
+  'Beta 4.46':'design',
+  'Beta 4.47':["Each habit project can be placed on its own in Today"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4422,10 +4425,10 @@ function renderStatsLayout(){
     :'<div class="opt-group"><div class="cal-none">All widgets are turned off</div></div>';
   wireOrderCard(el.querySelector('.el-card'),A.orderStatWidgets);
 }
-// Menu > Today > Edit layout: Tasks, Calendar, Habits
+// Menu > Today > Edit layout: Tasks, Calendar and each Habits project
 function renderTodayLayout(){
   var el=document.getElementById('tdl-content');
-  el.innerHTML=orderCard(todayOrder().map(function(k){return TODAY_SECTIONS.find(function(x){return x[0]===k;});}));
+  el.innerHTML=orderCard(todayOrder().map(function(k){return [k,todaySecName(k)];}));
   wireOrderCard(el.querySelector('.el-card'),A.orderTodaySections);
 }
 
@@ -6531,24 +6534,41 @@ function restoreChecks(pi){
 }
 // A section with nothing in it (no tasks / no habits) isn't shown at all —
 // neither its header nor a placeholder. If both are empty, one line says so.
-// Today's sections (Tasks, Calendar, Habits) in the order chosen in
-// Menu > Today > Edit layout (settings.todayOrder).
-var TODAY_SECTIONS=[['tasks','Tasks'],['calendar','Calendar'],['habits','Habits']];
+// Today's sections in the order chosen in Menu > Today > Edit layout
+// (settings.todayOrder): 'tasks', 'calendar' and one 'h:<pid>' per Habits
+// project (each project's card is its own section, `.today-hab`). The old
+// single 'habits' key (before 4.47, and the default) stands for all Habits
+// projects at that spot; a Habits project that isn't in the order yet joins
+// right after the last one that is.
 function todayOrder(){
-  var keys=TODAY_SECTIONS.map(function(x){return x[0];});
-  var o=(DB.data.settings.todayOrder||[]).filter(function(k,i,a){return keys.indexOf(k)!==-1&&a.indexOf(k)===i;});
-  return o.concat(keys.filter(function(k){return o.indexOf(k)===-1;}));
+  var hp=habitsProjects().map(function(pid){return 'h:'+pid;}),keys=['tasks','calendar'].concat(hp);
+  var saved=DB.data.settings.todayOrder||[],o=[];
+  saved.forEach(function(k){
+    if(k==='habits'){hp.forEach(function(h){if(o.indexOf(h)===-1&&saved.indexOf(h)===-1)o.push(h);});return;}
+    if(keys.indexOf(k)!==-1&&o.indexOf(k)===-1)o.push(k);
+  });
+  keys.forEach(function(k){
+    if(o.indexOf(k)!==-1)return;
+    var last=-1;if(k.indexOf('h:')===0)o.forEach(function(x,i){if(x.indexOf('h:')===0)last=i;});
+    if(last!==-1)o.splice(last+1,0,k);else o.push(k);
+  });
+  return o;
+}
+// [key, name] for the Edit layout list
+function todaySecName(k){
+  return k==='tasks'?'Tasks':k==='calendar'?'Calendar':esc(habitsTitle(k.slice(2)));
 }
 function applyTodayOrder(){
   var pg=document.getElementById('p-today'),none=document.getElementById('today-none');
-  var now=[].map.call(pg.querySelectorAll(':scope>.today-sec'),function(el){return el.getAttribute('data-s');}).join();
-  var o=todayOrder();
-  if(now===o.join())return;
-  o.forEach(function(k){pg.insertBefore(pg.querySelector(':scope>.today-sec[data-s="'+k+'"]'),none);});
+  var now=[].slice.call(pg.querySelectorAll(':scope>.today-sec'));
+  var want=todayOrder().map(function(k){return pg.querySelector(':scope>.today-sec[data-s="'+k+'"]');}).filter(Boolean);
+  now.forEach(function(el){if(want.indexOf(el)===-1)want.push(el);}); // habits without any Habits project: last
+  if(want.every(function(el,i){return now[i]===el;}))return;
+  want.forEach(function(el){pg.insertBefore(el,none);});
 }
 function syncTodaySections(){
   var hasT=!!document.querySelector('#today-priorities .sw');
-  var hasH=!!(document.getElementById('today-daily').innerHTML||document.getElementById('today-cal').innerHTML);
+  var hasH=!!(document.querySelector('#p-today .today-hab .calsec')||document.getElementById('today-cal').innerHTML);
   document.getElementById('today-tasks-hdr').style.display=hasT?'':'none';
   document.getElementById('today-priorities').style.display=hasT?'':'none';
   document.getElementById('today-none').style.display=(hasT||hasH)?'none':'';
@@ -6651,18 +6671,23 @@ function renderToday(){
     if(!vanish)return true;
     return !habitDayVal(it,ds);
   });
-  // one card per Habits project (Overview order), titled with its name;
-  // habits with no Habits project at all (none exists) under "Habits"
+  // one card per Habits project, titled with its name, each its own section
+  // (so Edit layout can place it); habits with no Habits project at all
+  // (none exists) under "Habits"
+  var pg=document.getElementById('p-today'),none=document.getElementById('today-none');
+  pg.querySelectorAll(':scope>.today-hab').forEach(function(el){el.remove();});
   var groups=habitsProjects();
   if(all.some(function(it){return !habitPid(it);}))groups.push(null);
   groups.forEach(function(pid){
     var items=all.filter(function(it){return habitPid(it)===pid;});
     if(!items.length)return;
-    h+='<div class="caltitle">'+esc(habitsTitle(pid))+'</div><div class="calsec">';
+    h='<div class="caltitle">'+esc(habitsTitle(pid))+'</div><div class="calsec">';
     items.forEach(function(it){h+=swipeWrap('h',it.trackerPid?ciTracker(it,0,false):ci(it.id,habitDayName(it,0),0));});
-    h+='</div>';
+    var sec=document.createElement('div');
+    sec.className='today-sec today-hab';sec.setAttribute('data-s','h:'+(pid||'none'));
+    sec.innerHTML=h+'</div>';
+    pg.insertBefore(sec,none);
   });
-  document.getElementById('today-daily').innerHTML=h;
   applyTodayOrder();
   syncTodaySections();
   // Same edge-row marking Daily's panels use (see markEdgeRows) — needed
@@ -6673,9 +6698,9 @@ function renderToday(){
   // reported as the pressed-grey rounding at the bottom of every row,
   // not just the last one. querySelectorAll searches the whole subtree
   // regardless of that extra wrapping, so this stays correct either way.
-  document.querySelectorAll('#today-daily .calsec,#today-cal .calsec').forEach(function(calsec){markEdgeRows(calsec,'.cali');});
+  document.querySelectorAll('#p-today .today-hab .calsec,#today-cal .calsec').forEach(function(calsec){markEdgeRows(calsec,'.cali');});
 
-  document.querySelectorAll('#today-daily input[type=checkbox][data-id]').forEach(function(cb){
+  document.querySelectorAll('#p-today .today-hab input[type=checkbox][data-id]').forEach(function(cb){
     paintCheck(cb,dcv(ds,cb.getAttribute('data-id')));
   });
 }

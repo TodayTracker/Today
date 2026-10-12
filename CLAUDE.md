@@ -400,7 +400,19 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   `_dropEmptyCard(sec)` removes an emptied card WITH its title and re-runs
   syncTodaySections (before, the title stayed, and the last habit left a
   "Nothing scheduled for today." line). Anything new that reads Today's
-  calendar rows must look in #today-cal, not #today-daily.
+  calendar rows must look in #today-cal.
+  4.47 ("I don't want habits as one standing for all habit projects… a bar
+  I can move around for each habit project"): `#today-daily` is GONE. Each
+  Habits project's card is its own section, `.today-sec.today-hab[data-s=
+  "h:<pid>"]`, created by renderToday (old ones removed first) before
+  #today-none; habits with no Habits project at all get 'h:none' (placed
+  last). Keys in settings.todayOrder: 'tasks', 'calendar', 'h:<pid>'. The
+  legacy 'habits' key (still the DEFAULT_SETTINGS value, and every order
+  saved before 4.47) expands to all Habits projects at that spot, in
+  Overview order; a Habits project not in the order yet goes right after
+  the last 'h:' key (`todayOrder()`). Edit layout rows: `todaySecName(k)`
+  (the project's name). Anything that reads Today's habit rows uses
+  `#p-today .today-hab`. Measured: 22px between every section, as before.
 - Today's section headers (🎯 Tasks / 📆 Habits) are hidden when their
   section is empty (`syncTodaySections`), with one "Nothing to do today."
   line if both are. "Category with no tasks" in the user's wording meant
