@@ -2393,7 +2393,16 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   "Heute"). Gotcha found while building: `.wm-ty span`/`.wel-choice span`
   greyed the `.wm-ico` icon tiles too (they're spans) — scoped with
   :not(.wm-ico). Translations land after a redraw (MutationObserver), so
-  read translated text after a short wait in tests. 4.16 had a
+  read translated text after a short wait in tests.
+  4.56 install page = "I1" (same options page, "looks bad rn" about the
+  4.55 one — a big blue block with only the icon and two chips): the
+  phone's own menu as a picture (`.wel-sheet` in `.wel-ill-sheet`: iPhone
+  = Safari's share sheet with its page preview on top, Android = Chrome's
+  menu with its icon row; the entry to tap `.wel-shr.hl`, outlined blue),
+  big title, one line with the Share glyph inline (`.wel-nw` keeps "Share
+  ⬆," on one line — it broke before the comma). Picture and line carry
+  their own German (the menus are in the phone's language), translate="no".
+  "Continue in the browser" had NO German entry since 4.16 — added. 4.16 had a
   Menu > Guide > Welcome tour row to replay it; removed in 4.17 by request
   (to see it again for testing: `Welcome.open()` in the console, or clear
   the preview's storage). (2) `phoneLang()`: a new install (and
