@@ -802,27 +802,78 @@ html:not(#x) #war-box:not([style*="none"])+#overview-grid>.add-block:first-child
 .add-card .aico{color:var(--ink)}
 /* Menu > Data: the note under Import calendar, and the import window's list */
 .data-note{font-size:13px;font-weight:500;line-height:18px;color:#999;margin:-12px 4px 22px}
-/* First open: the welcome screens (Welcome) */
+/* First open: the welcome screens (Welcome, 4.55 — one screen per tab in the
+   "Showcase" look, with the big centred titles of "Feature sheet"): a picture
+   of each tab on its colour, the tab's name, a big title and a line; bar dots
+   (black for the current page) and a filled blue button; Skip at the top. */
+:root{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd}
+@media(prefers-color-scheme:dark){:root{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f}}
+html[data-theme="dark"]{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f}
+html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd}
 .wel{position:fixed;inset:0;z-index:650;background:var(--pg);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 16px);opacity:0;transition:opacity .25s ease}
 .wel.on{display:flex}.wel.show{opacity:1}
-.wel-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding-top:16px}
-.wel-hero{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:18px}
-.wel-hero svg{width:34px;height:34px}
-.wel-title{font-size:26px;font-weight:700;line-height:32px;color:var(--ink);margin-bottom:8px}
-.wel-text{font-size:15px;font-weight:500;line-height:21px;color:#999;margin-bottom:22px}
-.wel-card{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:14px}
-.wel-row{display:flex;align-items:center;gap:12px;padding:10px 14px;min-height:48px;box-sizing:border-box}
-.wel-row+.wel-row{border-top:0.5px solid var(--line)}
-.wel-row .opt-ico{flex:none;width:30px;height:30px;border-radius:8px}.wel-row .opt-ico svg{width:20px;height:20px}
-.wel-rt{font-size:15px;font-weight:500;line-height:20px;color:var(--ink)}
-.wel-rs{font-size:13px;font-weight:500;line-height:18px;color:#999;margin-top:1px}
-.wel-opt{cursor:pointer;transition:background .2s ease}.wel-opt:active{background:var(--press)}
-.wel-opt.off{cursor:default}.wel-opt.off:active{background:none}.wel-opt.off .opt-ico,.wel-opt.off .wel-rt{opacity:.45}
-.wel-soon{margin-left:auto;flex:none;font-size:12px;font-weight:500;color:#999;white-space:nowrap}
+.wel-skip{position:absolute;top:calc(env(safe-area-inset-top) + 10px);right:8px;z-index:1;border:none;background:none;padding:8px 10px;font-family:inherit;font-size:15px;line-height:20px;font-weight:600;color:#8a8a8e;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wel-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding-top:28px;display:flex;flex-direction:column}
+.wel-body.in-next{animation:welInNext .3s cubic-bezier(.2,.8,.2,1)}
+.wel-body.in-prev{animation:welInPrev .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes welInNext{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes welInPrev{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.wel-body.in-next,.wel-body.in-prev{animation:none}}
+.wel-ill{flex:none;height:clamp(220px,40vh,320px);border-radius:24px;display:flex;align-items:center;justify-content:center;padding:18px;margin-bottom:26px;overflow:hidden}
+.wel-eb{display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;line-height:16px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+.wel-eb svg{width:18px;height:18px}
+.wel-title{font-size:28px;line-height:34px;font-weight:700;letter-spacing:-.01em;color:var(--ink);text-align:center;text-wrap:balance;margin-bottom:10px}
+.wel-text{font-size:15px;line-height:21px;font-weight:500;color:#8a8a8e;text-align:center;text-wrap:balance;margin:0 6px}
+.wel-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:40px}
+.wel-appicon{width:96px;height:96px;border-radius:22px;box-shadow:0 6px 20px rgba(0,0,0,.12);margin-bottom:26px;-webkit-user-drag:none}
+.wel-hello{font-size:34px;line-height:40px}
+.wel-brand{color:var(--blue)}
+.wel-card{background:var(--card);border-radius:14px;overflow:hidden}
+.wel-step{display:flex;align-items:center;gap:12px;min-height:52px;padding:8px 14px;box-sizing:border-box}
+.wel-step+.wel-step{border-top:0.5px solid var(--line)}
+.wel-n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.wel-st{font-size:15px;font-weight:500;line-height:20px;color:var(--ink)}
+.wel-ss{font-size:13px;font-weight:500;line-height:18px;color:#8a8a8e}
+.wel-note{font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;text-align:center;margin:14px 8px 0}
+.wel-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.wel-chip{padding:7px 12px;border-radius:999px;background:var(--card);font-size:13px;font-weight:600;color:var(--ink)}
+.wel-choices{display:flex;flex-direction:column;gap:12px;margin-top:22px}
+.wel-choice{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:var(--card);border-radius:18px;padding:16px;cursor:pointer;transition:background .2s ease;-webkit-tap-highlight-color:transparent}
+.wel-choice:active{background:var(--press)}
+.wel-choice .wm-ico{width:40px;height:40px;border-radius:11px;margin-bottom:9px}
+.wel-choice b{font-size:16px;line-height:21px;font-weight:600;color:var(--ink)}
+.wel-choice span:not(.wm-ico){font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e}
+.wel-ai{font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;text-align:center;margin-top:18px}
 .wel-foot{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:12px}
-.wel-dots{display:flex;gap:7px}.wel-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.wel-dots i.on{background:var(--ink)}
-.wel-btn{width:100%;height:50px;border:none;border-radius:14px;background:var(--card);color:var(--blue,#007aff);font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;transition:transform .12s ease-out}
+.wel-dots{display:flex;gap:6px}
+.wel-dots i{width:7px;height:7px;border-radius:4px;background:var(--line);transition:width .25s ease,background .25s ease}
+.wel-dots i.on{width:20px;background:var(--ink)}
+.wel-btn{width:100%;height:52px;border:none;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:600;font-family:inherit;cursor:pointer;transition:transform .12s ease-out}
 .wel-btn:active{transform:scale(.97)}
+/* the pictures of the tabs: small copies of the real screens */
+.wm{width:100%;display:flex;flex-direction:column;gap:8px}
+.wm-lbl{font-size:10px;line-height:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label);margin:2px 4px -2px}
+.wm-card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.wm-row{display:flex;align-items:center;gap:10px;height:38px;padding:0 12px;font-size:13px;font-weight:600;color:var(--ink);border-bottom:0.5px solid var(--line);white-space:nowrap}
+.wm-row:last-child{border-bottom:none}
+.wm-box{flex:none;width:17px;height:17px;border-radius:5px;border:1.5px solid #c7c7cc;box-sizing:border-box}
+.wm-box.done{border-color:#30d158;background:#30d158 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 12.5 10 16.5 18 8'/%3E%3C/svg%3E") center/13px no-repeat}
+.wm-box.war{border-color:var(--war);background:var(--war-bg)}
+.wm-done{text-decoration:line-through;opacity:.4}
+.wm-bdg{margin-left:auto;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:7px}
+.wm-pct{margin-left:auto;font-size:12px;font-weight:600;color:#8a8a8e}
+.wm-ring{display:flex;justify-content:center;padding:12px 0 6px}
+.wm-types{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.wm-ty{background:var(--card);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.wm-ico{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;color:#fff;flex:none}
+.wm-ico svg{width:20px;height:20px}
+.wm-ty .wm-ico{margin-bottom:2px}
+.wm-ty b{font-size:14px;line-height:18px;font-weight:700;color:var(--ink)}
+.wm-ty span:not(.wm-ico){font-size:11.5px;line-height:15px;font-weight:500;color:#8a8a8e}
+.wm-row .wm-ico{width:26px;height:26px;border-radius:7px}
+.wm-row .wm-ico svg{width:16px;height:16px}
+.wm-chev{margin-left:auto;color:#c7c7cc;display:flex}
+.wm-chev svg{transform:rotate(-90deg)} /* ICON_CHEVRON points down (dropdowns); a row's arrow points right */
 .ics-card{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:14px}
 .ics-row{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-bottom:0.5px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ics-row:last-child{border-bottom:none}
@@ -1444,6 +1495,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 </div>
 
 <div class="wel" id="welcome">
+  <button class="wel-skip" id="wel-skip" onclick="Welcome.skip()">Skip</button>
   <div class="wel-body" id="wel-body"></div>
   <div class="wel-foot">
     <div class="wel-dots" id="wel-dots"></div>
@@ -1653,7 +1705,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.54';
+var APP_VERSION='Beta 4.55';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2901,6 +2953,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.54',notes:[
     "A project's page shows its emoji or photo on its colour left of the name, and its description in grey under them (3 lines; tap it to read the rest). Tapping the picture or the name opens the edit window, as before with the name"
+  ]},
+  {v:'Beta 4.55',notes:[
+    "New welcome screens for first-time users: after Welcome to Today, one screen per tab (Today, Overview, Tasks, Stats, Menu) with a small picture of that tab, a big title and one line about what it's for; dots at the bottom (the current page is a black bar), a blue Continue button, Skip at the top, and you can swipe between them. Then the start choice as two big cards: Use a template or Start empty. Replay them in Menu → Developer → Welcome screens"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3029,7 +3084,8 @@ var USER_LOG={
   'Beta 4.51':["The same tracker in two habit projects counts separately","Separate edit windows for a tracker and its habits"],
   'Beta 4.52':["New chart look"],
   'Beta 4.53':["Tracker charts can be scrolled and zoomed"],
-  'Beta 4.54':["Project pages show their picture and description"]
+  'Beta 4.54':["Project pages show their picture and description"],
+  'Beta 4.55':["New welcome screens"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3728,6 +3784,18 @@ var I18N=(function(){
     "Where a new task goes among the tasks of the same priority — in its project and in Tasks. Hold a task to move it.":"Wo eine neue Aufgabe unter den Aufgaben derselben Priorität landet — im Projekt und in Aufgaben. Halte eine Aufgabe gedrückt, um sie zu verschieben.",
     "Pick one or more. Untick anything you don't want.":"Wähle eine oder mehrere. Entferne den Haken bei allem, was du nicht willst.",
     "Set up with AI":"Mit KI einrichten",
+    "Welcome to":"Willkommen bei","Full screen":"Vollbild","Works offline":"Funktioniert offline",
+    "Your to-do list for today":"Deine To-do-Liste für heute",
+    "Every task and habit that has to be done today, in one list. Tick them off as you go.":"Alle Aufgaben und Gewohnheiten, die heute dran sind, in einer Liste. Hak sie ab, wenn sie erledigt sind.",
+    "Build your app":"Bau dir deine App",
+    "Add and edit projects and put them together the way you like. There are four kinds: To-do, List, Tracker and Habits.":"Lege Projekte an, bearbeite sie und stell sie zusammen, wie du willst. Es gibt vier Arten: To-do, Liste, Tracker und Gewohnheiten.",
+    "All your tasks in one list":"Alle Aufgaben in einer Liste",
+    "Every task and list item from all your projects, in one place.":"Jede Aufgabe und jeder Listeneintrag aus all deinen Projekten, an einem Ort.",
+    "See how consistent you are":"Sieh, wie beständig du bist",
+    "All your habits and how often you keep them up, with streaks and charts.":"Alle Gewohnheiten und wie oft du sie durchhältst, mit Serien und Diagrammen.",
+    "The Guide and your data":"Die Anleitung und deine Daten",
+    "The Guide explains the hidden features. Under Data you back up your data, which stays on this phone.":"Die Anleitung erklärt die versteckten Funktionen. Unter Daten sicherst du deine Daten, die auf diesem Handy bleiben.",
+    "Ready-made projects and habits to start with":"Fertige Projekte und Gewohnheiten für den Start",
     'Import calendar':'Kalender importieren','Untitled':'Ohne Titel','Left out:':'Nicht übernommen:',
     'Upcoming events from Google Calendar, Apple Calendar or Outlook become Calendar tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import & export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.':'Kommende Termine aus Google Kalender, Apple Kalender oder Outlook werden zu Kalender-Aufgaben. Exportiere deinen Kalender zuerst als Datei: Google Kalender am Computer, Einstellungen → Importieren & exportieren → Exportieren; Apple Kalender am Mac, Ablage → Exportieren; Outlook, Kalender speichern.',
     '1 event added to your calendar.':'1 Termin zu deinem Kalender hinzugefügt.',
@@ -3843,6 +3911,7 @@ var I18N=(function(){
     var r=tr(s.trim());return r===null?s:r;
   }
   function text(n){
+    var pe=n.parentNode;if(pe&&pe.closest&&pe.closest('[translate="no"]'))return; // the app's name, or text that is already in the right language
     var cur=n.nodeValue;
     if(n.__en!==undefined&&cur!==n.__de)delete n.__en; // app rewrote it since — new original
     var orig=n.__en!==undefined?n.__en:cur;
@@ -8528,13 +8597,54 @@ var UpdateOverlay={
 // Developer (developer mode) to look at them. In a browser (not opened from the Home
 // Screen) an "Add to Home Screen" page comes first. Full screen, above
 // everything; counts as an open overlay (scroll lock, no swipe-back).
+// First open (see CLAUDE.md "First-time users"; 4.55 look: one screen per
+// tab in the "Showcase" style with the big centred titles of "Feature
+// sheet", picked on the welcome options page). Pages: Add to Home Screen
+// (only in a browser) → Welcome → Today → Overview → Tasks → Stats → Menu →
+// How do you want to start. Each tab's page shows a small copy of that tab
+// on its colour; the pictures carry their own German (translate="no"), the
+// rest goes through I18N as usual. Swipe sideways or tap Continue; Skip
+// jumps to the start choice.
 var Welcome={
   page:0,pages:[],_on:false,
   _svg:function(inner){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+inner+'</svg>';},
   _tab:function(tab){var e=document.querySelector('.tab-item[data-tab="'+tab+'"] svg');return e?e.outerHTML:'';},
-  _row:function(ico,bg,title,sub,extra,cls,click){
-    return '<div class="wel-row'+(cls?' '+cls:'')+'"'+(click?' onclick="'+click+'"':'')+'><div class="opt-ico" style="background:'+bg+'">'+ico+'</div>'
-      +'<div style="flex:1;min-width:0"><div class="wel-rt">'+title+'</div>'+(sub?'<div class="wel-rs">'+sub+'</div>':'')+'</div>'+(extra||'')+'</div>';
+  _L:function(en,de){return I18N.lang==='de'?de:en;},
+  _ico:function(svg,bg){return '<span class="wm-ico" style="background:'+bg+'">'+svg+'</span>';},
+  // the five tabs: tab id, colour, picture background, title, line
+  TABS:[
+    {tab:'today',name:'Today',c:'#0a84ff',bg:'var(--wt-sky)',title:'Your to-do list for today',text:'Every task and habit that has to be done today, in one list. Tick them off as you go.'},
+    {tab:'overview',name:'Overview',c:'#5e5ce6',bg:'var(--wt-indigo)',title:'Build your app',text:'Add and edit projects and put them together the way you like. There are four kinds: To-do, List, Tracker and Habits.'},
+    {tab:'lockedin',name:'Tasks',c:'#ff9f0a',bg:'var(--wt-amber)',title:'All your tasks in one list',text:'Every task and list item from all your projects, in one place.'},
+    {tab:'stats',name:'Stats',c:'#30d158',bg:'var(--wt-green)',title:'See how consistent you are',text:'All your habits and how often you keep them up, with streaks and charts.'},
+    {tab:'settings',name:'Menu',c:'#f97316',bg:'var(--wt-grey)',title:'The Guide and your data',text:'The Guide explains the hidden features. Under Data you back up your data, which stays on this phone.'}
+  ],
+  _pic:function(tab){
+    var L=this._L,S=this._svg,self=this;
+    function row(inner){return '<div class="wm-row">'+inner+'</div>';}
+    function task(box,txt,badge,col){return row('<span class="wm-box'+(box?' '+box:'')+'"></span><span'+(box==='done'?' class="wm-done"':'')+'>'+txt+'</span>'+(badge?'<span class="wm-bdg" style="'+tintStyle(COLORS[col])+'">'+badge+'</span>':''));}
+    var h;
+    if(tab==='today'){
+      h='<div class="wm-lbl">'+L('Tasks','Aufgaben')+'</div><div class="wm-card">'+task('war',L('Send the offer','Angebot senden'),L('Clients','Kunden'),'c-indigo')+task('done',L('Plan the week','Woche planen'),L('Reports','Berichte'),'c-blue')+'</div>'
+        +'<div class="wm-lbl">'+L('Morning','Morgen')+'</div><div class="wm-card">'+task('done',L('Drink water','Wasser trinken'))+task('',L('Read 10 pages','10 Seiten lesen'))+'</div>';
+    } else if(tab==='overview'){
+      return '<div class="wm-types" translate="no">'+[['todo','#3b82f6','To-do',L('Tasks by priority','Aufgaben nach Priorität')],['list','#f59e0b',L('List','Liste'),L('Shopping, packing…','Einkauf, Packliste…')],['tracker','#5e5ce6','Tracker',L('Numbers over time','Zahlen im Verlauf')],['daily','#22c55e',L('Habits','Gewohnheiten'),L('Every day or some days','Täglich oder an manchen Tagen')]].map(function(x){
+        return '<div class="wm-ty">'+self._ico(TYPE_ICONS[x[0]],x[1])+'<b>'+x[2]+'</b><span>'+x[3]+'</span></div>';}).join('')+'</div>';
+    } else if(tab==='lockedin'){
+      h='<div class="wm-lbl">'+L('High','Hoch')+'</div><div class="wm-card">'+task('war',L('Send the offer','Angebot senden'),L('Clients','Kunden'),'c-indigo')+task('',L('Q3 report draft','Q3-Bericht entwerfen'),L('Reports','Berichte'),'c-blue')+'</div>'
+        +'<div class="wm-lbl">'+L('Groceries','Einkauf')+'</div><div class="wm-card">'+task('',L('Oat milk','Hafermilch'))+task('',L('Bananas','Bananen'))+'</div>';
+    } else if(tab==='stats'){
+      var r=34,c=2*Math.PI*r;
+      h='<div class="wm-card"><div class="wm-ring"><svg width="86" height="86" viewBox="0 0 86 86"><circle cx="43" cy="43" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="9"/><circle cx="43" cy="43" r="'+r+'" fill="none" stroke="#30d158" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(c*.82).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 43 43)"/><text x="43" y="49" text-anchor="middle" font-size="17" font-weight="700" style="fill:var(--ink)">82%</text></svg></div>'
+        +[[L('Drink water','Wasser trinken'),'96%'],[L('Stretch','Dehnen'),'84%'],[L('Read 10 pages','10 Seiten lesen'),'61%']].map(function(x){return row(x[0]+'<span class="wm-pct">'+x[1]+'</span>');}).join('')+'</div>';
+    } else {
+      var chev='<span class="wm-chev">'+ICON_CHEVRON+'</span>';
+      h='<div class="wm-card">'+row(this._ico(S('<path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5h-6A1.5 1.5 0 0 1 2 16z"/><path d="M22 5.5A1.5 1.5 0 0 0 20.5 4H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5h6a1.5 1.5 0 0 0 1.5-1.5z"/>'),'#f97316')+L('Guide','Anleitung')+chev)+'</div>'
+        +'<div class="wm-lbl">'+L('Data','Daten')+'</div><div class="wm-card">'
+        +row(this._ico(S('<path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'),'#6b7280')+L('Export data','Daten exportieren')+chev)
+        +row(this._ico(S('<path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'),'#6b7280')+L('Import data','Daten importieren')+chev)+'</div>';
+    }
+    return '<div class="wm" translate="no">'+h+'</div>';
   },
   // opts.install (Developer page): false = no install page, 'ios' /
   // 'android' = that phone's install steps. Default: this phone's, only
@@ -8543,64 +8653,62 @@ var Welcome={
     opts=opts||{};
     var standalone=navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
     this._inst='install' in opts?opts.install:(standalone?false:(IS_IOS?'ios':'android'));
-    this.pages=(this._inst?['install']:[]).concat(['hello','know','start']);
-    this.page=0;this.render();
+    this.pages=(this._inst?['install']:[]).concat(['hello'],this.TABS.map(function(t){return t.tab;}),['start']);
+    this.page=0;this.render(0);
     var el=document.getElementById('welcome');
     el.classList.add('on');
     if(!this._on){this._on=true;_overlayCount++;if(_overlayCount===1)_lockBodyScroll();}
+    this._wireSwipe(el);
     requestAnimationFrame(function(){requestAnimationFrame(function(){el.classList.add('show');});});
   },
-  next:function(){if(this.page<this.pages.length-1){this.page++;this.render();}},
-  render:function(){
-    var k=this.pages[this.page],S=this._svg,R=this._row.bind(this),h='';
-    var hero=function(bg,ico){return '<div class="wel-hero" style="background:'+bg+'">'+ico+'</div>';};
+  next:function(){if(this.page<this.pages.length-1){this.page++;this.render(1);}},
+  prev:function(){if(this.page>0){this.page--;this.render(-1);}},
+  skip:function(){var i=this.pages.indexOf('start');if(i>this.page){this.page=i;this.render(1);}},
+  // a sideways swipe turns the page (left = next, right = back)
+  _wireSwipe:function(el){
+    if(el._swipe)return;el._swipe=1;
+    var x0=0,y0=0,self=this;
+    el.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    el.addEventListener('touchend',function(e){
+      var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
+      if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy)*1.5)return;
+      if(dx<0&&self.pages[self.page]!=='start')self.next();else if(dx>0)self.prev();
+    },{passive:true});
+  },
+  render:function(dir){
+    var k=this.pages[this.page],S=this._svg,h='',self=this;
     if(k==='install'){
-      var share=S('<path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/>');
-      var plus=S('<rect x="4" y="4" width="16" height="16" rx="4"/><line x1="12" y1="8.5" x2="12" y2="15.5"/><line x1="8.5" y1="12" x2="15.5" y2="12"/>');
-      var dots=S('<circle cx="12" cy="5.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r="1.3" fill="currentColor" stroke="none"/>');
-      var home=S('<path d="M4 11.5l8-7 8 7"/><path d="M6.5 10v9.5h11V10"/>');
-      h=hero('#3b82f6',plus)+'<div class="wel-title">Add Today to your Home Screen</div>'
-        +'<div class="wel-text">It works best as an app on your Home Screen: full screen and offline.</div>'
-        +'<div class="wel-card">'+(this._inst==='ios'?R(share,'#3b82f6','Tap the Share button','At the bottom or top of Safari')+R(plus,'#3b82f6','Choose Add to Home Screen',''):R(dots,'#3b82f6','Tap the menu ⋮','Top right in Chrome')+R(plus,'#3b82f6','Choose Add to Home screen','Or Install app'))
-        +R(home,'#3b82f6','Open Today from your Home Screen','')+'</div>'
-        +'<div class="wel-text">What you add here in the browser stays here — the Home Screen app starts fresh.</div>';
+      var steps=this._inst==='ios'?[['Tap the Share button','At the bottom or top of Safari'],['Choose Add to Home Screen',''],['Open Today from your Home Screen','']]
+        :[['Tap the menu ⋮','Top right in Chrome'],['Choose Add to Home screen','Or Install app'],['Open Today from your Home Screen','']];
+      h='<div class="wel-ill" style="background:var(--wt-blue);flex-direction:column;gap:16px"><img class="wel-appicon" src="icon-192.png" alt="" style="margin:0"><div class="wel-chips"><span class="wel-chip">Full screen</span><span class="wel-chip">Works offline</span></div></div>'
+        +'<div class="wel-title">Add Today to your Home Screen</div>'
+        +'<div class="wel-card" style="margin-top:8px">'+steps.map(function(x,i){return '<div class="wel-step"><span class="wel-n">'+(i+1)+'</span><div><div class="wel-st">'+x[0]+'</div>'+(x[1]?'<div class="wel-ss">'+x[1]+'</div>':'')+'</div></div>';}).join('')+'</div>'
+        +'<div class="wel-note">What you add here in the browser stays here — the Home Screen app starts fresh.</div>';
     } else if(k==='hello'){
-      h=hero('#38bdf8',this._tab('today'))+'<div class="wel-title">Welcome to Today</div>'
-        +'<div class="wel-text">Your day in one place: tasks, habits and projects.</div>'
-        +'<div class="wel-card">'
-        +R(this._tab('today'),'#38bdf8','Today',"What's on today: tasks, calendar and habits")
-        +R(this._tab('overview'),'#3b82f6','Overview','Your projects, grouped the way you like')
-        +R(this._tab('lockedin'),'#6b7280','Tasks','Every task by priority, or as a calendar')
-        +R(this._tab('stats'),'#22c55e','Stats','How consistent you are with your habits')
-        +R(this._tab('settings'),'#6b7280','Menu','Settings, the Guide and your data')
-        +'</div>';
-    } else if(k==='know'){
-      var db=S('<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>');
-      var book=S('<path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5h-6A1.5 1.5 0 0 1 2 16z"/><path d="M22 5.5A1.5 1.5 0 0 0 20.5 4H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5h6a1.5 1.5 0 0 0 1.5-1.5z"/>');
-      h=hero('#22c55e',S('<path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>'))+'<div class="wel-title">Good to know</div>'
-        +'<div class="wel-text">Two things before you start.</div>'
-        +'<div class="wel-card">'
-        +R(db,'#6b7280','Your data stays on this phone','No account and no cloud. Make a backup now and then: Menu → Data → Export.')
-        +R(book,'#f97316','The Guide','Menu → Guide explains hidden features, like holding to move things and swiping to skip.')
-        +'</div>';
+      h='<div class="wel-center"><img class="wel-appicon" src="icon-192.png" alt="">'
+        +'<div class="wel-title wel-hello"><span>Welcome to</span> <span class="wel-brand" translate="no">Today</span></div>'
+        +'<div class="wel-text">Your day in one place: tasks, habits and projects.</div></div>';
+    } else if(k==='start'){
+      h='<div class="wel-title" style="margin-top:12px">How do you want to start?</div><div class="wel-text">You can change everything later.</div>'
+        +'<div class="wel-choices">'
+        +'<div class="wel-choice" onclick="Templates.open(true)">'+this._ico(S('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),'#f59e0b')+'<b>Use a template</b><span>Ready-made projects and habits to start with</span></div>'
+        +'<div class="wel-choice" onclick="Welcome.finish()">'+this._ico(S('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'),'#3b82f6')+'<b>Start empty</b><span>Add your own projects and habits</span></div>'
+        +'</div><div class="wel-ai"><span>Set up with AI</span> · <span>Coming soon</span></div>';
     } else {
-      var spark=S('<path d="M12 3.5l1.9 5 5 1.9-5 1.9-1.9 5-1.9-5-5-1.9 5-1.9z"/>');
-      var grid=S('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>');
-      var chev='<span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto;color:#999">'+ICON_CHEVRON+'</span>';
-      var soon='<span class="wel-soon">Coming soon</span>';
-      h=hero('#6366f1',spark)+'<div class="wel-title">How do you want to start?</div>'
-        +'<div class="wel-text">You can change everything later.</div>'
-        +'<div class="wel-card">'
-        +R(S('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'),'#3b82f6','Start empty','Add your own projects and habits',chev,'wel-opt','Welcome.finish()')
-        +R(grid,'#f59e0b','Use a template','Pick one or more to start with',chev,'wel-opt','Templates.open(true)')
-        +R(spark,'#6366f1','Set up with AI','',soon,'wel-opt off')
-        +'</div>';
+      var t=this.TABS.filter(function(x){return x.tab===k;})[0];
+      h='<div class="wel-ill" style="background:'+t.bg+'">'+this._pic(k)+'</div>'
+        +'<div class="wel-eb" style="color:'+t.c+'">'+this._tab(k)+'<span>'+t.name+'</span></div>'
+        +'<div class="wel-title">'+t.title+'</div><div class="wel-text">'+t.text+'</div>';
     }
-    var body=document.getElementById('wel-body');body.innerHTML=h;body.scrollTop=0;
-    document.getElementById('wel-dots').innerHTML=this.pages.map(function(_,i){return '<i'+(i===this.page?' class="on"':'')+'></i>';},this).join('');
+    var body=document.getElementById('wel-body');
+    body.innerHTML=h;body.scrollTop=0;
+    body.classList.remove('in-next','in-prev');
+    if(dir){void body.offsetWidth;body.classList.add(dir>0?'in-next':'in-prev');}
+    document.getElementById('wel-dots').innerHTML=this.pages.map(function(_,i){return '<i'+(i===self.page?' class="on"':'')+'></i>';}).join('');
     var btn=document.getElementById('wel-next');
     btn.style.visibility=k==='start'?'hidden':'';
     btn.textContent=k==='install'?'Continue in the browser':'Continue';
+    document.getElementById('wel-skip').style.visibility=k==='start'||k==='install'?'hidden':'';
   },
   finish:function(){
     if(DB.data.settings.onboard){delete DB.data.settings.onboard;DB.save();}

@@ -2375,7 +2375,25 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (iOS steps if IS_IOS, else Android) → 'hello' (tabs, icons copied from
   the tab bar) → 'know' (data stays on the phone / backup; the Guide) →
   'start' (Start empty; Use a template since 4.25 — see STARTER TEMPLATES;
-  AI "Coming soon", dimmed). 4.16 had a
+  AI "Coming soon", dimmed). 4.55 REDESIGN (picked on
+  https://claude.ai/artifact/7zWMx9J6P1BhgWdEs53oCy — "explanation per tab…
+  kinda like B… the black and grey dots… also A with the big text"):
+  install (browser only) → 'hello' (app icon, "Welcome to Today", A's big
+  centred title) → one page per tab ('today','overview','lockedin','stats',
+  'settings' = Welcome.TABS: tab name in its colour, big centred title, one
+  line; a small copy of that tab on a tinted block, `_pic(tab)`, `.wm-*`
+  classes — NOT the app's .ti/.cali, so no handlers touch it) → 'start'
+  (two big `.wel-choice` cards + "Set up with AI · Coming soon"). Bar dots
+  (current = 20px black pill), filled blue `.wel-btn`, Skip top right
+  (→ start; hidden on install/start), swipe left/right turns pages
+  (`_wireSwipe`), a .3s slide-in per page. The pictures carry their own
+  German via `Welcome._L(en,de)` inside `translate="no"` — I18N's text()
+  now skips anything under `[translate="no"]` (also used for the app name
+  "Today" in "Welcome to Today", which the DE layer would turn into
+  "Heute"). Gotcha found while building: `.wm-ty span`/`.wel-choice span`
+  greyed the `.wm-ico` icon tiles too (they're spans) — scoped with
+  :not(.wm-ico). Translations land after a redraw (MutationObserver), so
+  read translated text after a short wait in tests. 4.16 had a
   Menu > Guide > Welcome tour row to replay it; removed in 4.17 by request
   (to see it again for testing: `Welcome.open()` in the console, or clear
   the preview's storage). (2) `phoneLang()`: a new install (and
