@@ -800,10 +800,10 @@ html:not(#x) #war-box:not([style*="none"])+#overview-grid>.add-block:first-child
    "Showcase" look, with the big centred titles of "Feature sheet"): a picture
    of each tab on its colour, the tab's name, a big title and a line; bar dots
    (black for the current page) and a filled blue button; Skip at the top. */
-:root{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd;--wt-red:#fde4e3}
-@media(prefers-color-scheme:dark){:root{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f;--wt-red:#45201f}}
-html[data-theme="dark"]{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f;--wt-red:#45201f}
-html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd;--wt-red:#fde4e3}
+:root{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd;--wt-red:#fde4e3;--wt-violet:#e8e5fc;--ai:#5e5ce6}
+@media(prefers-color-scheme:dark){:root{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f;--wt-red:#45201f;--wt-violet:#29264d;--ai:#8583ff}}
+html[data-theme="dark"]{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f;--wt-red:#45201f;--wt-violet:#29264d;--ai:#8583ff}
+html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd;--wt-red:#fde4e3;--wt-violet:#e8e5fc;--ai:#5e5ce6}
 .wel{position:fixed;inset:0;z-index:650;background:var(--pg);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 16px);opacity:0;transition:opacity .25s ease}
 .wel.on{display:flex}.wel.show{opacity:1}
 .wel-skip{position:absolute;top:calc(env(safe-area-inset-top) + 10px);right:8px;z-index:1;border:none;background:none;padding:8px 10px;font-family:inherit;font-size:15px;line-height:20px;font-weight:600;color:#8a8a8e;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -857,9 +857,50 @@ html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd
 .wel-dots i.on{width:20px;background:var(--ink)}
 .wel-btn{width:100%;height:52px;border:none;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:600;font-family:inherit;cursor:pointer;transition:transform .12s ease-out}
 .wel-btn:active{transform:scale(.97)}
-.wel-btns{display:flex;gap:10px;width:100%}
-.wel-btns .wel-btn{flex:1;min-width:0;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wel-alt{background:var(--card);color:var(--blue)}
+/* the start page: one picture card per way to start; the name and a line
+   sit on the picture at the bottom, with a round arrow ("R3d") */
+.wel-start-t{margin:8px 0 6px}
+.wel-start-s{margin-bottom:18px}
+.wel-opts{display:flex;flex-direction:column;gap:12px}
+.wel-opt{flex:none;position:relative;height:158px;border-radius:22px;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s ease-out}
+.wel-opt:active{transform:scale(.98)}
+.wel-opt-off{cursor:default}.wel-opt-off:active{transform:none}
+.wel-opt-pic{position:absolute;left:50%;top:14px;width:300px;transform:translateX(-50%) scale(.8);transform-origin:top center;pointer-events:none}
+.wel-opt-cap{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;gap:12px;padding:30px 16px 14px}
+.wel-opt-t{flex:1;min-width:0}
+.wel-opt-t b{display:block;font-size:17px;line-height:22px;font-weight:600;color:var(--ink)}
+.wel-opt-t span{display:block;font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e}
+.wel-opt-go{flex:none;width:34px;height:34px;border-radius:50%;background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.wel-opt-go svg{width:17px;height:17px}
+.wel-opt-soon{flex:none;font-size:13px;line-height:18px;font-weight:600;color:var(--ai);padding-bottom:2px}
+/* the start page's pictures (real size, shrunk by .wel-opt-pic) */
+.wp-card{width:100%;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.wp-tr{display:flex;align-items:center;gap:12px;height:56px;padding:0 14px;border-bottom:0.5px solid var(--line)}
+.wp-tr:last-child{border-bottom:none}
+.wp-box{flex:none;width:22px;height:22px;border-radius:7px;background:var(--box)}
+.wp-box.on{background:#30d158 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 12.5 10 16.5 18 8'/%3E%3C/svg%3E") center/16px no-repeat}
+.wp-emo{flex:none;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1}
+.wp-tt{flex:1;min-width:0;display:flex;flex-direction:column}
+.wp-tt b{font-size:15px;line-height:19px;font-weight:600;color:var(--ink)}
+.wp-tt i{font-style:normal;font-size:12px;line-height:16px;font-weight:500;color:#8a8a8e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.wp-new,.wp-ghost{height:128px;border-radius:16px;box-sizing:border-box}
+.wp-new{background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px}
+.wp-plus{width:40px;height:40px;border-radius:11px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:auto}
+.wp-plus svg{width:22px;height:22px}
+.wp-new b{font-size:15px;line-height:19px;font-weight:600;color:var(--ink)}
+.wp-new i{font-style:normal;font-size:11.5px;line-height:15px;font-weight:500;color:#8a8a8e}
+.wp-ghost{border:1.5px dashed rgba(0,122,255,.3)}
+.wp-chat{width:100%;display:flex;flex-direction:column;gap:10px}
+.wp-me{align-self:flex-end;max-width:84%;background:var(--blue);color:#fff;font-size:15px;line-height:20px;font-weight:500;padding:10px 14px;border-radius:20px 20px 6px 20px}
+.wp-ai{align-self:flex-start;width:90%;box-sizing:border-box;background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.06);border-radius:20px 20px 20px 6px;padding:12px 14px 6px}
+.wp-aih{display:flex;align-items:center;gap:6px;font-size:13px;line-height:16px;font-weight:700;color:var(--ai);margin-bottom:4px}
+.wp-aih svg{width:16px;height:16px}
+.wp-ar{display:flex;align-items:center;gap:10px;height:34px;border-bottom:0.5px solid var(--line);font-size:14px;color:var(--ink)}
+.wp-ar:last-child{border-bottom:none}
+.wp-ar span{font-size:17px;line-height:1}
+.wp-ar b{font-weight:600}
+.wp-ar i{margin-left:auto;font-style:normal;font-size:12px;font-weight:500;color:#8a8a8e}
 /* the pictures of the tabs: small copies of the real screens */
 .wm{width:100%;display:flex;flex-direction:column;gap:8px}
 .wm-lbl{font-size:10px;line-height:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label);margin:2px 4px -2px}
@@ -882,7 +923,6 @@ html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd
 .wm-ty span:not(.wm-ico){font-size:11.5px;line-height:15px;font-weight:500;color:#8a8a8e}
 .wm-row .wm-ico{width:26px;height:26px;border-radius:7px}
 .wm-row .wm-ico svg{width:16px;height:16px}
-.wm-emo{font-size:15px;line-height:1}
 .wm-blk{height:48px}
 .wm-two{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .wm-two b{font-size:13px;line-height:16px;font-weight:600;color:var(--ink)}
@@ -1520,10 +1560,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   <div class="wel-body" id="wel-body"></div>
   <div class="wel-foot">
     <div class="wel-dots" id="wel-dots"></div>
-    <div class="wel-btns">
-      <button class="wel-btn wel-alt" id="wel-alt" onclick="Welcome.finish()">Start empty</button>
-      <button class="wel-btn" id="wel-next" onclick="Welcome.primary()">Continue</button>
-    </div>
+    <button class="wel-btn" id="wel-next" onclick="Welcome.next()">Continue</button>
   </div>
 </div>
 
@@ -1729,7 +1766,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.61';
+var APP_VERSION='Beta 4.62';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -3001,6 +3038,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.61',notes:[
     "Welcome screens: a page for the Blocker (between Stats and Menu) — Coming soon, with its features: blocking apps and websites, limits, warnings, screen time and app usage. Its picture shows example daily limits (an app or site, block after 15 minutes, today's use, on/off)"
+  ]},
+  {v:'Beta 4.62',notes:[
+    "The last welcome screen has three big picture cards: Start with a template (the template window), Start from scratch (an empty Overview) and Set up with AI (a short chat, coming soon). Tap a card to start"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3136,7 +3176,8 @@ var USER_LOG={
   'Beta 4.58':'design',
   'Beta 4.59':'design',
   'Beta 4.60':'design',
-  'Beta 4.61':'design'
+  'Beta 4.61':'design',
+  'Beta 4.62':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3819,10 +3860,12 @@ var I18N=(function(){
     "The Guide":"Die Anleitung",
     "Menu → Guide explains hidden features, like holding to move things and swiping to skip.":"Menü → Anleitung erklärt versteckte Funktionen, zum Beispiel Halten zum Verschieben und Wischen zum Überspringen.",
     "How do you want to start?":"Wie möchtest du starten?",
-    "Get started":"Los geht's",
-    "Start with ready-made projects and habits, or with an empty app. You can change everything later.":"Starte mit fertigen Projekten und Gewohnheiten oder mit einer leeren App. Du kannst später alles ändern.",
-    "Start empty":"Leer starten",
-    "Use a template":"Vorlage wählen",
+    "You can change everything later.":"Du kannst später alles ändern.",
+    "Start with a template":"Mit einer Vorlage starten",
+    "Ready-made projects and habits":"Fertige Projekte und Gewohnheiten",
+    "Start from scratch":"Bei null anfangen",
+    "Build your own":"Alles selbst aufbauen",
+    "Tell it about your day":"Erzähl ihr von deinem Tag",
     "Pick one or more to start with":"Wähle eine oder mehrere für den Start",
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
@@ -8717,8 +8760,6 @@ var Welcome={
     requestAnimationFrame(function(){requestAnimationFrame(function(){el.classList.add('show');});});
   },
   next:function(){if(this.page<this.pages.length-1){this.page++;this.render(1);}},
-  // the blue button: Continue, or on the last page "Use a template"
-  primary:function(){if(this.pages[this.page]==='start')Templates.open(true);else this.next();},
   prev:function(){if(this.page>0){this.page--;this.render(-1);}},
   skip:function(){var i=this.pages.indexOf('start');if(i>this.page){this.page=i;this.render(1);}},
   // a sideways swipe turns the page (left = next, right = back)
@@ -8767,16 +8808,24 @@ var Welcome={
         +'<div class="wel-title wel-hello"><span>Welcome to</span> <span class="wel-brand" translate="no">Today</span></div>'
         +'<div class="wel-text">Your day in one place: tasks, habits and projects.</div></div>';
     } else if(k==='start'){
-      // like the tab pages: a picture (the template window, two ticked), a
-      // label, the title and one line; the two ways to start are the buttons
-      var de=I18N.lang==='de'?1:0,ticked={basics:1,fitness:1};
-      h='<div class="wel-ill" style="background:var(--wt-blue)"><div class="wm" translate="no"><div class="wm-card">'
-        +TEMPLATES.map(function(t){return '<div class="wm-row"><span class="wm-box'+(ticked[t.k]?' done':'')+'"></span><span class="wm-ico wm-emo" style="'+tintStyle(COLORS[t.color])+'">'+t.icon+'</span>'+esc(t.name[de])+'</div>';}).join('')
-        +'</div></div></div>'
-        +'<div class="wel-eb" style="color:var(--blue)">'+S('<path d="M5 21V4"/><path d="M5 4h12l-2.5 4.5L17 13H5"/>')+'<span>Get started</span></div>'
-        +'<div class="wel-title">How do you want to start?</div>'
-        +'<div class="wel-text">Start with ready-made projects and habits, or with an empty app. You can change everything later.</div>'
-        +'<div class="wel-note"><span>Set up with AI</span> · <span>Coming soon</span></div>';
+      // "R3d" (4.62, picked on the welcome options page): one picture card per
+      // way to start; the button below stays hidden, a card is the tap
+      var L=this._L,de=I18N.lang==='de'?1:0,ticked={basics:1,fitness:1};
+      var tpl='<div class="wp-card">'+TEMPLATES.filter(function(t){return t.k!=='work';}).map(function(t){
+        return '<div class="wp-tr"><span class="wp-box'+(ticked[t.k]?' on':'')+'"></span><span class="wp-emo" style="background:'+COLORS[t.color]+'26">'+t.icon+'</span><span class="wp-tt"><b>'+esc(t.name[de])+'</b><i>'+esc(t.sub[de])+'</i></span></div>';}).join('')+'</div>';
+      var empty='<div class="wp-grid"><div class="wp-new"><span class="wp-plus">'+S('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>')+'</span><b>'+L('New project','Neues Projekt')+'</b><i>'+L('To-do, List, Tracker or Habits','To-do, Liste, Tracker oder Gewohnheiten')+'</i></div><div class="wp-ghost"></div><div class="wp-ghost"></div><div class="wp-ghost"></div></div>';
+      var ai='<div class="wp-chat"><div class="wp-me">'+L('I want to read more and work out three times a week.','Ich will mehr lesen und dreimal pro Woche trainieren.')+'</div><div class="wp-ai"><div class="wp-aih">'+S('<path d="M12 3.5l1.9 5 5 1.9-5 1.9-1.9 5-1.9-5-5-1.9 5-1.9z"/>')+L("Here's your start",'Dein Start')+'</div>'
+        +[['📚',L('Read 10 pages','10 Seiten lesen'),L('Every day','Jeden Tag')],['🏋️',L('Workout','Training'),L('Mo, We, Fr','Mo, Mi, Fr')],['⚖️',L('Weight','Gewicht'),'Tracker']].map(function(x){return '<div class="wp-ar"><span>'+x[0]+'</span><b>'+x[1]+'</b><i>'+x[2]+'</i></div>';}).join('')+'</div></div>';
+      var go='<div class="wel-opt-go">'+S('<line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>',2.2)+'</div>';
+      var card=function(bg,pic,title,sub,tap,right){
+        return '<div class="wel-opt'+(tap?'':' wel-opt-off')+'" style="background:var('+bg+')"'+(tap?' onclick="'+tap+'"':'')+'><div class="wel-opt-pic" translate="no">'+pic+'</div>'
+          +'<div class="wel-opt-cap" style="background:linear-gradient(to bottom,transparent,var('+bg+') 46%)"><div class="wel-opt-t"><b>'+title+'</b><span>'+sub+'</span></div>'+right+'</div></div>';
+      };
+      h='<div class="wel-title wel-start-t">How do you want to start?</div><div class="wel-text wel-start-s">You can change everything later.</div><div class="wel-opts">'
+        +card('--wt-amber',tpl,'Start with a template','Ready-made projects and habits','Templates.open(true)',go)
+        +card('--wt-sky',empty,'Start from scratch','Build your own','Welcome.finish()',go)
+        +card('--wt-violet',ai,'Set up with AI','Tell it about your day',null,'<div class="wel-opt-soon">Coming soon</div>')
+        +'</div>';
     } else {
       var t=this.TABS.filter(function(x){return x.tab===k;})[0];
       h='<div class="wel-ill" style="background:'+t.bg+'">'+this._pic(k)+'</div>'
@@ -8789,8 +8838,8 @@ var Welcome={
     if(dir){void body.offsetWidth;body.classList.add(dir>0?'in-next':'in-prev');}
     document.getElementById('wel-dots').innerHTML=this.pages.map(function(_,i){return '<i'+(i===self.page?' class="on"':'')+'></i>';}).join('');
     var btn=document.getElementById('wel-next');
-    btn.textContent=k==='install'?'Continue in the browser':k==='start'?'Use a template':'Continue';
-    document.getElementById('wel-alt').style.display=k==='start'?'':'none';
+    btn.textContent=k==='install'?'Continue in the browser':'Continue';
+    btn.style.visibility=k==='start'?'hidden':''; // a card is the tap there; hidden, not gone, so the dots stay put
     document.getElementById('wel-skip').style.visibility=k==='start'||k==='install'?'hidden':'';
   },
   finish:function(){

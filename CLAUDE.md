@@ -2396,16 +2396,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   'settings' = Welcome.TABS: tab name in its colour, big centred title, one
   line; a small copy of that tab on a tinted block, `_pic(tab)`, `.wm-*`
   classes — NOT the app's .ti/.cali, so no handlers touch it) → 'start'
-  (4.60, "outdated, it needs to fit with the others" — it was two big
-  `.wel-choice` cards, CSS gone): built like a tab page — the template
-  window as a picture on `--wt-blue` (all five TEMPLATES, Basics + Fitness
-  ticked), blue "Get started" flag label, title, one line, "Set up with AI ·
-  Coming soon" note; the two ways to start are the footer buttons, side by
-  side in `.wel-btns` so the footer keeps its height and the dots don't
-  move: `#wel-alt` "Start empty" (white, blue text, shown only here) and
-  the blue `#wel-next` = "Use a template" (`Welcome.primary()`: on 'start'
-  Templates.open(true), else next()). German "Vorlage wählen" (was
-  "Vorlage verwenden" — too wide for half a row). Menu's
+  (4.62 "R3d", picked after two rounds on the welcome options page — round
+  1's buttons/rows/greyed-out AI were "cheap"; lesson: mock options at real
+  size with real pictures): title + "You can change everything later.",
+  then three `.wel-opt` picture cards (158px, radius 22, on --wt-amber /
+  --wt-sky / --wt-violet): the real picture at 80% on top (`.wel-opt-pic`,
+  `.wp-*` classes: the template window with real TEMPLATES names, an empty
+  Overview with a New project tile, an AI chat), the name and a line on the
+  picture at the bottom over a fade to the card colour, a round white
+  arrow. Template → Templates.open(true), scratch → Welcome.finish(), AI =
+  `.wel-opt-off` with "Coming soon" in `--ai` violet. The blue button is
+  visibility:hidden there (not removed) so the dots stay put. Gotcha: a
+  card class `soon` collided with the Blocker page's global `.soon`
+  (centred text + 64px padding) — hence `wel-opt-off`. 4.60–4.61 had the
+  template picture with Start empty / Use a template as two footer buttons
+  (`.wel-btns`, `#wel-alt`, `Welcome.primary` — gone). Menu's
   page (4.59, "include that you can customize and adjust everything
   there"): "Make it your own", the line starts with that, picture = Guide,
   General + Appearance, Data › Export. Blocker's page (4.61, "one page for
