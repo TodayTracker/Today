@@ -851,19 +851,15 @@ html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd
 .wel-note{font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;text-align:center;margin:14px 8px 0}
 .wel-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .wel-chip{padding:7px 12px;border-radius:999px;background:var(--card);font-size:13px;font-weight:600;color:var(--ink)}
-.wel-choices{display:flex;flex-direction:column;gap:12px;margin-top:22px}
-.wel-choice{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:var(--card);border-radius:18px;padding:16px;cursor:pointer;transition:background .2s ease;-webkit-tap-highlight-color:transparent}
-.wel-choice:active{background:var(--press)}
-.wel-choice .wm-ico{width:40px;height:40px;border-radius:11px;margin-bottom:9px}
-.wel-choice b{font-size:16px;line-height:21px;font-weight:600;color:var(--ink)}
-.wel-choice span:not(.wm-ico){font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e}
-.wel-ai{font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;text-align:center;margin-top:18px}
 .wel-foot{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:12px}
 .wel-dots{display:flex;gap:6px}
 .wel-dots i{width:7px;height:7px;border-radius:4px;background:var(--line);transition:width .25s ease,background .25s ease}
 .wel-dots i.on{width:20px;background:var(--ink)}
 .wel-btn{width:100%;height:52px;border:none;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:600;font-family:inherit;cursor:pointer;transition:transform .12s ease-out}
 .wel-btn:active{transform:scale(.97)}
+.wel-btns{display:flex;gap:10px;width:100%}
+.wel-btns .wel-btn{flex:1;min-width:0;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wel-alt{background:var(--card);color:var(--blue)}
 /* the pictures of the tabs: small copies of the real screens */
 .wm{width:100%;display:flex;flex-direction:column;gap:8px}
 .wm-lbl{font-size:10px;line-height:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label);margin:2px 4px -2px}
@@ -886,6 +882,7 @@ html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd
 .wm-ty span:not(.wm-ico){font-size:11.5px;line-height:15px;font-weight:500;color:#8a8a8e}
 .wm-row .wm-ico{width:26px;height:26px;border-radius:7px}
 .wm-row .wm-ico svg{width:16px;height:16px}
+.wm-emo{font-size:15px;line-height:1}
 .wm-chev{margin-left:auto;color:#c7c7cc;display:flex}
 .wm-chev svg{transform:rotate(-90deg)} /* ICON_CHEVRON points down (dropdowns); a row's arrow points right */
 .ics-card{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:14px}
@@ -1511,7 +1508,10 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   <div class="wel-body" id="wel-body"></div>
   <div class="wel-foot">
     <div class="wel-dots" id="wel-dots"></div>
-    <button class="wel-btn" id="wel-next" onclick="Welcome.next()">Continue</button>
+    <div class="wel-btns">
+      <button class="wel-btn wel-alt" id="wel-alt" onclick="Welcome.finish()">Start empty</button>
+      <button class="wel-btn" id="wel-next" onclick="Welcome.primary()">Continue</button>
+    </div>
   </div>
 </div>
 
@@ -1717,7 +1717,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.59';
+var APP_VERSION='Beta 4.60';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2983,6 +2983,9 @@ var CHANGELOG=[
     "Trash: no more date titles (Today, Yesterday, …) — everything of the kind shown is in one card, newest first",
     "Trash: the kind shown is the grey title above that card (like War Room in Tasks), in place of the line under the page title",
     "Welcome screens: the Menu page says you can customize and adjust everything there, with General and Appearance in its picture"
+  ]},
+  {v:'Beta 4.60',notes:[
+    "The last welcome screen (how do you want to start) looks like the others now: a picture of the template window, a big title and one line, with Start empty and Use a template as the two buttons at the bottom"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3116,7 +3119,8 @@ var USER_LOG={
   'Beta 4.56':'design',
   'Beta 4.57':'bug',
   'Beta 4.58':'design',
-  'Beta 4.59':'design'
+  'Beta 4.59':'design',
+  'Beta 4.60':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3799,10 +3803,10 @@ var I18N=(function(){
     "The Guide":"Die Anleitung",
     "Menu → Guide explains hidden features, like holding to move things and swiping to skip.":"Menü → Anleitung erklärt versteckte Funktionen, zum Beispiel Halten zum Verschieben und Wischen zum Überspringen.",
     "How do you want to start?":"Wie möchtest du starten?",
-    "You can change everything later.":"Du kannst später alles ändern.",
+    "Get started":"Los geht's",
+    "Start with ready-made projects and habits, or with an empty app. You can change everything later.":"Starte mit fertigen Projekten und Gewohnheiten oder mit einer leeren App. Du kannst später alles ändern.",
     "Start empty":"Leer starten",
-    "Add your own projects and habits":"Eigene Projekte und Gewohnheiten anlegen",
-    "Use a template":"Vorlage verwenden",
+    "Use a template":"Vorlage wählen",
     "Pick one or more to start with":"Wähle eine oder mehrere für den Start",
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
@@ -3826,7 +3830,6 @@ var I18N=(function(){
     "All your habits and how often you keep them up, with streaks and charts.":"Alle Gewohnheiten und wie oft du sie durchhältst, mit Serien und Diagrammen.",
     "Make it your own":"Mach sie zu deiner",
     "Customize and adjust everything here. The Guide explains the hidden features, and under Data you back up your data, which stays on this phone.":"Hier passt du alles an und stellst alles ein. Die Anleitung erklärt die versteckten Funktionen, und unter Daten sicherst du deine Daten, die auf diesem Handy bleiben.",
-    "Ready-made projects and habits to start with":"Fertige Projekte und Gewohnheiten für den Start",
     'Import calendar':'Kalender importieren','Untitled':'Ohne Titel','Left out:':'Nicht übernommen:',
     'Upcoming events from Google Calendar, Apple Calendar or Outlook become Calendar tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import & export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.':'Kommende Termine aus Google Kalender, Apple Kalender oder Outlook werden zu Kalender-Aufgaben. Exportiere deinen Kalender zuerst als Datei: Google Kalender am Computer, Einstellungen → Importieren & exportieren → Exportieren; Apple Kalender am Mac, Ablage → Exportieren; Outlook, Kalender speichern.',
     '1 event added to your calendar.':'1 Termin zu deinem Kalender hinzugefügt.',
@@ -8683,6 +8686,8 @@ var Welcome={
     requestAnimationFrame(function(){requestAnimationFrame(function(){el.classList.add('show');});});
   },
   next:function(){if(this.page<this.pages.length-1){this.page++;this.render(1);}},
+  // the blue button: Continue, or on the last page "Use a template"
+  primary:function(){if(this.pages[this.page]==='start')Templates.open(true);else this.next();},
   prev:function(){if(this.page>0){this.page--;this.render(-1);}},
   skip:function(){var i=this.pages.indexOf('start');if(i>this.page){this.page=i;this.render(1);}},
   // a sideways swipe turns the page (left = next, right = back)
@@ -8731,11 +8736,16 @@ var Welcome={
         +'<div class="wel-title wel-hello"><span>Welcome to</span> <span class="wel-brand" translate="no">Today</span></div>'
         +'<div class="wel-text">Your day in one place: tasks, habits and projects.</div></div>';
     } else if(k==='start'){
-      h='<div class="wel-title" style="margin-top:12px">How do you want to start?</div><div class="wel-text">You can change everything later.</div>'
-        +'<div class="wel-choices">'
-        +'<div class="wel-choice" onclick="Templates.open(true)">'+this._ico(S('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),'#f59e0b')+'<b>Use a template</b><span>Ready-made projects and habits to start with</span></div>'
-        +'<div class="wel-choice" onclick="Welcome.finish()">'+this._ico(S('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'),'#3b82f6')+'<b>Start empty</b><span>Add your own projects and habits</span></div>'
-        +'</div><div class="wel-ai"><span>Set up with AI</span> · <span>Coming soon</span></div>';
+      // like the tab pages: a picture (the template window, two ticked), a
+      // label, the title and one line; the two ways to start are the buttons
+      var de=I18N.lang==='de'?1:0,ticked={basics:1,fitness:1};
+      h='<div class="wel-ill" style="background:var(--wt-blue)"><div class="wm" translate="no"><div class="wm-card">'
+        +TEMPLATES.map(function(t){return '<div class="wm-row"><span class="wm-box'+(ticked[t.k]?' done':'')+'"></span><span class="wm-ico wm-emo" style="'+tintStyle(COLORS[t.color])+'">'+t.icon+'</span>'+esc(t.name[de])+'</div>';}).join('')
+        +'</div></div></div>'
+        +'<div class="wel-eb" style="color:var(--blue)">'+S('<path d="M5 21V4"/><path d="M5 4h12l-2.5 4.5L17 13H5"/>')+'<span>Get started</span></div>'
+        +'<div class="wel-title">How do you want to start?</div>'
+        +'<div class="wel-text">Start with ready-made projects and habits, or with an empty app. You can change everything later.</div>'
+        +'<div class="wel-note"><span>Set up with AI</span> · <span>Coming soon</span></div>';
     } else {
       var t=this.TABS.filter(function(x){return x.tab===k;})[0];
       h='<div class="wel-ill" style="background:'+t.bg+'">'+this._pic(k)+'</div>'
@@ -8748,8 +8758,8 @@ var Welcome={
     if(dir){void body.offsetWidth;body.classList.add(dir>0?'in-next':'in-prev');}
     document.getElementById('wel-dots').innerHTML=this.pages.map(function(_,i){return '<i'+(i===self.page?' class="on"':'')+'></i>';}).join('');
     var btn=document.getElementById('wel-next');
-    btn.style.visibility=k==='start'?'hidden':'';
-    btn.textContent=k==='install'?'Continue in the browser':'Continue';
+    btn.textContent=k==='install'?'Continue in the browser':k==='start'?'Use a template':'Continue';
+    document.getElementById('wel-alt').style.display=k==='start'?'':'none';
     document.getElementById('wel-skip').style.visibility=k==='start'||k==='install'?'hidden':'';
   },
   finish:function(){
