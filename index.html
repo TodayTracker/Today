@@ -514,12 +514,6 @@ html[data-theme="light"] .type-btn{border-color:#e8e5e0}
    the items by day — a section label and one card per day, Menu-style rows.
    A row opens a small menu (Restore / Delete forever); the last card is
    "Delete all forever" for the kind shown. */
-.seg-row{display:flex;gap:2px;padding:2px;border-radius:9px;background:rgba(118,118,128,.12)}
-.seg-btn{flex:1 1 auto;min-width:0;padding:7px 2px;border:none;border-radius:7px;font-family:inherit;font-size:13px;line-height:16px;font-weight:600;cursor:pointer;color:var(--ink);background:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.seg-btn.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-@media(prefers-color-scheme:dark){html:not([data-theme="light"]) .seg-row{background:rgba(118,118,128,.24)}html:not([data-theme="light"]) .seg-btn.active{background:#636366;box-shadow:none}}
-html[data-theme="dark"] .seg-row{background:rgba(118,118,128,.24)}
-html[data-theme="dark"] .seg-btn.active{background:#636366;box-shadow:none}
 html:not(#x) .sp .opt-row.trash-row{height:auto;min-height:46px;padding-top:8px;padding-bottom:8px}
 .trash-row .opt-title{line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trash-sub{font-size:12px;line-height:16px;font-weight:500;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1165,11 +1159,10 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 
 <div class="page sp" id="p-archive">
   <div class="hh">
-    <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
-    <div class="hh-title">Trash</div>
+    <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><button class="hh-btn" onclick="Trash.openKindMenu(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button></div>
+    <div class="hh-titlerow"><div class="hh-title">Trash</div><span class="tlbl" id="trash-kind"></span></div>
     <div class="hh-sub">Tap something to restore it or delete it for good</div>
   </div>
-  <div class="seg-row" id="trash-tabs" style="margin-top:14px"></div>
   <div id="arch-list"></div>
 </div>
 
@@ -1725,7 +1718,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.57';
+var APP_VERSION='Beta 4.58';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2982,6 +2975,10 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.57',notes:[
     "The consistency score on Statistics no longer drops in the morning: today's habits only count once you've done or skipped them, like a single habit's score already did"
+  ]},
+  {v:'Beta 4.58',notes:[
+    "Trash: what's shown (Tasks, Lists, Habits, Projects, Entries) is picked from a button at the top right, the same dropdown as in Tasks, with the current one next to the title",
+    "Trash rows open a small menu, so they no longer turn grey when tapped (like the Language row)"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3113,7 +3110,8 @@ var USER_LOG={
   'Beta 4.54':["Project pages show their picture and description"],
   'Beta 4.55':["New welcome screens"],
   'Beta 4.56':'design',
-  'Beta 4.57':'bug'
+  'Beta 4.57':'bug',
+  'Beta 4.58':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4515,7 +4513,7 @@ function wireTasksDrag(c){
   }});
 }
 
-// Trash page: one tab per kind of deleted thing. "Completed" is the
+// Trash page: one kind of deleted thing at a time (header dropdown). "Completed" is the
 // archive of ticked-off tasks; the rest come from DB.data.trash.
 var Trash={
   tab:'completed',
@@ -4534,6 +4532,10 @@ var Trash={
     return false;
   },
   archivedTab:function(tab){return tab==='completed'||tab==='lists';},
+  // Which kind is shown: a dropdown under the header button, like Tasks'
+  openKindMenu:function(btn){
+    DSel.menu(btn,this.TABS.map(function(t){return{value:t.id,label:t.label};}),this.tab,function(v){A.trashTab(v);});
+  },
   // A row's menu: Restore / Delete forever ('a' = a done task in
   // `archived`, by index; 't' = a Trash entry, by id)
   menu:function(row,kind,key){
@@ -4546,9 +4548,7 @@ var Trash={
 };
 function renderArchive(){
   var c=document.getElementById('arch-list');
-  setHTML('trash-tabs',Trash.TABS.map(function(t){
-    return '<button class="seg-btn'+(Trash.tab===t.id?' active':'')+'" onclick="A.trashTab(\''+t.id+'\')">'+t.label+'</button>';
-  }).join(''));
+  setHTML('trash-kind',Trash.TABS.filter(function(t){return t.id===Trash.tab;})[0].label);
   // every row of this kind with the day it was done/deleted, newest first
   var rows=[];
   if(Trash.archivedTab(Trash.tab)){
@@ -7140,7 +7140,7 @@ var SQ_BTNS='.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn',SQ
   document.addEventListener('touchend',release,{passive:true});
   document.addEventListener('touchcancel',release,{passive:true});
 })();
-var PRESS_ROWS='.cali:not([data-once]),.ti:not([data-once]),.wri,.acard,.opt-row:not(:has(.switch)):not(:has(.dsel-wrap)):not(:has(.sh-rin)):not(.sh-days-row):not(.sh-ended)';
+var PRESS_ROWS='.cali:not([data-once]),.ti:not([data-once]),.wri,.acard,.opt-row:not(:has(.switch)):not(:has(.dsel-wrap)):not(:has(.sh-rin)):not(.sh-days-row):not(.sh-ended):not(.trash-row)';
 (function(){
   var row=null,timer=null,sx=0,sy=0;
   function off(r){r.classList.remove('pressed-row');}
@@ -9392,7 +9392,7 @@ window.addEventListener('scroll',function(){_lastScrollAt=Date.now();},{passive:
 (function(){
   var TAPPABLE='.tab-item,.fab,.hdr-add,.menu-btn,.menu-item,.acard,.opt-row,'
     +'.back,.edit-proj-btn,.hh-btn,.hh-title-btn,.addbtn,.el-btn,.type-btn,'
-    +'.cat-choice,.dpill,.sheet-save,.sh-save,.seg-btn,.sh-x';
+    +'.cat-choice,.dpill,.sheet-save,.sh-save,.sh-x';
   var sx=0,sy=0,moved=false,target=null;
   document.addEventListener('touchstart',function(e){
     // A toggle switch inside a TAPPABLE row (e.g. an .opt-row that's just

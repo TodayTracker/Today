@@ -515,17 +515,23 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   `once` entry back on the calendar with its old date.
   4.42 REDESIGN ("redesign the trash, it's still from the old design"):
   `#p-archive` is a `.sp` page; header subtitle "Tap something to restore
-  it or delete it for good"; a full-width segmented control (`.seg-row`/
-  `.seg-btn`, restyled — only the Trash uses it; flex so German
-  "Gewohnheiten" fits; NO counts, like everywhere else) for Tasks / Lists
-  / Habits / Projects / Entries; rows grouped by DAY (`trashDay(ds)`:
+  it or delete it for good"; the kind shown (Tasks / Lists / Habits /
+  Projects / Entries, NO counts) is picked from a header button at the top
+  right — Tasks' view button and dropdown (`Trash.openKindMenu`, DSel.menu,
+  4.58 "the selection in trash the same as in tasks"; 4.42–4.57 had a
+  full-width segmented control `.seg-row`/`.seg-btn`, its CSS is gone),
+  with the current kind as a grey `.tlbl` right of the title
+  (`#trash-kind`, my addition: Trash rows look the same for every kind);
+  rows grouped by DAY (`trashDay(ds)`:
   Today / Yesterday / weekday+date via dLoc(), year if not this year,
   "Earlier" for done tasks without `dateISO`), one `.opt-group` per day,
   Menu-style `.opt-row.trash-row` (title, `.trash-sub` = project / habit's
   project / tracker; a deleted project shows its emoji `.trash-ico` and
   "N tasks"), a "⋯" at the right. A row tap opens `Trash.menu` = a DSel
   dropdown (Restore / Delete forever — DSel options can carry `cls`, here
-  'danger' = red); Delete forever still confirms. The red "Empty trash"
+  'danger' = red); Delete forever still confirms. A trash row does NOT
+  grey (4.58, `:not(.trash-row)` in PRESS_ROWS): "a bar that opens a drop
+  down instead of a window shouldn't go grey, like the language selector". The red "Empty trash"
   header button became a red `.btn-row.danger` "Delete all forever" card
   at the bottom (empties the kind shown, Alert button "Delete all"). The
   old `.archbox/.archi*/.trash-act/.trash-x/.hh-txt` CSS is gone.
@@ -1177,7 +1183,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   transition:none) and then fades out. Also: rows holding a dropdown
   (`.dsel-wrap`: Language, Day starts at, the Task window's Priority/
   Project…) no longer grey at all, by request — like switch rows, the
-  control is the dropdown, not the row. Selector is `PRESS_ROWS`.
+  control is the dropdown, not the row. Selector is `PRESS_ROWS`. RULE
+  (4.58): a row whose tap opens a DROPDOWN (DSel) never greys — only rows
+  that open a window or a page do; a new dropdown row needs excluding from
+  PRESS_ROWS (then TAPPABLE clicks it on touchend, which is fine).
   To find which rows "don't do X", enumerate them all and test each
   (`.click()` with navigation/dialogs stubbed, then check
   `document.body.contains(row)`) instead of guessing from one.
