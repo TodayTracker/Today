@@ -2408,7 +2408,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   "Vorlage verwenden" — too wide for half a row). Menu's
   page (4.59, "include that you can customize and adjust everything
   there"): "Make it your own", the line starts with that, picture = Guide,
-  General + Appearance, Data › Export. Bar dots
+  General + Appearance, Data › Export. Blocker's page (4.61, "one page for
+  the blocker, just say coming soon and then all the features"), between
+  Stats and Menu like the tab bar: red label, title "Coming soon", the line
+  lists the features; picture (asked for with a screenshot of another
+  blocker: "a few example blocks similar to this", or a screen time chart)
+  = "Daily limits": X / YouTube / Instagram / reddit.com rows with a
+  plain glyph tile (no real logos), "Block after 15m" or "Blocked for
+  today", today's minutes over a small bar (amber/red/green) and a mini
+  switch (`.wm-blk/.wm-two/.wm-meter/.wm-sw`), on `--wt-red`. It shows although the Blocker tab is hidden by default. Bar dots
   (current = 20px black pill), filled blue `.wel-btn`, Skip top right
   (→ start; hidden on install/start), swipe left/right turns pages
   (`_wireSwipe`), a .3s slide-in per page. The pictures carry their own

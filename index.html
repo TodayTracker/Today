@@ -800,10 +800,10 @@ html:not(#x) #war-box:not([style*="none"])+#overview-grid>.add-block:first-child
    "Showcase" look, with the big centred titles of "Feature sheet"): a picture
    of each tab on its colour, the tab's name, a big title and a line; bar dots
    (black for the current page) and a filled blue button; Skip at the top. */
-:root{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd}
-@media(prefers-color-scheme:dark){:root{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f}}
-html[data-theme="dark"]{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f}
-html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd}
+:root{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd;--wt-red:#fde4e3}
+@media(prefers-color-scheme:dark){:root{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f;--wt-red:#45201f}}
+html[data-theme="dark"]{--wt-sky:#173447;--wt-indigo:#26284d;--wt-amber:#3d2e14;--wt-green:#173a26;--wt-grey:#2c3038;--wt-blue:#1d2f4f;--wt-red:#45201f}
+html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd;--wt-green:#d8f3e0;--wt-grey:#e6e7ea;--wt-blue:#dbe7fd;--wt-red:#fde4e3}
 .wel{position:fixed;inset:0;z-index:650;background:var(--pg);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 16px);opacity:0;transition:opacity .25s ease}
 .wel.on{display:flex}.wel.show{opacity:1}
 .wel-skip{position:absolute;top:calc(env(safe-area-inset-top) + 10px);right:8px;z-index:1;border:none;background:none;padding:8px 10px;font-family:inherit;font-size:15px;line-height:20px;font-weight:600;color:#8a8a8e;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -883,6 +883,18 @@ html[data-theme="light"]{--wt-sky:#d6eefb;--wt-indigo:#e0e1fb;--wt-amber:#fdeccd
 .wm-row .wm-ico{width:26px;height:26px;border-radius:7px}
 .wm-row .wm-ico svg{width:16px;height:16px}
 .wm-emo{font-size:15px;line-height:1}
+.wm-blk{height:48px}
+.wm-two{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.wm-two b{font-size:13px;line-height:16px;font-weight:600;color:var(--ink)}
+.wm-two i{font-style:normal;font-size:11px;line-height:14px;font-weight:500;color:#8a8a8e;overflow:hidden;text-overflow:ellipsis}
+.wm-meter{flex:none;width:42px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:11px;line-height:13px;font-weight:600;color:#8a8a8e}
+.wm-meter i{display:block;width:100%;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.wm-meter b{display:block;height:100%;border-radius:3px}
+.wm-sw{flex:none;position:relative;width:30px;height:18px;border-radius:9px;background:#3b82f6}
+.wm-sw::after{content:'';position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:#fff}
+.wm-sw.off{background:#d1d1d1}.wm-sw.off::after{right:auto;left:2px}
+@media(prefers-color-scheme:dark){html:not([data-theme="light"]) .wm-sw.off{background:#3a3a3a}}
+html[data-theme="dark"] .wm-sw.off{background:#3a3a3a}
 .wm-chev{margin-left:auto;color:#c7c7cc;display:flex}
 .wm-chev svg{transform:rotate(-90deg)} /* ICON_CHEVRON points down (dropdowns); a row's arrow points right */
 .ics-card{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:14px}
@@ -1717,7 +1729,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.60';
+var APP_VERSION='Beta 4.61';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2986,6 +2998,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.60',notes:[
     "The last welcome screen (how do you want to start) looks like the others now: a picture of the template window, a big title and one line, with Start empty and Use a template as the two buttons at the bottom"
+  ]},
+  {v:'Beta 4.61',notes:[
+    "Welcome screens: a page for the Blocker (between Stats and Menu) — Coming soon, with its features: blocking apps and websites, limits, warnings, screen time and app usage. Its picture shows example daily limits (an app or site, block after 15 minutes, today's use, on/off)"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3120,7 +3135,8 @@ var USER_LOG={
   'Beta 4.57':'bug',
   'Beta 4.58':'design',
   'Beta 4.59':'design',
-  'Beta 4.60':'design'
+  'Beta 4.60':'design',
+  'Beta 4.61':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3829,6 +3845,7 @@ var I18N=(function(){
     "See how consistent you are":"Sieh, wie beständig du bist",
     "All your habits and how often you keep them up, with streaks and charts.":"Alle Gewohnheiten und wie oft du sie durchhältst, mit Serien und Diagrammen.",
     "Make it your own":"Mach sie zu deiner",
+    "Block apps and websites, set limits and get warnings, and see your screen time and app usage.":"Sperre Apps und Websites, setze Limits und erhalte Warnungen, und sieh deine Bildschirmzeit und App-Nutzung.",
     "Customize and adjust everything here. The Guide explains the hidden features, and under Data you back up your data, which stays on this phone.":"Hier passt du alles an und stellst alles ein. Die Anleitung erklärt die versteckten Funktionen, und unter Daten sicherst du deine Daten, die auf diesem Handy bleiben.",
     'Import calendar':'Kalender importieren','Untitled':'Ohne Titel','Left out:':'Nicht übernommen:',
     'Upcoming events from Google Calendar, Apple Calendar or Outlook become Calendar tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import & export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.':'Kommende Termine aus Google Kalender, Apple Kalender oder Outlook werden zu Kalender-Aufgaben. Exportiere deinen Kalender zuerst als Datei: Google Kalender am Computer, Einstellungen → Importieren & exportieren → Exportieren; Apple Kalender am Mac, Ablage → Exportieren; Outlook, Kalender speichern.',
@@ -8639,6 +8656,7 @@ var Welcome={
     {tab:'overview',name:'Overview',c:'#5e5ce6',bg:'var(--wt-indigo)',title:'Build your app',text:'Add and edit projects and put them together the way you like. There are four kinds: To-do, List, Tracker and Habits.'},
     {tab:'lockedin',name:'Tasks',c:'#ff9f0a',bg:'var(--wt-amber)',title:'All your tasks in one list',text:'Every task and list item from all your projects, in one place.'},
     {tab:'stats',name:'Stats',c:'#30d158',bg:'var(--wt-green)',title:'See how consistent you are',text:'All your habits and how often you keep them up, with streaks and charts.'},
+    {tab:'blocker',name:'Blocker',c:'#ef4444',bg:'var(--wt-red)',title:'Coming soon',text:'Block apps and websites, set limits and get warnings, and see your screen time and app usage.'},
     {tab:'settings',name:'Menu',c:'#f97316',bg:'var(--wt-grey)',title:'Make it your own',text:'Customize and adjust everything here. The Guide explains the hidden features, and under Data you back up your data, which stays on this phone.'}
   ],
   _pic:function(tab){
@@ -8659,6 +8677,19 @@ var Welcome={
       var r=34,c=2*Math.PI*r;
       h='<div class="wm-card"><div class="wm-ring"><svg width="86" height="86" viewBox="0 0 86 86"><circle cx="43" cy="43" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="9"/><circle cx="43" cy="43" r="'+r+'" fill="none" stroke="#30d158" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(c*.82).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 43 43)"/><text x="43" y="49" text-anchor="middle" font-size="17" font-weight="700" style="fill:var(--ink)">82%</text></svg></div>'
         +[[L('Drink water','Wasser trinken'),'96%'],[L('Stretch','Dehnen'),'84%'],[L('Read 10 pages','10 Seiten lesen'),'61%']].map(function(x){return row(x[0]+'<span class="wm-pct">'+x[1]+'</span>');}).join('')+'</div>';
+    } else if(tab==='blocker'){
+      // example limits, like the Blocker will have them: the app or site, its
+      // limit, today's use so far, on/off
+      var blk=function(bg,glyph,name,sub,used,pct,col,off){
+        return '<div class="wm-row wm-blk">'+self._ico(S(glyph),bg)+'<span class="wm-two"><b>'+name+'</b><i>'+sub+'</i></span>'
+          +'<span class="wm-meter">'+used+'<i><b style="width:'+pct+'%;background:'+col+'"></b></i></span><span class="wm-sw'+(off?' off':'')+'"></span></div>';
+      };
+      h='<div class="wm-lbl">'+L('Daily limits','Tägliche Limits')+'</div><div class="wm-card">'
+        +blk('#000','<line x1="7" y1="7" x2="17" y2="17"/><line x1="17" y1="7" x2="7" y2="17"/>','X',L('Block after 15m','Sperren nach 15 Min.'),'9m',60,'#f59e0b')
+        +blk('#ff0033','<polygon points="9.5 7.5 16.5 12 9.5 16.5" fill="currentColor"/>','YouTube',L('Blocked for today','Für heute gesperrt'),'30m',100,'#ef4444')
+        +blk('linear-gradient(45deg,#f9a825,#e1306c 55%,#833ab4)','<rect x="4.5" y="4.5" width="15" height="15" rx="4.5"/><circle cx="12" cy="12" r="3.5"/><circle cx="16.4" cy="7.6" r=".5" fill="currentColor"/>','Instagram',L('Block after 15m','Sperren nach 15 Min.'),'4m',27,'#30d158')
+        +blk('#ff4500','<circle cx="12" cy="12" r="8.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/><path d="M12 3.5c2.3 2.4 3.5 5.2 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.2-3.5-8.5s1.2-6.1 3.5-8.5z"/>','reddit.com',L('Block after 30m','Sperren nach 30 Min.'),'0m',0,'#30d158',1)
+        +'</div>';
     } else {
       var chev='<span class="wm-chev">'+ICON_CHEVRON+'</span>';
       h='<div class="wm-card">'+row(this._ico(S('<path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5h-6A1.5 1.5 0 0 1 2 16z"/><path d="M22 5.5A1.5 1.5 0 0 0 20.5 4H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5h6a1.5 1.5 0 0 0 1.5-1.5z"/>'),'#f97316')+L('Guide','Anleitung')+chev)+'</div>'
