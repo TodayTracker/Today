@@ -261,18 +261,20 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   best/worst. The bar charts skip pre-creation days too. If you add
   another place that counts "scheduled days" for a habit, use
   `habitCreatedDs`.
-  3.25: the Statistics RING (`aggHabitConsistency` ->
-  `habitConsistency(it,true)`) also counts today's scheduled habits before
-  they're ticked — asked for as "0 / x" right after a statistics reset
-  (it said nothing, since today only counted once ticked), rising 1 / x,
-  2 / x as you tick. A single habit's score (best/worst, habit page) keeps
-  counting today only once ticked, so it doesn't dip every morning.
+  3.25 made the Statistics RING count today's scheduled habits before
+  they were ticked ("0 / x" right after a statistics reset, rising as you
+  tick). 4.57 REVERSED it ("when I wake up I obviously haven't done my
+  evening routine, but the score shows less"): every score, the ring too,
+  counts today only once a habit is done or skipped, so nothing dips in the
+  morning; the `withToday` flag is gone (`habitConsistency(it,span)`).
+  Trade-off: right after a reset the ring says "No data yet" until the
+  first tick.
   3.54: Settings > Statistics > Time range (`settings.statsRange`: 'all' /
   '3m' / '1m' / '1w' = `STATS_RANGES` 0/90/30/7 days, default '3m' = the old
   fixed 90 days; read via `statsRange()`, which falls back to '3m') sets how
   far back the Statistics RING looks — asked for as a setting "for the pie
   chart", so only `aggHabitConsistency` passes it (`habitConsistency(it,
-  true,span)`); best/worst and a habit's own page keep 90 days. All time
+  span)`); best/worst and a habit's own page keep 90 days. All time
   starts at `habitCreatedDs` (so after a statistics reset, at the reset).
   3.86: Menu > Statistics > Widgets — a switch per Statistics widget
   (`STAT_WIDGETS`: score, chart, best, worst; `settings.statsHidden` lists
