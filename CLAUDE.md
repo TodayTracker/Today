@@ -514,17 +514,19 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (`section:'One-time', once:true, due`) into Trash > Tasks (2.58); `restoreTask` puts a
   `once` entry back on the calendar with its old date.
   4.42 REDESIGN ("redesign the trash, it's still from the old design"):
-  `#p-archive` is a `.sp` page; header subtitle "Tap something to restore
-  it or delete it for good"; the kind shown (Tasks / Lists / Habits /
+  `#p-archive` is a `.sp` page (no subtitle since 4.59 — "we don't need
+  that text"); the kind shown (Tasks / Lists / Habits /
   Projects / Entries, NO counts) is picked from a header button at the top
   right — Tasks' view button and dropdown (`Trash.openKindMenu`, DSel.menu,
   4.58 "the selection in trash the same as in tasks"; 4.42–4.57 had a
   full-width segmented control `.seg-row`/`.seg-btn`, its CSS is gone),
-  with the current kind as a grey `.tlbl` right of the title
-  (`#trash-kind`, my addition: Trash rows look the same for every kind);
-  rows grouped by DAY (`trashDay(ds)`:
-  Today / Yesterday / weekday+date via dLoc(), year if not this year,
-  "Earlier" for done tasks without `dateISO`), one `.opt-group` per day,
+  with the current kind as the `.sl` section title above the card ("like
+  War Room in Tasks", 4.59; 4.58 had it as a grey label right of the
+  title);
+  rows in ONE `.opt-group`, newest first (by the day done/deleted,
+  done tasks without `dateISO` last) — 4.42–4.58 grouped them by day under
+  date titles (`trashDay`: Today / Yesterday / date / "Earlier"), removed
+  in 4.59 ("not needed"),
   Menu-style `.opt-row.trash-row` (title, `.trash-sub` = project / habit's
   project / tracker; a deleted project shows its emoji `.trash-ico` and
   "N tasks"), a "⋯" at the right. A row tap opens `Trash.menu` = a DSel
@@ -559,8 +561,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   stay English. DATES (4.31, "English mode shows German"): every
   toLocaleDateString/TimeString uses `dLoc()` — 'de-CH' in German (the
   old look, "Mi., 7. Okt."), 'en-GB' in English ("Wed 7 Oct"); chart day
-  labels `_dm` are "4.10." / "4/10"; the Trash shows a completed task's
-  date from its `dateISO` (the stored `date` string is only a fallback).
+  labels `_dm` are "4.10." / "4/10". (The Trash showed dates until 4.59;
+  it shows none now.)
   Dates are formatted when drawn, so `A.setLanguage` redraws
   (_refreshAll, pills, Daily/Today date labels, Stats, Tasks). Never write
   'de-CH' directly again. WEEKDAY LETTERS: `DN` is English (Mo Tu We Th Fr
@@ -2394,7 +2396,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   'settings' = Welcome.TABS: tab name in its colour, big centred title, one
   line; a small copy of that tab on a tinted block, `_pic(tab)`, `.wm-*`
   classes — NOT the app's .ti/.cali, so no handlers touch it) → 'start'
-  (two big `.wel-choice` cards + "Set up with AI · Coming soon"). Bar dots
+  (two big `.wel-choice` cards + "Set up with AI · Coming soon"). Menu's
+  page (4.59, "include that you can customize and adjust everything
+  there"): "Make it your own", the line starts with that, picture = Guide,
+  General + Appearance, Data › Export. Bar dots
   (current = 20px black pill), filled blue `.wel-btn`, Skip top right
   (→ start; hidden on install/start), swipe left/right turns pages
   (`_wireSwipe`), a .3s slide-in per page. The pictures carry their own

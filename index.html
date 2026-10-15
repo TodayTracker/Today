@@ -1160,8 +1160,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 <div class="page sp" id="p-archive">
   <div class="hh">
     <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><button class="hh-btn" onclick="Trash.openKindMenu(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button></div>
-    <div class="hh-titlerow"><div class="hh-title">Trash</div><span class="tlbl" id="trash-kind"></span></div>
-    <div class="hh-sub">Tap something to restore it or delete it for good</div>
+    <div class="hh-title">Trash</div>
   </div>
   <div id="arch-list"></div>
 </div>
@@ -1718,7 +1717,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.58';
+var APP_VERSION='Beta 4.59';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -2979,6 +2978,11 @@ var CHANGELOG=[
   {v:'Beta 4.58',notes:[
     "Trash: what's shown (Tasks, Lists, Habits, Projects, Entries) is picked from a button at the top right, the same dropdown as in Tasks, with the current one next to the title",
     "Trash rows open a small menu, so they no longer turn grey when tapped (like the Language row)"
+  ]},
+  {v:'Beta 4.59',notes:[
+    "Trash: no more date titles (Today, Yesterday, …) — everything of the kind shown is in one card, newest first",
+    "Trash: the kind shown is the grey title above that card (like War Room in Tasks), in place of the line under the page title",
+    "Welcome screens: the Menu page says you can customize and adjust everything there, with General and Appearance in its picture"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3111,7 +3115,8 @@ var USER_LOG={
   'Beta 4.55':["New welcome screens"],
   'Beta 4.56':'design',
   'Beta 4.57':'bug',
-  'Beta 4.58':'design'
+  'Beta 4.58':'design',
+  'Beta 4.59':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3819,8 +3824,8 @@ var I18N=(function(){
     "Every task and list item from all your projects, in one place.":"Jede Aufgabe und jeder Listeneintrag aus all deinen Projekten, an einem Ort.",
     "See how consistent you are":"Sieh, wie beständig du bist",
     "All your habits and how often you keep them up, with streaks and charts.":"Alle Gewohnheiten und wie oft du sie durchhältst, mit Serien und Diagrammen.",
-    "The Guide and your data":"Die Anleitung und deine Daten",
-    "The Guide explains the hidden features. Under Data you back up your data, which stays on this phone.":"Die Anleitung erklärt die versteckten Funktionen. Unter Daten sicherst du deine Daten, die auf diesem Handy bleiben.",
+    "Make it your own":"Mach sie zu deiner",
+    "Customize and adjust everything here. The Guide explains the hidden features, and under Data you back up your data, which stays on this phone.":"Hier passt du alles an und stellst alles ein. Die Anleitung erklärt die versteckten Funktionen, und unter Daten sicherst du deine Daten, die auf diesem Handy bleiben.",
     "Ready-made projects and habits to start with":"Fertige Projekte und Gewohnheiten für den Start",
     'Import calendar':'Kalender importieren','Untitled':'Ohne Titel','Left out:':'Nicht übernommen:',
     'Upcoming events from Google Calendar, Apple Calendar or Outlook become Calendar tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import & export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.':'Kommende Termine aus Google Kalender, Apple Kalender oder Outlook werden zu Kalender-Aufgaben. Exportiere deinen Kalender zuerst als Datei: Google Kalender am Computer, Einstellungen → Importieren & exportieren → Exportieren; Apple Kalender am Mac, Ablage → Exportieren; Outlook, Kalender speichern.',
@@ -3833,7 +3838,7 @@ var I18N=(function(){
     'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Your data as text. Keep it somewhere safe — Import in Menu → Data brings it back.':'Deine Daten als Text. Bewahre ihn sicher auf — Import in Menü → Daten holt sie zurück.','Copy':'Kopieren','characters':'Zeichen','Habit history':'Gewohnheits-Verlauf','Done tasks':'Erledigte Aufgaben','Projects & settings':'Projekte & Einstellungen','Copied':'Kopiert','Share':'Teilen','Preparing…':'Wird vorbereitet…','Tap and hold the text to copy it':'Halte den Text gedrückt, um ihn zu kopieren',"That isn't data from this app — copy the whole export and try again.":'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal.','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
-    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Tap something to restore it or delete it for good':'Tippe etwas an, um es wiederherzustellen oder endgültig zu löschen','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
+    'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
     // actions
     'Add':'Hinzufügen','Add task':'Aufgabe hinzufügen','Add habit':'Gewohnheit hinzufügen','Habit name':'Name der Gewohnheit','Edit habit':'Gewohnheit bearbeiten','Delete habit':'Gewohnheit löschen','Description (optional)':'Beschreibung (optional)','Add category':'Kategorie hinzufügen','Add project':'Projekt hinzufügen','Cancel':'Abbrechen','Close':'Schließen','Delete':'Löschen','Save':'Speichern','Restore':'Wiederherstellen',
     'Export':'Exportieren','Import':'Importieren','Skip':'Überspringen','Empty':'Leer','Empty trash':'Papierkorb leeren','OK':'OK','Enter':'Eingeben',
@@ -4548,8 +4553,9 @@ var Trash={
 };
 function renderArchive(){
   var c=document.getElementById('arch-list');
-  setHTML('trash-kind',Trash.TABS.filter(function(t){return t.id===Trash.tab;})[0].label);
-  // every row of this kind with the day it was done/deleted, newest first
+  // the kind shown, as the section title above the card (like Tasks' priorities)
+  var kind='<div class="sl">'+Trash.TABS.filter(function(t){return t.id===Trash.tab;})[0].label+'</div>';
+  // every row of this kind in one card, newest first (by the day it was done/deleted)
   var rows=[];
   if(Trash.archivedTab(Trash.tab)){
     var wantList=Trash.tab==='lists';
@@ -4568,10 +4574,9 @@ function renderArchive(){
   }
   rows.reverse();
   rows.sort(function(x,y){return x.ds===y.ds?0:!x.ds?1:!y.ds?-1:x.ds<y.ds?1:-1;}); // stable: same day keeps newest first
-  if(!rows.length){c.innerHTML='<div class="opt-group" style="margin-top:22px"><div class="cal-none">Nothing here.</div></div>';return;}
-  var h='',cur=null;
+  if(!rows.length){c.innerHTML=kind+'<div class="opt-group"><div class="cal-none">Nothing here.</div></div>';return;}
+  var h=kind+'<div class="opt-group">';
   rows.forEach(function(r){
-    if(r.ds!==cur){if(cur!==null)h+='</div>';cur=r.ds;h+='<div class="sl">'+trashDay(r.ds)+'</div><div class="opt-group">';}
     h+='<div class="opt-row trash-row" onclick="'+r.act+'">'+(r.ico||'')
       +'<div class="opt-text"><div class="opt-title">'+r.title+'</div>'+(r.sub?'<div class="trash-sub">'+r.sub+'</div>':'')+'</div>'
       +'<span class="trash-more">'+TRASH_MORE+'</span></div>';
@@ -4580,17 +4585,6 @@ function renderArchive(){
   c.innerHTML=h;
 }
 var TRASH_MORE='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg>';
-// The Trash's day labels: Today, Yesterday, else the date ("Earlier" for
-// old entries that never recorded one)
-function trashDay(ds){
-  if(!ds)return 'Earlier';
-  var now=new Date(),y=new Date();y.setDate(y.getDate()-1);
-  if(ds===dStr(now))return 'Today';
-  if(ds===dStr(y))return 'Yesterday';
-  var d=new Date(ds+'T12:00:00'),o={weekday:'short',day:'numeric',month:'short'};
-  if(d.getFullYear()!==now.getFullYear())o.year='numeric';
-  return d.toLocaleDateString(dLoc(),o);
-}
 
 var LockedIn={
   view:'tasks',
@@ -8642,7 +8636,7 @@ var Welcome={
     {tab:'overview',name:'Overview',c:'#5e5ce6',bg:'var(--wt-indigo)',title:'Build your app',text:'Add and edit projects and put them together the way you like. There are four kinds: To-do, List, Tracker and Habits.'},
     {tab:'lockedin',name:'Tasks',c:'#ff9f0a',bg:'var(--wt-amber)',title:'All your tasks in one list',text:'Every task and list item from all your projects, in one place.'},
     {tab:'stats',name:'Stats',c:'#30d158',bg:'var(--wt-green)',title:'See how consistent you are',text:'All your habits and how often you keep them up, with streaks and charts.'},
-    {tab:'settings',name:'Menu',c:'#f97316',bg:'var(--wt-grey)',title:'The Guide and your data',text:'The Guide explains the hidden features. Under Data you back up your data, which stays on this phone.'}
+    {tab:'settings',name:'Menu',c:'#f97316',bg:'var(--wt-grey)',title:'Make it your own',text:'Customize and adjust everything here. The Guide explains the hidden features, and under Data you back up your data, which stays on this phone.'}
   ],
   _pic:function(tab){
     var L=this._L,S=this._svg,self=this;
@@ -8665,9 +8659,11 @@ var Welcome={
     } else {
       var chev='<span class="wm-chev">'+ICON_CHEVRON+'</span>';
       h='<div class="wm-card">'+row(this._ico(S('<path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5h-6A1.5 1.5 0 0 1 2 16z"/><path d="M22 5.5A1.5 1.5 0 0 0 20.5 4H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5h6a1.5 1.5 0 0 0 1.5-1.5z"/>'),'#f97316')+L('Guide','Anleitung')+chev)+'</div>'
+        +'<div class="wm-card">'
+        +row(this._ico(S('<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>'),'#6b7280')+L('General','Allgemein')+chev)
+        +row(this._ico(S('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" stroke="none"/>'),'#6366f1')+L('Appearance','Darstellung')+chev)+'</div>'
         +'<div class="wm-lbl">'+L('Data','Daten')+'</div><div class="wm-card">'
-        +row(this._ico(S('<path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'),'#6b7280')+L('Export data','Daten exportieren')+chev)
-        +row(this._ico(S('<path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'),'#6b7280')+L('Import data','Daten importieren')+chev)+'</div>';
+        +row(this._ico(S('<path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'),'#6b7280')+L('Export data','Daten exportieren')+chev)+'</div>';
     }
     return '<div class="wm" translate="no">'+h+'</div>';
   },
