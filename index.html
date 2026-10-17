@@ -514,11 +514,13 @@ html[data-theme="light"] .type-btn{border-color:#e8e5e0}
    the items by day — a section label and one card per day, Menu-style rows.
    A row opens a small menu (Restore / Delete forever); the last card is
    "Delete all forever" for the kind shown. */
-html:not(#x) .sp .opt-row.trash-row{height:auto;min-height:46px;padding-top:8px;padding-bottom:8px}
-.trash-row .opt-title{line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trash-sub{font-size:12px;line-height:16px;font-weight:500;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trash-ico{flex:none;width:30px;height:30px;border-radius:8px;background:var(--pg);display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
-.trash-more{flex:none;margin-left:auto;color:#999;display:flex}
+/* Trash rows: one line, 48px like task and habit rows */
+html:not(#x) .sp .opt-row.trash-row{height:48px;gap:12px}
+.trash-row .opt-text{flex:1;min-width:0}
+.trash-row .opt-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trash-row .bdg{height:27px;min-height:27px;padding-top:0;padding-bottom:0;max-width:45%;overflow:hidden;text-overflow:ellipsis;display:block;line-height:27px}
+.trash-ico{flex:none;position:relative;width:30px;height:30px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+.trash-type{flex:none;color:#8e8e93;display:flex}
 html:not(#x) .btn-row.danger .opt-title,.dsel-opt.danger{color:var(--red)}
 .chart-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;min-height:24px}
 .zchart{touch-action:pan-y;-webkit-user-select:none;user-select:none}
@@ -1766,7 +1768,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.62';
+var APP_VERSION='Beta 4.63';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -3041,6 +3043,10 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.62',notes:[
     "The last welcome screen has three big picture cards: Start with a template (the template window), Start from scratch (an empty Overview) and Set up with AI (a short chat, coming soon). Tap a card to start"
+  ]},
+  {v:'Beta 4.63',notes:[
+    "Trash rows are one line, the same height as task and habit rows. Tasks, list items, habits and entries show the project they belonged to as a coloured badge on the right, like in Tasks; a deleted project shows its own icon on the left and its kind (To-do, List, Tracker, Habits) on the right",
+    "A done task can be restored even after its project was renamed"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3177,7 +3183,8 @@ var USER_LOG={
   'Beta 4.59':'design',
   'Beta 4.60':'design',
   'Beta 4.61':'design',
-  'Beta 4.62':'design'
+  'Beta 4.62':'design',
+  'Beta 4.63':'both'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3588,11 +3595,11 @@ var DB={
   // it back as it was (a War Room task came back as High: pri wasn't kept).
   completeTask:function(key,text,projName){
     if(!this.data.doneKeys.includes(key))this.data.doneKeys.push(key);
-    var fromList=false,task=null,self=this;
+    var fromList=false,task=null,taskPid=null,self=this;
     for(var lp in this.data.extraTasks){
-      (this.data.extraTasks[lp]||[]).forEach(function(t){if(t.key===key){task=t;var pr=self.data.projects[lp];fromList=!!(pr&&pr.type==='list');}});
+      (this.data.extraTasks[lp]||[]).forEach(function(t){if(t.key===key){task=t;taskPid=lp;var pr=self.data.projects[lp];fromList=!!(pr&&pr.type==='list');}});
     }
-    this.data.archived.push({key:key,text:text,section:projName,list:fromList,pri:task&&task.pri,desc:task&&task.desc,
+    this.data.archived.push({key:key,text:text,section:projName,pid:taskPid,list:fromList,pri:task&&task.pri,desc:task&&task.desc,
       date:new Date().toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'}),
       dateISO:dStr(new Date())});
     for(var pid in this.data.extraTasks)
@@ -3610,8 +3617,8 @@ var DB={
       this.save();
       return '';
     }
-    var pid=null;
-    for(var id in this.data.projects){if(this.data.projects[id].name===item.section){pid=id;break;}}
+    var pid=item.pid&&this.data.projects[item.pid]?item.pid:null;
+    if(!pid)for(var id in this.data.projects){if(this.data.projects[id].name===item.section){pid=id;break;}}
     if(!pid)return 'Restore the project first.';
     this.data.archived.splice(idx,1);
     this.data.doneKeys=this.data.doneKeys.filter(function(k){return k!==item.key;});
@@ -4618,21 +4625,39 @@ function renderArchive(){
   var c=document.getElementById('arch-list');
   // the kind shown, as the section title above the card (like Tasks' priorities)
   var kind='<div class="sl">'+Trash.TABS.filter(function(t){return t.id===Trash.tab;})[0].label+'</div>';
-  // every row of this kind in one card, newest first (by the day it was done/deleted)
+  // every row of this kind in one card, newest first (by the day it was done/deleted),
+  // one line like a task row: the name, then on the right the project it
+  // belonged to as a badge in its colour (a deleted project: grey), or for a
+  // deleted project its own tile on the left and its kind's icon on the right
+  var badge=function(pid,name){
+    var p=pid&&DB.data.projects[pid];
+    if(!p&&name)for(var id in DB.data.projects)if(DB.data.projects[id].name===name){p=DB.data.projects[id];break;}
+    var n=p?p.name:name;if(!n)return '';
+    return '<span class="bdg" style="'+tintStyle(COLORS[(p&&p.color)||'c-grey']||'#6b7280')+'">'+esc(n)+'</span>';
+  };
   var rows=[];
   if(Trash.archivedTab(Trash.tab)){
     var wantList=Trash.tab==='lists';
     DB.data.archived.forEach(function(item,idx){
       if(!!Trash.isList(item)!==wantList)return;
-      rows.push({ds:item.dateISO||'',title:esc(item.text),sub:esc(item.once?'Calendar':item.section),act:"Trash.menu(this,'a',"+idx+")"});
+      rows.push({ds:item.dateISO||'',title:esc(item.text),act:"Trash.menu(this,'a',"+idx+")",
+        right:item.once?'<span class="bdg" style="'+tintStyle('#6b7280')+'">Calendar</span>':badge(item.pid,item.section)});
     });
   } else {
-    DB.data.trash.forEach(function(t){
-      if(t.type!==Trash.tab)return;
-      var n=t.type==='project'&&t.data&&t.data.tasks?t.data.tasks.length:0;
-      rows.push({ds:dStr(new Date(t.at)),title:esc(t.label),act:"Trash.menu(this,'t','"+t.id+"')",
-        ico:t.type==='project'?'<div class="trash-ico">'+esc(t.sub||'📁')+'</div>':'',
-        sub:t.type==='project'?(n?(n===1?'1 task':n+' tasks'):''):esc(t.sub||'')});
+    DB.data.trash.forEach(function(x){
+      if(x.type!==Trash.tab)return;
+      var d=x.data||{},r={ds:dStr(new Date(x.at)),title:esc(x.label),act:"Trash.menu(this,'t','"+x.id+"')"};
+      if(x.type==='project'){
+        var pr=(d.snap&&d.snap.project)||{icon:x.sub};
+        r.ico='<div class="trash-ico" style="'+tintStyle(COLORS[pr.color]||'#6b7280',true)+'">'+(pr.photo?iconOrPhoto(pr):esc(pr.icon||'📁'))+'</div>';
+        r.right='<span class="trash-type">'+(TYPE_ICONS[pr.type]||TYPE_ICONS.todo)+'</span>';
+      } else if(x.type==='habit'){
+        r.right=d.item&&d.item.pid&&DB.data.projects[d.item.pid]?badge(d.item.pid):badge(null,x.sub);
+      } else {
+        var tp=d.pid&&DB.data.projects[d.pid];
+        r.right=tp?badge(d.pid):badge(null,String(x.sub||'').replace(/^\S+\s/,''));
+      }
+      rows.push(r);
     });
   }
   rows.reverse();
@@ -4640,14 +4665,11 @@ function renderArchive(){
   if(!rows.length){c.innerHTML=kind+'<div class="opt-group"><div class="cal-none">Nothing here.</div></div>';return;}
   var h=kind+'<div class="opt-group">';
   rows.forEach(function(r){
-    h+='<div class="opt-row trash-row" onclick="'+r.act+'">'+(r.ico||'')
-      +'<div class="opt-text"><div class="opt-title">'+r.title+'</div>'+(r.sub?'<div class="trash-sub">'+r.sub+'</div>':'')+'</div>'
-      +'<span class="trash-more">'+TRASH_MORE+'</span></div>';
+    h+='<div class="opt-row trash-row" onclick="'+r.act+'">'+(r.ico||'')+'<div class="opt-text"><div class="opt-title">'+r.title+'</div></div>'+(r.right||'')+'</div>';
   });
   h+='</div><div class="opt-group"><div class="opt-row btn-row danger" onclick="A.trashEmpty()"><div class="opt-text"><div class="opt-title">Delete all forever</div></div></div></div>';
   c.innerHTML=h;
 }
-var TRASH_MORE='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg>';
 
 var LockedIn={
   view:'tasks',

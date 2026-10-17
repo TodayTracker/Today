@@ -527,9 +527,20 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   done tasks without `dateISO` last) — 4.42–4.58 grouped them by day under
   date titles (`trashDay`: Today / Yesterday / date / "Earlier"), removed
   in 4.59 ("not needed"),
-  Menu-style `.opt-row.trash-row` (title, `.trash-sub` = project / habit's
-  project / tracker; a deleted project shows its emoji `.trash-ico` and
-  "N tasks"), a "⋯" at the right. A row tap opens `Trash.menu` = a DSel
+  `.opt-row.trash-row`, ONE line, 48px like task/habit rows (4.63, "the
+  same height like the tasks and habits… the project they belong to like
+  in Tasks… for projects the icon of the kind"): the name, then on the
+  right the project as a `.bdg` in its colour like Tasks' rows (tasks/lists
+  by `pid`, else by name; habits by the habit's `pid`; entries by the
+  tracker's pid; a project that's gone = grey badge with the stored name;
+  Calendar tasks = grey "Calendar"); a deleted project = its own tile on the
+  left (`.trash-ico`, tintStyle(col,true) + emoji/photo from the snapshot)
+  and `TYPE_ICONS[type]` grey on the right (`.trash-type`). The "⋯", the
+  second line (`.trash-sub`) and "N tasks" are gone (that count read
+  `t.data.tasks`, which never existed — it's `t.data.snap.tasks`). Since
+  4.63 `DB.completeTask` stores the task's `pid` on the archived entry and
+  `restoreTask` uses it first (before, a renamed project made a done task
+  unrestorable: it looked the project up by name only). A row tap opens `Trash.menu` = a DSel
   dropdown (Restore / Delete forever — DSel options can carry `cls`, here
   'danger' = red); Delete forever still confirms. A trash row does NOT
   grey (4.58, `:not(.trash-row)` in PRESS_ROWS): "a bar that opens a drop
