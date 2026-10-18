@@ -1768,7 +1768,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.63';
+var APP_VERSION='Beta 4.64';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -3047,6 +3047,9 @@ var CHANGELOG=[
   {v:'Beta 4.63',notes:[
     "Trash rows are one line, the same height as task and habit rows. Tasks, list items, habits and entries show the project they belonged to as a coloured badge on the right, like in Tasks; a deleted project shows its own icon on the left and its kind (To-do, List, Tracker, Habits) on the right",
     "A done task can be restored even after its project was renamed"
+  ]},
+  {v:'Beta 4.64',notes:[
+    "The day bar on a Habits project goes back 4 weeks (it was 1 week), so you can tick off or skip habits up to 28 days back"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3184,7 +3187,8 @@ var USER_LOG={
   'Beta 4.60':'design',
   'Beta 4.61':'design',
   'Beta 4.62':'design',
-  'Beta 4.63':'both'
+  'Beta 4.63':'both',
+  'Beta 4.64':["Habits project day bar goes back 4 weeks"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -8189,7 +8193,7 @@ var DailyItemSheet={
 // index, so the strip can range past one week. pDate(pi) = T + pi days;
 // wIdx(date), the real weekday, drives recurring-schedule matching
 // separately. See CLAUDE.md.
-var DAILY_RANGE_BACK=7,DAILY_RANGE_FWD=30;
+var DAILY_RANGE_BACK=28,DAILY_RANGE_FWD=30;
 function buildPills(){
   var c=document.getElementById('wdays');c.innerHTML='';
   for(var pi=-DAILY_RANGE_BACK;pi<=DAILY_RANGE_FWD;pi++){
@@ -8208,7 +8212,7 @@ function buildPills(){
     };
     c.appendChild(p);
   }
-  // Land on today by default instead of dumping the user a week back at
+  // Land on today by default instead of dumping the user four weeks back at
   // the start of the strip.
   var sel=c.querySelector('.dpill.sel')||c.querySelector('.dpill.today');
   if(sel)sel.scrollIntoView({inline:'center',block:'nearest'});

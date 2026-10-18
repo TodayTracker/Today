@@ -37,7 +37,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   index 0-6. It used to be a weekday index back when the day strip only
   ever showed the current week (index doubled as both "which pill" and
   "which weekday, for recurring-schedule matching"). Extending the strip
-  to DAILY_RANGE_BACK/DAILY_RANGE_FWD (buildPills/buildPanels) split those
+  to DAILY_RANGE_BACK/DAILY_RANGE_FWD (buildPills/buildPanels; 28 back since
+  4.64 — "go back 4 weeks, rn it's only 1 week" — and 30 forward) split those
   two meanings apart: the offset drives `pDate(pi)` — now literally
   `T + pi days`, nothing more — while a separate `wIdx(dateObj)` call
   gives the real weekday for matching `item.days`. `pDate` used to be
