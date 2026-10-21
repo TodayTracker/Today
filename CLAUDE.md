@@ -1358,12 +1358,22 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   TITLES still differ by design system (Today is a tab page, 20px; Daily
   a pushed page, 26px).
 
-- The weekday picker in the habit add/edit sheet (`#daily-item-days`,
-  `.type-grid.days .type-btn.active`) uses the same full `--ink` fill with
-  `--card` text as the selected day on Daily's day strip (`.dpill.sel`),
-  not the blue tint the other `.type-btn` option buttons use (2.89, asked
-  to match "the full black fill"). Other `.type-btn` pickers (project
-  type etc.) still use the blue tint — only day selection was asked for.
+- DAY BAR + DAY PICKER (4.66, picked on https://claude.ai/artifact/D3GZz8TpJMcksi1zJytPtx
+  — "align the selected day with the other places I can select like the
+  days for a habit… how today looks when another day is selected"; after
+  B/B3/B4 the user said "outline a bit thinner" and rejected every today
+  marker (dot, blue letters, blue outline, green), then chose "T1 but with
+  a very thin black outline of today"): a Habits project's day strip
+  `.dpill.sel` = `--blue-tint` fill, 1.67px `--blue` BORDER (5 device px on
+  a 3x phone; 1.5 on this 2x preview), blue letters/date; `.dpill.today`
+  (not picked) = white like the rest + 1px `--ink` border; picked today =
+  the blue. Each state sets border + padding to the same 9px/8px (today
+  1px + 8/7, picked 1.67 + 7.33/6.33), so every pill stays 46x52 —
+  measured. The habit window's picked days (`.type-grid.days
+  .type-btn.active`, `.sh-days-row`) = the same blue fill + 1.67px blue
+  border (was full --ink since 2.89). The old green today pill and the
+  theme-specific today/sel rules above the design block were deleted. Keep
+  the options page for re-picks.
 
 - Statistics (2.99) is laid out like a Settings page: `#p-stats` has the
   `.sp` class (Settings row sizing), `.sl` section labels, 14px between

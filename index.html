@@ -184,18 +184,8 @@ html[data-theme="light"] .addbtn{border-color:#000;background:#fff;color:#000}
 html[data-theme="dark"] .dpill{background:#1e1c1a;border-color:#2a2927}
 html[data-theme="light"] .dpill{background:#fff;border-color:#e8e5e0}
 .dpill:active{transform:scale(0.93)}
-.dpill.today{background:#dcfce7;border-color:#22c55e}
-.dpill.sel{background:#f3f4f6;border-color:#000}
-@media(prefers-color-scheme:dark){.dpill.today{background:#052e16;border-color:#22c55e}.dpill.sel{background:#2a2927;border-color:#fff}}
-html[data-theme="dark"] .dpill.today{background:#052e16;border-color:#22c55e}html[data-theme="dark"] .dpill.sel{background:#2a2927;border-color:#fff}
-html[data-theme="light"] .dpill.today{background:#dcfce7;border-color:#22c55e}html[data-theme="light"] .dpill.sel{background:#f3f4f6;border-color:#000}
 .dname{font-size:10px;color:#bbb;font-weight:700;text-transform:uppercase}
 .dnum{font-size:16px;font-weight:800}
-.dpill.today .dname,.dpill.today .dnum{color:#15803d}
-.dpill.sel .dname,.dpill.sel .dnum{color:#000}
-@media(prefers-color-scheme:dark){.dpill.today .dname,.dpill.today .dnum{color:#86efac}.dpill.sel .dname,.dpill.sel .dnum{color:#fff}}
-html[data-theme="dark"] .dpill.today .dname,.dpill.today .dnum{color:#86efac}html[data-theme="dark"] .dpill.sel .dname,.dpill.sel .dnum{color:#fff}
-html[data-theme="light"] .dpill.today .dname,.dpill.today .dnum{color:#15803d}html[data-theme="light"] .dpill.sel .dname,.dpill.sel .dnum{color:#000}
 .dpanel{display:none}.dpanel.on{display:block}
 .calsec{background:#fff;border:1.5px solid #e8e5e0;border-radius:14px;padding:12px 14px;margin-bottom:10px}
 .hd-bar-empty{fill:#e5e3dd}
@@ -669,13 +659,15 @@ html:not(#x) .cat-choice:last-child{border-bottom:none}
 /* option buttons (type, days, quick picks) */
 html:not(#x) .type-btn{border:none;background:var(--card);border-radius:12px;height:40px;padding:0 10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#999;transition:background .15s ease,color .15s ease}
 html:not(#x) .type-btn.active{background:var(--blue-tint);color:var(--blue);border:none}
-/* Daily day strip */
+/* Daily day strip: the picked day is soft blue with a thin blue outline,
+   like the picked days in a habit's window; today, when another day is
+   picked, only has a very thin black outline (1px = whole device pixels).
+   Each state's border + padding adds up to the same 9px / 8px, so no pill
+   changes size. */
 html:not(#x) .dpill{border:none;background:var(--card)}
-html:not(#x) .dpill.today{background:#dcfce7}
-html:not(#x) .dpill.sel{background:var(--ink)}
-html:not(#x) .dpill.sel .dname,html:not(#x) .dpill.sel .dnum{color:var(--card)}
-@media(prefers-color-scheme:dark){html:not(#x):not([data-theme="light"]) .dpill.today{background:#052e16}}
-html[data-theme="dark"]:not(#x) .dpill.today{background:#052e16}
+html:not(#x) .dpill.today{border:1px solid var(--ink);padding:8px 7px}
+html:not(#x) .dpill.sel{background:var(--blue-tint);border:1.67px solid var(--blue);padding:7.33px 6.33px}
+html:not(#x) .dpill.sel .dname,html:not(#x) .dpill.sel .dnum{color:var(--blue)}
 .dnum{font-weight:700}
 /* Edit layout: a category and its projects in one card */
 .el-card{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:8px}
@@ -740,7 +732,7 @@ html:not(#x) .sh-ico input{position:absolute;inset:0;width:100%;height:100%;bord
 html:not(#x) .sheet .opt-row.sh-days-row{height:auto;min-height:0;padding:8px 10px}
 .sh-days-row .type-grid{flex:1;margin:0}
 html:not(#x) .sh-days-row .type-btn{background:var(--pg);height:34px}
-html:not(#x) .sh-days-row .type-btn.active{background:var(--ink);color:var(--card)}
+html:not(#x) .sh-days-row .type-btn.active{background:var(--blue-tint);color:var(--blue);border:1.67px solid var(--blue)}
 .sh-val{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:14px 0 6px}
 html:not(#x) .sh-val input{width:2ch;max-width:70%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;font-family:inherit;font-size:48px;line-height:56px;height:auto;font-weight:700;color:var(--ink);text-align:center;padding:0;margin:0}
 .sh-val input::placeholder{color:#c7c7cc;opacity:1}
@@ -757,10 +749,10 @@ html:not(#x) #el-content .el-card:empty{min-height:52px;background:color-mix(in 
 .type-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}
 .type-grid.days{grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 html:not(#x) .type-grid.days .type-btn{padding:0;font-size:13px}
-/* Selected weekdays in the habit sheet: the same full ink fill as the
-   selected day on Daily's day strip (.dpill.sel), not the blue tint the
-   other option buttons use. */
-html:not(#x) .type-grid.days .type-btn.active{background:var(--ink);color:var(--card)}
+/* Selected weekdays in the habit window: soft blue with a thin blue
+   outline, the same as the picked day on a Habits project's day strip
+   (.dpill.sel). */
+html:not(#x) .type-grid.days .type-btn.active{background:var(--blue-tint);color:var(--blue);border:1.67px solid var(--blue)}
 .row-num{width:64px;text-align:right;border:none;background:transparent;color:var(--ink);font-size:15px;font-weight:600;font-family:inherit;outline:none;padding:0}
 .sheet .opt-row{padding:0 14px;height:46px;min-height:46px;box-sizing:border-box}
 html:not(#x) .sheet .opt-row,html:not(#x) .sheet .opt-group{border:none}
@@ -1769,7 +1761,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.65';
+var APP_VERSION='Beta 4.66';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -3054,6 +3046,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.65',notes:[
     "A tracker habit's goal can aim lower: under Goal in the habit's window, Aim for Higher or Lower. With Lower (losing weight, less screen time) a day counts as done when the value is at or below the goal, the bar chart turns red above it, and the goal note says at most"
+  ]},
+  {v:'Beta 4.66',notes:[
+    "A Habits project's day bar: the picked day is soft blue with a thin blue outline, and today (when another day is picked) has only a very thin black outline instead of the green pill. The picked days in a habit's window use the same blue"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3193,7 +3188,8 @@ var USER_LOG={
   'Beta 4.62':'design',
   'Beta 4.63':'both',
   'Beta 4.64':["Habits project day bar goes back 4 weeks"],
-  'Beta 4.65':["Tracker goals can aim lower or higher"]
+  'Beta 4.65':["Tracker goals can aim lower or higher"],
+  'Beta 4.66':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
