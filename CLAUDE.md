@@ -243,6 +243,19 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   the user then missed the goal setting there ("only meant to be removed
   in the project tab, not the project edit tab"). (Superseded in 4.51: the
   goal is only in the habit's window — see TWO WINDOWS BY CONTEXT below.)
+  GOAL DIRECTION (4.65, "how do we know he wants to go higher or lower…
+  like gaining weight or losing"): a tracker habit's goal is "higher" by
+  default (done at or above it); `it.goalLow` = true makes it "lower" (done
+  at or below it). ONE check, `goalMet(it,v)` — habitDayVal and nothing
+  else compare against the goal; the old bar chart's colours
+  (`trackerChart(...,low)`: red on the wrong side) and the notes in the
+  value windows (`goalNote`: "Goal: at most 75 kg", German rule
+  "höchstens" before the general "Goal:" rule) follow it. The habit window
+  shows "Aim for" Higher / Lower (`#daily-item-dir`, customSelect,
+  `syncDir`/`setDir`) under Goal only while a goal is typed in; saving
+  without a goal drops both. New tracker habits pass it to
+  `addTrackerDailyItem(...,low)`. The line chart (TrkZ) only draws the
+  goal line, so it needed nothing.
   A tracker page for a Daily-linked tracker (`renderTracker` +
   `TrackerPage`): entries fold behind one "Entries N ›" row (closed by
   default, state kept per pid while the app runs), then the Consistency

@@ -1683,7 +1683,8 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     </div>
     <div class="opt-group">
       <div class="opt-row sh-days-row"><div class="type-grid days" id="daily-item-days"></div></div>
-      <div class="opt-row" id="daily-item-goal-wrap" style="display:none"><div class="opt-text"><div class="opt-title">Goal</div></div><input class="sh-rin" id="daily-item-goal" type="number" inputmode="decimal" placeholder="Optional"><span class="sh-unit" id="daily-item-goal-unit"></span></div>
+      <div class="opt-row" id="daily-item-goal-wrap" style="display:none"><div class="opt-text"><div class="opt-title">Goal</div></div><input class="sh-rin" id="daily-item-goal" type="number" inputmode="decimal" placeholder="Optional" oninput="DailyItemSheet.syncDir()"><span class="sh-unit" id="daily-item-goal-unit"></span></div>
+      <div class="opt-row" id="daily-item-dir" style="display:none"></div>
       <div class="opt-row" id="daily-item-pd-wrap"><div class="opt-text"><div class="opt-title">Name per day</div></div><label class="switch"><input type="checkbox" id="daily-item-pd" onchange="DailyItemSheet.setPerDay(this.checked)"><span class="switch-slider"></span></label></div>
     </div>
     <div id="daily-item-pd-box" style="display:none">
@@ -1768,7 +1769,7 @@ if('serviceWorker' in navigator){
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
 // new" sheet has something to show after the update completes. Still in
 // beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.64';
+var APP_VERSION='Beta 4.65';
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -3050,6 +3051,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.64',notes:[
     "The day bar on a Habits project goes back 4 weeks (it was 1 week), so you can tick off or skip habits up to 28 days back"
+  ]},
+  {v:'Beta 4.65',notes:[
+    "A tracker habit's goal can aim lower: under Goal in the habit's window, Aim for Higher or Lower. With Lower (losing weight, less screen time) a day counts as done when the value is at or below the goal, the bar chart turns red above it, and the goal note says at most"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3188,7 +3192,8 @@ var USER_LOG={
   'Beta 4.61':'design',
   'Beta 4.62':'design',
   'Beta 4.63':'both',
-  'Beta 4.64':["Habits project day bar goes back 4 weeks"]
+  'Beta 4.64':["Habits project day bar goes back 4 weeks"],
+  'Beta 4.65':["Tracker goals can aim lower or higher"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3726,10 +3731,10 @@ var DB={
   // (trackerPid), rendered via ciTracker() instead of ci()/ciEdit(), and
   // its name/icon are always read live from that project so a rename
   // there doesn't leave a stale copy sitting in the daily item.
-  addTrackerDailyItem:function(catId,trackerPid,days,goal,pid){
+  addTrackerDailyItem:function(catId,trackerPid,days,goal,pid,low){
     var id='di'+Date.now()+Math.random().toString(36).slice(2);
     var it={id:id,pid:pid,catId:catId,trackerPid:trackerPid,days:days,created:dStr(new Date())};
-    if(typeof goal==='number'&&!isNaN(goal))it.goal=goal;
+    if(typeof goal==='number'&&!isNaN(goal)){it.goal=goal;if(low)it.goalLow=true;}
     this.data.dailyItems.push(it);
     this.save();return id;
   },
@@ -3926,7 +3931,7 @@ var I18N=(function(){
     'Every day':'Jeden Tag','Moving average':'Gleitender Durchschnitt','Show moving average on chart':'Gleitenden Durchschnitt im Diagramm zeigen',
     'Unit (e.g. kg, kcal, h)':'Einheit (z. B. kg, kcal, h)','Category name':'Kategoriename','New category name':'Neuer Kategoriename','New category name…':'Neuer Kategoriename…',
     'Project name':'Projektname','Task name':'Aufgabenname','Short description (optional)':'Kurze Beschreibung (optional)','Add a task…':'Aufgabe hinzufügen…',
-    'Enter value':'Wert eingeben','Value':'Wert',"Your saved data couldn't be opened right now. Nothing will be saved over it — close the app completely and open it again.":'Deine gespeicherten Daten konnten gerade nicht geöffnet werden. Es wird nichts darüber gespeichert — schliesse die App ganz und öffne sie wieder.',"Your saved data couldn't be read. It's kept safe and won't be overwritten — export a copy in Menu → Data. Changes you make now won't be saved.":'Deine gespeicherten Daten konnten nicht gelesen werden. Sie bleiben erhalten und werden nicht überschrieben — exportiere eine Kopie unter Menü → Daten. Änderungen werden jetzt nicht gespeichert.',"Your latest changes couldn't be saved — your phone's storage refused them. Free up some space and export a backup in Menu → Data.":'Deine letzten Änderungen konnten nicht gespeichert werden — der Speicher deines Handys hat sie abgelehnt. Gib etwas Speicher frei und exportiere ein Backup unter Menü → Daten.','Goal (optional)':'Ziel (optional)','Done when this is reached':'Erledigt, sobald erreicht','Goal':'Ziel','None':'Keins','New project':'Neues Projekt','Edit project':'Projekt bearbeiten','Daily categories':'Tageskategorien','Daily habits':'Tägliche Gewohnheiten',
+    'Enter value':'Wert eingeben','Value':'Wert','Aim for':'Besser ist','Higher':'Höher','Lower':'Niedriger',"Your saved data couldn't be opened right now. Nothing will be saved over it — close the app completely and open it again.":'Deine gespeicherten Daten konnten gerade nicht geöffnet werden. Es wird nichts darüber gespeichert — schliesse die App ganz und öffne sie wieder.',"Your saved data couldn't be read. It's kept safe and won't be overwritten — export a copy in Menu → Data. Changes you make now won't be saved.":'Deine gespeicherten Daten konnten nicht gelesen werden. Sie bleiben erhalten und werden nicht überschrieben — exportiere eine Kopie unter Menü → Daten. Änderungen werden jetzt nicht gespeichert.',"Your latest changes couldn't be saved — your phone's storage refused them. Free up some space and export a backup in Menu → Data.":'Deine letzten Änderungen konnten nicht gespeichert werden — der Speicher deines Handys hat sie abgelehnt. Gib etwas Speicher frei und exportiere ein Backup unter Menü → Daten.','Goal (optional)':'Ziel (optional)','Done when this is reached':'Erledigt, sobald erreicht','Goal':'Ziel','None':'Keins','New project':'Neues Projekt','Edit project':'Projekt bearbeiten','Daily categories':'Tageskategorien','Daily habits':'Tägliche Gewohnheiten',
     'e.g. Business':'z. B. Business','e.g. Chores':'z. B. Haushalt','e.g. Health':'z. B. Gesundheit','Category:':'Kategorie:',
     // priorities
     'High':'Hoch','Medium':'Mittel','Low':'Niedrig','Overdue':'Überfällig',
@@ -3992,6 +3997,7 @@ var I18N=(function(){
     [/^That isn't data from this app — copy the whole export and try again\. Pasted: (\d+) characters, starting with "(.*)"$/,'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal. Eingefügt: $1 Zeichen, beginnend mit „$2“'],
     [/^This export couldn't be read — (\d+) characters arrived; Export shows how many it has\. Step: (.*)$/,'Dieser Export konnte nicht gelesen werden — $1 Zeichen sind angekommen; beim Export steht, wie viele es sind. Schritt: $2'],
     [/^Longest streak: (\d+)$/,'Längste Serie: $1'],
+    [/^Goal: at most (.*)$/,'Ziel: höchstens $1'],
     [/^Goal: (.*)$/,'Ziel: $1'],
     [/^What's new in (.*)$/,'Neuigkeiten in $1'],
     [/^Category: (.*)$/,'Kategorie: $1'],
@@ -4226,7 +4232,7 @@ function renderTracker(pid){
   // the page was opened from, else its first habit
   var ctx=trackerLinkFor(pid),links=trackerLinks(pid),link=ctx||links[0]||null;
   var goal=link&&hasGoal(link)?link.goal:null;
-  var svgH=p.chartBars?trackerChart(pid,p,entries,goal):'';
+  var svgH=p.chartBars?trackerChart(pid,p,entries,goal,!!(link&&link.goalLow)):'';
   // That habit's days under the name, like a habit's page — tap them for
   // its window (days, goal, project, remove from habits). Opened as the
   // project with 2+ habits, there's no one habit to show.
@@ -4435,7 +4441,7 @@ function monotonePath(p){
   return d;
 }
 // The bar version (Bar chart switch in the tracker's window)
-function trackerChart(pid,p,entries,goal){
+function trackerChart(pid,p,entries,goal,low){
   var PL=44,PR=12,PT=12,PB=28,W=300,H=140,CW=W-PL-PR,CH=H-PT-PB;
   var dark=isDarkNow(),RED=dark?'#ff453a':'#ff3b30',gridCol=dark?'#333':'#e8e5e0',goalCol='#9a9a9a';
   var DOT=dark?'#aeaeb2':'#3a3a3c'; // entry dots: dark grey (a light grey on a dark card)
@@ -4456,7 +4462,7 @@ function trackerChart(pid,p,entries,goal){
   }
   var range=hi-lo||1;
   function yOf(v){return PT+(1-(v-lo)/range)*CH;}
-  function colOf(v){return has&&v<goal?RED:TRK_GREEN;}
+  function colOf(v){return has&&(low?v>goal:v<goal)?RED:TRK_GREEN;}
   // y axis: top, middle, bottom
   [hi,(hi+lo)/2,lo].forEach(function(v,i){
     var y=PT+CH*i/2;
@@ -6950,16 +6956,21 @@ function dcv(ds,id){return DB.data.dailyChecks[ds]&&DB.data.dailyChecks[ds][id];
 // Whether a habit counts as done on day ds — what every score, streak, bar,
 // count and disappear-when-done check reads: falsy, true, or 'skip'. A
 // normal habit is its check-off (dcv). A tracker-linked habit is done when
-// that day's logged value reaches its goal (it.goal), or — with no goal —
+// that day's logged value meets its goal (goalMet), or — with no goal —
 // when anything was logged that day at all; otherwise it can be skipped
 // like any habit (swipe on Today, stored as 'skip' in dailyChecks).
 function habitDayVal(it,ds){
   if(!it.trackerPid)return dcv(ds,it.id);
   var v=trackerDayValue(it,ds);
-  if(v!=null&&(!hasGoal(it)||v>=it.goal))return true;
+  if(v!=null&&(!hasGoal(it)||goalMet(it,v)))return true;
   return dcv(ds,it.id)==='skip'?'skip':false;
 }
 function hasGoal(it){return typeof it.goal==='number'&&!isNaN(it.goal);}
+// A goal is reached at or above it, or — "Aim for: Lower" (it.goalLow, e.g.
+// losing weight) — at or below it
+function goalMet(it,v){return it.goalLow?v<=it.goal:v>=it.goal;}
+// "Goal: 75 kg" under a tracker's value; a lower-is-better goal says "at most"
+function goalNote(it,p){return 'Goal: '+(it.goalLow?'at most ':'')+fmtTrk(it.goal)+(p.unit?' '+p.unit:'');}
 function habitName(it){
   if(!it.trackerPid)return it.text;
   var p=DB.data.projects[it.trackerPid];return p?p.name:'';
@@ -8037,7 +8048,7 @@ var DailyItemSheet={
     document.getElementById('daily-item-trk-card').style.display=this.trackerPid?'':'none';
     document.getElementById('daily-item-delete-t').textContent=this.trackerPid?'Remove from habits':'Delete habit';
     this.showProj(habitPid(it));
-    this.showGoal(hasGoal(it)?it.goal:null);
+    this.showGoal(hasGoal(it)?it.goal:null,it.goalLow);
     this.showDates(!!it.until,habitCreatedDs(it),it.until||'');
     this.perDay=!!it.perDay;this.dayNames=Object.assign({},it.dayNames||{});this.showPerDay();
     this.renderDays();
@@ -8053,14 +8064,24 @@ var DailyItemSheet={
     if(card.style.display==='none')return;
     document.getElementById('daily-item-proj').innerHTML=customSelect(hp.map(function(p){return {value:p,label:habitsTitle(p)};}),pid,'DailyItemSheet.showProj(this.value)');
   },
-  // Goal (tracker habits only): done on a day once that day's value
-  // reaches it (see habitDayVal). Empty = done whenever anything is logged.
-  showGoal:function(goal){
+  // Goal (tracker habits only): done on a day once that day's value meets
+  // it (see habitDayVal). Empty = done whenever anything is logged. Under
+  // it, once there's a goal, "Aim for": Higher (at or above it) or Lower
+  // (at or below it, e.g. losing weight).
+  showGoal:function(goal,low){
     var p=this.trackerPid&&DB.data.projects[this.trackerPid];
     document.getElementById('daily-item-goal-wrap').style.display=p?'':'none';
     document.getElementById('daily-item-goal').value=goal!=null?fmtTrk(goal):'';
     document.getElementById('daily-item-goal-unit').textContent=p&&p.unit||'';
+    this.goalLow=!!low;this.syncDir();
   },
+  syncDir:function(){
+    var row=document.getElementById('daily-item-dir');
+    row.style.display=this.trackerPid&&this.readGoal()!=null?'':'none';
+    row.innerHTML='<div class="opt-text"><div class="opt-title">Aim for</div></div>'
+      +customSelect([{value:'high',label:'Higher'},{value:'low',label:'Lower'}],this.goalLow?'low':'high','DailyItemSheet.setDir(this.value)');
+  },
+  setDir:function(v){this.goalLow=v==='low';this.syncDir();},
   // Start / End: a temporary habit runs on its days from start to end
   showDates:function(on,start,end){
     this.temp=on;
@@ -8156,7 +8177,8 @@ var DailyItemSheet={
           this._applyPerDay(it);
         } else {
           var g=this.readGoal();
-          if(g==null)delete it.goal;else it.goal=g;
+          if(g==null){delete it.goal;delete it.goalLow;}
+          else{it.goal=g;if(this.goalLow)it.goalLow=true;else delete it.goalLow;}
         }
         it.days=this.selectedDays.slice().sort();
         if(this.movePid&&isHabitsProject(this.movePid))it.pid=this.movePid; // the Project row
@@ -8170,7 +8192,7 @@ var DailyItemSheet={
       return;
     }
     if(this.trackerPid){
-      DB.addTrackerDailyItem(this.catId,this.trackerPid,this.selectedDays.slice(),this.readGoal(),curHabitsPid());
+      DB.addTrackerDailyItem(this.catId,this.trackerPid,this.selectedDays.slice(),this.readGoal(),curHabitsPid(),this.goalLow);
     } else {
       var text=document.getElementById('daily-item-inp').value.trim();
       if(!text)return;
@@ -9107,7 +9129,7 @@ var TrackerAddSheet={
     // opened from a habit: the entry is that habit's (else the first habit's)
     var link=trackerLinkFor(pid);this.hid=link?link.id:null;
     link=link||trackerLinks(pid)[0];
-    document.getElementById('trk-add-goal').textContent=link&&hasGoal(link)?'Goal: '+fmtTrk(link.goal)+(p.unit?' '+p.unit:''):'';
+    document.getElementById('trk-add-goal').textContent=link&&hasGoal(link)?goalNote(link,p):'';
     var inp=document.getElementById('trk-add-val');inp.value='';_shFitVal(inp);
     _overlayOpen('trk-add-sheet-overlay');
     // focused right here, still inside the tap on "+": that's what lets iOS
@@ -9160,7 +9182,7 @@ var TrackerDaySheet={
     document.getElementById('trk-day-title').textContent=p.name+(dayIdx?' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'}):'');
     document.getElementById('trk-day-unit').textContent=p.unit||'';
     var g=document.getElementById('trk-day-goal');
-    g.textContent=hasGoal(it)?'Goal: '+fmtTrk(it.goal)+(p.unit?' '+p.unit:''):'';
+    g.textContent=hasGoal(it)?goalNote(it,p):'';
     var v=trackerDayValue(it,pDate(dayIdx));
     var inp=document.getElementById('trk-day-val');inp.value=v!=null?fmtTrk(v):'';_shFitVal(inp);
     _overlayOpen('trk-day-sheet-overlay');
