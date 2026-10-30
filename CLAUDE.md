@@ -80,20 +80,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   builds ONLY Nav.sd's panel; `DayStrip.pick(pi)` rebuilds it (it used to
   build all 59 days and toggle `.on`). A picked day glides to the middle
   ("if I click on a day that day moves to the middle"; `pick` → `center(pi,
-  true)`, from far away it jumps to 20 days off first). BACK TO TODAY = "F1"
+  true)`, from far away it jumps to 20 days off first). BACK TO TODAY = "F3"
   from https://claude.ai/artifact/XQiZwqGsFoCuuLS7MzbVia (the user wanted
   "blurring both ends… an arrow button" and to see options first; a blue
   "Today" chip by the date was built before asking and replaced): both
   ends of `.wdays` fade (mask on the scroller, `--dfl/--dfr` 36px, inside
   `.wdays-wrap`); while today's middle is within 30px of an edge or past
-  it, `#day-jump` (34px round white button, shadow, chevron; its own
-  press, NOT in SQ_BTNS — their transform rule would override its show/hide
-  transform) shows on today's side and that end fades to 76px (@property
-  transition) — `syncJump`; tap = `toToday()` = pick(0). The user said "f1
-  or f3": F3 (the bare chevron, no button) is `body.dj-bare`, a temporary
-  Menu → Developer → Try out switch kept per device in localStorage
-  'lifeos-dayarrow' (`applyDayArrow`, `A.setDayArrowBare`) — remove the
-  loser and the switch once they pick. Tested: 20 years each way, grow at
+  it, `#day-jump` (a bare 20px chevron in ink on a 30x44 tap area, no
+  button; its own press, NOT in SQ_BTNS — their transform rule would
+  override its show/hide transform) shows on today's side and that end
+  fades to 76px (@property transition) — `syncJump`; tap = `toToday()` =
+  pick(0). The user said "f1 or f3", tried both in Beta 1.0 (F1 = the same
+  chevron in a 34px round white button with a shadow) and picked F3: "just
+  the arrow without a button looks cleaner". The Developer switch used to
+  compare them is gone (a stray 'lifeos-dayarrow' key may remain on the
+  user's phone; nothing reads it). Tested: 20 years each way, grow at
   both ends, finger taps on pills and the arrow, ticking a past day. Testing
   note: a fresh preview tab opens the Welcome screen over everything — finger
   taps hit it (elementsFromPoint shows .wel); close it first. Before 1.0:

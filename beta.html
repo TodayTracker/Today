@@ -547,25 +547,20 @@ html:not(#x) .acard,html:not(#x) .ti,html:not(#x) .wri,html:not(#x) .calsec,html
 .hh-titlerow{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .hh-titlerow .hh-title-btn{min-width:0}
 .hh-titlerow .tlbl{flex-shrink:0}
-/* Habits day bar ("F1"): both ends fade into the page; while today is
-   scrolled out of view an arrow on today's side brings it back
+/* Habits day bar ("F3"): both ends fade into the page; while today is
+   scrolled out of view a bare arrow on today's side brings it back
    (DayStrip.syncJump), and that end fades wider so the arrow sits on a
-   clear patch. body.dj-bare = the arrow without its round button ("F3",
-   a Developer switch while both are tried). */
+   clear patch. */
 @property --dfl{syntax:'<length>';inherits:true;initial-value:36px}
 @property --dfr{syntax:'<length>';inherits:true;initial-value:36px}
 .wdays-wrap{position:relative;margin-bottom:14px;--dfl:36px;--dfr:36px;transition:--dfl .25s ease,--dfr .25s ease}
 .wdays-wrap.arr-l{--dfl:76px}.wdays-wrap.arr-r{--dfr:76px}
 .wdays-wrap>.wdays{margin-bottom:0;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--dfl),#000 calc(100% - var(--dfr)),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 var(--dfl),#000 calc(100% - var(--dfr)),transparent 100%)}
-.day-jump{position:absolute;top:9px;width:34px;height:34px;padding:0;border:none;border-radius:17px;background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.10),0 4px 12px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;
+.day-jump{position:absolute;top:4px;width:30px;height:44px;padding:0;border:none;background:none;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;
   opacity:0;pointer-events:none;transform:scale(.85);transition:opacity .2s ease,transform .2s ease}
 .day-jump.r{right:4px}.day-jump.l{left:4px}.day-jump.l svg{transform:rotate(180deg)}
 .day-jump.on{opacity:1;pointer-events:auto;transform:none}
 .day-jump.on:active{transform:scale(.9);transition-duration:.1s}
-body.dj-bare .day-jump{top:4px;width:30px;height:44px;border-radius:0;background:none;box-shadow:none}
-body.dj-bare .day-jump svg{width:20px;height:20px}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .day-jump{box-shadow:0 1px 3px rgba(0,0,0,.4),0 4px 12px rgba(0,0,0,.35)}}
-html[data-theme="dark"] .day-jump{box-shadow:0 1px 3px rgba(0,0,0,.4),0 4px 12px rgba(0,0,0,.35)}
 .wdays-track{position:relative;flex:none;height:52px}
 .wdays-track>.dpill{position:absolute;top:0;width:46px;height:52px}
 .hh-sub{font-size:13px;color:#999;margin-top:4px;line-height:17px} /* whole px: cards below start on whole pixels */
@@ -1549,7 +1544,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
       <span class="tlbl" id="wlbl"></span>
     </div>
   </div>
-  <div class="wdays-wrap" id="wdays-wrap"><div class="wdays" id="wdays"></div><button class="day-jump r" id="day-jump" onclick="DayStrip.toToday()" aria-label="Back to today"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+  <div class="wdays-wrap" id="wdays-wrap"><div class="wdays" id="wdays"></div><button class="day-jump r" id="day-jump" onclick="DayStrip.toToday()" aria-label="Back to today"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button></div>
   <div id="dpanels"></div>
 </div>
 
@@ -3940,7 +3935,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Try out":"Ausprobieren","Day bar arrow without button":"Pfeil der Tagesleiste ohne Knopf","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -5703,10 +5698,6 @@ var A={
   },
   // The access code is only kept as its SHA-256, not as text in the app.
   _DEV_HASH:'9e491701f57853e4eabe30840a204d73bb2e90fda996751df6f8dcae4d175f2d',
-  setDayArrowBare:function(on){
-    try{if(on)localStorage.setItem('lifeos-dayarrow','bare');else localStorage.removeItem('lifeos-dayarrow');}catch(e){}
-    applyDayArrow();
-  },
   setDevMode:function(on){
     var self=this;
     if(!on){DB.data.settings.devMode=false;DB.save();renderGeneralDev();renderSettings();Channel.go(false);return;}
@@ -8299,8 +8290,8 @@ var DailyItemSheet={
 // range (lo..hi, ten years each way to start, grown when an end comes near)
 // and only the pills around the visible part exist, absolutely placed at
 // their day's spot — so adding and removing pills never moves the scroll
-// position. The "Today" button (#day-jump) shows while another day is
-// picked or today is scrolled out of view.
+// position. The arrow back to today (#day-jump) shows while today is
+// scrolled out of view.
 var DAY_SPAN=3650;
 var DayStrip={
   STEP:52,BUF:30, // pill 46 + gap 6; pills kept beyond each visible edge
@@ -8377,9 +8368,6 @@ var DayStrip={
   }
 };
 function buildPills(){DayStrip.build();}
-// Developer → Try out: the day bar's arrow without its round button ("F3"),
-// kept on this device only while F1 and F3 are compared
-function applyDayArrow(){var b=false;try{b=localStorage.getItem('lifeos-dayarrow')==='bare';}catch(e){}document.body.classList.toggle('dj-bare',b);}
 function updWL(){
   var sd=new Date(T);sd.setDate(T.getDate()+Nav.sd);
   // Same format and style (.tlbl) as the date next to Today's title.
@@ -8796,9 +8784,7 @@ function renderDevPage(){
   setHTML('dev-channel','<div class="sl">Version</div><div class="opt-group">'
     +'<div class="opt-row'+(IS_BETA?'':' active')+'" onclick="Channel.go(false)"><div class="opt-text"><div class="opt-title">Released</div></div>'+(IS_BETA?'':tick)+'</div>'
     +'<div class="opt-row'+(IS_BETA?' active':'')+'" onclick="Channel.go(true)"><div class="opt-text"><div class="opt-title">Beta</div></div>'+(IS_BETA?tick:'')+'</div>'
-    +'</div><div class="data-note">Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.</div>'
-    +'<div class="sl">Try out</div><div class="opt-group"><div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Day bar arrow without button</div></div>'
-    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(document.body.classList.contains('dj-bare')?'checked':'')+' onchange="A.setDayArrowBare(this.checked)"><span class="switch-slider"></span></label></div></div>');
+    +'</div><div class="data-note">Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.</div>');
   setHTML('dev-updates','<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Advanced update info</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.advancedUpdates?'checked':'')+' onchange="A.setAdvancedUpdates(this.checked)"><span class="switch-slider"></span></label></div>'
@@ -10370,7 +10356,6 @@ recomputeT();Nav.sd=0; // re-derive "today" now that the real dayStartHour setti
 buildProjPages();
 applyHoldMode();
 applyTheme();
-applyDayArrow();
 I18N.set(DB.data.settings.language);
 document.getElementById('tlbl').textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
 renderWar();
