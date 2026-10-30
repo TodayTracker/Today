@@ -1088,6 +1088,20 @@ html:not(#x) .press-lift{transition:background .2s ease!important}
 html:not(#x) .card-list .ti:is(.dragging,.drag-landing),html:not(#x) .el-row:is(.dragging,.drag-landing){border-radius:14px!important;border-bottom:none!important}
 .sw.h:is(.dragging,.drag-landing){border-radius:14px;overflow:hidden}
 .cat-block:is(.dragging,.drag-landing),.el-block:is(.dragging,.drag-landing){background:var(--pg);border-radius:16px}
+/* Overview's category titles (1.0, "K1" from the folding-categories demo):
+   a tap folds the category — the arrow turns and the title shows how many
+   projects it holds; a bigger target than the 14px of text, without moving
+   anything. An open one's title is moved alone (CatDrag): it lifts white,
+   a faint copy shows where it lands. */
+#overview-grid .shdr{display:flex;align-items:center;gap:5px;position:relative;cursor:pointer}
+#overview-grid .shdr::before{content:"";position:absolute;inset:-10px 0}
+.shdr .fold{display:flex;transition:transform .2s ease}
+.cat-block.folded>.shdr .fold{transform:rotate(-90deg)}
+.shdr .fcount{opacity:.85}
+#overview-grid .cat-block.folded>.agrid{display:none}
+#overview-grid .cat-ph>.shdr{opacity:.28}
+html:not(#x) .shdr.cat-lift{position:fixed;z-index:999;margin:0;display:flex;align-items:center;gap:5px;padding:9px 12px;background:var(--card);border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.22);transform:scale(1.04);transition:box-shadow .2s ease,transform .2s ease}
+html:not(#x) .shdr.cat-lift.cat-landing{transform:none;box-shadow:none;background:transparent}
 /* the lifted row stays in its card (floating); the row before it is then the
    last one you see, so it loses its divider like a real last row */
 html:not(#x) .card-list .ti:has(+.ti:is(.dragging,.drag-landing):last-child){border-bottom:none}
@@ -1815,7 +1829,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=3;
+var BETA_BUILD=4;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3137,7 +3151,8 @@ var CHANGELOG=[
     "Overview: a tracker with the moving average on shows the average on its card, not the last entry",
     "Tracker values and goals take a comma or a point, and the number no longer gets cut off on the left",
     "Adding a tracker value opens the keyboard by itself and the window sits at the same height everywhere",
-    "The background behind a slide-up window is a bit lighter"
+    "The background behind a slide-up window is a bit lighter",
+    "Overview: tap a category's title to fold it; folded, it shows how many projects it holds and moves as one line. Holding an open category's title moves only the title: the projects stay, and it takes the ones below where you drop it"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3280,7 +3295,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4207,23 +4222,39 @@ function renderWar(){
   }).join('');
 }
 
-function renderGrids(){
+// Overview's groups in screen order: the loose projects, then each category
+// with its projects
+function ovGroups(){
+  var d=DB.data;
+  return [{cat:NO_CAT,pids:d.projectOrder[NO_CAT]||[]}].concat(d.categoryOrder.filter(function(c){return d.categories[c];})
+    .map(function(c){return {cat:c,pids:d.projectOrder[c]||[]};}));
+}
+var FOLD_ICON='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+// `groups` (optional): what to draw instead of the saved order — CatDrag's
+// live preview, where one group ({ph:true}) is the faint copy of the title
+// being moved.
+function renderGrids(groups){
   var d=DB.data;
   var h='';
+  groups=groups||ovGroups();
   // projects without a category first, in their own grid with no title
   // (.nocat-block, not a .cat-block: categories can't be dragged above it)
   // (an empty group still gets its grid: a drop slot, shown only while a
   // project is being dragged — see .zone-empty)
-  var loose=d.projectOrder[NO_CAT]||[],has=loose.some(function(pid){return d.projects[pid];});
+  var loose=groups[0].pids,has=loose.some(function(pid){return d.projects[pid];});
   h+='<div class="nocat-block" data-cat="'+NO_CAT+'"><div class="agrid'+(has?'':' zone-empty')+'">'+(has?loose.map(projCard).join(''):'')+'</div></div>';
   // no project at all yet: one card shaped like a project that opens New project
   if(!Object.keys(d.projects).length)h+='<div class="add-block"><div class="agrid add-grid"><div class="acard add-card" onclick="A.newProject()">'
     +'<div class="aico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>'
     +'<div class="albl">New project</div><div class="acnt">&nbsp;</div></div></div></div>';
-  d.categoryOrder.forEach(function(catId){
-    var cat=d.categories[catId];if(!cat)return;
-    h+='<div class="cat-block" data-cat="'+catId+'"><div class="shdr">'+cat.name+'</div>';
-    var projs=d.projectOrder[catId]||[],cards=projs.map(projCard).join('');
+  // a category's title folds it (a tap) and shows, folded, how many
+  // projects it holds
+  groups.slice(1).forEach(function(g){
+    var cat=d.categories[g.cat];if(!cat)return;
+    var cards=g.pids.map(projCard).join(''),fold=!g.ph&&cat.folded;
+    var n=g.pids.filter(function(pid){return d.projects[pid];}).length;
+    h+='<div class="cat-block'+(fold?' folded':'')+(g.ph?' cat-ph':'')+'"'+(g.ph?'':' data-cat="'+g.cat+'"')+'>'
+      +'<div class="shdr"'+(g.ph?'':' onclick="A.foldCat(\''+g.cat+'\')"')+'><span>'+cat.name+'</span><span class="fold">'+FOLD_ICON+'</span>'+(fold?'<span class="fcount">'+n+'</span>':'')+'</div>';
     h+='<div class="agrid'+(cards?'':' zone-empty')+'">'+cards+'</div></div>';
   });
   document.getElementById('overview-grid').innerHTML=h;
@@ -4280,9 +4311,10 @@ function fitMinimalGrid(){
   });
 }
 window.addEventListener('resize',fitMinimalGrid);
-// Long-press a category title to drag the whole block (reorders
-// categoryOrder); long-press a project card to drag it anywhere on
-// Overview — within its group or into another one (DB.setProjectGroups).
+// Long-press a FOLDED category's title to drag the whole category (reorders
+// categoryOrder); an open one's title moves alone (CatDrag, below);
+// long-press a project card to drag it anywhere on Overview — within its
+// group or into another open one (DB.setProjectGroups).
 function wireOverviewDrag(){
   var grid=document.getElementById('overview-grid');
   // #overview-grid itself survives every renderGrids() call (only its
@@ -4291,7 +4323,7 @@ function wireOverviewDrag(){
   // callbacks read the DOM live at drop time, so one wiring stays correct.
   if(!grid.dataset.dragWired){
     grid.dataset.dragWired='1';
-    DragReorder.init(grid,'.shdr','.cat-block','list',function(container){
+    DragReorder.init(grid,'.cat-block.folded>.shdr','.cat-block','list',function(container){
       var ids=[].slice.call(container.querySelectorAll('.cat-block')).map(function(el){return el.getAttribute('data-cat');});
       DB.reorderCategories(ids);
     });
@@ -4305,9 +4337,158 @@ function wireOverviewDrag(){
       });
       DB.setProjectGroups(groups);
       renderGrids();
-    },{cross:true,zoneSel:'[data-cat]>.agrid',flipSel:'.acard,.shdr',bodyClass:'proj-drag'});
+    },{cross:true,zoneSel:'[data-cat]:not(.folded)>.agrid',flipSel:'.acard,.shdr',bodyClass:'proj-drag'});
+    CatDrag.init(grid);
   }
 }
+// Overview slides instead of jumping when it's redrawn (FLIP): every card
+// and category title starts where it was and glides to its new place.
+function ovFlip(mutate){
+  var g=document.getElementById('overview-grid');
+  function els(){return [].slice.call(g.querySelectorAll('.acard[data-pid],.cat-block>.shdr'));}
+  function key(e){return e.classList.contains('acard')?'p'+e.getAttribute('data-pid'):'c'+(e.parentNode.getAttribute('data-cat')||'ph');}
+  var first={};els().forEach(function(e){first[key(e)]=DragReorder._layoutRect(e);});
+  mutate();
+  var moved=[];
+  els().forEach(function(e){var a=first[key(e)];if(!a)return;var b=e.getBoundingClientRect(),dx=a.left-b.left,dy=a.top-b.top;
+    if(Math.abs(dx)<.5&&Math.abs(dy)<.5)return;e.style.transition='none';e.style.transform='translate('+dx+'px,'+dy+'px)';moved.push(e);});
+  if(!moved.length)return;
+  void g.offsetHeight;
+  requestAnimationFrame(function(){
+    moved.forEach(function(e){e.style.transition='transform '+DRAG_ANIM;e.style.transform='';});
+    setTimeout(function(){moved.forEach(function(e){if(!e.style.transform)e.style.transition='';});},260);
+  });
+}
+// Holding an OPEN category's title moves the title alone (1.0, "A" from the
+// folding-categories demo): a project belongs to the title above it, so the
+// projects stay where they are — the title takes the ones below the spot
+// it's dropped on, and the category above its old spot gets the ones it
+// leaves. (A folded category moves whole, with DragReorder above.) While it
+// moves, Overview is drawn from one flat list of titles and projects
+// (`seq`), so the screen always shows exactly what letting go will save.
+// Same feel as every other drag: hold DRAG_HOLD_MS, the title lifts white
+// with a shadow, a faint copy shows where it lands, everything else slides.
+var CatDrag={
+  active:false,timer:null,seq:null,cat:null,el:null,y:0,dy:0,lastMove:0,retry:null,v:0,raf:null,
+  init:function(grid){
+    var self=this;
+    grid.addEventListener('touchstart',function(e){
+      if(self.active||self.timer||DragReorder.active)return;
+      var hd=e.target.closest('.cat-block:not(.folded)>.shdr');
+      if(!hd||!grid.contains(hd)||!hd.parentNode.getAttribute('data-cat'))return;
+      var t=e.touches[0],x0=t.clientX,y0=t.clientY;
+      function stop(){
+        clearTimeout(self.timer);self.timer=null;
+        document.removeEventListener('touchmove',mv,{passive:true});
+        document.removeEventListener('touchend',stop,{passive:true});
+        document.removeEventListener('touchcancel',stop,{passive:true});
+      }
+      function mv(ev){var u=ev.touches[0];if(Math.abs(u.clientX-x0)>10||Math.abs(u.clientY-y0)>10)stop();}
+      document.addEventListener('touchmove',mv,{passive:true});
+      document.addEventListener('touchend',stop,{passive:true});
+      document.addEventListener('touchcancel',stop,{passive:true});
+      self.timer=setTimeout(function(){stop();self.lift(hd,y0);},DRAG_HOLD_MS);
+    },{passive:true});
+  },
+  lift:function(hd,y){
+    var d=DB.data,cat=hd.parentNode.getAttribute('data-cat'),r=hd.getBoundingClientRect(),self=this;
+    var seq=[];
+    ovGroups().forEach(function(g,i){
+      if(i)seq.push({t:'c',id:g.cat});
+      g.pids.forEach(function(pid){if(d.projects[pid])seq.push({t:'p',id:pid});});
+    });
+    var i=seq.findIndex(function(it){return it.t==='c'&&it.id===cat;});if(i<0)return;
+    seq[i]={t:'ph'};
+    this.seq=seq;this.cat=cat;this.active=true;this.y=y;this.lastMove=0;
+    try{if(navigator.vibrate)navigator.vibrate(8);}catch(e){}
+    _pressCancel();
+    // the title itself floats on top (and stays the touch's target)
+    document.body.appendChild(hd);
+    hd.classList.add('cat-lift');
+    hd.style.left=(r.left-12)+'px';hd.style.top=(r.top-9)+'px';hd.style.width=(r.width+24)+'px';
+    this.el=hd;this.dy=y-(r.top-9);
+    this.render();
+    this.onMove=function(e){e.preventDefault();self.y=e.touches[0].clientY;hd.style.top=(self.y-self.dy)+'px';self.hit();self.edge();};
+    this.onEnd=function(e){e.preventDefault();e.stopPropagation();self.drop();};
+    hd.addEventListener('touchmove',this.onMove,{passive:false});
+    hd.addEventListener('touchend',this.onEnd,{passive:false});
+    hd.addEventListener('touchcancel',this.onEnd,{passive:false});
+  },
+  render:function(){
+    var groups=[{cat:NO_CAT,pids:[]}],cat=this.cat;
+    this.seq.forEach(function(it){
+      if(it.t==='c')groups.push({cat:it.id,pids:[]});
+      else if(it.t==='ph')groups.push({cat:cat,pids:[],ph:true});
+      else groups[groups.length-1].pids.push(it.id);
+    });
+    ovFlip(function(){renderGrids(groups);});
+  },
+  // the title (or category) an item belongs to, and whether it's hidden in a folded one
+  head:function(i){for(var j=i;j>=0;j--)if(this.seq[j].t!=='p')return j;return -1;},
+  hidden:function(i){var h=this.head(i);return h>=0&&this.seq[h].t==='c'&&!!(DB.data.categories[this.seq[h].id]||{}).folded;},
+  rect:function(it){
+    var n=it.t==='p'?document.querySelector('#overview-grid .acard[data-pid="'+it.id+'"]'):document.querySelector('#overview-grid .cat-block[data-cat="'+it.id+'"]>.shdr');
+    return n&&DragReorder._layoutRect(n);
+  },
+  // one step at a time: past the middle of the title or the row of projects
+  // next to the faint copy (a folded category counts as one line); a short
+  // pause after each step, so a row sliding past can't bounce it back
+  hit:function(){
+    var self=this,seq=this.seq,y=this.y;
+    var wait=130-(Date.now()-this.lastMove);
+    if(wait>0){clearTimeout(this.retry);this.retry=setTimeout(function(){if(self.active)self.hit();},wait+10);return;}
+    var p=seq.findIndex(function(it){return it.t==='ph';}),to=-1,prev=seq[p-1],next=seq[p+1];
+    if(prev){var hi=prev.t==='p'&&this.hidden(p-1)?this.head(p-1):p-1,r=this.rect(seq[hi]);if(r&&y<r.top+r.height/2)to=hi;}
+    if(to<0&&next){
+      var last=p+1;
+      if(next.t==='c'&&(DB.data.categories[next.id]||{}).folded)while(seq[last+1]&&seq[last+1].t==='p')last++;
+      var rn=this.rect(next);if(rn&&y>rn.top+rn.height/2)to=last+1;
+    }
+    if(to<0)return;
+    var ph=seq.splice(p,1)[0];seq.splice(to>p?to-1:to,0,ph);
+    this.lastMove=Date.now();this.render();
+    this.hit();
+  },
+  // a finger near the top or bottom of Overview scrolls it
+  edge:function(){
+    var self=this,pg=document.getElementById('p-overview'),r=pg.getBoundingClientRect(),y=this.y,E=70,v=0;
+    if(y<r.top+E)v=-Math.ceil(Math.min(1,(r.top+E-y)/E)*12);
+    else if(y>r.bottom-E)v=Math.ceil(Math.min(1,(y-(r.bottom-E))/E)*12);
+    this.v=v;
+    if(v&&!this.raf){
+      var step=function(){
+        if(!self.active||!self.v){self.raf=null;return;}
+        var t0=pg.scrollTop;pg.scrollTop+=self.v;
+        if(pg.scrollTop!==t0)self.hit();
+        self.raf=requestAnimationFrame(step);
+      };
+      this.raf=requestAnimationFrame(step);
+    }
+  },
+  // letting go: the title glides into the faint copy's place, then the new
+  // order is saved (titles; which projects each one holds) and drawn
+  drop:function(){
+    var self=this,hd=this.el,d=DB.data;
+    hd.removeEventListener('touchmove',this.onMove,{passive:false});
+    hd.removeEventListener('touchend',this.onEnd,{passive:false});
+    hd.removeEventListener('touchcancel',this.onEnd,{passive:false});
+    clearTimeout(this.retry);this.v=0;
+    DragReorder._endedAt=Date.now(); // the release doesn't also fold it
+    var p=this.seq.findIndex(function(it){return it.t==='ph';});this.seq[p]={t:'c',id:this.cat};
+    var order=[],groups={},cur=NO_CAT;groups[NO_CAT]=[];
+    this.seq.forEach(function(it){if(it.t==='c'){cur=it.id;order.push(cur);groups[cur]=[];}else groups[cur].push(it.id);});
+    var tgt=document.querySelector('#overview-grid .cat-ph>.shdr'),r=tgt&&tgt.getBoundingClientRect();
+    hd.style.transition='left '+DRAG_ANIM+',top '+DRAG_ANIM+',transform '+DRAG_ANIM+',box-shadow '+DRAG_ANIM+',background-color '+DRAG_ANIM;
+    hd.classList.add('cat-landing');
+    if(r){hd.style.left=(r.left-12)+'px';hd.style.top=(r.top-9)+'px';}
+    setTimeout(function(){
+      hd.remove();self.active=false;self.seq=null;self.el=null;
+      DB.reorderCategories(order.concat(d.categoryOrder.filter(function(c){return order.indexOf(c)<0;})));
+      DB.setProjectGroups(groups);
+      renderGrids();
+    },230);
+  }
+};
 
 function renderTracker(pid){
   var p=DB.data.projects[pid];
@@ -5720,6 +5901,13 @@ var A={
   },
   // The access code is only kept as its SHA-256, not as text in the app.
   _DEV_HASH:'9e491701f57853e4eabe30840a204d73bb2e90fda996751df6f8dcae4d175f2d',
+  // Overview: a tap on a category's title folds or opens it
+  foldCat:function(catId){
+    var c=DB.data.categories[catId];if(!c||CatDrag.active)return;
+    if(c.folded)delete c.folded;else c.folded=true;
+    DB.save();
+    ovFlip(function(){renderGrids();});
+  },
   setHeaderBare:function(on){
     try{if(on)localStorage.setItem('lifeos-hbare','1');else localStorage.removeItem('lifeos-hbare');}catch(e){}
     applyHeaderBare();

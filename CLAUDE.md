@@ -1860,6 +1860,38 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   boundary, the tick zone, migration order unchanged. Testing note: after
   an update, the What's New sheet covers the screen — close it before
   dispatching touches (elementFromPoint hit the overlay).
+- FOLDING CATEGORIES (1.0, "K1 + A" from the working demo
+  https://claude.ai/artifact/Jwswe6Qgw4jGNf8TJTesxy — asked: "moving whole
+  categories is not looking great… einklappen a category… if I move it the
+  whole category with the projects moves, but if it's ausgeklappt only the
+  category bar itself moves and not the projects below it"): a tap on a
+  category's title (`.shdr` onclick → `A.foldCat`) folds it — saved as
+  `categories[id].folded` (old apps ignore it), the arrow (`FOLD_ICON`,
+  `.fold`) turns, a folded title shows its project count (`.fcount`), its
+  grid is display:none; the change slides (`ovFlip`, FLIP of cards and
+  titles). The tap target is the whole title row plus 10px above/below
+  (`::before`), nothing moved — measured 8px title→grid, 22px grid→title as
+  before. MOVING: a FOLDED category = the old whole-block DragReorder
+  (handle now `.cat-block.folded>.shdr`); an OPEN one = `CatDrag`: only the
+  title moves, and "A" is literal — a project belongs to the title above it
+  (one flat list `seq` of titles and projects), so the projects stay where
+  they are, the title takes the ones below where it's dropped and the
+  category above its old spot gets the ones it leaves (dropped above
+  Hiring: Uni = Hiring + its own, Work keeps 3; moved to the very bottom,
+  its old projects become those of the category above, or loose). It steps
+  past one title or one ROW of projects at a time (middle of the next/prev
+  item, a folded category counts as one line, 130ms pause), redrawing
+  Overview from `seq` each step (`renderGrids(groups)` — an optional
+  argument; `{ph:true}` = the faint copy `.cat-ph`), so the screen is
+  exactly what gets saved (DB.reorderCategories + DB.setProjectGroups).
+  The lifted title is the real `.shdr` moved to <body> (`.cat-lift`, white,
+  shadow, scale 1.04) so it stays the touch's target; touch listeners are
+  on it. Projects can't be dropped into a folded category (zoneSel
+  `[data-cat]:not(.folded)>.agrid`; over one, they land in the nearest
+  open group). The release's click is swallowed via DragReorder._endedAt
+  (else letting go would also fold it). Tested with finger-style touches:
+  fold/open, title-only drag into Work's rows, folded drag above Work,
+  release click blocked / next tap folds, project over a folded category.
 - Overview projects drag ACROSS categories (4.22, "drag them anywhere you
   want into other categories"): ONE DragReorder on #overview-grid (wired
   once) with opts `{cross:true, zoneSel:'[data-cat]>.agrid', flipSel:
