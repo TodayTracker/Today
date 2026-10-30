@@ -544,6 +544,24 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   the last 'h:' key (`todayOrder()`). Edit layout rows: `todaySecName(k)`
   (the project's name). Anything that reads Today's habit rows uses
   `#p-today .today-hab`. Measured: 22px between every section, as before.
+- TODAY SHOWS OTHER DAYS (1.0, after the compact day picker page
+  https://claude.ai/artifact/7dLiCBpr72xYq6EqWUoAx8: "for the Today tab
+  changing the name to Today and then Tomorrow and then the date… the date
+  is in the title and there's only arrows or smt like that"): `TodayDay.off`
+  (day offset, like Nav.sd). The title `#today-title` = `todayName(off)`:
+  Today / Tomorrow / Yesterday / the date (dLoc); `todayHead()` writes it
+  everywhere the old date label `#tlbl` was written (start, new day,
+  language, day start hour) — #tlbl is gone. Two bare chevrons `.tday-b`
+  (36px, SQ press, in TAPPABLE) step a day; a tap on the title → today; the
+  Today tab (TabBar.go) always resets to today. renderToday on another day:
+  that weekday's habits (`wIdx`, not TI) for that day (ci/ciTracker get the
+  offset, so ticks, skips, hold and tracker values go to that day — future
+  values still can't be logged), that day's Calendar items only (today:
+  due + overdue), NO tasks (not tied to a day; todayTopTasks isn't called,
+  so todaySet isn't touched), "Nothing on this day." when empty. No limit
+  either way. Tested: tomorrow (its Calendar item, a habit not due then
+  hidden), yesterday (ticking saved under yesterday), title tap, tab reset,
+  German "Morgen"/"Gestern"/"Mo., 2. Nov.", header still 40px.
 - Today's section headers (🎯 Tasks / 📆 Habits) are hidden when their
   section is empty (`syncTodaySections`), with one "Nothing to do today."
   line if both are. "Category with no tasks" in the user's wording meant

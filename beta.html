@@ -640,6 +640,11 @@ html:not(#x) .hdr-add,html:not(#x) .menu-btn,html:not(#x) .back,html:not(#x) .ed
 html:not(#x) body.hb-bare .page :is(.hh-btn,.hdr-add,.menu-btn,.back,.edit-proj-btn){background:transparent;box-shadow:none}
 html:not(#x) .addbtn{width:46px;height:46px;min-height:46px;border-radius:14px}
 html:not(#x) .dhdr{min-height:40px}
+/* Today's arrows to the day before / after (TodayDay): bare chevrons like
+   the Habits day bar's arrow, 36px to tap, the outer one flush with the
+   page edge's 16px */
+.tday-nav{display:flex;gap:2px;margin-right:-8px}
+.tday-b{width:36px;height:36px;border:none;background:none;padding:0;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .dtitle{font-size:20px;font-weight:800}
 .dsub{font-size:13px;font-weight:500}
 .tlbl{font-size:13px;font-weight:500;color:#999}
@@ -1030,8 +1035,8 @@ html:not(#x) .sheet-save:active,html:not(#x) .cat-choice:active,html:not(#x) .pr
    Edit layout arrows) never grey — the grey is for rows/bars. They press
    in and spring back with a slight overshoot. `.sq-press` comes from
    touchstart and is held a moment (see SQ_BTNS), so a quick tap shows it. */
-html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn){transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
-html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn):is(:active,.sq-press){transform:scale(.86);opacity:1;transition:transform .12s ease-out}
+html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-b){transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-b):is(:active,.sq-press){transform:scale(.86);opacity:1;transition:transform .12s ease-out}
 /* New tracker entry window: the tracker's unit sits inside the value field
    on the right. */
 /* A row with no border-radius of its own relies entirely on its card's
@@ -1439,9 +1444,9 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   <div class="dhdr" style="justify-content:space-between">
     <div style="display:flex;align-items:center;gap:14px">
       <div class="dico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div><div class="dtitle">Today</div></div>
+      <div><div class="dtitle" id="today-title" onclick="TodayDay.go(0)">Today</div></div>
     </div>
-    <span class="tlbl" id="tlbl"></span>
+    <div class="tday-nav"><button class="tday-b" onclick="TodayDay.step(-1)" aria-label="Previous day"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg></button><button class="tday-b" onclick="TodayDay.step(1)" aria-label="Next day"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button></div>
   </div>
   <div class="today-sec" data-s="tasks"><div class="shdr" id="today-tasks-hdr">Tasks</div>
   <div id="today-priorities" class="card-list"></div></div>
@@ -1829,7 +1834,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=4;
+var BETA_BUILD=5;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3152,6 +3157,7 @@ var CHANGELOG=[
     "Tracker values and goals take a comma or a point, and the number no longer gets cut off on the left",
     "Adding a tracker value opens the keyboard by itself and the window sits at the same height everywhere",
     "The background behind a slide-up window is a bit lighter",
+    "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it; folded, it shows how many projects it holds and moves as one line. Holding an open category's title moves only the title: the projects stay, and it takes the ones below where you drop it"
   ]}
 ];
@@ -3295,7 +3301,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3972,7 +3978,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Try out":"Ausprobieren","Header buttons without background":"Kopfzeilen-Knöpfe ohne Hintergrund","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Tomorrow":"Morgen","Yesterday":"Gestern","Nothing on this day.":"An diesem Tag steht nichts an.","Previous day":"Vorheriger Tag","Next day":"Nächster Tag","Try out":"Ausprobieren","Header buttons without background":"Kopfzeilen-Knöpfe ohne Hintergrund","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -5844,8 +5850,7 @@ var A={
     recomputeT();
     // No Nav.sd adjustment needed — it's an offset from today (0 = today),
     // so it keeps tracking "today" correctly on its own regardless of TI.
-    var tlbl=document.getElementById('tlbl');
-    if(tlbl)tlbl.textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+    todayHead();
     renderSettings();renderToday();
     if(Nav.cur==='habits')renderHabits();
   },
@@ -5975,7 +5980,7 @@ var A={
     renderSettings();
     // dates are formatted in the language when drawn — draw again
     A._refreshAll();buildPills();updWL();
-    document.getElementById('tlbl').textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+    todayHead();
     if(Nav.cur==='stats')Stats.render();
     if(Nav.cur==='lockedin')renderLockedIn();
   },
@@ -7398,20 +7403,45 @@ function _dropEmptyCard(sec){
   } else if(sec)markEdgeRows(sec,'.cali');
   syncTodaySections();
 }
+// Today can show another day (1.0: "the name Today, then Tomorrow, then the
+// date… so the date is in the title and there's only arrows"): the title
+// says which day — Today, Tomorrow, Yesterday, else the date — and two
+// arrows step a day back or forward. A tap on the title goes back to today,
+// and so does the Today tab. Another day shows its habits (ticks, skips,
+// tracker values, like that day on a Habits project) and its Calendar
+// items; tasks only show on today (they aren't tied to a day).
+var TodayDay={
+  off:0,
+  step:function(d){this.go(this.off+d);},
+  go:function(o){
+    if(o===this.off)return;
+    this.off=o;todayHead();renderToday();
+    var pg=document.getElementById('p-today');if(pg)pg.scrollTop=0;
+  }
+};
+function todayName(o){
+  if(o===0)return 'Today';if(o===1)return 'Tomorrow';if(o===-1)return 'Yesterday';
+  var d=new Date(T);d.setDate(T.getDate()+o);
+  return d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+}
+function todayHead(){var t=document.getElementById('today-title');if(t)t.textContent=todayName(TodayDay.off);}
 function renderToday(){
-  var top3=todayTopTasks();
+  var off=TodayDay.off,dd=new Date(T);dd.setDate(T.getDate()+off);
+  var wd=wIdx(dd);
+  var top3=off?[]:todayTopTasks();
   var c1=document.getElementById('today-priorities');
   c1.innerHTML=top3.length?top3.map(todayTaskRow).join(''):'';
 
-  var ds=pDate(0);
+  var ds=pDate(off);
   var h='';
-  // Calendar tasks due today or overdue
-  var onceToday=DB.data.dailyOnce.filter(function(o){return o.date<=ds;});
+  // Calendar tasks: on today the ones due today or overdue, on another day
+  // that day's
+  var onceToday=DB.data.dailyOnce.filter(function(o){return off?o.date===ds:o.date<=ds;});
   document.getElementById('today-cal').innerHTML=onceToday.length
     ?'<div class="caltitle">Calendar</div><div class="calsec">'+onceToday.map(onceRow).join('')+'</div>':'';
   var vanish=DB.data.settings.todayHabitsDisappear;
   var all=DB.data.dailyItems.filter(function(it){
-    if(it.days.indexOf(TI)===-1||!habitActive(it,ds))return false;
+    if(it.days.indexOf(wd)===-1||!habitActive(it,ds))return false;
     if(!vanish)return true;
     return !habitDayVal(it,ds);
   });
@@ -7426,13 +7456,14 @@ function renderToday(){
     var items=all.filter(function(it){return habitPid(it)===pid;});
     if(!items.length)return;
     h='<div class="caltitle">'+esc(habitsTitle(pid))+'</div><div class="calsec">';
-    items.forEach(function(it){h+=swipeWrap('h',it.trackerPid?ciTracker(it,0,false):ci(it.id,habitDayName(it,0),0));});
+    items.forEach(function(it){h+=swipeWrap('h',it.trackerPid?ciTracker(it,off,false):ci(it.id,habitDayName(it,off),off));});
     var sec=document.createElement('div');
     sec.className='today-sec today-hab';sec.setAttribute('data-s','h:'+(pid||'none'));
     sec.innerHTML=h+'</div>';
     pg.insertBefore(sec,none);
   });
   applyTodayOrder();
+  none.textContent=off?'Nothing on this day.':'Nothing to do today.';
   syncTodaySections();
   // Same edge-row marking Daily's panels use (see markEdgeRows) — needed
   // here too: with "Skip habits" on, each row is wrapped in its own
@@ -7498,7 +7529,7 @@ var _pressHeld=null,_pressCancel=function(){};
 // Small square buttons press in (CSS "Small square buttons"): `.sq-press`
 // from touchstart, kept at least SQ_PRESS_MIN ms so a quick tap still
 // shows it; moving the finger away (>10px) lets go.
-var SQ_BTNS='.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn',SQ_PRESS_MIN=110;
+var SQ_BTNS='.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-b',SQ_PRESS_MIN=110;
 (function(){
   var el=null,t0=0,sx=0,sy=0,tm=null;
   function release(){
@@ -9576,6 +9607,7 @@ var TabBar={
     return 'settings';
   },
   go:function(id){
+    if(id==='today'&&TodayDay.off)TodayDay.go(0); // the Today tab always shows today
     if(Nav.cur===id)return;
     navSwitch(id);
     Nav.stack=[];
@@ -9943,7 +9975,7 @@ window.addEventListener('scroll',function(){_lastScrollAt=Date.now();},{passive:
 (function(){
   var TAPPABLE='.tab-item,.fab,.hdr-add,.menu-btn,.menu-item,.acard,.opt-row,'
     +'.back,.edit-proj-btn,.hh-btn,.hh-title-btn,.addbtn,.el-btn,.type-btn,'
-    +'.cat-choice,.dpill,.day-jump,.sheet-save,.sh-save,.sh-x';
+    +'.cat-choice,.dpill,.day-jump,.tday-b,.sheet-save,.sh-save,.sh-x';
   var sx=0,sy=0,moved=false,target=null;
   document.addEventListener('touchstart',function(e){
     // A toggle switch inside a TAPPABLE row (e.g. an .opt-row that's just
@@ -10612,7 +10644,7 @@ applyHoldMode();
 applyTheme();
 applyHeaderBare();
 I18N.set(DB.data.settings.language);
-document.getElementById('tlbl').textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+todayHead();
 renderWar();
 renderGrids();
 renderToday();
@@ -10645,8 +10677,7 @@ document.addEventListener('visibilitychange',function(){
   var oldDs=pDate(0);
   recomputeT();
   if(pDate(0)===oldDs)return; // still the same day — nothing stale to fix
-  var tlbl=document.getElementById('tlbl');
-  if(tlbl)tlbl.textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+  todayHead();
   if(Nav.cur==='today')renderToday();
   else if(Nav.cur==='habits')renderHabits();
 });
