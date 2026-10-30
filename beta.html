@@ -1806,11 +1806,19 @@ var APP_VERSION='1.0';
 // version for What's New, so switching back and forth never touches
 // settings.lastSeenVersion.
 var IS_BETA=/\/beta\.html$/i.test(location.pathname);
-// Each beta push of APP_VERSION gets the next build number, so the beta
-// shows which one is running ("Beta 1.0.1", "Beta 1.0.2"…); back to 1 for a
-// new version. The released app never shows it.
-var BETA_BUILD=1;
-function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v+'.'+BETA_BUILD:v;}
+function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
+// What the beta is called on its Version rows. Small updates count on from
+// the released version (released 1.2 → 1.2.1, 1.2.2…: BETA_BUILD, +1 on
+// every beta push); when they're bundled into the next version, the beta of
+// it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
+// app shows just its version.
+var BETA_BUILD=2;
+function buildName(){
+  if(!IS_BETA)return APP_VERSION;
+  if(!BETA_BUILD)return verName(APP_VERSION);
+  var i=CHANGELOG.findIndex(function(e){return e.v===APP_VERSION;});
+  return (i>0?CHANGELOG[i-1].v.replace(/^Beta /,''):APP_VERSION)+'.'+BETA_BUILD; // the released version it builds on
+}
 var Channel={
   seen:function(){
     if(!IS_BETA)return DB.data.settings.lastSeenVersion;
@@ -5092,7 +5100,7 @@ function renderAppPage(){
   main.innerHTML='<div class="opt-group" style="margin-top:8px">'
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Version</div></div>'
-    +'<span style="margin-left:auto;font-size:15px;font-weight:500;color:#999">'+esc(verName(APP_VERSION))+'</span></div>'
+    +'<span style="margin-left:auto;font-size:15px;font-weight:500;color:#999">'+esc(buildName())+'</span></div>'
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Update automatically</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.autoUpdate?'checked':'')+' onchange="A.setAutoUpdate(this.checked)"><span class="switch-slider"></span></label>'
@@ -5159,7 +5167,7 @@ function renderSettings(){
   var appRow='<div class="opt-row" onclick="Nav.go(\'app\')">'
     +'<div class="opt-ico" style="background:#3b82f6">'+ICON_PHONE+'</div>'
     +'<div class="opt-text"><div class="opt-title">App</div></div>'
-    +'<span style="'+rowVal+'">'+esc(verName(APP_VERSION))+'</span>'+chev+'</div>';
+    +'<span style="'+rowVal+'">'+esc(buildName())+'</span>'+chev+'</div>';
   // the icon shows the selected mode (no text needed)
   var themeNow=DB.data.settings.theme||'system';
   var themeIco={light:[ICON_SUN,'#f59e0b'],dark:[ICON_MOON,'#6366f1'],system:[ICON_SYSTEM,'#6b7280']}[themeNow]||[ICON_SYSTEM,'#6b7280'];

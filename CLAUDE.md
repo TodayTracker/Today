@@ -44,13 +44,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   developer mode (switch, Reset settings, or the beta starting without it)
   goes back to released. Both share ALL data — a beta migration is
   permanent for the released app too; keep data changes backward-safe.
-  BETA BUILDS ("mini updates like beta 1.0.1 so I know when it has
-  updated"): `BETA_BUILD` next to APP_VERSION; the beta shows "Beta
-  1.0.<BETA_BUILD>" (verName — Menu → App, What's New, history), the
-  released app never shows it. +1 on EVERY beta push; back to 1 when
-  APP_VERSION changes. Beta 1.0.1 was the first numbered one (the three
-  beta pushes before it all said "Beta 1.0").
-  FLOW: (1) beta release = bump BETA_BUILD, copy index.html → beta.html,
+  SMALL UPDATES ("mini updates… so I know when it has updated", then: "we
+  were at 1.2 and wanted to push 1.3: small updates 1.2.1, 1.2.2… until I
+  have enough, then 1.3 beta and then 1.3 main"): `BETA_BUILD` next to
+  APP_VERSION. While it's > 0 the beta's Version rows (Menu → App, Menu's
+  App row — `buildName()`) say <released version>.<BETA_BUILD>, the
+  released version being the CHANGELOG entry before APP_VERSION ("Beta
+  4.67" → "4.67.2"). BETA_BUILD 0 = the bundle's own beta, "Beta 1.3".
+  History and What's New keep the version's own name (verName: "Beta
+  1.3" in the beta). The released app shows just APP_VERSION. +1 on every
+  small beta push; 0 for the bundle's beta; after the full release, the
+  next version starts again at 1 (base = the version just released).
+  Before this: Beta 1.0 ×3 (unnumbered), then "Beta 1.0.1" (build 1, the
+  first scheme), then 4.67.2.
+  FLOW: (1) beta release = bump BETA_BUILD (0 for the bundle's own
+  beta), copy index.html → beta.html,
   commit ONLY beta.html (no sw.js bump, so nobody else gets an update),
   push; the developer taps Developer → Version → Beta. (2) Full release (only when
   the user says) = bump CACHE_NAME, commit index.html (+ beta.html still
