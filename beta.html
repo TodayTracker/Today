@@ -753,6 +753,14 @@ html:not(#x) .sh-days-row .type-btn.active{background:var(--blue-tint);color:var
 html:not(#x) .sh-val input{width:2ch;max-width:70%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;font-family:inherit;font-size:48px;line-height:56px;height:auto;font-weight:700;color:var(--ink);text-align:center;padding:0;margin:0}
 .sh-val input::placeholder{color:#c7c7cc;opacity:1}
 .sh-val-u{font-size:22px;line-height:28px;font-weight:600;color:#8a8a8e}
+/* A number window typed into through the keyboard helper (_focusSoon): the
+   focus stays on the helper, so the field gets a drawn caret — after the
+   number, or before the "0" while it's empty. It takes no room: the unit
+   stays where it was. */
+.sh-val-c{display:none;width:2px;height:46px;border-radius:1px;background:var(--blue);align-self:center;margin-left:-8px;animation:shCaret 1.1s infinite}
+.sh-val.mirror .sh-val-c{display:block}
+.sh-val.mirror.empty .sh-val-c{order:-1;margin:0 -8px 0 0}
+@keyframes shCaret{0%,45%{opacity:1}55%,92%{opacity:0}100%{opacity:1}}
 .sh-val-note{text-align:center;font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;min-height:18px;margin-bottom:10px}
 /* a card whose last row(s) are hidden: the row above them is the last one
    you see, so it has no divider */
@@ -1757,7 +1765,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 <div class="sheet-overlay" id="trk-day-sheet-overlay" onclick="if(event.target===this)TrackerDaySheet.close()">
   <div class="sheet sh-win">
     <div class="sh-bar"><span class="sh-bar-t" id="trk-day-title"></span><button type="button" class="sh-save" onclick="TrackerDaySheet.save()">Save</button></div>
-    <div class="sh-val"><input id="trk-day-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-u" id="trk-day-unit"></span></div>
+    <div class="sh-val"><input id="trk-day-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-c"></span><span class="sh-val-u" id="trk-day-unit"></span></div>
     <div class="sh-val-note" id="trk-day-goal"></div>
   </div>
 </div>
@@ -1765,7 +1773,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 <div class="sheet-overlay" id="trk-add-sheet-overlay" onclick="if(event.target===this)TrackerAddSheet.close()">
   <div class="sheet sh-win">
     <div class="sh-bar"><span class="sh-bar-t" id="trk-add-title"></span><button type="button" class="sh-save" onclick="TrackerAddSheet.save()">Save</button></div>
-    <div class="sh-val"><input id="trk-add-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-u" id="trk-add-unit"></span></div>
+    <div class="sh-val"><input id="trk-add-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-c"></span><span class="sh-val-u" id="trk-add-unit"></span></div>
     <div class="sh-val-note" id="trk-add-goal"></div>
   </div>
 </div>
@@ -8671,6 +8679,8 @@ function _overlayClose(id,instant){
   instant=instant||_instantClose;_instantClose=false;
   var ov=document.getElementById(id);
   ov._closing=true;
+  var px=_focusSoon.px; // typed into through the keyboard helper: its keyboard goes down with it
+  if(px&&px._inp&&ov.contains(px._inp)){px._inp.parentNode.classList.remove('mirror');px._inp=null;px.blur();}
   if(ov._closeTimer){clearTimeout(ov._closeTimer);ov._closeTimer=null;}
   ov.classList.remove('show');
   _overlayCount=Math.max(0,_overlayCount-1);
@@ -9458,25 +9468,35 @@ function _autoFocus(el){if(el&&!IS_IOS)el.focus({preventScroll:true});}
 // screen, made iOS move the view to reveal it and the window ended up far
 // too high. So inside the tap a tiny field that's already on screen (top
 // left, invisible) takes the focus — the keyboard opens and nothing moves —
-// and the real field gets it once the window is in place (moving the focus
-// between fields keeps the keyboard up). Call it from the tap itself.
+// and it KEEPS the focus: what's typed shows in the real field, which gets a
+// drawn caret (`.sh-val.mirror`), and Enter there is Enter in the field.
+// (Handing the focus over to the real field once the window was up reloaded
+// the keyboard, and a word-suggestion bar flashed above it.) While the
+// keyboard is up a tap on the field changes nothing (the tap takeover below
+// ignores it); closing the window drops the focus, and the keyboard with it
+// (_overlayClose). Call it from the tap itself.
 function _focusSoon(inp){
   if(!IS_IOS){setTimeout(function(){try{inp.focus({preventScroll:true});}catch(e){}},SHEET_ANIM_MS+60);return;}
   var px=_focusSoon.px;
   if(!px){
     px=_focusSoon.px=document.createElement('input');
-    px.type='text';px.tabIndex=-1;px.setAttribute('aria-hidden','true');px.setAttribute('autocomplete','off');
-    px.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0;font-size:16px;pointer-events:none;z-index:-1';
+    px.type='text';px.tabIndex=-1;px.setAttribute('aria-hidden','true');
+    px.setAttribute('autocomplete','off');px.setAttribute('autocorrect','off');px.setAttribute('autocapitalize','off');
+    px.setAttribute('spellcheck','false');px.setAttribute('data-nosug','');
+    px.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0;font-size:16px;color:transparent;caret-color:transparent;background:transparent;pointer-events:none;z-index:-1';
     document.body.appendChild(px);
+    px.addEventListener('input',function(){
+      var f=px._inp;if(!f)return;
+      f.value=px.value;_shFitVal(f);f.parentNode.classList.toggle('empty',!f.value);
+    });
+    px.addEventListener('keydown',function(e){if(e.key==='Enter'&&px._inp)px._inp.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}));});
+    px.addEventListener('blur',function(){var f=px._inp;px._inp=null;if(f)f.parentNode.classList.remove('mirror');});
   }
+  if(px._inp&&px._inp!==inp)px._inp.parentNode.classList.remove('mirror');
   px.inputMode=inp.inputMode||'text';
-  try{px.focus({preventScroll:true});}catch(e){}
-  setTimeout(function(){
-    if(document.activeElement!==px)return; // something else took the focus
-    var ov=inp.closest('.sheet-overlay');
-    if(ov&&!ov.classList.contains('on')){px.blur();return;} // closed already: no keyboard left behind
-    try{inp.focus({preventScroll:true});var n=inp.value.length;inp.setSelectionRange(n,n);}catch(e){}
-  },SHEET_ANIM_MS+60);
+  px.value=inp.value;px._inp=inp;
+  inp.parentNode.classList.add('mirror');inp.parentNode.classList.toggle('empty',!inp.value);
+  try{px.focus({preventScroll:true});var n=px.value.length;px.setSelectionRange(n,n);}catch(e){}
 }
 // A number typed with "," or "." as the decimal point; NaN for anything else
 function numIn(v){
@@ -9659,6 +9679,8 @@ if(window.visualViewport){
       var t=tap;tap=null;
       var sheet=t&&t.el.closest('.sheet-overlay.on .sheet');
       if(!sheet)return;
+      var px=_focusSoon.px;
+      if(px&&document.activeElement===px&&px._inp===t.el&&kbUp()){e.preventDefault();return;} // already typing into it (see _focusSoon)
       var open=typingInSheet(document.activeElement)&&kbUp(); // keyboard already up: switching fields
       if(t.el===document.activeElement)t.el.blur(); // focused but no keyboard: focus again so it opens
       var H=KbFit.baseH||window.innerHeight,line=open?vv.offsetTop+vv.height:H-KbFit.keyboard(H);

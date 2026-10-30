@@ -2949,6 +2949,27 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   slide (SHEET_ANIM_MS+60, preventScroll; skipped if the sheet closed);
   elsewhere a plain focus after the slide. Untestable here (no iOS
   keyboard); if it still jumps, ship a readout of vv.offsetTop/innerHeight.
+  Beta 1.0 follow-up ("not clean opening… for a millisecond a word
+  suggestion above the keyboard pops up and then vanishes"): that hand-over
+  of the focus from the helper to the real field was it — moving focus
+  between two fields by script reloads iOS's keyboard, and its suggestion
+  bar flashed for a frame. Now the helper KEEPS the focus until the window
+  closes: its `input` copies the text into the real field (+ _shFitVal),
+  Enter is passed on as a keydown on the field, and the field shows a drawn
+  blinking caret (`.sh-val-c`, `.sh-val.mirror`; before the "0" while
+  empty — `.empty` — like iOS; it takes no room, the unit doesn't move).
+  The helper has every no-suggestion attribute from the start and a
+  transparent caret (iOS would draw its caret top left). `_overlayClose`
+  blurs it (and clears the mirror without waiting for the blur event —
+  the preview tab often has no window focus and then fires no blur events
+  at all), so the keyboard goes down as the window closes. The tap
+  takeover swallows a tap on that field while the keyboard is up (no focus
+  move = no flash; the caret is always at the end anyway); with no keyboard
+  (hold-to-complete opens the window from a timer, outside a tap) the tap
+  focuses the real field as before. Tested in the preview with IS_IOS
+  forced: typing mirrors, Enter saves 72.5 from "72,5", caret position,
+  close clears. Whether the flash is gone needs the phone. If any flash
+  remains, it comes from the helper's FIRST focus, not a hand-over.
   Same release: the number fields (tracker value, day value, habit goal)
   are `type="text" inputmode="decimal"` read through `numIn()` (comma or
   point, else NaN) — a type=number field reports value '' for "80," mid-
