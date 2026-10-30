@@ -20,6 +20,39 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   decisions already made below.
 
 ## Decisions made (don't redo these debates)
+- RELEASES GO THROUGH THE DEVELOPER BETA (asked 2026-10-30: "stack changes
+  and release them as one update… every update first gets released on beta
+  mode that only devs can try… in dev mode switch between versions… then
+  I'll tell you to push it fully"). Don't push app changes one by one: stack
+  them in the working copy. VERSION NAMES: everything up to Beta 4.67 was
+  "Beta x.y"; 1.0 is the first official version; from then on the CHANGELOG
+  key is the plain number ('1.0', '1.1') and the beta build SHOWS it as
+  "Beta 1.1" (`verName(v)`, only for the running version). 'Beta 1.0' is
+  ALSO the name of the app's very first version in CHANGELOG — never reuse
+  a "Beta x" key. FILES: beta.html is a byte-identical copy of the next
+  index.html; it knows it's the beta by its address (`IS_BETA` = path ends
+  in /beta.html). A head script in index.html (after the CSS) sends a
+  device with localStorage 'lifeos-channel'='beta' on to beta.html and
+  swallows the rest of the page with document.write('<plaintext>') so the
+  released code never starts on the way (tested: later scripts don't run).
+  sw.js serves /beta.html network-first (4s timeout → cached beta → shell);
+  every other navigation is still the shell. `Channel.go(beta)` sets/clears
+  the key and navigates (picking Beta again = loads the newest beta);
+  Menu → Developer → Version (Released / Beta, `#dev-channel`). The beta
+  keeps its own What's New "seen" ('lifeos-beta-seen', `Channel.seen/
+  markSeen`) so settings.lastSeenVersion stays the released app's. Leaving
+  developer mode (switch, Reset settings, or the beta starting without it)
+  goes back to released. Both share ALL data — a beta migration is
+  permanent for the released app too; keep data changes backward-safe.
+  FLOW: (1) beta release = copy index.html → beta.html, commit ONLY
+  beta.html (no sw.js bump, so nobody else gets an update), push; the
+  developer taps Developer → Version → Beta. (2) Full release (only when
+  the user says) = bump CACHE_NAME, commit index.html (+ beta.html still
+  identical) + sw.js + CLAUDE.md, push. A beta needs no CACHE_NAME bump;
+  the full release always does. Checklists below still apply to both.
+  The very first time (the phone had 4.66, without the switch) needed a
+  normal release, Beta 4.67 = only the switch, before Beta 1.0 could be
+  tried.
 - NAME (4.3): the app is called "Today" on screen (manifest name/short_name,
   <title>, apple-mobile-web-app-title — the home-screen label is fixed when
   an icon is ADDED, so rename before people add it). Internal names keep
@@ -36,9 +69,22 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   today (0 = today, negative = past, positive = future) — NOT a weekday
   index 0-6. It used to be a weekday index back when the day strip only
   ever showed the current week (index doubled as both "which pill" and
-  "which weekday, for recurring-schedule matching"). Extending the strip
-  to DAILY_RANGE_BACK/DAILY_RANGE_FWD (buildPills/buildPanels; 28 back since
-  4.64 — "go back 4 weeks, rn it's only 1 week" — and 30 forward) split those
+  "which weekday, for recurring-schedule matching"). ENDLESS STRIP (1.0,
+  "scroll as long as someone wants in both directions… loads as it's close
+  to being scrolled into visibility… a button to get back to today"):
+  `DayStrip` — `.wdays-track` is as wide as lo..hi (DAY_SPAN 3650 days each
+  way, `grow()` adds another span when an end comes within BUF; growing the
+  left end shifts scrollLeft), pills are absolutely placed at
+  (pi-lo)*STEP (52) and only the visible ones ± BUF (30) exist (`draw` on
+  scroll, rAF), so adding/removing pills never moves the scroll. buildPanels
+  builds ONLY Nav.sd's panel; `DayStrip.pick(pi)` rebuilds it (it used to
+  build all 59 days and toggle `.on`). "Today" button `#day-jump` (blue-tint
+  chip left of the date, SQ_BTNS press) shows while Nav.sd≠0 or today's
+  pill is out of view (`syncJump`); `toToday()` picks 0 and glides back
+  (from far away it jumps to 20 days off first). Tested: 20 years each way,
+  grow at both ends, finger taps on pills, ticking a past day. Before 1.0:
+  DAILY_RANGE_BACK/DAILY_RANGE_FWD (28 back since
+  4.64 — "go back 4 weeks, rn it's only 1 week" — and 30 forward). Extending the strip split those
   two meanings apart: the offset drives `pDate(pi)` — now literally
   `T + pi days`, nothing more — while a separate `wIdx(dateObj)` call
   gives the real weekday for matching `item.days`. `pDate` used to be
@@ -256,6 +302,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   without a goal drops both. New tracker habits pass it to
   `addTrackerDailyItem(...,low)`. The line chart (TrkZ) only draws the
   goal line, so it needed nothing.
+  CURRENT VALUE (1.0, "when avg is turned on, the Overview card shows the
+  avg and not the current input"): `trkNow(p,entries)` = the latest entry,
+  or with the moving average on the latest 7-entry average (`trkAvgs`,
+  rounded to .1) — the Overview card's count line and the line chart's end
+  label both read it; use it anywhere else a tracker's "current" value shows.
   A tracker page for a Daily-linked tracker (`renderTracker` +
   `TrackerPage`): entries fold behind one "Entries N ›" row (closed by
   default, state kept per pid while the app runs), then the Consistency
@@ -764,6 +815,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   setting, gesture, page, tab); renames, restyles, moves and spacing are
   design; anything that was broken is bug. A big visible change can still
   get a line (2.55 redesign, 3.76 categories gone).
+- Slide-up backdrop (`.sheet-overlay` background) is rgba(0,0,0,.3) since
+  1.0 ("a bit lighter, not as dark"; was .5).
 - Centred pop-ups (3.67, `Alert`, `#alert-overlay`), asked for with an
   iOS screenshot: short confirmations and messages appear in the middle of
   the screen instead of a slide-up. `Alert.confirm(text, fn, label)` (Cancel
@@ -2870,6 +2923,22 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   placed the caret on iOS. preventScroll:true, same as the tap takeover.
   Verified here only that focus lands synchronously; the real keyboard
   needs the phone. Other windows still use `_autoFocus` (not asked).
+  1.0 REPLACED that ("from Overview the input window is so far up it's not
+  visible… from Today the height is right but the keyboard doesn't open…
+  should be the same everywhere"): focusing the field while the sheet is
+  still off-screen made iOS pan to it, so the window landed too high; from
+  Today (TrackerDaySheet, 300ms _autoFocus) there was no keyboard. Both
+  tracker windows now call `_focusSoon(inp)`: on iOS it focuses a hidden
+  1px helper input (same inputMode) INSIDE the tap — that opens the keyboard
+  without anything to pan to — and hands focus to the real field after the
+  slide (SHEET_ANIM_MS+60, preventScroll; skipped if the sheet closed);
+  elsewhere a plain focus after the slide. Untestable here (no iOS
+  keyboard); if it still jumps, ship a readout of vv.offsetTop/innerHeight.
+  Same release: the number fields (tracker value, day value, habit goal)
+  are `type="text" inputmode="decimal"` read through `numIn()` (comma or
+  point, else NaN) — a type=number field reports value '' for "80," mid-
+  typing, so `_shFitVal` (which sizes the field to its value) shrank it and
+  the number was cut off on the left.
   3.30 — still bumped when creating a category: windows that focus their
   field by themselves (InputSheet, new task/habit/one-time/tracker value)
   did so from a 300ms timer; on iOS that puts focus in the field WITHOUT

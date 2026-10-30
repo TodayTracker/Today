@@ -1154,6 +1154,18 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 .alert-btn.danger{color:var(--red)}
 .alert-btn:active{background:var(--press)}
 </style>
+<script>
+// Developer beta (Menu → Developer → Version): the home-screen icon always
+// opens the released app; a device switched to the beta goes on to
+// beta.html, and the rest of this page is swallowed unparsed so none of the
+// released app's code starts on the way.
+(function(){try{
+  if(!/\/beta\.html$/i.test(location.pathname)&&localStorage.getItem('lifeos-channel')==='beta'){
+    location.replace('beta.html'+location.search);
+    document.write('<plaintext style="display:none">');
+  }
+}catch(e){}})();
+</script>
 </head>
 <body>
 
@@ -1227,7 +1239,8 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
     <div class="hh-title">Developer</div>
   </div>
-  <div class="opt-group" style="margin-top:8px">
+  <div id="dev-channel"></div>
+  <div class="opt-group">
     <div class="opt-row" onclick="Welcome.open({install:false})"><div class="opt-text"><div class="opt-title">Welcome screens</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
     <div class="opt-row" onclick="Welcome.open({install:'ios'})"><div class="opt-text"><div class="opt-title">Add to Home Screen · iPhone</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
     <div class="opt-row" onclick="Welcome.open({install:'android'})"><div class="opt-text"><div class="opt-title">Add to Home Screen · Android</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
@@ -1759,9 +1772,35 @@ if('serviceWorker' in navigator){
 
 // Bump APP_VERSION on every user-visible change (alongside CACHE_NAME in
 // sw.js — see CLAUDE.md). Add a matching CHANGELOG entry so the "What's
-// new" sheet has something to show after the update completes. Still in
-// beta — just the number goes up (1.0, 1.1, 1.2, ...), no 1.0 "release" cutoff planned yet.
-var APP_VERSION='Beta 4.66';
+// new" sheet has something to show after the update completes. Versions
+// before 1.0 (the first official one) were all called "Beta x.y"; since
+// then a version is tried first as the developer beta (shown "Beta 1.1")
+// and released under its plain number.
+var APP_VERSION='Beta 4.67';
+// Developer beta: beta.html is the next release for developers to try
+// before everyone gets it. It's the same file as index.html, told apart by
+// its address only, and uses the same data. It keeps its own "seen"
+// version for What's New, so switching back and forth never touches
+// settings.lastSeenVersion.
+var IS_BETA=/\/beta\.html$/i.test(location.pathname);
+function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
+var Channel={
+  seen:function(){
+    if(!IS_BETA)return DB.data.settings.lastSeenVersion;
+    try{return localStorage.getItem('lifeos-beta-seen')||'';}catch(e){return '';}
+  },
+  markSeen:function(){
+    if(!IS_BETA){DB.data.settings.lastSeenVersion=APP_VERSION;DB.save();return;}
+    try{localStorage.setItem('lifeos-beta-seen',APP_VERSION);}catch(e){}
+  },
+  // switch: the beta always loads fresh from the network (sw.js), so
+  // picking Beta again also brings in a newer beta
+  go:function(beta){
+    try{if(beta)localStorage.setItem('lifeos-channel','beta');else localStorage.removeItem('lifeos-channel');}catch(e){}
+    if(!beta&&!IS_BETA)return;
+    location.replace(beta?'beta.html':'./');
+  }
+};
 var CHANGELOG=[
   {v:'Beta 1.0',notes:[
     'New Settings > Today section: choose whether completed habits disappear or stay checked off',
@@ -3049,6 +3088,9 @@ var CHANGELOG=[
   ]},
   {v:'Beta 4.66',notes:[
     "A Habits project's day bar: the picked day is soft blue with a thin blue outline, and today (when another day is picked) has only a very thin black outline instead of the green pill. The picked days in a habit's window use the same blue"
+  ]},
+  {v:'Beta 4.67',notes:[
+    "Menu → Developer → Version: switch between the released app and the beta — the next update, to try before everyone gets it (developer mode only)"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3189,7 +3231,8 @@ var USER_LOG={
   'Beta 4.63':'both',
   'Beta 4.64':["Habits project day bar goes back 4 weeks"],
   'Beta 4.65':["Tracker goals can aim lower or higher"],
-  'Beta 4.66':'design'
+  'Beta 4.66':'design',
+  'Beta 4.67':'design'
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3866,7 +3909,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -5004,7 +5047,7 @@ function renderAppPage(){
   main.innerHTML='<div class="opt-group" style="margin-top:8px">'
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Version</div></div>'
-    +'<span style="margin-left:auto;font-size:15px;font-weight:500;color:#999">'+esc(APP_VERSION)+'</span></div>'
+    +'<span style="margin-left:auto;font-size:15px;font-weight:500;color:#999">'+esc(verName(APP_VERSION))+'</span></div>'
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Update automatically</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.autoUpdate?'checked':'')+' onchange="A.setAutoUpdate(this.checked)"><span class="switch-slider"></span></label>'
@@ -5020,7 +5063,7 @@ function advancedLog(){var st=DB.data.settings;return !!(st.devMode&&st.advanced
 // Version history: every detailed CHANGELOG note (advancedLog()), or the
 // simple log (USER_LOG via simpleHistory) everyone else gets.
 function renderAppHistory(){
-  var head=function(v){return '<div style="margin-bottom:18px"><div style="font-weight:700;font-size:15px;margin-bottom:6px">'+esc(v)+'</div>';};
+  var head=function(v){return '<div style="margin-bottom:18px"><div style="font-weight:700;font-size:15px;margin-bottom:6px">'+esc(verName(v))+'</div>';};
   var bullets=function(a){return a.map(function(n){return '<div class="wn-item">• '+esc(n)+'</div>';}).join('');};
   var h=advancedLog()
     ?CHANGELOG.slice().reverse().map(function(e){return head(e.v)+bullets(e.notes)+'</div>';})
@@ -5071,7 +5114,7 @@ function renderSettings(){
   var appRow='<div class="opt-row" onclick="Nav.go(\'app\')">'
     +'<div class="opt-ico" style="background:#3b82f6">'+ICON_PHONE+'</div>'
     +'<div class="opt-text"><div class="opt-title">App</div></div>'
-    +'<span style="'+rowVal+'">'+esc(APP_VERSION)+'</span>'+chev+'</div>';
+    +'<span style="'+rowVal+'">'+esc(verName(APP_VERSION))+'</span>'+chev+'</div>';
   // the icon shows the selected mode (no text needed)
   var themeNow=DB.data.settings.theme||'system';
   var themeIco={light:[ICON_SUN,'#f59e0b'],dark:[ICON_MOON,'#6366f1'],system:[ICON_SYSTEM,'#6b7280']}[themeNow]||[ICON_SYSTEM,'#6b7280'];
@@ -5604,6 +5647,7 @@ var A={
       recomputeT();Nav.sd=0;LockedIn.view=LockedIn.startView();
       applyHoldMode();applyTheme();I18N.set(DB.data.settings.language);TabBar.applyTabs();
       A._refreshAll();renderSettings();renderAppPage();renderAppearance();renderGeneral();
+      Channel.go(false); // developer mode is off now — back to the released app
     },'Reset');
   },
   // Menu > Statistics > Deleted habits > Keep in statistics (DB._endHabit);
@@ -5622,7 +5666,7 @@ var A={
   _DEV_HASH:'9e491701f57853e4eabe30840a204d73bb2e90fda996751df6f8dcae4d175f2d',
   setDevMode:function(on){
     var self=this;
-    if(!on){DB.data.settings.devMode=false;DB.save();renderGeneralDev();renderSettings();return;}
+    if(!on){DB.data.settings.devMode=false;DB.save();renderGeneralDev();renderSettings();Channel.go(false);return;}
     renderGeneralDev(); // stays off until the code is right
     InputSheet.show('Access code','Code',function(code){
       var buf=new TextEncoder().encode(code.trim());
@@ -8647,6 +8691,11 @@ var QuoteText={
 // Menu → Developer: the Updates card — the detailed update log switch, the
 // quote list and a dry run of the update screen
 function renderDevPage(){
+  var tick='<span class="opt-tick">✓</span>';
+  setHTML('dev-channel','<div class="sl">Version</div><div class="opt-group">'
+    +'<div class="opt-row'+(IS_BETA?'':' active')+'" onclick="Channel.go(false)"><div class="opt-text"><div class="opt-title">Released</div></div>'+(IS_BETA?'':tick)+'</div>'
+    +'<div class="opt-row'+(IS_BETA?' active':'')+'" onclick="Channel.go(true)"><div class="opt-text"><div class="opt-title">Beta</div></div>'+(IS_BETA?tick:'')+'</div>'
+    +'</div><div class="data-note">Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.</div>');
   setHTML('dev-updates','<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Advanced update info</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.advancedUpdates?'checked':'')+' onchange="A.setAdvancedUpdates(this.checked)"><span class="switch-slider"></span></label></div>'
@@ -8900,7 +8949,7 @@ var WhatsNew={
   // Every CHANGELOG entry newer than the last-seen version, so skipped
   // versions aren't lost.
   _pending:function(){
-    var seen=DB.data.settings.lastSeenVersion;
+    var seen=Channel.seen();
     var i=CHANGELOG.findIndex(function(e){return e.v===seen;});
     // lastSeenVersion not found in CHANGELOG (fresh install, or an old/
     // renamed version string) — don't replay the whole history, just
@@ -8916,7 +8965,7 @@ var WhatsNew={
     var list=this._pending();
     if(!advancedLog()){
       list=list.filter(function(e){return !userLogKind(e);}).map(function(e){return{v:e.v,notes:USER_LOG[e.v]};});
-      if(!list.length){DB.data.settings.lastSeenVersion=APP_VERSION;DB.save();return;}
+      if(!list.length){Channel.markSeen();return;}
     }
     this._render(list);
     _overlayOpen('whatsnew-overlay');
@@ -8925,18 +8974,18 @@ var WhatsNew={
   // it (pull down or tap outside) marks you as caught up.
   _render:function(list){
     var one=list.length===1;
-    document.getElementById('whatsnew-title').textContent=one?"What's new in "+list[0].v:"What's new";
+    document.getElementById('whatsnew-title').textContent=one?"What's new in "+verName(list[0].v):"What's new";
     document.getElementById('whatsnew-body').innerHTML=list.slice().reverse().map(function(e){
-      return (one?'':'<div class="sl" style="margin-top:12px">'+esc(e.v)+'</div>')
+      return (one?'':'<div class="sl" style="margin-top:12px">'+esc(verName(e.v))+'</div>')
         +e.notes.map(function(n){return '<div class="wn-item">• '+esc(n)+'</div>';}).join('');
     }).join('');
   },
   close:function(){
     _overlayClose('whatsnew-overlay');
-    DB.data.settings.lastSeenVersion=APP_VERSION;DB.save();
+    Channel.markSeen();
   },
   checkAndShow:function(){
-    if(DB.data.settings.lastSeenVersion===APP_VERSION)return;
+    if(Channel.seen()===APP_VERSION)return;
     this.open();
   }
 };
@@ -10175,6 +10224,8 @@ window.onerror=function(msg,src,line){
 };
 DB.load();
 if(DB.loadProblem)DataNotice.loadFailed(DB.loadProblem);
+// the beta is for developer mode only (turned off elsewhere → released app)
+if(IS_BETA&&!DB.loadProblem&&!DB.data.settings.devMode)Channel.go(false);
 // Ask the browser to keep this app's data even when the phone runs low on
 // space — otherwise Android Chrome may clear a site's storage (all of it,
 // the app's own cached copy included) under storage pressure, which then

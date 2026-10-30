@@ -4,9 +4,10 @@
 // round-trip and works fully offline. New code only reaches the device
 // when the user taps "Check for updates" in Settings (see A.checkForUpdate
 // in index.html).
-var CACHE_NAME = 'lifeos-cache-v424';
+var CACHE_NAME = 'lifeos-cache-v425';
 var SCOPE_URL = self.registration.scope;
 var SHELL_URL = SCOPE_URL + 'index.html';
+var BETA_URL = SCOPE_URL + 'beta.html';
 var ASSETS = [
   SCOPE_URL,
   SHELL_URL,
@@ -95,6 +96,28 @@ self.addEventListener('fetch', function (e) {
   // link and rendering a 404. It also means a launch never needs the
   // network while offline, which is what stops iOS's "no internet" alert
   // from firing on open.
+  // The developer beta (beta.html, Menu → Developer → Version) is the one
+  // page that isn't the shell: it comes from the network every time, so a
+  // new beta arrives without a new worker; offline or slow (4s) it comes
+  // from the cache, and with neither the released shell is served.
+  if (e.request.mode === 'navigate' && new URL(e.request.url).pathname.endsWith('/beta.html')) {
+    e.respondWith(new Promise(function (resolve) {
+      var done = false;
+      function fallback() {
+        if (done) return; done = true;
+        resolve(caches.match(BETA_URL).then(function (c) { return c || caches.match(SHELL_URL); }));
+      }
+      setTimeout(fallback, 4000);
+      fetch(BETA_URL, { cache: 'no-store' }).then(function (resp) {
+        if (!resp.ok) throw new Error('beta fetch failed: ' + resp.status);
+        var copy = resp.clone();
+        caches.open(CACHE_NAME).then(function (cache) { cache.put(BETA_URL, copy); });
+        if (!done) { done = true; resolve(resp); }
+      }).catch(fallback);
+    }));
+    return;
+  }
+
   if (e.request.mode === 'navigate') {
     e.respondWith(
       caches.match(SHELL_URL).then(function (cached) {
