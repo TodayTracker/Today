@@ -635,6 +635,9 @@ html[data-theme="dark"]{--ink:#fff;--blue:#0a84ff;--blue-tint:rgba(10,132,255,.2
 html[data-theme="light"]{--ink:#000;--blue:#007aff;--blue-tint:rgba(0,122,255,.12);--red:#ff3b30}
 /* soft square buttons (header +, back, edit, menu, add) */
 html:not(#x) .hdr-add,html:not(#x) .menu-btn,html:not(#x) .back,html:not(#x) .edit-proj-btn,html:not(#x) .addbtn{width:40px;height:40px;min-height:40px;border:none;border-radius:12px;background:var(--card);color:var(--ink)}
+/* Menu → Developer → Try out: the header buttons without their white square
+   (this device only, while it's being tried) */
+html:not(#x) body.hb-bare .page :is(.hh-btn,.hdr-add,.menu-btn,.back,.edit-proj-btn){background:transparent;box-shadow:none}
 html:not(#x) .addbtn{width:46px;height:46px;min-height:46px;border-radius:14px}
 html:not(#x) .dhdr{min-height:40px}
 .dtitle{font-size:20px;font-weight:800}
@@ -1812,7 +1815,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=2;
+var BETA_BUILD=3;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3954,7 +3957,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Try out":"Ausprobieren","Header buttons without background":"Kopfzeilen-Knöpfe ohne Hintergrund","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -5717,6 +5720,10 @@ var A={
   },
   // The access code is only kept as its SHA-256, not as text in the app.
   _DEV_HASH:'9e491701f57853e4eabe30840a204d73bb2e90fda996751df6f8dcae4d175f2d',
+  setHeaderBare:function(on){
+    try{if(on)localStorage.setItem('lifeos-hbare','1');else localStorage.removeItem('lifeos-hbare');}catch(e){}
+    applyHeaderBare();
+  },
   setDevMode:function(on){
     var self=this;
     if(!on){DB.data.settings.devMode=false;DB.save();renderGeneralDev();renderSettings();Channel.go(false);return;}
@@ -8798,6 +8805,9 @@ var QuoteText={
     return this.readMs(text);
   }
 };
+// Menu → Developer → Try out: the header buttons (back, +, Tasks' view
+// button…) without their white square — this device only, while it's tried
+function applyHeaderBare(){var b=false;try{b=localStorage.getItem('lifeos-hbare')==='1';}catch(e){}document.body.classList.toggle('hb-bare',b);}
 // Menu → Developer: the Updates card — the detailed update log switch, the
 // quote list and a dry run of the update screen
 function renderDevPage(){
@@ -8805,7 +8815,9 @@ function renderDevPage(){
   setHTML('dev-channel','<div class="sl">Version</div><div class="opt-group">'
     +'<div class="opt-row'+(IS_BETA?'':' active')+'" onclick="Channel.go(false)"><div class="opt-text"><div class="opt-title">Released</div></div>'+(IS_BETA?'':tick)+'</div>'
     +'<div class="opt-row'+(IS_BETA?' active':'')+'" onclick="Channel.go(true)"><div class="opt-text"><div class="opt-title">Beta</div></div>'+(IS_BETA?tick:'')+'</div>'
-    +'</div><div class="data-note">Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.</div>');
+    +'</div><div class="data-note">Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.</div>'
+    +'<div class="sl">Try out</div><div class="opt-group"><div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Header buttons without background</div></div>'
+    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(document.body.classList.contains('hb-bare')?'checked':'')+' onchange="A.setHeaderBare(this.checked)"><span class="switch-slider"></span></label></div></div>');
   setHTML('dev-updates','<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Advanced update info</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.advancedUpdates?'checked':'')+' onchange="A.setAdvancedUpdates(this.checked)"><span class="switch-slider"></span></label></div>'
@@ -10410,6 +10422,7 @@ recomputeT();Nav.sd=0; // re-derive "today" now that the real dayStartHour setti
 buildProjPages();
 applyHoldMode();
 applyTheme();
+applyHeaderBare();
 I18N.set(DB.data.settings.language);
 document.getElementById('tlbl').textContent=T.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
 renderWar();

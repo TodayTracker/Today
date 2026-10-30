@@ -2654,6 +2654,16 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   · iPhone / · Android via `Welcome.open({install:false|'ios'|'android'})`
   (replays never touch settings.onboard), then the Updates card (see
   QUOTES). New test tools go on #p-dev.
+  TRY OUT (Developer → Try out, under Version): switches for looks being
+  compared on the phone, kept in localStorage on that device only (not in
+  the data, not exported). Remove each one (switch, CSS, setter, key) once
+  the user has picked. Now: "Header buttons without background" (4.67.3,
+  "test how the buttons look without the white window behind them… back,
+  + and the menu button in Tasks"): 'lifeos-hbare' → `body.hb-bare`
+  (`applyHeaderBare`, `A.setHeaderBare`) clears the white square of
+  `.hh-btn/.hdr-add/.menu-btn/.back/.edit-proj-btn` inside `.page` (sheets
+  untouched); size, tap area and the SQ press stay. Before: the day bar
+  arrow F1/F3 switch (removed once F3 was picked).
 - Calendar import (4.16, Menu > Data > Import calendar, `IcsImport`):
   file input `#ics-file` (.ics, or Google's .zip — `_unzip` reads the
   zip's central directory, stored or deflate-raw via DecompressionStream).
