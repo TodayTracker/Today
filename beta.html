@@ -755,11 +755,10 @@ html:not(#x) .sh-val input{width:2ch;max-width:70%;border:none;border-radius:0;b
 .sh-val-u{font-size:22px;line-height:28px;font-weight:600;color:#8a8a8e}
 /* A number window typed into through the keyboard helper (_focusSoon): the
    focus stays on the helper, so the field gets a drawn caret — after the
-   number, or before the "0" while it's empty. It takes no room: the unit
-   stays where it was. */
+   number, or in the middle of the "0" while it's empty (_mirrorCaret). It
+   takes no room: the unit stays where it was. */
 .sh-val-c{display:none;width:2px;height:46px;border-radius:1px;background:var(--blue);align-self:center;margin-left:-8px;animation:shCaret 1.1s infinite}
 .sh-val.mirror .sh-val-c{display:block}
-.sh-val.mirror.empty .sh-val-c{order:-1;margin:0 -8px 0 0}
 @keyframes shCaret{0%,45%{opacity:1}55%,92%{opacity:0}100%{opacity:1}}
 .sh-val-note{text-align:center;font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;min-height:18px;margin-bottom:10px}
 /* a card whose last row(s) are hidden: the row above them is the last one
@@ -1807,7 +1806,11 @@ var APP_VERSION='1.0';
 // version for What's New, so switching back and forth never touches
 // settings.lastSeenVersion.
 var IS_BETA=/\/beta\.html$/i.test(location.pathname);
-function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
+// Each beta push of APP_VERSION gets the next build number, so the beta
+// shows which one is running ("Beta 1.0.1", "Beta 1.0.2"…); back to 1 for a
+// new version. The released app never shows it.
+var BETA_BUILD=1;
+function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v+'.'+BETA_BUILD:v;}
 var Channel={
   seen:function(){
     if(!IS_BETA)return DB.data.settings.lastSeenVersion;
@@ -8461,7 +8464,7 @@ document.addEventListener('touchstart',function(e){
     holdTimer=setTimeout(function(){
       holdTimer=null;
       playClick();
-      TrackerDaySheet.press(item.getAttribute('data-tracker'),parseInt(item.getAttribute('data-day'),10));
+      TrackerDaySheet.press(item.getAttribute('data-tracker'),parseInt(item.getAttribute('data-day'),10),true);
     },700);
     return;
   }
@@ -9304,7 +9307,7 @@ var TrackerDaySheet={
   // A tap (a hold, in hold-to-complete mode) on a tracker's tick box: a
   // skipped day is just un-skipped, like a habit's box; otherwise the value
   // window opens.
-  press:function(itemId,dayIdx){
+  press:function(itemId,dayIdx,held){
     var ds=pDate(dayIdx);
     if(dcv(ds,itemId)==='skip'){
       DB.toggleDailyCheck(itemId,ds,false);
@@ -9313,9 +9316,10 @@ var TrackerDaySheet={
       if(it&&it.trackerPid&&DB.data.projects[it.trackerPid])renderTracker(it.trackerPid);
       return;
     }
-    this.open(itemId,dayIdx);
+    this.open(itemId,dayIdx,held);
   },
-  open:function(itemId,dayIdx){
+  // held: opened by a hold — the keyboard comes when the finger lets go
+  open:function(itemId,dayIdx,held){
     var it=DB.data.dailyItems.find(function(x){return x.id===itemId;});
     var p=it&&DB.data.projects[it.trackerPid];
     if(!p||dayIdx>0||!habitActive(it,pDate(dayIdx)))return;
@@ -9328,7 +9332,7 @@ var TrackerDaySheet={
     var v=trackerDayValue(it,pDate(dayIdx));
     var inp=document.getElementById('trk-day-val');inp.value=v!=null?fmtTrk(v):'';_shFitVal(inp);
     _overlayOpen('trk-day-sheet-overlay');
-    _focusSoon(inp);
+    _focusSoon(inp,held);
   },
   save:function(){
     if(!_sheetLive('trk-day-sheet-overlay'))return; // already saved, window closing
@@ -9474,8 +9478,9 @@ function _autoFocus(el){if(el&&!IS_IOS)el.focus({preventScroll:true});}
 // the keyboard, and a word-suggestion bar flashed above it.) While the
 // keyboard is up a tap on the field changes nothing (the tap takeover below
 // ignores it); closing the window drops the focus, and the keyboard with it
-// (_overlayClose). Call it from the tap itself.
-function _focusSoon(inp){
+// (_overlayClose). Call it from the tap itself — or, for a window opened by
+// a hold, with `onRelease`: then the focus waits for the finger to let go.
+function _focusSoon(inp,onRelease){
   if(!IS_IOS){setTimeout(function(){try{inp.focus({preventScroll:true});}catch(e){}},SHEET_ANIM_MS+60);return;}
   var px=_focusSoon.px;
   if(!px){
@@ -9487,7 +9492,7 @@ function _focusSoon(inp){
     document.body.appendChild(px);
     px.addEventListener('input',function(){
       var f=px._inp;if(!f)return;
-      f.value=px.value;_shFitVal(f);f.parentNode.classList.toggle('empty',!f.value);
+      f.value=px.value;_shFitVal(f);_mirrorCaret(f);
     });
     px.addEventListener('keydown',function(e){if(e.key==='Enter'&&px._inp)px._inp.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}));});
     px.addEventListener('blur',function(){var f=px._inp;px._inp=null;if(f)f.parentNode.classList.remove('mirror');});
@@ -9495,8 +9500,27 @@ function _focusSoon(inp){
   if(px._inp&&px._inp!==inp)px._inp.parentNode.classList.remove('mirror');
   px.inputMode=inp.inputMode||'text';
   px.value=inp.value;px._inp=inp;
-  inp.parentNode.classList.add('mirror');inp.parentNode.classList.toggle('empty',!inp.value);
-  try{px.focus({preventScroll:true});var n=px.value.length;px.setSelectionRange(n,n);}catch(e){}
+  inp.parentNode.classList.add('mirror');_mirrorCaret(inp);
+  function go(){try{px.focus({preventScroll:true});var n=px.value.length;px.setSelectionRange(n,n);}catch(e){}}
+  if(!onRelease){go();return;}
+  // Opened by a hold (a timer, not a tap): the keyboard comes when the
+  // finger lets go — that release counts as a tap.
+  var ov=inp.closest('.sheet-overlay');
+  function rel(e){
+    document.removeEventListener('touchend',rel,true);document.removeEventListener('touchcancel',rel,true);
+    if(px._inp!==inp)return;
+    if(e.type==='touchend'&&_sheetLive(ov.id))go();
+    else{inp.parentNode.classList.remove('mirror');px._inp=null;}
+  }
+  document.addEventListener('touchend',rel,true);document.addEventListener('touchcancel',rel,true);
+}
+// The drawn caret sits right after the number; while the field is empty, in
+// the middle of the "0" (iOS's own caret in an empty centred field). Its
+// margins always add up the same, so nothing else moves.
+function _mirrorCaret(f){
+  var c=f.parentNode.querySelector('.sh-val-c');if(!c)return;
+  var w=f.offsetWidth;
+  c.style.margin=f.value?'':'0 '+(w/2-1)+'px 0 '+(-w/2-7)+'px';
 }
 // A number typed with "," or "." as the decimal point; NaN for anything else
 function numIn(v){

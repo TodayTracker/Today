@@ -44,9 +44,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   developer mode (switch, Reset settings, or the beta starting without it)
   goes back to released. Both share ALL data — a beta migration is
   permanent for the released app too; keep data changes backward-safe.
-  FLOW: (1) beta release = copy index.html → beta.html, commit ONLY
-  beta.html (no sw.js bump, so nobody else gets an update), push; the
-  developer taps Developer → Version → Beta. (2) Full release (only when
+  BETA BUILDS ("mini updates like beta 1.0.1 so I know when it has
+  updated"): `BETA_BUILD` next to APP_VERSION; the beta shows "Beta
+  1.0.<BETA_BUILD>" (verName — Menu → App, What's New, history), the
+  released app never shows it. +1 on EVERY beta push; back to 1 when
+  APP_VERSION changes. Beta 1.0.1 was the first numbered one (the three
+  beta pushes before it all said "Beta 1.0").
+  FLOW: (1) beta release = bump BETA_BUILD, copy index.html → beta.html,
+  commit ONLY beta.html (no sw.js bump, so nobody else gets an update),
+  push; the developer taps Developer → Version → Beta. (2) Full release (only when
   the user says) = bump CACHE_NAME, commit index.html (+ beta.html still
   identical) + sw.js + CLAUDE.md, push. A beta needs no CACHE_NAME bump;
   the full release always does. Checklists below still apply to both.
@@ -2968,8 +2974,20 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (hold-to-complete opens the window from a timer, outside a tap) the tap
   focuses the real field as before. Tested in the preview with IS_IOS
   forced: typing mirrors, Enter saves 72.5 from "72,5", caret position,
-  close clears. Whether the flash is gone needs the phone. If any flash
-  remains, it comes from the helper's FIRST focus, not a hand-over.
+  close clears. Confirmed on the iPhone ("works good now"). If a flash
+  ever comes back, it's from the helper's FIRST focus, not a hand-over.
+  Then "through Today the keyboard doesn't open and the blue stripe is not
+  in the middle": (1) with Hold to complete on, Today's tracker box opens
+  the window from the HOLD timer (700ms, finger still down) — not a tap,
+  so iOS ignored the focus. `TrackerDaySheet.press/open(…, held)` →
+  `_focusSoon(inp,true)`: the window still opens at 700ms, the helper is
+  focused in the finger's touchend (a capture listener; touchcancel drops
+  the mirror instead). (2) An empty field's drawn caret sat before the
+  grey "0"; now it's in the middle of it, where iOS draws its own caret in
+  an empty centred field — `_mirrorCaret(f)` sets margins that always add
+  up to the same width (left -(w/2+7), right w/2-1), so the unit never
+  moves. Measured: caret centre = field centre (0px), unit gap 6px in
+  every state; hold → release → focused; cancel → nothing left behind.
   Same release: the number fields (tracker value, day value, habit goal)
   are `type="text" inputmode="decimal"` read through `numIn()` (comma or
   point, else NaN) — a type=number field reports value '' for "80," mid-
