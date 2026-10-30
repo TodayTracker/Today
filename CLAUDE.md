@@ -78,11 +78,25 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (pi-lo)*STEP (52) and only the visible ones ± BUF (30) exist (`draw` on
   scroll, rAF), so adding/removing pills never moves the scroll. buildPanels
   builds ONLY Nav.sd's panel; `DayStrip.pick(pi)` rebuilds it (it used to
-  build all 59 days and toggle `.on`). "Today" button `#day-jump` (blue-tint
-  chip left of the date, SQ_BTNS press) shows while Nav.sd≠0 or today's
-  pill is out of view (`syncJump`); `toToday()` picks 0 and glides back
-  (from far away it jumps to 20 days off first). Tested: 20 years each way,
-  grow at both ends, finger taps on pills, ticking a past day. Before 1.0:
+  build all 59 days and toggle `.on`). A picked day glides to the middle
+  ("if I click on a day that day moves to the middle"; `pick` → `center(pi,
+  true)`, from far away it jumps to 20 days off first). BACK TO TODAY = "F1"
+  from https://claude.ai/artifact/XQiZwqGsFoCuuLS7MzbVia (the user wanted
+  "blurring both ends… an arrow button" and to see options first; a blue
+  "Today" chip by the date was built before asking and replaced): both
+  ends of `.wdays` fade (mask on the scroller, `--dfl/--dfr` 36px, inside
+  `.wdays-wrap`); while today's middle is within 30px of an edge or past
+  it, `#day-jump` (34px round white button, shadow, chevron; its own
+  press, NOT in SQ_BTNS — their transform rule would override its show/hide
+  transform) shows on today's side and that end fades to 76px (@property
+  transition) — `syncJump`; tap = `toToday()` = pick(0). The user said "f1
+  or f3": F3 (the bare chevron, no button) is `body.dj-bare`, a temporary
+  Menu → Developer → Try out switch kept per device in localStorage
+  'lifeos-dayarrow' (`applyDayArrow`, `A.setDayArrowBare`) — remove the
+  loser and the switch once they pick. Tested: 20 years each way, grow at
+  both ends, finger taps on pills and the arrow, ticking a past day. Testing
+  note: a fresh preview tab opens the Welcome screen over everything — finger
+  taps hit it (elementsFromPoint shows .wel); close it first. Before 1.0:
   DAILY_RANGE_BACK/DAILY_RANGE_FWD (28 back since
   4.64 — "go back 4 weeks, rn it's only 1 week" — and 30 forward). Extending the strip split those
   two meanings apart: the offset drives `pDate(pi)` — now literally
