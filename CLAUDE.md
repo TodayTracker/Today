@@ -1899,7 +1899,24 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   while the page below slides up. A tap during the motion is ignored
   (`blk._folding`). Measured frame by frame: Uni's title 243→506 in step
   with the reveal (58% / 58% at 48ms), no jump at the end, no inline
-  styles left; minimal layout keeps fitMinimalGrid's columns. The tap target is the whole title row plus 10px above/below
+  styles left; minimal layout keeps fitMinimalGrid's columns.
+  4.67.7 ("when it recalculates the position of scroll after closing… very
+  unclean… smooth while closing or not at all"): folding near the end of a
+  scrolled Overview made the page shorter than its scroll position, and
+  the browser clamped the scroll in one jump — mostly at the END, because
+  the absolute grid being covered still counts as scrollable overflow
+  until it's display:none. Now animFold measures the FINAL length right
+  after toggling `.folded` (before `.folding`), and if the page would be
+  shorter (`over`), the page keeps its length with its own padding-bottom
+  (not the grid's: a padding there stopped margins collapsing and the
+  sum came out 46px wrong) and the scroll glides st→st-over. Everything —
+  the slide below, clip, fade, scroll — is driven by ONE rAF loop on one
+  eased time (`cssEase(.2,.8,.2,1)` = the old CSS curve, `FOLD_MS` 320):
+  CSS transitions next to the JS scroll started a frame apart, and a
+  title below bobbed 52px. Measured: folding a middle category at the
+  bottom, the title below stays at 430–431px while the folded one glides
+  138→401 with the scroll 539→276; no padding/transform/clip left; a
+  setTimeout ends it in place if frames don't run (hidden page). The tap target is the whole title row plus 10px above/below
   (`::before`), nothing moved — measured 8px title→grid, 22px grid→title as
   before. MOVING: a FOLDED category = the old whole-block DragReorder
   (handle now `.cat-block.folded>.shdr`); an OPEN one = `CatDrag`: only the

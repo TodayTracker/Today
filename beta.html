@@ -1837,7 +1837,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=6;
+var BETA_BUILD=7;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -4369,37 +4369,72 @@ function ovFlip(mutate){
 // Folding a category on Overview opens or closes its projects like a
 // drawer, in one motion: the grid is uncovered from the top down (or
 // covered from the bottom up) while every title and card below slides by
-// exactly as much (FLIP on them, clip-path on the grid, same time and
-// curve). Folding, the grid stays on screen out of the flow until it's
+// exactly as much (FLIP on them, clip-path on the grid — all moved by one
+// rAF loop on one eased time; CSS transitions next to a JS-driven scroll
+// started a frame apart and the titles below bobbed). Folding, the grid stays on screen out of the flow until it's
 // covered. (Before, a redraw let the cards pop in at once over the titles
-// that were still sliding down.)
-var FOLD_MS=320,FOLD_EASE='cubic-bezier(.2,.8,.2,1)';
+// that were still sliding down.) Folding near the end of a scrolled page
+// makes the page shorter than where it's scrolled to: the browser would
+// pull the scroll back in one jump (at the end of the motion, too: the
+// grid that's being covered still counts as page until it's hidden).
+// Instead the page's final length is measured right away, the page keeps
+// its length for the motion (its own bottom padding, shrinking) and the
+// scroll glides to the new end in step with the fold.
+var FOLD_MS=320;
+// a CSS cubic-bezier curve as a function of time 0..1, to move something
+// from JS in step with a CSS transition on the same curve
+function cssEase(x1,y1,x2,y2){
+  function b(s,a1,a2){return 3*(1-s)*(1-s)*s*a1+3*(1-s)*s*s*a2+s*s*s;}
+  return function(t){
+    var s=t;
+    for(var i=0;i<8;i++){
+      var dx=3*(1-s)*(1-s)*x1+6*(1-s)*s*(x2-x1)+3*s*s*(1-x2);if(Math.abs(dx)<1e-6)break;
+      s=Math.max(0,Math.min(1,s-(b(s,x1,x2)-t)/dx));
+    }
+    return b(s,y1,y2);
+  };
+}
+var foldEase=cssEase(.2,.8,.2,1);
 function animFold(blk,fold){
   var g=document.getElementById('overview-grid'),grid=blk.querySelector(':scope>.agrid');
+  var pg=document.getElementById('p-overview'),st=pg.scrollTop;
   var below=[].filter.call(g.querySelectorAll('.acard[data-pid],.cat-block>.shdr'),function(e){
     return !blk.contains(e)&&(blk.compareDocumentPosition(e)&Node.DOCUMENT_POSITION_FOLLOWING)&&e.getClientRects().length;
   });
   var before=below.map(function(e){return e.getBoundingClientRect().top;});
   var top=grid.offsetTop; // where the grid sits while open
   blk.classList.toggle('folded',fold);
+  var over=st-(pg.scrollHeight-pg.clientHeight),pb=0; // the final layout: shorter than where it's scrolled to?
   if(fold){blk.classList.add('folding');grid.style.top=top+'px';}
   blk._folding=true;
-  below.forEach(function(e,i){var d=before[i]-e.getBoundingClientRect().top;if(Math.abs(d)<.5)return;e.style.transition='none';e.style.transform='translateY('+d+'px)';});
-  function clip(v){grid.style.clipPath=v;grid.style.webkitClipPath=v;}
-  grid.style.transition='none';
-  clip(fold?'inset(0 0 0 0)':'inset(0 0 100% 0)');grid.style.opacity=fold?'1':'0';
-  void g.offsetHeight;
-  requestAnimationFrame(function(){
-    var tr='transform '+FOLD_MS+'ms '+FOLD_EASE;
-    below.forEach(function(e){if(e.style.transform){e.style.transition=tr;e.style.transform='';}});
-    grid.style.transition='clip-path '+FOLD_MS+'ms '+FOLD_EASE+',-webkit-clip-path '+FOLD_MS+'ms '+FOLD_EASE+',opacity '+(fold?'180ms ease-in':'200ms ease-out');
-    clip(fold?'inset(0 0 100% 0)':'inset(0 0 0 0)');grid.style.opacity=fold?'0':'1';
-    setTimeout(function(){
-      below.forEach(function(e){if(!e.style.transform)e.style.transition='';});
-      grid.style.transition='';clip('');grid.style.opacity='';grid.style.top='';
-      blk.classList.remove('folding');blk._folding=false;
-    },FOLD_MS+40);
+  if(over>0){pb=parseFloat(getComputedStyle(pg).paddingBottom)||0;pg.style.paddingBottom=(pb+over)+'px';pg.scrollTop=st;} // stay put for now
+  var dist=below.map(function(e,i){return before[i]-e.getBoundingClientRect().top;});
+  // ONE loop moves everything (the slide below, the cover, the fade, the
+  // scroll) from the same eased time, so nothing runs a frame ahead
+  function frame(e){
+    below.forEach(function(el,i){if(Math.abs(dist[i])>=.5)el.style.transform=e<1?'translateY('+(dist[i]*(1-e))+'px)':'';});
+    var c=e<1?'inset(0 0 '+((fold?e:1-e)*100)+'% 0)':'';grid.style.clipPath=c;grid.style.webkitClipPath=c;
+    grid.style.opacity=e<1?(fold?1-Math.min(1,e*1.4):Math.min(1,e*1.4)):'';
+    if(over>0){pg.style.paddingBottom=e<1?(pb+over*(1-e))+'px':'';pg.scrollTop=st-over*e;}
+  }
+  var done=false;
+  function finish(){
+    if(done)return;done=true;
+    frame(1);grid.style.top='';
+    below.forEach(function(el){el.style.transition='';});grid.style.transition='';
+    blk.classList.remove('folding');blk._folding=false;
+  }
+  below.forEach(function(el){el.style.transition='none';});grid.style.transition='none';
+  frame(0);
+  requestAnimationFrame(function(t0){
+    (function step(now){
+      if(done)return;
+      var e=foldEase(Math.min(1,(now-t0)/FOLD_MS));
+      if(e>=1){finish();return;}
+      frame(e);requestAnimationFrame(step);
+    })(t0);
   });
+  setTimeout(finish,FOLD_MS+250); // frames didn't run (page hidden): end in place
 }
 // Holding an OPEN category's title moves the title alone (1.0, "A" from the
 // folding-categories demo): a project belongs to the title above it, so the
