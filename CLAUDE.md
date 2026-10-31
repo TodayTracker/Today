@@ -819,6 +819,14 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   `_dm` at midnight) instead of dates; a tap's readout adds the time when
   D ≤ 3 or that day has 2+ entries. Tested: 1 day = "18:00 | 31/10 |
   06:00 | 12:00", 3 h = hourly, readout "77.2 kg · Sat 31 Oct · 07:10".
+- Removing a day's value (4.67.9, "if I click on it from Today and delete
+  the input and it's just 0 I can save it and it deletes the input; right
+  now I cannot click save"): TrackerDaySheet.save with an EMPTY field calls
+  `DB.clearTrackerDayValue(pid,ds,from,hid)` — every entry that counts for
+  that habit that day (same match as setTrackerDayValue) goes to the Trash
+  as an 'entry' (restorable); a typed "0" is still saved as 0; an empty
+  Save on a day without a value just closes. Tested: today's 77.6 to the
+  Trash, yesterday's kept, row shows no value, restore brings it back.
 - AddChoice switches in place (4.67.8, "when I add a tracker to a habit
   project the window closes and reopens really quickly… the grey
   background disappears and reappears"): an option's onclick used to close
@@ -1936,7 +1944,20 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   now"): FOLD_MS 320→420 and the curve (.2,.8,.2,1)→(.32,.72,0,1) for the
   WHOLE fold — the old one did 41% of the motion in the first 33ms (a jolt);
   now 19%, 57% at 80ms, 89% at 160ms. Scroll and slide must keep the SAME
-  curve and time, or the titles below bob again. The tap target is the whole title row plus 10px above/below
+  curve and time, or the titles below bob again.
+  4.67.9 ("the categories below moving up is a bit slow and unsmooth
+  still"): the per-frame JS loop (transforms + clip + padding-bottom +
+  scrollTop EVERY frame = a layout per frame on the phone) is gone, and so
+  are cssEase/foldEase. Now it's a FLIP of the scroll too: the final
+  scrollTop is set at once (`over` measured as before), every child of
+  #p-overview gets translateY(-over) so nothing seems to move, the items
+  below get their own FLIP offset (measured WITH that shift applied), and
+  in the next frame ALL of them plus the grid's clip-path transition to 0
+  with one CSS curve (FOLD_CURVE = iOS's (.32,.72,0,1)) and FOLD_MS 340 —
+  compositor-friendly, and in step because they start in the same style
+  change. Measured: scroll 539→276 at the tap, the folded title glides
+  138→401, the title below stays at 431 in every frame; at the top of the
+  page fold/open monotonic, nothing left inline. The tap target is the whole title row plus 10px above/below
   (`::before`), nothing moved — measured 8px title→grid, 22px grid→title as
   before. MOVING: a FOLDED category = the old whole-block DragReorder
   (handle now `.cat-block.folded>.shdr`); an OPEN one = `CatDrag`: only the

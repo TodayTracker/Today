@@ -1841,7 +1841,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=8;
+var BETA_BUILD=9;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3165,6 +3165,7 @@ var CHANGELOG=[
     "Adding a tracker value opens the keyboard by itself and the window sits at the same height everywhere",
     "The background behind a slide-up window is a bit lighter",
     "A tracker's chart zooms in down to 3 hours, so several entries on one day spread out; zoomed in, the bottom shows times and a tap shows the time of the entry",
+    "A tracker's day value can be removed: empty the number in its window and save (it goes to the Trash)",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer; folded, it moves as one line. Holding an open category's title moves only the title: the projects stay, and it takes the ones below where you drop it"
   ]}
@@ -3877,6 +3878,18 @@ var DB={
     }
     this.save();
   },
+  // Takes a habit's value off a day: every entry that counts for it that day
+  // (as in setTrackerDayValue) goes to the Trash.
+  clearTrackerDayValue:function(pid,ds,from,hid){
+    from=from||0;
+    var d=this.data,list=(d.trackerEntries||{})[pid];if(!list)return;
+    var first=trackerFirstHabit(pid),tp=d.projects[pid]||{},self=this;
+    var gone=list.filter(function(e){return e.ts>=from&&(!hid||trackerEntryCounts(e,hid,first))&&dStr(new Date(e.ts))===ds;});
+    if(!gone.length)return;
+    gone.forEach(function(e){self._trash('entry',e.val+' '+(tp.unit||''),(tp.icon||'')+' '+(tp.name||''),{pid:pid,entry:e});});
+    d.trackerEntries[pid]=list.filter(function(e){return gone.indexOf(e)===-1;});
+    this.save();
+  },
   deleteDailyItem:function(id){
     var d=this.data,item=d.dailyItems.find(function(x){return x.id===id;});
     if(item&&d.settings.keepDeletedHabits!==false)this._endHabit(item);
@@ -4374,32 +4387,14 @@ function ovFlip(mutate){
 // Folding a category on Overview opens or closes its projects like a
 // drawer, in one motion: the grid is uncovered from the top down (or
 // covered from the bottom up) while every title and card below slides by
-// exactly as much (FLIP on them, clip-path on the grid — all moved by one
-// rAF loop on one eased time; CSS transitions next to a JS-driven scroll
-// started a frame apart and the titles below bobbed). Folding, the grid stays on screen out of the flow until it's
-// covered. (Before, a redraw let the cards pop in at once over the titles
-// that were still sliding down.) Folding near the end of a scrolled page
-// makes the page shorter than where it's scrolled to: the browser would
-// pull the scroll back in one jump (at the end of the motion, too: the
-// grid that's being covered still counts as page until it's hidden).
-// Instead the page's final length is measured right away, the page keeps
-// its length for the motion (its own bottom padding, shrinking) and the
-// scroll glides to the new end in step with the fold.
-var FOLD_MS=420;
-// a CSS cubic-bezier curve as a function of time 0..1, to move something
-// from JS in step with a CSS transition on the same curve
-function cssEase(x1,y1,x2,y2){
-  function b(s,a1,a2){return 3*(1-s)*(1-s)*s*a1+3*(1-s)*s*s*a2+s*s*s;}
-  return function(t){
-    var s=t;
-    for(var i=0;i<8;i++){
-      var dx=3*(1-s)*(1-s)*x1+6*(1-s)*s*(x2-x1)+3*s*s*(1-x2);if(Math.abs(dx)<1e-6)break;
-      s=Math.max(0,Math.min(1,s-(b(s,x1,x2)-t)/dx));
-    }
-    return b(s,y1,y2);
-  };
-}
-var foldEase=cssEase(.32,.72,0,1); // iOS's sheet curve: a softer start than the drag curve, a long settle
+// exactly as much. Folding, the grid stays on screen out of the flow until
+// it's covered. Folding near the end of a scrolled page makes the page
+// shorter than where it's scrolled to: the scroll goes to its new end at
+// once, and the whole page is shifted back so nothing seems to move, then
+// glides down with everything else. All of it is CSS transitions started
+// in the same frame on one curve (FOLD_MS, FOLD_CURVE), so it runs off the
+// main thread and stays in step — no per-frame JS, no layout per frame.
+var FOLD_MS=340,FOLD_CURVE='cubic-bezier(.32,.72,0,1)'; // iOS's sheet curve
 function animFold(blk,fold){
   var g=document.getElementById('overview-grid'),grid=blk.querySelector(':scope>.agrid');
   var pg=document.getElementById('p-overview'),st=pg.scrollTop;
@@ -4409,37 +4404,28 @@ function animFold(blk,fold){
   var before=below.map(function(e){return e.getBoundingClientRect().top;});
   var top=grid.offsetTop; // where the grid sits while open
   blk.classList.toggle('folded',fold);
-  var over=st-(pg.scrollHeight-pg.clientHeight),pb=0; // the final layout: shorter than where it's scrolled to?
+  var over=Math.max(0,st-(pg.scrollHeight-pg.clientHeight)); // the final page is shorter than where it's scrolled to
   if(fold){blk.classList.add('folding');grid.style.top=top+'px';}
   blk._folding=true;
-  if(over>0){pb=parseFloat(getComputedStyle(pg).paddingBottom)||0;pg.style.paddingBottom=(pb+over)+'px';pg.scrollTop=st;} // stay put for now
-  var dist=below.map(function(e,i){return before[i]-e.getBoundingClientRect().top;});
-  // ONE loop moves everything (the slide below, the cover, the fade, the
-  // scroll) from the same eased time, so nothing runs a frame ahead
-  function frame(e){
-    below.forEach(function(el,i){if(Math.abs(dist[i])>=.5)el.style.transform=e<1?'translateY('+(dist[i]*(1-e))+'px)':'';});
-    var c=e<1?'inset(0 0 '+((fold?e:1-e)*100)+'% 0)':'';grid.style.clipPath=c;grid.style.webkitClipPath=c;
-    grid.style.opacity=e<1?(fold?1-Math.min(1,e*1.4):Math.min(1,e*1.4)):'';
-    if(over>0){pg.style.paddingBottom=e<1?(pb+over*(1-e))+'px':'';pg.scrollTop=st-over*e;}
-  }
-  var done=false;
-  function finish(){
-    if(done)return;done=true;
-    frame(1);grid.style.top='';
-    below.forEach(function(el){el.style.transition='';});grid.style.transition='';
-    blk.classList.remove('folding');blk._folding=false;
-  }
-  below.forEach(function(el){el.style.transition='none';});grid.style.transition='none';
-  frame(0);
-  requestAnimationFrame(function(t0){
-    (function step(now){
-      if(done)return;
-      var e=foldEase(Math.min(1,(now-t0)/FOLD_MS));
-      if(e>=1){finish();return;}
-      frame(e);requestAnimationFrame(step);
-    })(t0);
+  var page=over?[].filter.call(pg.children,function(e){return e.getClientRects().length;}):[];
+  if(over){pg.scrollTop=st-over;page.forEach(function(e){e.style.transition='none';e.style.transform='translateY('+(-over)+'px)';});}
+  var moved=page.slice();
+  below.forEach(function(e,i){var d=before[i]-e.getBoundingClientRect().top;if(Math.abs(d)<.5)return;e.style.transition='none';e.style.transform='translateY('+d+'px)';moved.push(e);});
+  function clip(v){grid.style.clipPath=v;grid.style.webkitClipPath=v;}
+  grid.style.transition='none';
+  clip(fold?'inset(0 0 0 0)':'inset(0 0 100% 0)');grid.style.opacity=fold?'1':'0';
+  void g.offsetHeight;
+  requestAnimationFrame(function(){
+    var tr='transform '+FOLD_MS+'ms '+FOLD_CURVE;
+    moved.forEach(function(e){e.style.transition=tr;e.style.transform='';});
+    grid.style.transition='clip-path '+FOLD_MS+'ms '+FOLD_CURVE+',-webkit-clip-path '+FOLD_MS+'ms '+FOLD_CURVE+',opacity '+(fold?'180ms ease-in':'200ms ease-out');
+    clip(fold?'inset(0 0 100% 0)':'inset(0 0 0 0)');grid.style.opacity=fold?'0':'1';
+    setTimeout(function(){
+      moved.forEach(function(e){e.style.transition='';e.style.transform='';});
+      grid.style.transition='';clip('');grid.style.opacity='';grid.style.top='';
+      blk.classList.remove('folding');blk._folding=false;
+    },FOLD_MS+40);
   });
-  setTimeout(finish,FOLD_MS+250); // frames didn't run (page hidden): end in place
 }
 // Holding an OPEN category's title moves the title alone (1.0, "A" from the
 // folding-categories demo): a project belongs to the title above it, so the
@@ -9704,13 +9690,16 @@ var TrackerDaySheet={
     _overlayOpen('trk-day-sheet-overlay');
     _focusSoon(inp,held);
   },
+  // An emptied field + Save removes the day's value (to the Trash, like
+  // deleting an entry on the tracker page); a typed 0 is a value.
   save:function(){
     if(!_sheetLive('trk-day-sheet-overlay'))return; // already saved, window closing
     var id=this.itemId,it=DB.data.dailyItems.find(function(x){return x.id===id;});
-    var val=numIn(document.getElementById('trk-day-val').value);
-    if(!it||isNaN(val))return;
+    var raw=document.getElementById('trk-day-val').value.trim(),val=numIn(raw);
+    if(!it||(raw!==''&&isNaN(val)))return;
     var ds=pDate(this.dayIdx);
-    DB.setTrackerDayValue(it.trackerPid,ds,val,it.statsFrom,it.id);
+    if(raw==='')DB.clearTrackerDayValue(it.trackerPid,ds,it.statsFrom,it.id);
+    else DB.setTrackerDayValue(it.trackerPid,ds,val,it.statsFrom,it.id);
     if(dcv(ds,it.id)==='skip')DB.toggleDailyCheck(it.id,ds,false);
     _overlayClose('trk-day-sheet-overlay');
     renderToday();buildPanels();restoreChecks(Nav.sd);renderGrids();renderTracker(it.trackerPid);
