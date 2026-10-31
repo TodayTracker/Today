@@ -812,6 +812,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   goal any more (option 1 is all green). Moving average on = "I5": the line
   is the 7-entry average and each entry hangs from it as a 3px round soft
   green stroke (opacity .28). The old line description below is history.
+- TRACKER CHART ZOOM (4.67.8, "if I have multiple entries in a day I can't
+  zoom into that… it's fixed at daily"): TrkZ's closest zoom was 7 days
+  (`Dmin`); now `TRK_DMIN` = 3 hours. At D ≤ 2 days the bottom shows round
+  times (steps 1/2/3/4/6/12 h, ≤ ~4 labels, from local midnight; the date
+  `_dm` at midnight) instead of dates; a tap's readout adds the time when
+  D ≤ 3 or that day has 2+ entries. Tested: 1 day = "18:00 | 31/10 |
+  06:00 | 12:00", 3 h = hourly, readout "77.2 kg · Sat 31 Oct · 07:10".
+- AddChoice switches in place (4.67.8, "when I add a tracker to a habit
+  project the window closes and reopens really quickly… the grey
+  background disappears and reappears"): an option's onclick used to close
+  the window and THEN run its fn — "Add a tracker" re-opened the same
+  overlay two frames later. Now fn runs first; if it called AddChoice.show
+  again (`_next`), `_swap` changes the content in place (fade out .09s,
+  fill, height glides .26s on the iOS curve, fade in .16s), else the
+  window closes. Checked: the overlay stays .on.show every frame.
 - Tracker charts (3.89, `trackerChart(pid,p,entries,goal)`, drawn by
   renderTracker; asked for with a CoinMarketCap screenshot): ONE line style
   — 3px, round, `TRK_GREEN` #30d158 (the Statistics ring green), a dot on
@@ -1916,7 +1931,12 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   title below bobbed 52px. Measured: folding a middle category at the
   bottom, the title below stays at 430–431px while the folded one glides
   138→401 with the scroll 539→276; no padding/transform/clip left; a
-  setTimeout ends it in place if frames don't run (hidden page). The tap target is the whole title row plus 10px above/below
+  setTimeout ends it in place if frames don't run (hidden page).
+  4.67.8 ("the scrolling adjustment a bit more smooth still… generally good
+  now"): FOLD_MS 320→420 and the curve (.2,.8,.2,1)→(.32,.72,0,1) for the
+  WHOLE fold — the old one did 41% of the motion in the first 33ms (a jolt);
+  now 19%, 57% at 80ms, 89% at 160ms. Scroll and slide must keep the SAME
+  curve and time, or the titles below bob again. The tap target is the whole title row plus 10px above/below
   (`::before`), nothing moved — measured 8px title→grid, 22px grid→title as
   before. MOVING: a FOLDED category = the old whole-block DragReorder
   (handle now `.cat-block.folded>.shdr`); an OPEN one = `CatDrag`: only the
@@ -2743,6 +2763,19 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   `.hh-btn/.hdr-add/.menu-btn/.back/.edit-proj-btn` inside `.page` (sheets
   untouched); size, tap area and the SQ press stay. Before: the day bar
   arrow F1/F3 switch (removed once F3 was picked).
+  "Number keyboard" (4.67.8, "the word suggestion is still showing on the
+  keyboard when I open a tracker… not flicking, just showing"): the real
+  field never showed the bar (it vanished at the old hand-over), the
+  helper does — its attributes, or iOS showing it for any field focused
+  by the tap itself? Untestable here, so three ways under Try out,
+  `kbMode()` from 'lifeos-kbmode': 'helper' (as before), 'copy' (the helper
+  gets exactly the field's attributes, no aria-hidden/tabindex), 'direct'
+  (no helper: the real field takes the tap's focus, and its window gets
+  `.kbd-in` = in place, opacity 0→1, instead of sliding up from off
+  screen — the old reason for the helper was iOS panning to an off-screen
+  field). `_onRelease(ov,fn,cancel)` serves the hold path of both. Remove
+  the losing ways and the rows once the user reports which one has no bar
+  and doesn't jump.
 - Calendar import (4.16, Menu > Data > Import calendar, `IcsImport`):
   file input `#ics-file` (.ics, or Google's .zip — `_unzip` reads the
   zip's central directory, stored or deflate-raw via DecompressionStream).

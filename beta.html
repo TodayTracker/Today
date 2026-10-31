@@ -446,6 +446,10 @@ html[data-theme="light"] .sheet{background:#fff}
    the transform-to-open and the display:none->block flip can't be the
    same class change. */
 .sheet-overlay.on.show .sheet{transform:translateY(0)}
+/* Try out "The field itself" (kbMode 'direct'): a number window fades in
+   where it ends up */
+.sheet-overlay.kbd-in .sheet{transform:none;opacity:0;transition:opacity .2s ease}
+.sheet-overlay.kbd-in.on.show .sheet{opacity:1}
 /* Task sheet: name as a plain title, importance + project as one slim
    row each (no labels), and the notes box is the main thing in it. Scoped
    to #task-sheet-overlay so no other sheet changes. */
@@ -1837,7 +1841,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=7;
+var BETA_BUILD=8;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3160,6 +3164,7 @@ var CHANGELOG=[
     "Tracker values and goals take a comma or a point, and the number no longer gets cut off on the left",
     "Adding a tracker value opens the keyboard by itself and the window sits at the same height everywhere",
     "The background behind a slide-up window is a bit lighter",
+    "A tracker's chart zooms in down to 3 hours, so several entries on one day spread out; zoomed in, the bottom shows times and a tap shows the time of the entry",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer; folded, it moves as one line. Holding an open category's title moves only the title: the projects stay, and it takes the ones below where you drop it"
   ]}
@@ -3304,7 +3309,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3981,7 +3986,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Tomorrow":"Morgen","Yesterday":"Gestern","Nothing on this day.":"An diesem Tag steht nichts an.","Previous day":"Vorheriger Tag","Next day":"Nächster Tag","Try out":"Ausprobieren","Header buttons without background":"Kopfzeilen-Knöpfe ohne Hintergrund","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Tomorrow":"Morgen","Yesterday":"Gestern","Nothing on this day.":"An diesem Tag steht nichts an.","Previous day":"Vorheriger Tag","Next day":"Nächster Tag","Try out":"Ausprobieren","Number keyboard":"Zahlentastatur","Helper field (now)":"Hilfsfeld (jetzt)","Helper, copy of the field":"Hilfsfeld als Kopie des Felds","The field itself, window fades in":"Das Feld selbst, Fenster blendet ein","Open a tracker value window with each and see which one shows no word bar over the keyboard and doesn't jump.":"Öffne mit jeder Variante ein Tracker-Wertfenster und schau, bei welcher keine Wortleiste über der Tastatur erscheint und nichts springt.","Header buttons without background":"Kopfzeilen-Knöpfe ohne Hintergrund","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -4380,7 +4385,7 @@ function ovFlip(mutate){
 // Instead the page's final length is measured right away, the page keeps
 // its length for the motion (its own bottom padding, shrinking) and the
 // scroll glides to the new end in step with the fold.
-var FOLD_MS=320;
+var FOLD_MS=420;
 // a CSS cubic-bezier curve as a function of time 0..1, to move something
 // from JS in step with a CSS transition on the same curve
 function cssEase(x1,y1,x2,y2){
@@ -4394,7 +4399,7 @@ function cssEase(x1,y1,x2,y2){
     return b(s,y1,y2);
   };
 }
-var foldEase=cssEase(.2,.8,.2,1);
+var foldEase=cssEase(.32,.72,0,1); // iOS's sheet curve: a softer start than the drag curve, a long settle
 function animFold(blk,fold){
   var g=document.getElementById('overview-grid'),grid=blk.querySelector(':scope>.agrid');
   var pg=document.getElementById('p-overview'),st=pg.scrollTop;
@@ -4632,12 +4637,14 @@ var TRK_GREEN='#30d158';
 // moving average (the last 7 entries) the line is the average and each entry
 // hangs from it as a short soft green bar ("I5"). A window of time like the
 // habit bars (4.53): last 30 days to start, a sideways drag scrolls back and
-// forth (with a fling), a pinch zooms from 7 days out to all the data (the
-// right edge stays put); the y range follows what's in view. Where it was
+// forth (with a fling), a pinch zooms from 3 hours (several entries on one
+// day spread out; the bottom then shows round times instead of dates, the
+// date at midnight) out to all the data (the right edge stays put); the y
+// range follows what's in view. Where it was
 // left is kept per tracker while the app runs (TRK_VIEW). A tap shows the
 // nearest entry. The card is the touch target (.zchart: its svg ignores
 // touches, the page still scrolls up and down, swipe-back leaves it alone).
-var TRK_VIEW={},DAY_MS=864e5;
+var TRK_VIEW={},DAY_MS=864e5,TRK_DMIN=3/24; // the closest zoom: 3 hours
 // A tracker's 7-entry moving average at each entry (entries sorted by time)
 function trkAvgs(entries){return entries.map(function(x,i){var sl=entries.slice(Math.max(0,i-6),i+1);return sl.reduce(function(a,y){return a+y.val;},0)/sl.length;});}
 // The number that stands for a tracker now: its latest entry, or with the
@@ -4651,7 +4658,7 @@ function TrkZ(card,pid,p,entries,goal){
   this.pid=pid;this.e=entries;this.goal=goal;this.unit=p.unit||'';
   this.avg=p.maEnabled?trkAvgs(entries):null;
   this.now=Date.now();this.t0=entries.length?entries[0].ts:this.now;
-  this.Dmin=7;this.Dmax=Math.max(30,(this.now-this.t0)/DAY_MS*1.08+2);
+  this.Dmin=TRK_DMIN;this.Dmax=Math.max(30,(this.now-this.t0)/DAY_MS*1.08+2);
   var v=TRK_VIEW[pid]||{D:30,live:true};
   this.D=Math.max(this.Dmin,Math.min(this.Dmax,v.D));this.end=v.live?this.now:v.end;this._clamp();
   var n=entries.length;
@@ -4703,13 +4710,25 @@ TrkZ.prototype.render=function(){
       +'<text x="'+f(lp[0]+9)+'" y="'+f(lp[1]+4)+'" font-size="12" font-weight="700" style="fill:var(--ink)">'+esc(this.endTxt)
       +(this.unit?'<tspan class="hd-bar-label" font-size="10" font-weight="600"> '+esc(this.unit)+'</tspan>':'')+'</text>';
   }
-  // dates along the bottom, inside the card
-  var seen={};
-  [0,1,2,3,4].forEach(function(k){
-    var ts=left+Dms*k/4,lbl=_dm(new Date(ts));if(seen[lbl])return;seen[lbl]=1;
-    var xx=PW*k/4,an=k===0?'start':k===4?'end':'middle';if(k===0)xx=10;if(k===4)xx=PW+4;
-    s+='<text class="hd-bar-label" x="'+f(xx)+'" y="'+(H-8)+'" font-size="9" text-anchor="'+an+'">'+lbl+'</text>';
-  });
+  // dates along the bottom, inside the card; zoomed into two days or less,
+  // round times (the date at midnight)
+  if(this.D>2){
+    var seen={};
+    [0,1,2,3,4].forEach(function(k){
+      var ts=left+Dms*k/4,lbl=_dm(new Date(ts));if(seen[lbl])return;seen[lbl]=1;
+      var xx=PW*k/4,an=k===0?'start':k===4?'end':'middle';if(k===0)xx=10;if(k===4)xx=PW+4;
+      s+='<text class="hd-bar-label" x="'+f(xx)+'" y="'+(H-8)+'" font-size="9" text-anchor="'+an+'">'+lbl+'</text>';
+    });
+  } else {
+    var hrs=this.D*24,step=[1,2,3,4,6,12].filter(function(h){return hrs/h<=4.5;})[0]||24;
+    var t=new Date(left);t.setMinutes(0,0,0);t.setHours(Math.ceil((t.getHours()+(left>t.getTime()?1:0))/step)*step);
+    for(;t.getTime()<=end;t.setHours(t.getHours()+step)){
+      var xx=x(t.getTime());if(xx<6||xx>PW-2)continue;
+      var lbl=t.getHours()?t.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'}):_dm(t);
+      var an=xx<24?'start':xx>PW-24?'end':'middle';
+      s+='<text class="hd-bar-label" x="'+f(xx)+'" y="'+(H-8)+'" font-size="9" text-anchor="'+an+'">'+lbl+'</text>';
+    }
+  }
   this.plot.innerHTML=s+'</svg>';
 };
 TrkZ.prototype._wire=function(){
@@ -4767,8 +4786,11 @@ TrkZ.prototype._wire=function(){
     var pts=self._pts,svg=self.plot.querySelector('svg');if(!pts||!pts.length||!svg)return;
     var r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*300,best=pts[0];
     pts.forEach(function(q){if(Math.abs(q.x-x)<Math.abs(best.x-x))best=q;});
-    var d=new Date(best.ts);
-    self.ro.textContent=fmtTrk(best.v)+(self.unit?' '+self.unit:'')+' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
+    var d=new Date(best.ts),ds=dStr(d);
+    // the time too when zoomed in, or when that day has more than one entry
+    var many=self.D<=3||self.e.filter(function(q){return dStr(new Date(q.ts))===ds;}).length>1;
+    self.ro.textContent=fmtTrk(best.v)+(self.unit?' '+self.unit:'')+' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'})
+      +(many?' · '+d.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'}):'');
   });
 };
 // A smooth line through points in time order that only ever goes forward
@@ -5985,6 +6007,10 @@ var A={
     if(c.folded)delete c.folded;else c.folded=true;
     DB.save();
     if(blk)animFold(blk,!!c.folded);else renderGrids();
+  },
+  setKbMode:function(m){
+    try{if(m==='helper')localStorage.removeItem('lifeos-kbmode');else localStorage.setItem('lifeos-kbmode',m);}catch(e){}
+    renderDevPage();
   },
   setHeaderBare:function(on){
     try{if(on)localStorage.setItem('lifeos-hbare','1');else localStorage.removeItem('lifeos-hbare');}catch(e){}
@@ -8956,6 +8982,7 @@ function _overlayOpen(id){
   // Reopening during a close animation must cancel its pending hide.
   if(ov._closeTimer){clearTimeout(ov._closeTimer);ov._closeTimer=null;}
   ov._closing=false; // its Save works again (see _sheetLive)
+  ov.classList.remove('kbd-in');
   var sh=ov.querySelector('.sheet');if(sh&&!sh.contains(document.activeElement)){sh.style.bottom='';sh.style.paddingBottom='';} // nothing left over from the keyboard last time
   ov.classList.add('on'); // display:none -> block; sheet still off-screen
   if(sh&&KbFit)KbFit.fit(sh); // tall enough that the keyboard won't cover its fields
@@ -9109,7 +9136,11 @@ function renderDevPage(){
     +'<div class="opt-row'+(IS_BETA?' active':'')+'" onclick="Channel.go(true)"><div class="opt-text"><div class="opt-title">Beta</div></div>'+(IS_BETA?tick:'')+'</div>'
     +'</div><div class="data-note">Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.</div>'
     +'<div class="sl">Try out</div><div class="opt-group"><div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Header buttons without background</div></div>'
-    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(document.body.classList.contains('hb-bare')?'checked':'')+' onchange="A.setHeaderBare(this.checked)"><span class="switch-slider"></span></label></div></div>');
+    +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(document.body.classList.contains('hb-bare')?'checked':'')+' onchange="A.setHeaderBare(this.checked)"><span class="switch-slider"></span></label></div></div>'
+    +'<div class="sl">Number keyboard</div><div class="opt-group">'
+    +[['helper','Helper field (now)'],['copy','Helper, copy of the field'],['direct','The field itself, window fades in']].map(function(o){var on=kbMode()===o[0];
+      return '<div class="opt-row'+(on?' active':'')+'" onclick="A.setKbMode(\''+o[0]+'\')"><div class="opt-text"><div class="opt-title">'+o[1]+'</div></div>'+(on?tick:'')+'</div>';}).join('')
+    +'</div><div class="data-note">Open a tracker value window with each and see which one shows no word bar over the keyboard and doesn\'t jump.</div>');
   setHTML('dev-updates','<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Advanced update info</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.advancedUpdates?'checked':'')+' onchange="A.setAdvancedUpdates(this.checked)"><span class="switch-slider"></span></label></div>'
@@ -9472,8 +9503,14 @@ var Alert={
 };
 
 // ── CONTEXTUAL ADD (bottom tab bar +) ──────────────────────
+// A list of choices in a slide-up window. When a choice leads to another
+// list (Habits "+" → Add a tracker → which tracker), the window stays open
+// and its content changes in place — the old rows fade out, the new ones
+// in, the height glides — instead of closing and opening again (the window
+// and its grey background went away and came straight back).
 var AddChoice={
-  show:function(title,options){
+  _next:false,
+  _fill:function(title,options){
     document.getElementById('add-choice-title').textContent=title;
     var c=document.getElementById('add-choice-list');
     c.innerHTML='';
@@ -9481,10 +9518,31 @@ var AddChoice={
       var btn=document.createElement('div');
       btn.className='cat-choice';
       btn.innerHTML=(o.icon?o.icon+' ':'')+esc(o.label);
-      btn.onclick=function(){AddChoice.cancel();o.fn();};
+      btn.onclick=function(){
+        AddChoice._next=false;o.fn();
+        if(!AddChoice._next)AddChoice.cancel(); // it opened something else (or nothing): this window goes
+      };
       c.appendChild(btn);
     });
+  },
+  show:function(title,options){
+    var self=this;
+    if(_sheetLive('add-choice-overlay')){this._next=true;this._swap(function(){self._fill(title,options);});return;}
+    this._fill(title,options);
     _overlayOpen('add-choice-overlay');
+  },
+  _swap:function(fill){
+    var sh=document.querySelector('#add-choice-overlay .sheet'),parts=[document.getElementById('add-choice-title'),document.getElementById('add-choice-list')];
+    var h0=sh.offsetHeight,EASE='cubic-bezier(.32,.72,0,1)';
+    sh.style.height=h0+'px';
+    parts.forEach(function(p){p.style.transition='opacity .09s ease-in';p.style.opacity='0';});
+    setTimeout(function(){
+      fill();
+      sh.style.height='';var h1=sh.offsetHeight;sh.style.height=h0+'px';void sh.offsetHeight;
+      sh.style.transition='transform .13s ease-out,height .26s '+EASE;sh.style.height=h1+'px';
+      parts.forEach(function(p){p.style.transition='opacity .16s ease-out';p.style.opacity='1';});
+      setTimeout(function(){sh.style.transition='';sh.style.height='';parts.forEach(function(p){p.style.transition='';p.style.opacity='';});},280);
+    },95);
   },
   cancel:function(){_overlayClose('add-choice-overlay');}
 };
@@ -9793,14 +9851,34 @@ function _autoFocus(el){if(el&&!IS_IOS)el.focus({preventScroll:true});}
 // ignores it); closing the window drops the focus, and the keyboard with it
 // (_overlayClose). Call it from the tap itself — or, for a window opened by
 // a hold, with `onRelease`: then the focus waits for the finger to let go.
+// Menu → Developer → Try out → Number keyboard, while the word-suggestion
+// bar over the number pad is being tracked down (this device only):
+// 'helper' (the helper below), 'copy' (the helper carries every attribute
+// of the real field), 'direct' (no helper: the real field takes the tap's
+// focus, and its window fades in where it ends up instead of sliding up, so
+// there's nothing off screen for iOS to scroll to).
+function kbMode(){try{return localStorage.getItem('lifeos-kbmode')||'helper';}catch(e){return 'helper';}}
+// fn() when the finger that's down lets go (that release counts as a tap),
+// cancel() if the touch is cancelled or the window has closed by then
+function _onRelease(ov,fn,cancel){
+  function rel(e){
+    document.removeEventListener('touchend',rel,true);document.removeEventListener('touchcancel',rel,true);
+    if(e.type==='touchend'&&_sheetLive(ov.id))fn();else if(cancel)cancel();
+  }
+  document.addEventListener('touchend',rel,true);document.addEventListener('touchcancel',rel,true);
+}
 function _focusSoon(inp,onRelease){
   if(!IS_IOS){setTimeout(function(){try{inp.focus({preventScroll:true});}catch(e){}},SHEET_ANIM_MS+60);return;}
+  var mode=kbMode(),ov=inp.closest('.sheet-overlay');
+  if(mode==='direct'){
+    if(ov){ov.classList.add('kbd-in');void ov.offsetHeight;} // the window already sits where it ends up
+    var direct=function(){try{inp.focus({preventScroll:true});var n=inp.value.length;inp.setSelectionRange(n,n);}catch(e){}};
+    if(onRelease)_onRelease(ov,direct);else direct();
+    return;
+  }
   var px=_focusSoon.px;
   if(!px){
     px=_focusSoon.px=document.createElement('input');
-    px.type='text';px.tabIndex=-1;px.setAttribute('aria-hidden','true');
-    px.setAttribute('autocomplete','off');px.setAttribute('autocorrect','off');px.setAttribute('autocapitalize','off');
-    px.setAttribute('spellcheck','false');px.setAttribute('data-nosug','');
     px.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0;font-size:16px;color:transparent;caret-color:transparent;background:transparent;pointer-events:none;z-index:-1';
     document.body.appendChild(px);
     px.addEventListener('input',function(){
@@ -9811,6 +9889,14 @@ function _focusSoon(inp,onRelease){
     px.addEventListener('blur',function(){var f=px._inp;px._inp=null;if(f)f.parentNode.classList.remove('mirror');});
   }
   if(px._inp&&px._inp!==inp)px._inp.parentNode.classList.remove('mirror');
+  if(mode==='copy'){
+    [].slice.call(px.attributes).forEach(function(a){if(a.name!=='style')px.removeAttribute(a.name);});
+    [].forEach.call(inp.attributes,function(a){if(!/^(id|class|style|oninput|placeholder)$/.test(a.name))px.setAttribute(a.name,a.value);});
+  } else {
+    px.type='text';px.tabIndex=-1;px.setAttribute('aria-hidden','true');
+    px.setAttribute('autocomplete','off');px.setAttribute('autocorrect','off');px.setAttribute('autocapitalize','off');
+    px.setAttribute('spellcheck','false');px.setAttribute('data-nosug','');
+  }
   px.inputMode=inp.inputMode||'text';
   px.value=inp.value;px._inp=inp;
   inp.parentNode.classList.add('mirror');_mirrorCaret(inp);
@@ -9818,14 +9904,7 @@ function _focusSoon(inp,onRelease){
   if(!onRelease){go();return;}
   // Opened by a hold (a timer, not a tap): the keyboard comes when the
   // finger lets go — that release counts as a tap.
-  var ov=inp.closest('.sheet-overlay');
-  function rel(e){
-    document.removeEventListener('touchend',rel,true);document.removeEventListener('touchcancel',rel,true);
-    if(px._inp!==inp)return;
-    if(e.type==='touchend'&&_sheetLive(ov.id))go();
-    else{inp.parentNode.classList.remove('mirror');px._inp=null;}
-  }
-  document.addEventListener('touchend',rel,true);document.addEventListener('touchcancel',rel,true);
+  _onRelease(ov,function(){if(px._inp===inp)go();},function(){if(px._inp===inp){inp.parentNode.classList.remove('mirror');px._inp=null;}});
 }
 // The drawn caret sits right after the number; while the field is empty, in
 // the middle of the "0" (iOS's own caret in an empty centred field). Its
