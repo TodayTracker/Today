@@ -814,6 +814,12 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   goal any more (option 1 is all green). Moving average on = "I5": the line
   is the 7-entry average and each entry hangs from it as a 3px round soft
   green stroke (opacity .28). The old line description below is history.
+- Moving-average value lines (4.67.12, "if I zoom very far out of a tracker
+  with moving average, the lines that show the actual values should become
+  thinner so they don't overlap"): TrkZ draws each entry's line to the
+  average at `sw` = 0.6 × the 25th-percentile gap between neighbouring
+  entries in view, between 1 and 3px (was always 3). Measured on a year of
+  1–2 entries a day: week 3px, month 2.4px, 4 months and more 1px.
 - TRACKER CHART ZOOM (4.67.8, "if I have multiple entries in a day I can't
   zoom into that… it's fixed at daily"): TrkZ's closest zoom was 7 days
   (`Dmin`); now `TRK_DMIN` = 3 hours. At D ≤ 2 days the bottom shows round
@@ -1996,34 +2002,31 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   transparent and an `::after` (inset -9px -12px, card colour, radius 12,
   shadow) is the bar. Measured after: pickup moves nothing (title under the
   finger to 0px), passing a category moves only it, by exactly 30px.
-  (2) OPEN (CatDrag): `ovFlip` took each item's start from `_layoutRect` —
-  where its running slide was HEADED — so every step that came while things
-  were still sliding (130ms pause < 220ms slide) snapped them to the end
-  first. It now starts from getBoundingClientRect (where it IS); measured: a
-  redraw mid-slide moves nothing (0px). CatDrag's `rect()` (hit test) still
-  uses _layoutRect, correctly. The tap target is the whole title row plus 10px above/below
+  (2) OPEN (CatDrag, the title-only move "A"): ovFlip started each step's
+  slide from where the previous one was HEADED, so quick steps snapped —
+  fixed in 4.67.10, then the whole title-only move was REMOVED in 4.67.12
+  ("remove the option to move around just the category without the
+  project, it makes it unsmooth; if I hold a category just einklappen it
+  automatically"). Gone: CatDrag, ovFlip, renderGrids' `groups` argument,
+  `.cat-ph`, `.cat-lift`/`.cat-landing` (git 5e628d3 has them).
+  The tap target is the whole title row plus 10px above/below
   (`::before`), nothing moved — measured 8px title→grid, 22px grid→title as
-  before. MOVING: a FOLDED category = the old whole-block DragReorder
-  (handle now `.cat-block.folded>.shdr`); an OPEN one = `CatDrag`: only the
-  title moves, and "A" is literal — a project belongs to the title above it
-  (one flat list `seq` of titles and projects), so the projects stay where
-  they are, the title takes the ones below where it's dropped and the
-  category above its old spot gets the ones it leaves (dropped above
-  Hiring: Uni = Hiring + its own, Work keeps 3; moved to the very bottom,
-  its old projects become those of the category above, or loose). It steps
-  past one title or one ROW of projects at a time (middle of the next/prev
-  item, a folded category counts as one line, 130ms pause), redrawing
-  Overview from `seq` each step (`renderGrids(groups)` — an optional
-  argument; `{ph:true}` = the faint copy `.cat-ph`), so the screen is
-  exactly what gets saved (DB.reorderCategories + DB.setProjectGroups).
-  The lifted title is the real `.shdr` moved to <body> (`.cat-lift`, white,
-  shadow, scale 1.04) so it stays the touch's target; touch listeners are
-  on it. Projects can't be dropped into a folded category (zoneSel
-  `[data-cat]:not(.folded)>.agrid`; over one, they land in the nearest
-  open group). The release's click is swallowed via DragReorder._endedAt
-  (else letting go would also fold it). Tested with finger-style touches:
-  fold/open, title-only drag into Work's rows, folded drag above Work,
-  release click blocked / next tap folds, project over a folded category.
+  before. MOVING (4.67.12): a category always moves WHOLE, with its
+  projects — the whole-block DragReorder (handle `.cat-block.folded>.shdr`,
+  onDrop `ovCatDrop` → DB.reorderCategories). Holding an OPEN title =
+  `CatHold`: after DRAG_HOLD_MS it calls A.foldCat (the drawer closes under
+  the finger, animFold), and FOLD_MS+60 later lifts the now-folded block
+  with `DragReorder._prime(…, now=true)` at the finger's latest spot; once
+  the hold has fired its document touchmove preventDefault()s (the page
+  doesn't scroll), and a release before the lift preventDefault()s the
+  touchend and stamps DragReorder._endedAt, so that release doesn't open it
+  again. It stays folded after the move. A >10px move before the hold
+  fires cancels it (a scroll). Projects can't be dropped into a folded
+  category (zoneSel `[data-cat]:not(.folded)>.agrid`; over one, they land
+  in the nearest open group). Tested with finger-style touches: hold →
+  folded + lifted, moved above Work → order saved, stays folded, release
+  click swallowed, nothing inline left; release during the fold → folded,
+  not reopened, timers cleared; a plain tap still folds.
 - Overview projects drag ACROSS categories (4.22, "drag them anywhere you
   want into other categories"): ONE DragReorder on #overview-grid (wired
   once) with opts `{cross:true, zoneSel:'[data-cat]>.agrid', flipSel:
@@ -2843,7 +2846,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   `.sh-val.mirror`, `_mirrorCaret`), `kbMode`/'lifeos-kbmode' (a stray key
   may stay on the phone; nothing reads it), `A.setKbMode`, the Try out rows.
   `_overlayClose` blurs a focused field inside the closing window, so its
-  keyboard goes down with it.
+  keyboard goes down with it. The fade really fades since 4.67.11: the
+  sheet was drawn opaque while _overlayOpen measured it, so the fade began
+  at 1 and reversed two frames later — `_focusSoon` sets opacity 0 with no
+  transition first (fade in .2s, out .13s = SHEET_ANIM_MS). Confirmed on
+  the iPhone ("good"): keyboard up, no word bar, from Overview and Today.
 - Calendar import (4.16, Menu > Data > Import calendar, `IcsImport`):
   file input `#ics-file` (.ics, or Google's .zip — `_unzip` reads the
   zip's central directory, stored or deflate-raw via DecompressionStream).
