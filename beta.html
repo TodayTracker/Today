@@ -1094,16 +1094,19 @@ html:not(#x) .card-list .ti:is(.dragging,.drag-landing),html:not(#x) .el-row:is(
 .sw.h:is(.dragging,.drag-landing){border-radius:14px;overflow:hidden}
 .cat-block:is(.dragging,.drag-landing),.el-block:is(.dragging,.drag-landing){background:var(--pg);border-radius:16px}
 /* Overview's category titles (1.0, "K1" from the folding-categories demo):
-   a tap folds the category — the arrow turns and the title shows how many
-   projects it holds; a bigger target than the 14px of text, without moving
+   a tap folds the category — the arrow turns and the projects close like a
+   drawer (animFold); a bigger target than the 14px of text, without moving
    anything. An open one's title is moved alone (CatDrag): it lifts white,
    a faint copy shows where it lands. */
 #overview-grid .shdr{display:flex;align-items:center;gap:5px;position:relative;cursor:pointer}
 #overview-grid .shdr::before{content:"";position:absolute;inset:-10px 0}
 .shdr .fold{display:flex;transition:transform .2s ease}
 .cat-block.folded>.shdr .fold{transform:rotate(-90deg)}
-.shdr .fcount{opacity:.85}
+#overview-grid .cat-block{position:relative}
 #overview-grid .cat-block.folded>.agrid{display:none}
+/* while folding: the grid stays visible on top (out of the flow, so the
+   page below already moves up) and is covered from the bottom */
+#overview-grid .cat-block.folded.folding>.agrid{display:grid;position:absolute;left:0;right:0;pointer-events:none}
 #overview-grid .cat-ph>.shdr{opacity:.28}
 html:not(#x) .shdr.cat-lift{position:fixed;z-index:999;margin:0;display:flex;align-items:center;gap:5px;padding:9px 12px;background:var(--card);border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.22);transform:scale(1.04);transition:box-shadow .2s ease,transform .2s ease}
 html:not(#x) .shdr.cat-lift.cat-landing{transform:none;box-shadow:none;background:transparent}
@@ -1834,7 +1837,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=5;
+var BETA_BUILD=6;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3158,7 +3161,7 @@ var CHANGELOG=[
     "Adding a tracker value opens the keyboard by itself and the window sits at the same height everywhere",
     "The background behind a slide-up window is a bit lighter",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
-    "Overview: tap a category's title to fold it; folded, it shows how many projects it holds and moves as one line. Holding an open category's title moves only the title: the projects stay, and it takes the ones below where you drop it"
+    "Overview: tap a category's title to fold it — its projects close and open like a drawer; folded, it moves as one line. Holding an open category's title moves only the title: the projects stay, and it takes the ones below where you drop it"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -4253,14 +4256,12 @@ function renderGrids(groups){
   if(!Object.keys(d.projects).length)h+='<div class="add-block"><div class="agrid add-grid"><div class="acard add-card" onclick="A.newProject()">'
     +'<div class="aico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>'
     +'<div class="albl">New project</div><div class="acnt">&nbsp;</div></div></div></div>';
-  // a category's title folds it (a tap) and shows, folded, how many
-  // projects it holds
+  // a category's title folds it (a tap; animFold)
   groups.slice(1).forEach(function(g){
     var cat=d.categories[g.cat];if(!cat)return;
     var cards=g.pids.map(projCard).join(''),fold=!g.ph&&cat.folded;
-    var n=g.pids.filter(function(pid){return d.projects[pid];}).length;
     h+='<div class="cat-block'+(fold?' folded':'')+(g.ph?' cat-ph':'')+'"'+(g.ph?'':' data-cat="'+g.cat+'"')+'>'
-      +'<div class="shdr"'+(g.ph?'':' onclick="A.foldCat(\''+g.cat+'\')"')+'><span>'+cat.name+'</span><span class="fold">'+FOLD_ICON+'</span>'+(fold?'<span class="fcount">'+n+'</span>':'')+'</div>';
+      +'<div class="shdr"'+(g.ph?'':' onclick="A.foldCat(\''+g.cat+'\')"')+'><span>'+cat.name+'</span><span class="fold">'+FOLD_ICON+'</span></div>';
     h+='<div class="agrid'+(cards?'':' zone-empty')+'">'+cards+'</div></div>';
   });
   document.getElementById('overview-grid').innerHTML=h;
@@ -4363,6 +4364,41 @@ function ovFlip(mutate){
   requestAnimationFrame(function(){
     moved.forEach(function(e){e.style.transition='transform '+DRAG_ANIM;e.style.transform='';});
     setTimeout(function(){moved.forEach(function(e){if(!e.style.transform)e.style.transition='';});},260);
+  });
+}
+// Folding a category on Overview opens or closes its projects like a
+// drawer, in one motion: the grid is uncovered from the top down (or
+// covered from the bottom up) while every title and card below slides by
+// exactly as much (FLIP on them, clip-path on the grid, same time and
+// curve). Folding, the grid stays on screen out of the flow until it's
+// covered. (Before, a redraw let the cards pop in at once over the titles
+// that were still sliding down.)
+var FOLD_MS=320,FOLD_EASE='cubic-bezier(.2,.8,.2,1)';
+function animFold(blk,fold){
+  var g=document.getElementById('overview-grid'),grid=blk.querySelector(':scope>.agrid');
+  var below=[].filter.call(g.querySelectorAll('.acard[data-pid],.cat-block>.shdr'),function(e){
+    return !blk.contains(e)&&(blk.compareDocumentPosition(e)&Node.DOCUMENT_POSITION_FOLLOWING)&&e.getClientRects().length;
+  });
+  var before=below.map(function(e){return e.getBoundingClientRect().top;});
+  var top=grid.offsetTop; // where the grid sits while open
+  blk.classList.toggle('folded',fold);
+  if(fold){blk.classList.add('folding');grid.style.top=top+'px';}
+  blk._folding=true;
+  below.forEach(function(e,i){var d=before[i]-e.getBoundingClientRect().top;if(Math.abs(d)<.5)return;e.style.transition='none';e.style.transform='translateY('+d+'px)';});
+  function clip(v){grid.style.clipPath=v;grid.style.webkitClipPath=v;}
+  grid.style.transition='none';
+  clip(fold?'inset(0 0 0 0)':'inset(0 0 100% 0)');grid.style.opacity=fold?'1':'0';
+  void g.offsetHeight;
+  requestAnimationFrame(function(){
+    var tr='transform '+FOLD_MS+'ms '+FOLD_EASE;
+    below.forEach(function(e){if(e.style.transform){e.style.transition=tr;e.style.transform='';}});
+    grid.style.transition='clip-path '+FOLD_MS+'ms '+FOLD_EASE+',-webkit-clip-path '+FOLD_MS+'ms '+FOLD_EASE+',opacity '+(fold?'180ms ease-in':'200ms ease-out');
+    clip(fold?'inset(0 0 100% 0)':'inset(0 0 0 0)');grid.style.opacity=fold?'0':'1';
+    setTimeout(function(){
+      below.forEach(function(e){if(!e.style.transform)e.style.transition='';});
+      grid.style.transition='';clip('');grid.style.opacity='';grid.style.top='';
+      blk.classList.remove('folding');blk._folding=false;
+    },FOLD_MS+40);
   });
 }
 // Holding an OPEN category's title moves the title alone (1.0, "A" from the
@@ -5909,9 +5945,11 @@ var A={
   // Overview: a tap on a category's title folds or opens it
   foldCat:function(catId){
     var c=DB.data.categories[catId];if(!c||CatDrag.active)return;
+    var blk=document.querySelector('#overview-grid .cat-block[data-cat="'+catId+'"]');
+    if(blk&&blk._folding)return; // still moving from the last tap
     if(c.folded)delete c.folded;else c.folded=true;
     DB.save();
-    ovFlip(function(){renderGrids();});
+    if(blk)animFold(blk,!!c.folded);else renderGrids();
   },
   setHeaderBare:function(on){
     try{if(on)localStorage.setItem('lifeos-hbare','1');else localStorage.removeItem('lifeos-hbare');}catch(e){}

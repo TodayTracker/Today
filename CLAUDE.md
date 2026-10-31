@@ -1885,9 +1885,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   category bar itself moves and not the projects below it"): a tap on a
   category's title (`.shdr` onclick → `A.foldCat`) folds it — saved as
   `categories[id].folded` (old apps ignore it), the arrow (`FOLD_ICON`,
-  `.fold`) turns, a folded title shows its project count (`.fcount`), its
-  grid is display:none; the change slides (`ovFlip`, FLIP of cards and
-  titles). The tap target is the whole title row plus 10px above/below
+  `.fold`) turns, its grid is display:none. No count on a folded title
+  (4.67.6, "the number… is not necessary"). The fold/unfold motion is
+  `animFold(blk,fold)` (4.67.6 — the first version redrew Overview through
+  ovFlip, so the cards popped in at once on top of the titles that were
+  still sliding down: "the ausklapp animation is really fucked up"): no
+  redraw, a drawer — the grid is uncovered from the top (clip-path inset
+  bottom 100%→0, opacity 0→1 in 200ms) while every title and card BELOW
+  slides from its old spot by FLIP, same FOLD_MS 320 + curve, so the
+  reveal edge leads the next title by 8→22px; folding, the grid stays
+  drawn out of the flow (`.folded.folding>.agrid` absolute at its own
+  offsetTop, cat-block position:relative) and is covered from the bottom
+  while the page below slides up. A tap during the motion is ignored
+  (`blk._folding`). Measured frame by frame: Uni's title 243→506 in step
+  with the reveal (58% / 58% at 48ms), no jump at the end, no inline
+  styles left; minimal layout keeps fitMinimalGrid's columns. The tap target is the whole title row plus 10px above/below
   (`::before`), nothing moved — measured 8px title→grid, 22px grid→title as
   before. MOVING: a FOLDED category = the old whole-block DragReorder
   (handle now `.cat-block.folded>.shdr`); an OPEN one = `CatDrag`: only the
