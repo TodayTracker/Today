@@ -2829,18 +2829,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   untouched); size, tap area and the SQ press stay. Before: the day bar
   arrow F1/F3 switch (removed once F3 was picked).
   "Number keyboard" (4.67.8, "the word suggestion is still showing on the
-  keyboard when I open a tracker… not flicking, just showing"): the real
-  field never showed the bar (it vanished at the old hand-over), the
-  helper does — its attributes, or iOS showing it for any field focused
-  by the tap itself? Untestable here, so three ways under Try out,
-  `kbMode()` from 'lifeos-kbmode': 'helper' (as before), 'copy' (the helper
-  gets exactly the field's attributes, no aria-hidden/tabindex), 'direct'
-  (no helper: the real field takes the tap's focus, and its window gets
-  `.kbd-in` = in place, opacity 0→1, instead of sliding up from off
-  screen — the old reason for the helper was iOS panning to an off-screen
-  field). `_onRelease(ov,fn,cancel)` serves the hold path of both. Remove
-  the losing ways and the rows once the user reports which one has no bar
-  and doesn't jump.
+  keyboard when I open a tracker… not flicking, just showing") — DECIDED in
+  4.67.11: of three ways tried on the phone (the hidden helper as before;
+  the helper carrying the field's exact attributes; no helper), the user
+  reported "the field itself, window fades in — I see no word suggestion".
+  So iOS showed the bar for the HELPER field (whatever its attributes), not
+  for the real one. Now there is no helper: `_focusSoon(inp,onRelease)` on
+  iOS adds `.kbd-in` to the window (it sits in place and fades in, opacity
+  .2s, instead of sliding up — nothing off screen for iOS to scroll to) and
+  focuses the real field inside the tap (or on the finger's release for a
+  window opened by a hold, `_onRelease`); off iOS a plain focus after the
+  slide. Gone: the helper input, the drawn caret (`.sh-val-c`,
+  `.sh-val.mirror`, `_mirrorCaret`), `kbMode`/'lifeos-kbmode' (a stray key
+  may stay on the phone; nothing reads it), `A.setKbMode`, the Try out rows.
+  `_overlayClose` blurs a focused field inside the closing window, so its
+  keyboard goes down with it.
 - Calendar import (4.16, Menu > Data > Import calendar, `IcsImport`):
   file input `#ics-file` (.ics, or Google's .zip — `_unzip` reads the
   zip's central directory, stored or deflate-raw via DecompressionStream).
@@ -3171,6 +3174,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   forced: typing mirrors, Enter saves 72.5 from "72,5", caret position,
   close clears. Confirmed on the iPhone ("works good now"). If a flash
   ever comes back, it's from the helper's FIRST focus, not a hand-over.
+  (SUPERSEDED in 4.67.11: the helper showed a steady word bar — see TRY OUT
+  "Number keyboard"; the real field now takes the tap's focus and the
+  window fades in place. The caret/mirror notes below are history.)
   Then "through Today the keyboard doesn't open and the blue stripe is not
   in the middle": (1) with Hold to complete on, Today's tracker box opens
   the window from the HOLD timer (700ms, finger still down) — not a tap,
@@ -3235,10 +3241,25 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   now, all of them required:
   1. `.git/hooks/pre-commit` (local, not in the repo — recreate it from
      this note if the clone is new): extracts every <script> block of the
-     STAGED index.html plus sw.js and parses them with Safari's own engine,
-     `/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/
-     Helpers/jsc -e "new Function(readFile(f))"`; any failure blocks the
-     commit. Tested: it refuses the broken 4.0. Never bypass it (--no-verify).
+     STAGED index.html AND beta.html plus sw.js and parses them with
+     Safari's own engine, `/System/Library/Frameworks/JavaScriptCore.
+     framework/Versions/A/Helpers/jsc -e "new Function(readFile(f))"`; any
+     failure blocks the commit. Tested: it refuses the broken 4.0. Never
+     bypass it (--no-verify). Until 4.67.11 it only read `:index.html` — a
+     beta commit stages only beta.html, so the hook was checking the
+     RELEASED copy and never the beta (my manual jsc run covered it).
+     Since 4.67.11 it also blocks a HIDDEN t(): a Python scan (masks
+     strings/comments/regexes, matches braces per function) refuses any
+     function with its own `t` (parameter or var/let/const — `var` hoists to
+     the whole function) that also calls `t(...)`; the I18N definer's
+     inner `function t` is allowed. Why: Beta 4.67.10 shipped "TypeError: t
+     is not a function (In 't('Goal')')" — TrkZ.render's 4.67.8 time labels
+     used `var t=new Date(...)`, hoisted over the goal label's t('Goal'), so
+     every tracker chart WITH A GOAL stopped drawing (and anything that
+     redrew the tracker pages threw — reported on adding a task; the task
+     itself was saved before the redraw). The same rule was already in the
+     Calendar import note ("loop variables must not be called `t`"); now
+     it's enforced. Tested: blocks the shipped 4.67.10, passes the fix.
   2. After the LAST edit of a change, fresh-load the preview and check
      `typeof APP_VERSION` / `window.APP_OK` — not after an earlier edit.
   3. Apostrophes in JS strings: write `\'` (Python: `\\'` in a normal

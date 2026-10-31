@@ -446,10 +446,11 @@ html[data-theme="light"] .sheet{background:#fff}
    the transform-to-open and the display:none->block flip can't be the
    same class change. */
 .sheet-overlay.on.show .sheet{transform:translateY(0)}
-/* Try out "The field itself" (kbMode 'direct'): a number window fades in
-   where it ends up */
-.sheet-overlay.kbd-in .sheet{transform:none;opacity:0;transition:opacity .2s ease}
-.sheet-overlay.kbd-in.on.show .sheet{opacity:1}
+/* A number window on the iPhone fades in where it ends up (_focusSoon): its
+   field takes the focus inside the tap, so there's nothing off screen for
+   iOS to scroll to */
+.sheet-overlay.kbd-in .sheet{transform:none;opacity:0;transition:opacity .13s ease}
+.sheet-overlay.kbd-in.on.show .sheet{opacity:1;transition:opacity .2s ease}
 /* Task sheet: name as a plain title, importance + project as one slim
    row each (no labels), and the notes box is the main thing in it. Scoped
    to #task-sheet-overlay so no other sheet changes. */
@@ -765,13 +766,6 @@ html:not(#x) .sh-days-row .type-btn.active{background:var(--blue-tint);color:var
 html:not(#x) .sh-val input{width:2ch;max-width:70%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;font-family:inherit;font-size:48px;line-height:56px;height:auto;font-weight:700;color:var(--ink);text-align:center;padding:0;margin:0}
 .sh-val input::placeholder{color:#c7c7cc;opacity:1}
 .sh-val-u{font-size:22px;line-height:28px;font-weight:600;color:#8a8a8e}
-/* A number window typed into through the keyboard helper (_focusSoon): the
-   focus stays on the helper, so the field gets a drawn caret — after the
-   number, or in the middle of the "0" while it's empty (_mirrorCaret). It
-   takes no room: the unit stays where it was. */
-.sh-val-c{display:none;width:2px;height:46px;border-radius:1px;background:var(--blue);align-self:center;margin-left:-8px;animation:shCaret 1.1s infinite}
-.sh-val.mirror .sh-val-c{display:block}
-@keyframes shCaret{0%,45%{opacity:1}55%,92%{opacity:0}100%{opacity:1}}
 .sh-val-note{text-align:center;font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;min-height:18px;margin-bottom:10px}
 /* a card whose last row(s) are hidden: the row above them is the last one
    you see, so it has no divider */
@@ -1813,7 +1807,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 <div class="sheet-overlay" id="trk-day-sheet-overlay" onclick="if(event.target===this)TrackerDaySheet.close()">
   <div class="sheet sh-win">
     <div class="sh-bar"><span class="sh-bar-t" id="trk-day-title"></span><button type="button" class="sh-save" onclick="TrackerDaySheet.save()">Save</button></div>
-    <div class="sh-val"><input id="trk-day-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-c"></span><span class="sh-val-u" id="trk-day-unit"></span></div>
+    <div class="sh-val"><input id="trk-day-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-u" id="trk-day-unit"></span></div>
     <div class="sh-val-note" id="trk-day-goal"></div>
   </div>
 </div>
@@ -1821,7 +1815,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 <div class="sheet-overlay" id="trk-add-sheet-overlay" onclick="if(event.target===this)TrackerAddSheet.close()">
   <div class="sheet sh-win">
     <div class="sh-bar"><span class="sh-bar-t" id="trk-add-title"></span><button type="button" class="sh-save" onclick="TrackerAddSheet.save()">Save</button></div>
-    <div class="sh-val"><input id="trk-add-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-c"></span><span class="sh-val-u" id="trk-add-unit"></span></div>
+    <div class="sh-val"><input id="trk-add-val" type="text" inputmode="decimal" autocomplete="off" placeholder="0" oninput="_shFitVal(this)"><span class="sh-val-u" id="trk-add-unit"></span></div>
     <div class="sh-val-note" id="trk-add-goal"></div>
   </div>
 </div>
@@ -1861,7 +1855,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=10;
+var BETA_BUILD=11;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3189,6 +3183,7 @@ var CHANGELOG=[
     "New app icon: black with a soft 3D look — a light edge, a slightly darker bottom and a raised tick (an icon already on the Home Screen keeps the old one until the app is added again)",
     "Moving categories on Overview is smooth: a held folded category keeps its title inside the lifted bar and the others no longer bob, and moving an open category's title glides on from wherever things are",
     "Menu → General: Notifications is at the bottom, its Coming soon line centred like a row",
+    "A tracker's value window on the iPhone fades in where it ends up with the keyboard already up, and no word suggestions above the number pad",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer; folded, it moves as one line. Holding an open category's title moves only the title: the projects stay, and it takes the ones below where you drop it"
   ]}
@@ -4022,7 +4017,7 @@ var I18N=(function(){
     "Every task by priority, or as a calendar":"Alle Aufgaben nach Priorität oder als Kalender",
     "How consistent you are with your habits":"Wie beständig du deine Gewohnheiten pflegst",
     "Settings, the Guide and your data":"Einstellungen, Anleitung und deine Daten",
-    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Tomorrow":"Morgen","Yesterday":"Gestern","Nothing on this day.":"An diesem Tag steht nichts an.","Previous day":"Vorheriger Tag","Next day":"Nächster Tag","Try out":"Ausprobieren","Number keyboard":"Zahlentastatur","Helper field (now)":"Hilfsfeld (jetzt)","Helper, copy of the field":"Hilfsfeld als Kopie des Felds","The field itself, window fades in":"Das Feld selbst, Fenster blendet ein","Open a tracker value window with each and see which one shows no word bar over the keyboard and doesn't jump.":"Öffne mit jeder Variante ein Tracker-Wertfenster und schau, bei welcher keine Wortleiste über der Tastatur erscheint und nichts springt.","Header buttons without background":"Kopfzeilen-Knöpfe ohne Hintergrund","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
+    "Good to know":"Gut zu wissen","Developer mode":"Entwicklermodus","Developer":"Entwickler","Released":"Veröffentlicht","Tomorrow":"Morgen","Yesterday":"Gestern","Nothing on this day.":"An diesem Tag steht nichts an.","Previous day":"Vorheriger Tag","Next day":"Nächster Tag","Try out":"Ausprobieren","Header buttons without background":"Kopfzeilen-Knöpfe ohne Hintergrund","Back to today":"Zurück zu heute","Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.":"Beta ist das nächste Update, zum Ausprobieren, bevor es alle bekommen. Ein Tippen auf Beta lädt die neueste. Beide nutzen dieselben Daten.","Access code":"Zugangscode","Code":"Code","Wrong code.":"Falscher Code.","Welcome screens":"Willkommensbildschirme","Add to Home Screen · iPhone":"Zum Home-Bildschirm · iPhone","Add to Home Screen · Android":"Zum Home-Bildschirm · Android","Update screen":"Update-Bildschirm","Quotes":"Zitate","Only you see this page. Nothing here changes your data. Turn developer mode off in Menu → General.":"Nur du siehst diese Seite. Hier ändert sich nichts an deinen Daten. Schalte den Entwicklermodus in Menü → Allgemein aus.","War Room tasks have a red tick box and always rank highest in Today and Tasks.":"War-Room-Aufgaben haben ein rotes Kästchen und stehen in Heute und Aufgaben immer ganz oben.","The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.":"Die Priorität War Room ist für deine dringendsten Aufgaben: Nichts anderes zählt, bis sie erledigt sind.","To put a task in the War Room, open it and pick War Room among the other priorities.":"Um eine Aufgabe in den War Room zu legen, öffne sie und wähle War Room bei den Prioritäten.","Show them in their own card at the top of Overview with Show War Room in Menu → Overview.":"Zeige sie in einer eigenen Karte oben in der Übersicht: War Room anzeigen in Menü → Übersicht.","Two things before you start.":"Zwei Dinge vorab.",
     "Your data stays on this phone":"Deine Daten bleiben auf diesem Handy",
     "No account and no cloud. Make a backup now and then: Menu → Data → Export.":"Kein Konto und keine Cloud. Mach ab und zu ein Backup: Menü → Daten → Exportieren.",
     "The Guide":"Die Anleitung",
@@ -4732,10 +4727,10 @@ TrkZ.prototype.render=function(){
     });
   } else {
     var hrs=this.D*24,step=[1,2,3,4,6,12].filter(function(h){return hrs/h<=4.5;})[0]||24;
-    var t=new Date(left);t.setMinutes(0,0,0);t.setHours(Math.ceil((t.getHours()+(left>t.getTime()?1:0))/step)*step);
-    for(;t.getTime()<=end;t.setHours(t.getHours()+step)){
-      var xx=x(t.getTime());if(xx<6||xx>PW-2)continue;
-      var lbl=t.getHours()?t.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'}):_dm(t);
+    var tk=new Date(left);tk.setMinutes(0,0,0);tk.setHours(Math.ceil((tk.getHours()+(left>tk.getTime()?1:0))/step)*step);
+    for(;tk.getTime()<=end;tk.setHours(tk.getHours()+step)){
+      var xx=x(tk.getTime());if(xx<6||xx>PW-2)continue;
+      var lbl=tk.getHours()?tk.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'}):_dm(tk);
       var an=xx<24?'start':xx>PW-24?'end':'middle';
       s+='<text class="hd-bar-label" x="'+f(xx)+'" y="'+(H-8)+'" font-size="9" text-anchor="'+an+'">'+lbl+'</text>';
     }
@@ -6018,10 +6013,6 @@ var A={
     if(c.folded)delete c.folded;else c.folded=true;
     DB.save();
     if(blk)animFold(blk,!!c.folded);else renderGrids();
-  },
-  setKbMode:function(m){
-    try{if(m==='helper')localStorage.removeItem('lifeos-kbmode');else localStorage.setItem('lifeos-kbmode',m);}catch(e){}
-    renderDevPage();
   },
   setHeaderBare:function(on){
     try{if(on)localStorage.setItem('lifeos-hbare','1');else localStorage.removeItem('lifeos-hbare');}catch(e){}
@@ -9027,8 +9018,7 @@ function _overlayClose(id,instant){
   instant=instant||_instantClose;_instantClose=false;
   var ov=document.getElementById(id);
   ov._closing=true;
-  var px=_focusSoon.px; // typed into through the keyboard helper: its keyboard goes down with it
-  if(px&&px._inp&&ov.contains(px._inp)){px._inp.parentNode.classList.remove('mirror');px._inp=null;px.blur();}
+  if(ov.contains(document.activeElement)&&document.activeElement.blur)document.activeElement.blur(); // its keyboard goes down with it
   if(ov._closeTimer){clearTimeout(ov._closeTimer);ov._closeTimer=null;}
   ov.classList.remove('show');
   _overlayCount=Math.max(0,_overlayCount-1);
@@ -9148,10 +9138,7 @@ function renderDevPage(){
     +'</div><div class="data-note">Beta is the next update, to try before everyone gets it. Tapping Beta loads the newest one. Both use the same data.</div>'
     +'<div class="sl">Try out</div><div class="opt-group"><div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Header buttons without background</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(document.body.classList.contains('hb-bare')?'checked':'')+' onchange="A.setHeaderBare(this.checked)"><span class="switch-slider"></span></label></div></div>'
-    +'<div class="sl">Number keyboard</div><div class="opt-group">'
-    +[['helper','Helper field (now)'],['copy','Helper, copy of the field'],['direct','The field itself, window fades in']].map(function(o){var on=kbMode()===o[0];
-      return '<div class="opt-row'+(on?' active':'')+'" onclick="A.setKbMode(\''+o[0]+'\')"><div class="opt-text"><div class="opt-title">'+o[1]+'</div></div>'+(on?tick:'')+'</div>';}).join('')
-    +'</div><div class="data-note">Open a tracker value window with each and see which one shows no word bar over the keyboard and doesn\'t jump.</div>');
+    +'</div>');
   setHTML('dev-updates','<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default"><div class="opt-text"><div class="opt-title">Advanced update info</div></div>'
     +'<label class="switch" style="margin-left:auto"><input type="checkbox" '+(DB.data.settings.advancedUpdates?'checked':'')+' onchange="A.setAdvancedUpdates(this.checked)"><span class="switch-slider"></span></label></div>'
@@ -9852,26 +9839,14 @@ var IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='
 // down. On iOS the user's tap focuses it (see the tap takeover below).
 function _autoFocus(el){if(el&&!IS_IOS)el.focus({preventScroll:true});}
 // A number window (a tracker's value) opens with its keyboard up. iOS only
-// opens the keyboard for a focus inside the user's tap — but focusing the
-// real field then, while its window is still sliding up from below the
-// screen, made iOS move the view to reveal it and the window ended up far
-// too high. So inside the tap a tiny field that's already on screen (top
-// left, invisible) takes the focus — the keyboard opens and nothing moves —
-// and it KEEPS the focus: what's typed shows in the real field, which gets a
-// drawn caret (`.sh-val.mirror`), and Enter there is Enter in the field.
-// (Handing the focus over to the real field once the window was up reloaded
-// the keyboard, and a word-suggestion bar flashed above it.) While the
-// keyboard is up a tap on the field changes nothing (the tap takeover below
-// ignores it); closing the window drops the focus, and the keyboard with it
-// (_overlayClose). Call it from the tap itself — or, for a window opened by
+// opens the keyboard for a focus inside the user's tap — and focusing the
+// field then, while its window is still sliding up from below the screen,
+// made iOS move the view to reveal it (the window ended up far too high).
+// So on the iPhone the window doesn't slide: it fades in where it ends up
+// (`.kbd-in`) and its field takes the focus inside the tap. (A hidden helper
+// field that kept the focus instead showed iOS's word-suggestion bar over
+// the number pad.) Call it from the tap itself — or, for a window opened by
 // a hold, with `onRelease`: then the focus waits for the finger to let go.
-// Menu → Developer → Try out → Number keyboard, while the word-suggestion
-// bar over the number pad is being tracked down (this device only):
-// 'helper' (the helper below), 'copy' (the helper carries every attribute
-// of the real field), 'direct' (no helper: the real field takes the tap's
-// focus, and its window fades in where it ends up instead of sliding up, so
-// there's nothing off screen for iOS to scroll to).
-function kbMode(){try{return localStorage.getItem('lifeos-kbmode')||'helper';}catch(e){return 'helper';}}
 // fn() when the finger that's down lets go (that release counts as a tap),
 // cancel() if the touch is cancelled or the window has closed by then
 function _onRelease(ov,fn,cancel){
@@ -9883,50 +9858,14 @@ function _onRelease(ov,fn,cancel){
 }
 function _focusSoon(inp,onRelease){
   if(!IS_IOS){setTimeout(function(){try{inp.focus({preventScroll:true});}catch(e){}},SHEET_ANIM_MS+60);return;}
-  var mode=kbMode(),ov=inp.closest('.sheet-overlay');
-  if(mode==='direct'){
-    if(ov){ov.classList.add('kbd-in');void ov.offsetHeight;} // the window already sits where it ends up
-    var direct=function(){try{inp.focus({preventScroll:true});var n=inp.value.length;inp.setSelectionRange(n,n);}catch(e){}};
-    if(onRelease)_onRelease(ov,direct);else direct();
-    return;
+  var ov=inp.closest('.sheet-overlay');
+  var sh=ov&&ov.querySelector('.sheet');
+  if(sh){ // it already sits where it ends up, and starts see-through (it was drawn opaque a moment ago, while _overlayOpen measured it)
+    ov.classList.add('kbd-in');sh.style.transition='none';sh.style.opacity='0';void sh.offsetHeight;
+    sh.style.transition='';sh.style.opacity='';
   }
-  var px=_focusSoon.px;
-  if(!px){
-    px=_focusSoon.px=document.createElement('input');
-    px.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0;font-size:16px;color:transparent;caret-color:transparent;background:transparent;pointer-events:none;z-index:-1';
-    document.body.appendChild(px);
-    px.addEventListener('input',function(){
-      var f=px._inp;if(!f)return;
-      f.value=px.value;_shFitVal(f);_mirrorCaret(f);
-    });
-    px.addEventListener('keydown',function(e){if(e.key==='Enter'&&px._inp)px._inp.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}));});
-    px.addEventListener('blur',function(){var f=px._inp;px._inp=null;if(f)f.parentNode.classList.remove('mirror');});
-  }
-  if(px._inp&&px._inp!==inp)px._inp.parentNode.classList.remove('mirror');
-  if(mode==='copy'){
-    [].slice.call(px.attributes).forEach(function(a){if(a.name!=='style')px.removeAttribute(a.name);});
-    [].forEach.call(inp.attributes,function(a){if(!/^(id|class|style|oninput|placeholder)$/.test(a.name))px.setAttribute(a.name,a.value);});
-  } else {
-    px.type='text';px.tabIndex=-1;px.setAttribute('aria-hidden','true');
-    px.setAttribute('autocomplete','off');px.setAttribute('autocorrect','off');px.setAttribute('autocapitalize','off');
-    px.setAttribute('spellcheck','false');px.setAttribute('data-nosug','');
-  }
-  px.inputMode=inp.inputMode||'text';
-  px.value=inp.value;px._inp=inp;
-  inp.parentNode.classList.add('mirror');_mirrorCaret(inp);
-  function go(){try{px.focus({preventScroll:true});var n=px.value.length;px.setSelectionRange(n,n);}catch(e){}}
-  if(!onRelease){go();return;}
-  // Opened by a hold (a timer, not a tap): the keyboard comes when the
-  // finger lets go — that release counts as a tap.
-  _onRelease(ov,function(){if(px._inp===inp)go();},function(){if(px._inp===inp){inp.parentNode.classList.remove('mirror');px._inp=null;}});
-}
-// The drawn caret sits right after the number; while the field is empty, in
-// the middle of the "0" (iOS's own caret in an empty centred field). Its
-// margins always add up the same, so nothing else moves.
-function _mirrorCaret(f){
-  var c=f.parentNode.querySelector('.sh-val-c');if(!c)return;
-  var w=f.offsetWidth;
-  c.style.margin=f.value?'':'0 '+(w/2-1)+'px 0 '+(-w/2-7)+'px';
+  function go(){try{inp.focus({preventScroll:true});var n=inp.value.length;inp.setSelectionRange(n,n);}catch(e){}}
+  if(onRelease&&ov)_onRelease(ov,go);else go();
 }
 // A number typed with "," or "." as the decimal point; NaN for anything else
 function numIn(v){
@@ -10109,8 +10048,6 @@ if(window.visualViewport){
       var t=tap;tap=null;
       var sheet=t&&t.el.closest('.sheet-overlay.on .sheet');
       if(!sheet)return;
-      var px=_focusSoon.px;
-      if(px&&document.activeElement===px&&px._inp===t.el&&kbUp()){e.preventDefault();return;} // already typing into it (see _focusSoon)
       var open=typingInSheet(document.activeElement)&&kbUp(); // keyboard already up: switching fields
       if(t.el===document.activeElement)t.el.blur(); // focused but no keyboard: focus again so it opens
       var H=KbFit.baseH||window.innerHeight,line=open?vv.offsetTop+vv.height:H-KbFit.keyboard(H);
