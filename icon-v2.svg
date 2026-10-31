@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<defs>
+<linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c2b29"/><stop offset="1" stop-color="#121110"/></linearGradient>
+<linearGradient id="r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset=".5" stop-color="#fff" stop-opacity=".1423"/><stop offset="1" stop-color="#fff" stop-opacity=".05"/></linearGradient>
+<linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+<linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e4e2dd"/></linearGradient>
+<filter id="s" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000" flood-opacity=".28"/></filter>
+</defs>
+<rect width="1024" height="1024" fill="url(#b)"/>
+<rect width="1024" height="1024" fill="url(#f)"/>
+<rect x="7" y="7" width="1010" height="1010" rx="222" fill="none" stroke="url(#r)" stroke-width="14"/>
+<path d="M300 540 L445 685 L735 365" fill="none" stroke="url(#g)" stroke-width="118" stroke-linecap="round" stroke-linejoin="round" filter="url(#s)"/>
+</svg>

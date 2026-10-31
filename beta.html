@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-title" content="Today">
 <meta name="theme-color" content="#f3f4f6">
 <title>Today</title>
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon-v2.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32-v2.png">
 <link rel="manifest" href="manifest.json">
 <style>
 html{scroll-behavior:auto;background:#f3f4f6;overscroll-behavior:none}
@@ -987,6 +987,8 @@ html[data-theme="dark"] .wm-sw.off{background:#3a3a3a}
 .tpl-it{min-height:52px;padding:6px 14px 6px 56px}
 .tpl-card.none .tpl-head{cursor:default}.tpl-card.none .tpl-head input,.tpl-card.none .tpl-ico,.tpl-card.none .ics-t{opacity:.4}
 .cal-none{font-size:13px;font-weight:500;color:#bbb;padding:12px 14px 14px}
+/* a "Coming soon" card on a Menu page: one row of the page's height, text centred */
+.cal-none.soon-row{height:46px;padding:0 14px;display:flex;align-items:center}
 .wdays{scrollbar-width:none}.wdays::-webkit-scrollbar{display:none}
 input,textarea,select{font-family:inherit}
 /* lighter weights: text 500 (was 600), titles and labels 700 (was 800) */
@@ -1107,6 +1109,24 @@ html:not(#x) .card-list .ti:is(.dragging,.drag-landing),html:not(#x) .el-row:is(
 .shdr .fold{display:flex;transition:transform .2s ease}
 .cat-block.folded>.shdr .fold{transform:rotate(-90deg)}
 #overview-grid .cat-block{position:relative}
+/* Each category holds its own spacing (flow-root). The title's and grid's
+   margins used to collapse through the block — a held folded category
+   floats position:fixed (its own formatting context), so its title dropped
+   16px below the lifted box, and the faint copy (sized from the box) took
+   less room than the block, so the categories around it bobbed. Measured
+   identical to the old layout (normal, minimal, folded, empty, loose). An
+   empty grid keeps the 8px under its title (a grid never lets margins
+   collapse through it). */
+html:not(#x) #overview-grid .cat-block{display:flow-root;margin:16px 0 0}
+html:not(#x) #overview-grid .cat-block.folded{margin-bottom:8px}
+html:not(#x) #overview-grid .cat-block:not(.folded):has(>.agrid:not(.zone-empty)),html:not(#x) #overview-grid .cat-block:not(.folded):has(>.agrid>.drag-placeholder){margin-bottom:22px}
+html:not(#x) #overview-grid .cat-block>.shdr{margin-top:0;margin-bottom:0}
+html:not(#x) #overview-grid .cat-block>.agrid:not(#x){margin-top:8px;margin-bottom:0}
+html:not(#x) #overview-grid .cat-block.folded>.agrid:not(#x){margin-top:0}
+/* a held folded category looks like a held open one's title (.cat-lift) */
+html:not(#x) #overview-grid .cat-block.folded:is(.dragging,.drag-landing){background:transparent;box-shadow:none!important}
+#overview-grid .cat-block.folded:is(.dragging,.drag-landing)::after{content:"";position:absolute;inset:-9px -12px;z-index:-1;border-radius:12px;background:var(--card);box-shadow:0 12px 28px rgba(0,0,0,.22);transition:background-color .22s ease,box-shadow .22s ease}
+#overview-grid .cat-block.folded.drag-landing::after{background-color:transparent;box-shadow:none}
 #overview-grid .cat-block.folded>.agrid{display:none}
 /* while folding: the grid stays visible on top (out of the flow, so the
    page below already moves up) and is covered from the bottom */
@@ -1280,10 +1300,10 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   <div id="general-top" style="margin-top:8px"></div>
   <div class="sl">Tab bar</div>
   <div id="general-menu"></div>
-  <div class="sl">Notifications</div>
-  <div class="opt-group"><div class="cal-none">Coming soon</div></div>
   <div class="sl">Developer</div>
   <div id="general-dev"></div>
+  <div class="sl">Notifications</div>
+  <div class="opt-group"><div class="cal-none soon-row">Coming soon</div></div>
 </div>
 
 <div class="page sp" id="p-dev">
@@ -1841,7 +1861,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=9;
+var BETA_BUILD=10;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3166,6 +3186,9 @@ var CHANGELOG=[
     "The background behind a slide-up window is a bit lighter",
     "A tracker's chart zooms in down to 3 hours, so several entries on one day spread out; zoomed in, the bottom shows times and a tap shows the time of the entry",
     "A tracker's day value can be removed: empty the number in its window and save (it goes to the Trash)",
+    "New app icon: black with a soft 3D look — a light edge, a slightly darker bottom and a raised tick (an icon already on the Home Screen keeps the old one until the app is added again)",
+    "Moving categories on Overview is smooth: a held folded category keeps its title inside the lifted bar and the others no longer bob, and moving an open category's title glides on from wherever things are",
+    "Menu → General: Notifications is at the bottom, its Coming soon line centred like a row",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer; folded, it moves as one line. Holding an open category's title moves only the title: the projects stay, and it takes the ones below where you drop it"
   ]}
@@ -3310,7 +3333,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4367,12 +4390,14 @@ function wireOverviewDrag(){
   }
 }
 // Overview slides instead of jumping when it's redrawn (FLIP): every card
-// and category title starts where it was and glides to its new place.
+// and category title starts where it IS (mid-slide too — starting from
+// where its last slide was headed made it snap at every quick step) and
+// glides to its new place.
 function ovFlip(mutate){
   var g=document.getElementById('overview-grid');
   function els(){return [].slice.call(g.querySelectorAll('.acard[data-pid],.cat-block>.shdr'));}
   function key(e){return e.classList.contains('acard')?'p'+e.getAttribute('data-pid'):'c'+(e.parentNode.getAttribute('data-cat')||'ph');}
-  var first={};els().forEach(function(e){first[key(e)]=DragReorder._layoutRect(e);});
+  var first={};els().forEach(function(e){first[key(e)]=e.getBoundingClientRect();});
   mutate();
   var moved=[];
   els().forEach(function(e){var a=first[key(e)];if(!a)return;var b=e.getBoundingClientRect(),dx=a.left-b.left,dy=a.top-b.top;
@@ -9320,7 +9345,7 @@ var Welcome={
       var line=ios?L('In Safari, tap '+nw('Share '+share+',')+' then <b>Add to Home Screen</b>.','Tippe in Safari auf '+nw('Teilen '+share)+' und dann auf <b>Zum Home-Bildschirm</b>.')
         :L('In Chrome, tap the '+nw('menu ⋮,')+' then <b>Add to Home screen</b>.','Tippe in Chrome auf das '+nw('Menü ⋮')+' und dann auf <b>Zum Startbildschirm hinzufügen</b>.');
       // the top of the menu: Safari's page preview, Chrome's row of icons
-      var top=ios?'<div class="wel-shh"><img src="icon-192.png" alt=""><div><b>Today</b><span>todaytracker.github.io</span></div><i>'+mk('<line x1="7" y1="7" x2="17" y2="17"/><line x1="17" y1="7" x2="7" y2="17"/>')+'</i></div>'
+      var top=ios?'<div class="wel-shh"><img src="icon-192-v2.png" alt=""><div><b>Today</b><span>todaytracker.github.io</span></div><i>'+mk('<line x1="7" y1="7" x2="17" y2="17"/><line x1="17" y1="7" x2="7" y2="17"/>')+'</i></div>'
         :'<div class="wel-shh wel-icons">'+[mk('<line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>'),mk('<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'),mk('<path d="M12 4v11"/><polyline points="7 10 12 15 17 10"/><line x1="5" y1="20" x2="19" y2="20"/>'),mk('<circle cx="12" cy="12" r="8"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r=".6" fill="currentColor"/>'),mk('<path d="M20 12a8 8 0 1 1-2.3-5.7"/><polyline points="20 4 20 8.5 15.5 8.5"/>')].join('')+'</div>';
       h='<div class="wel-ill wel-ill-sheet" style="background:var(--wt-blue)"><div class="wel-sheet" translate="no">'+top
         +rows.map(function(x){return '<div class="wel-shr'+(x[2]?' hl':'')+'"><span>'+x[0]+'</span>'+x[1]+'</div>';}).join('')+'</div></div>'
@@ -9328,7 +9353,7 @@ var Welcome={
         +'<div class="wel-text" translate="no">'+line+'</div>'
         +'<div class="wel-note">What you add here in the browser stays here — the Home Screen app starts fresh.</div>';
     } else if(k==='hello'){
-      h='<div class="wel-center"><img class="wel-appicon" src="icon-192.png" alt="">'
+      h='<div class="wel-center"><img class="wel-appicon" src="icon-192-v2.png" alt="">'
         +'<div class="wel-title wel-hello"><span>Welcome to</span> <span class="wel-brand" translate="no">Today</span></div>'
         +'<div class="wel-text">Your day in one place: tasks, habits and projects.</div></div>';
     } else if(k==='start'){

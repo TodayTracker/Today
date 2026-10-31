@@ -725,7 +725,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (`settings.sound`, default on; off makes `playClick()` — the click when a
   hold completes something, the app's only sound — return early), and a
   "Notifications" section at the bottom is a card saying "Coming soon"
-  (`.cal-none`, static, not tappable). Notifications would need a push
+  (`.cal-none.soon-row`, static, not tappable; since 4.67.10 BELOW Developer
+  — "it makes sense to move it to the bottom" — and a 46px row with its
+  text centred: it was 41px, text 12 from the top and 14 from the bottom). Notifications would need a push
   server (web apps can't schedule local notifications on iOS); not built.
 - Settings is a LIST of widgets that each open their own full page (no
   sheets): App (version, "Update automatically" switch = `settings.autoUpdate`,
@@ -827,6 +829,23 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   as an 'entry' (restorable); a typed "0" is still saved as 0; an empty
   Save on a day without a value just closes. Tested: today's 77.6 to the
   Trash, yesterday's kept, row shows no value, restore brings it back.
+- APP ICON "B1" (4.67.10, picked on https://claude.ai/artifact/3uwE3na9Ff5eSovpJecBhX
+  — "slightly 3D… a slightly lighter line around and a very slight dark
+  fade from the bottom", asked with the GitHub app's icon): black #2c2b29 →
+  #121110, a white rim (rounded rect rx 222 inset 7, 14 wide, opacity .32 at
+  the top → .05 at the bottom), a black fade over the lower half (to .35),
+  the tick shaded white → #e4e2dd with a soft drop shadow. Source
+  `icon-v2.svg` (1024 box, a plain SQUARE — iOS rounds it; the rim sits
+  where iOS's corner is), rendered with headless Chrome at each size (no
+  rsvg/cairo on this Mac): `printf` an html with <img src=svg> at N px,
+  `Google Chrome --headless=new --force-device-scale-factor=1
+  --window-size=N,N --screenshot=…`. NEW FILE NAMES so the released app
+  keeps its icon until the full release: apple-touch-icon-v2.png (180),
+  favicon-32-v2.png, icon-192-v2.png (also the Welcome pictures),
+  icon-512-v2.png; index.html points at them. AT THE FULL RELEASE: also
+  switch manifest.json's icons and sw.js's asset list to the -v2 files and
+  delete the four old ones. A Home Screen icon only changes when the app is
+  added again (iOS keeps the icon from that day).
 - AddChoice switches in place (4.67.8, "when I add a tracker to a habit
   project the window closes and reopens really quickly… the grey
   background disappears and reappears"): an option's onclick used to close
@@ -1957,7 +1976,32 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   compositor-friendly, and in step because they start in the same style
   change. Measured: scroll 539→276 at the tap, the folded title glides
   138→401, the title below stays at 431 in every frame; at the top of the
-  page fold/open monotonic, nothing left inline. The tap target is the whole title row plus 10px above/below
+  page fold/open monotonic, nothing left inline.
+  4.67.10 ("moving around categories in Overview, eingeklappt or not, is
+  super unsmooth"), measured, two real defects: (1) FOLDED (DragReorder on
+  `.cat-block`): the title's margins (16 top / 8 bottom) and the grid's 22
+  collapsed THROUGH the block, so its box was only the 14.6px title. Lifted
+  (position:fixed = its own formatting context) the title dropped 16px below
+  the white box, the faint copy (sized from the box, block margins 0) took
+  less room than the block, and every category around it bobbed 8–16px as
+  the copy moved — the 3.87 `.stat-w` lesson again. Now `.cat-block` is
+  `display:flow-root` with its OWN margins (16 top; bottom 22 open with
+  cards, 0 empty, 8 folded; title margins 0, grid margin-top 8 — 0 while
+  folded/folding, since the folding grid is absolute with a measured
+  `top`). An EMPTY grid keeps 8 under its title + 16 = 24 to the next title:
+  a grid never lets margins collapse through it. Measured identical to the
+  old layout in 9 setups (normal/minimal, folded first/last, empty, loose
+  projects, a project dragged into an empty category: 8 / 22). A held
+  folded category looks like a held open title (.cat-lift): the block goes
+  transparent and an `::after` (inset -9px -12px, card colour, radius 12,
+  shadow) is the bar. Measured after: pickup moves nothing (title under the
+  finger to 0px), passing a category moves only it, by exactly 30px.
+  (2) OPEN (CatDrag): `ovFlip` took each item's start from `_layoutRect` —
+  where its running slide was HEADED — so every step that came while things
+  were still sliding (130ms pause < 220ms slide) snapped them to the end
+  first. It now starts from getBoundingClientRect (where it IS); measured: a
+  redraw mid-slide moves nothing (0px). CatDrag's `rect()` (hit test) still
+  uses _layoutRect, correctly. The tap target is the whole title row plus 10px above/below
   (`::before`), nothing moved — measured 8px title→grid, 22px grid→title as
   before. MOVING: a FOLDED category = the old whole-block DragReorder
   (handle now `.cat-block.folded>.shdr`); an OPEN one = `CatDrag`: only the
