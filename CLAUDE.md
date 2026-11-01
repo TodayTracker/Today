@@ -820,6 +820,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   average at `sw` = 0.6 × the 25th-percentile gap between neighbouring
   entries in view, between 1 and 3px (was always 3). Measured on a year of
   1–2 entries a day: week 3px, month 2.4px, 4 months and more 1px.
+  Confirmed on the iPhone with the goal chart fix (2026-11-01, "good").
 - TRACKER CHART ZOOM (4.67.8, "if I have multiple entries in a day I can't
   zoom into that… it's fixed at daily"): TrkZ's closest zoom was 7 days
   (`Dmin`); now `TRK_DMIN` = 3 hours. At D ≤ 2 days the bottom shows round
@@ -910,6 +911,18 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   setting, gesture, page, tab); renames, restyles, moves and spacing are
   design; anything that was broken is bug. A big visible change can still
   get a line (2.55 redesign, 3.76 categories gone).
+- TAB BAR LINE (4.67.13, from the tab bar page's "Line on top" switch:
+  "the hairline darker looks good, so that just as fixed"): `.tabbar`'s top
+  border is one screen pixel in the iPhone separator grey —
+  rgba(60,60,67,.5), dark rgba(140,140,148,.75) — 1px / .5px at 2dppx /
+  .34px at 3dppx (WebKit floors border widths to whole device pixels;
+  .3333 could floor to 0). Was 1px #e8e5e0 / #2a2927. The layout stays T0
+  (T4's pill was thrown out). Also decided: the selected tab's icon is
+  FILLED — which filled icons is still open (options page
+  https://claude.ai/artifact/7SkteZjPG4jk1FmYX2Ww5P: Now/I1, F1 solid
+  twins, F2 soft fill, F3 in a tile, F4 iPhone-style pairs, F5 calendar +
+  ring; plus a grey/white bar background switch — "what about a white
+  background?").
 - Slide-up backdrop (`.sheet-overlay` background) is rgba(0,0,0,.3) since
   1.0 ("a bit lighter, not as dark"; was .5).
 - Centred pop-ups (3.67, `Alert`, `#alert-overlay`), asked for with an
@@ -2026,7 +2039,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   in the nearest open group). Tested with finger-style touches: hold →
   folded + lifted, moved above Work → order saved, stays folded, release
   click swallowed, nothing inline left; release during the fold → folded,
-  not reopened, timers cleared; a plain tap still folds.
+  not reopened, timers cleared; a plain tap still folds. Confirmed on the
+  iPhone (2026-11-01, "good").
 - Overview projects drag ACROSS categories (4.22, "drag them anywhere you
   want into other categories"): ONE DragReorder on #overview-grid (wired
   once) with opts `{cross:true, zoneSel:'[data-cat]>.agrid', flipSel:

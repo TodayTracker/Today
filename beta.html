@@ -56,6 +56,15 @@ html[data-theme="dark"] .tab-item.active{color:#fff}
 html[data-theme="light"] .tab-item.active{color:#000}
 /* 27px (was 24) with 10px above instead of 13: bigger icons, same bar height and label spot. Stroke 1.5 at 27px keeps the lines ~1.7px thin, as at 24px. */
 .tab-item svg{stroke:currentColor;width:27px;height:27px;stroke-width:1.5}
+/* The line on top of the tab bar (1.0, "the hairline darker… like on
+   WhatsApp"): one screen pixel in the iPhone's separator grey. WebKit
+   floors border widths to whole device pixels, so .5px on a 2x screen and
+   .34px on a 3x one are exactly one (not .3333, which can floor to 0). */
+html:not(#x) .tabbar{border-top:1px solid rgba(60,60,67,.5)}
+@media(min-resolution:2dppx){html:not(#x) .tabbar{border-top-width:.5px}}
+@media(min-resolution:3dppx){html:not(#x) .tabbar{border-top-width:.34px}}
+@media(prefers-color-scheme:dark){html:not(#x):not([data-theme="light"]) .tabbar{border-top-color:rgba(140,140,148,.75)}}
+html[data-theme="dark"]:not(#x) .tabbar{border-top-color:rgba(140,140,148,.75)}
 @media(prefers-color-scheme:dark){.tab-item{color:#9ca3af}}
 html[data-theme="dark"] .tab-item{color:#9ca3af}
 html[data-theme="light"] .tab-item{color:#6b7280}
@@ -1851,7 +1860,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=12;
+var BETA_BUILD=13;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3181,6 +3190,7 @@ var CHANGELOG=[
     "Menu → General: Notifications is at the bottom, its Coming soon line centred like a row",
     "A tracker's value window on the iPhone fades in where it ends up with the keyboard already up, and no word suggestions above the number pad",
     "Tracker charts with the moving average: zoomed far out, the lines down to each entry get thinner so they don't run into each other",
+    "The line on top of the tab bar is a hairline: one screen pixel in a darker grey, like the iPhone's own apps",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first"
   ]}
