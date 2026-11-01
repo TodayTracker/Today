@@ -914,9 +914,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
 - TAB BAR LINE (4.67.13, from the tab bar page's "Line on top" switch:
   "the hairline darker looks good, so that just as fixed"): `.tabbar`'s top
   border is one screen pixel in the iPhone separator grey —
-  rgba(60,60,67,.5), dark rgba(140,140,148,.75) — 1px / .5px at 2dppx /
-  .34px at 3dppx (WebKit floors border widths to whole device pixels;
-  .3333 could floor to 0). Was 1px #e8e5e0 / #2a2927. The layout stays T0
+  rgba(60,60,67,.5), dark rgba(140,140,148,.75) — 1px, .5px from 2dppx up
+  (WebKit floors border widths to whole device pixels: .5 = 1 on 2x, 1.5
+  → 1 on 3x). Was 1px #e8e5e0 / #2a2927. 4.67.13–14 had .34px at 3dppx and
+  the line was GONE on the iPhone ("there's no line currently"): WebKit
+  keeps lengths in 1/64 px, .34 → 21/64 = .328, ×3 = .98 device px →
+  floored to 0. This 2x preview showed the .5px rule, so it looked fine.
+  RULE: never aim a sub-pixel width at exactly one device pixel from
+  below — go over it (.5 on 3x = 1.5 → 1). The options pages' 1/dpr+.01
+  hairline had the same flaw on a 3x phone. The layout stays T0
   (T4's pill was thrown out). 4.67.14, picked on
   https://claude.ai/artifact/7SkteZjPG4jk1FmYX2Ww5P ("lets go with F1…
   also white bg"; the others: Now/I1, F2 soft fill, F3 in a tile, F4
