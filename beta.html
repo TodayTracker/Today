@@ -65,6 +65,18 @@ html:not(#x) .tabbar{border-top:1px solid rgba(60,60,67,.5)}
 @media(min-resolution:3dppx){html:not(#x) .tabbar{border-top-width:.34px}}
 @media(prefers-color-scheme:dark){html:not(#x):not([data-theme="light"]) .tabbar{border-top-color:rgba(140,140,148,.75)}}
 html[data-theme="dark"]:not(#x) .tabbar{border-top-color:rgba(140,140,148,.75)}
+/* The tab bar (1.0, picked on the filled-icons page: "F1… also white bg"):
+   a white bar (dark mode: the card colour), and the selected tab shows the
+   filled twin of its icon (`.ti-f`, details cut out in the bar's colour,
+   `--cut`). The outline (`.ti-o`) stays FIRST in each button: the Menu
+   rows (tabIco) and the Welcome screens copy a tab's first svg. */
+html:not(#x) .tabbar{background:#fff;--cut:#fff}
+@media(prefers-color-scheme:dark){html:not(#x):not([data-theme="light"]) .tabbar{background:#1e1c1a;--cut:#1e1c1a}}
+html[data-theme="dark"]:not(#x) .tabbar{background:#1e1c1a;--cut:#1e1c1a}
+.tab-item .ti-f{display:none}
+.tab-item.active .ti-o{display:none}
+.tab-item.active .ti-f{display:block}
+.tab-item .ct{stroke:var(--cut)}
 @media(prefers-color-scheme:dark){.tab-item{color:#9ca3af}}
 html[data-theme="dark"] .tab-item{color:#9ca3af}
 html[data-theme="light"] .tab-item{color:#6b7280}
@@ -1243,12 +1255,12 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 <div class="statusbar-blur"></div>
 
 <div class="tabbar">
-  <button class="tab-item" data-tab="today" onclick="TabBar.go('today')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><polyline points="8 12.2 10.8 15 16 9.2"/></svg><span>Today</span></button>
-  <button class="tab-item" data-tab="overview" onclick="TabBar.go('overview')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><line x1="12" y1="3.5" x2="12" y2="20.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/></svg><span>Overview</span></button>
-  <button class="tab-item" data-tab="lockedin" onclick="TabBar.go('lockedin')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="9.5" y1="6" x2="19.65" y2="6"/><line x1="9.5" y1="12" x2="19.65" y2="12"/><line x1="9.5" y1="18" x2="19.65" y2="18"/><circle cx="4.65" cy="6" r="1.15" fill="currentColor" stroke="none"/><circle cx="4.65" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="4.65" cy="18" r="1.15" fill="currentColor" stroke="none"/></svg><span>Tasks</span></button>
-  <button class="tab-item" data-tab="stats" onclick="TabBar.go('stats')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="11"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg><span>Stats</span></button>
-  <button class="tab-item" data-tab="blocker" onclick="TabBar.go('blocker')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2l7.5 2.8v5.6c0 4.5-3.1 7.9-7.5 9.2-4.4-1.3-7.5-4.7-7.5-9.2V6z"/></svg><span>Blocker</span></button>
-  <button class="tab-item" data-tab="settings" onclick="TabBar.go('settings')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="3.5" y1="7" x2="6.5" y2="7"/><circle cx="9" cy="7" r="2.5"/><line x1="11.5" y1="7" x2="20.5" y2="7"/><line x1="3.5" y1="17" x2="12.5" y2="17"/><circle cx="15" cy="17" r="2.5"/><line x1="17.5" y1="17" x2="20.5" y2="17"/></svg><span>Menu</span></button>
+  <button class="tab-item" data-tab="today" onclick="TabBar.go('today')"><svg class="ti-o" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><polyline points="8 12.2 10.8 15 16 9.2"/></svg><svg class="ti-f" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.2" fill="currentColor" stroke="none"/><polyline class="ct" points="8 12.2 10.8 15 16 9.2" stroke-width="2.1"/></svg><span>Today</span></button>
+  <button class="tab-item" data-tab="overview" onclick="TabBar.go('overview')"><svg class="ti-o" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><line x1="12" y1="3.5" x2="12" y2="20.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/></svg><svg class="ti-f" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.2" fill="currentColor" stroke="none"/><line class="ct" x1="12" y1="2" x2="12" y2="22" stroke-width="1.9" stroke-linecap="butt"/><line class="ct" x1="2" y1="12" x2="22" y2="12" stroke-width="1.9" stroke-linecap="butt"/></svg><span>Overview</span></button>
+  <button class="tab-item" data-tab="lockedin" onclick="TabBar.go('lockedin')"><svg class="ti-o" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="9.5" y1="6" x2="19.65" y2="6"/><line x1="9.5" y1="12" x2="19.65" y2="12"/><line x1="9.5" y1="18" x2="19.65" y2="18"/><circle cx="4.65" cy="6" r="1.15" fill="currentColor" stroke="none"/><circle cx="4.65" cy="12" r="1.15" fill="currentColor" stroke="none"/><circle cx="4.65" cy="18" r="1.15" fill="currentColor" stroke="none"/></svg><svg class="ti-f" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g stroke-width="2.8"><line x1="10.2" y1="6" x2="19.8" y2="6"/><line x1="10.2" y1="12" x2="19.8" y2="12"/><line x1="10.2" y1="18" x2="19.8" y2="18"/></g><g fill="currentColor" stroke="none"><circle cx="4.9" cy="6" r="2.05"/><circle cx="4.9" cy="12" r="2.05"/><circle cx="4.9" cy="18" r="2.05"/></g></svg><span>Tasks</span></button>
+  <button class="tab-item" data-tab="stats" onclick="TabBar.go('stats')"><svg class="ti-o" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="11"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg><svg class="ti-f" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g fill="currentColor" stroke="none"><rect x="3.8" y="9.8" width="4.4" height="11.2" rx="2.2"/><rect x="9.8" y="2.8" width="4.4" height="18.2" rx="2.2"/><rect x="15.8" y="12.8" width="4.4" height="8.2" rx="2.2"/></g></svg><span>Stats</span></button>
+  <button class="tab-item" data-tab="blocker" onclick="TabBar.go('blocker')"><svg class="ti-o" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2l7.5 2.8v5.6c0 4.5-3.1 7.9-7.5 9.2-4.4-1.3-7.5-4.7-7.5-9.2V6z"/></svg><svg class="ti-f" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2l7.5 2.8v5.6c0 4.5-3.1 7.9-7.5 9.2-4.4-1.3-7.5-4.7-7.5-9.2V6z" fill="currentColor"/></svg><span>Blocker</span></button>
+  <button class="tab-item" data-tab="settings" onclick="TabBar.go('settings')"><svg class="ti-o" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="3.5" y1="7" x2="6.5" y2="7"/><circle cx="9" cy="7" r="2.5"/><line x1="11.5" y1="7" x2="20.5" y2="7"/><line x1="3.5" y1="17" x2="12.5" y2="17"/><circle cx="15" cy="17" r="2.5"/><line x1="17.5" y1="17" x2="20.5" y2="17"/></svg><svg class="ti-f" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g stroke-width="2.1"><line x1="3.5" y1="7" x2="20.5" y2="7"/><line x1="3.5" y1="17" x2="20.5" y2="17"/></g><circle class="ct" cx="9" cy="7" r="3.3" fill="currentColor" stroke-width="1.5"/><circle class="ct" cx="15" cy="17" r="3.3" fill="currentColor" stroke-width="1.5"/></svg><span>Menu</span></button>
 </div>
 
 <button class="fab" id="fab" onclick="TabPlus.tap()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
@@ -1860,7 +1872,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=13;
+var BETA_BUILD=14;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3190,7 +3202,7 @@ var CHANGELOG=[
     "Menu → General: Notifications is at the bottom, its Coming soon line centred like a row",
     "A tracker's value window on the iPhone fades in where it ends up with the keyboard already up, and no word suggestions above the number pad",
     "Tracker charts with the moving average: zoomed far out, the lines down to each entry get thinner so they don't run into each other",
-    "The line on top of the tab bar is a hairline: one screen pixel in a darker grey, like the iPhone's own apps",
+    "The tab bar is white (the card colour in dark mode) with a darker hairline on top, and the selected tab's icon is filled",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first"
   ]}
@@ -3335,7 +3347,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal

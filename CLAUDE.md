@@ -917,12 +917,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   rgba(60,60,67,.5), dark rgba(140,140,148,.75) — 1px / .5px at 2dppx /
   .34px at 3dppx (WebKit floors border widths to whole device pixels;
   .3333 could floor to 0). Was 1px #e8e5e0 / #2a2927. The layout stays T0
-  (T4's pill was thrown out). Also decided: the selected tab's icon is
-  FILLED — which filled icons is still open (options page
-  https://claude.ai/artifact/7SkteZjPG4jk1FmYX2Ww5P: Now/I1, F1 solid
-  twins, F2 soft fill, F3 in a tile, F4 iPhone-style pairs, F5 calendar +
-  ring; plus a grey/white bar background switch — "what about a white
-  background?").
+  (T4's pill was thrown out). 4.67.14, picked on
+  https://claude.ai/artifact/7SkteZjPG4jk1FmYX2Ww5P ("lets go with F1…
+  also white bg"; the others: Now/I1, F2 soft fill, F3 in a tile, F4
+  iPhone-style pairs, F5 calendar + ring — keep the page): the bar is
+  WHITE (#fff; dark mode the card colour #1e1c1a, was #f3f4f6 / #1f2937)
+  and the selected tab shows "F1 solid twins" — the outline's own shape
+  filled, details cut out: every `.tab-item` holds the outline
+  `svg.ti-o` FIRST and the filled `svg.ti-f` after it (`.active` swaps
+  them); cut-outs are `.ct` = `stroke:var(--cut)`, `--cut` = the bar's
+  colour, set with the background (an attribute `stroke="var(--cut)"`
+  isn't safe in WebKit presentation attributes — use the class). The Menu
+  rows (`tabIco`) and the Welcome pictures (`Welcome._tab`) copy a tab's
+  FIRST svg, so a new tab icon must keep its outline first. Checked:
+  light/dark bar colour = cut colour, Menu's 5 tab-icon rows still 20px
+  outlines, Welcome copies the outline.
 - Slide-up backdrop (`.sheet-overlay` background) is rgba(0,0,0,.3) since
   1.0 ("a bit lighter, not as dark"; was .5).
 - Centred pop-ups (3.67, `Alert`, `#alert-overlay`), asked for with an
