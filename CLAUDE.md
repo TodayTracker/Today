@@ -938,6 +938,33 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   FIRST svg, so a new tab icon must keep its outline first. Checked:
   light/dark bar colour = cut colour, Menu's 5 tab-icon rows still 20px
   outlines, Welcome copies the outline.
+- EMPTY MESSAGES (4.67.16, "No habits should have the same design as the
+  Coming soon… look for anywhere else where two things should have the
+  same design but don't"): ONE look for every "nothing here" — a `.cal-none`
+  row ALONE in a card (`.opt-group`, or the card it belongs to, e.g. a
+  Habits day `.calsec`): 13px/20px 500 #bbb, padding 13px 14px = 46px like a
+  Menu row, text centred, more lines grow evenly. Was: `.cal-none` 12/14
+  padding (41px, text 1px high) and the free-standing `.empty` (centred
+  14px #ccc, 36px padding, no card) for Today's "Nothing to do today." /
+  "Nothing on this day." (`#today-none` is now the card; its text goes to
+  `firstElementChild`), Tasks' "No tasks yet." / "No list tasks yet." /
+  "Nothing in the calendar yet." and a tracker's "No entries yet". The
+  `.empty` class and `.soon-row` are gone. Charts with nothing to draw
+  (tracker "No data yet", habit "No schedule set for this habit.") are
+  `.chart-empty` — same type, centred, 36px padding (they were 36 vs 20).
+  A NEW empty message: `<div class="opt-group"><div class="cal-none">…`.
+  Same pass, measured across Today/Overview/Tasks/Stats/Menu/project/
+  tracker/Habits pages: section titles (.sl/.caltitle/.shdr), card
+  corners (14), row arrows (14px, 1.8, .5 opacity) and row values (#999
+  15/500) already matched. Fixed: `.opt-group` kept an invisible 1.5px
+  border outside Menu pages and windows (`html:not(#x) .opt-group
+  {border:none}` — an empty card on Today/Tasks sat 1.5px in); the edit
+  windows' row values/units/goal note (`.sh-rin .sh-unit .sh-rval
+  .sh-val-u .sh-val-note`) were #8a8a8e, now Menu's #999; `.hh-sub` (days
+  line under a habit/tracker title) was weight 400, now 500 like every
+  13px note. Left alone on purpose: the Welcome screens' #8a8a8e (their
+  own iPhone-style pictures) and the Overview tiles' invisible 1.5px
+  border (every tile has it, so tiles still match each other).
 - Slide-up backdrop (`.sheet-overlay` background) is rgba(0,0,0,.3) since
   1.0 ("a bit lighter, not as dark"; was .5).
 - Centred pop-ups (3.67, `Alert`, `#alert-overlay`), asked for with an

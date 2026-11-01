@@ -196,7 +196,8 @@ html[data-theme="light"] .addinp:focus{border-color:#000}
 @media(prefers-color-scheme:dark){.addbtn{border-color:#fff;background:#1e1c1a;color:#fff}}
 html[data-theme="dark"] .addbtn{border-color:#fff;background:#1e1c1a;color:#fff}
 html[data-theme="light"] .addbtn{border-color:#000;background:#fff;color:#000}
-.empty{text-align:center;padding:36px 16px;color:#ccc;font-size:14px;line-height:1.6}
+/* a chart with nothing to draw: the empty-message type (.cal-none), centred in the chart card */
+.chart-empty{text-align:center;padding:36px 16px;font-size:13px;line-height:20px;font-weight:500;color:#bbb}
 
 
 .wdays{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
@@ -358,6 +359,8 @@ html[data-theme="light"] .opt-group .opt-row{border-bottom-color:#e8e5e0}
 /* No outlines on the widgets or the dropdown pills (the html prefix beats
    the theme-specific border rules) */
 html .sp .opt-row,html .sp .opt-group{border:none}
+/* a card of rows never has a border, on any page: outside Menu pages and windows it kept an invisible 1.5px one, so an empty message there sat 1.5px further in */
+html:not(#x) .opt-group{border:none}
 html .sp .dsel-visual{border:none;background:transparent}
 .sp .addbtn{min-height:46px!important;height:46px}
 .sp .opt-row,.sp .opt-group{margin-bottom:14px}
@@ -589,7 +592,7 @@ html:not(#x) .acard,html:not(#x) .ti,html:not(#x) .wri,html:not(#x) .calsec,html
 .day-jump.on:active{transform:scale(.9);transition-duration:.1s}
 .wdays-track{position:relative;flex:none;height:52px}
 .wdays-track>.dpill{position:absolute;top:0;width:46px;height:52px}
-.hh-sub{font-size:13px;color:#999;margin-top:4px;line-height:17px} /* whole px: cards below start on whole pixels */
+.hh-sub{font-size:13px;font-weight:500;color:#999;margin-top:4px;line-height:17px} /* whole px: cards below start on whole pixels */
 @media(prefers-color-scheme:dark){.hh-btn{color:#fff}}
 html[data-theme="dark"] .hh-btn{color:#fff}
 html[data-theme="light"] .hh-btn{color:#000}
@@ -677,7 +680,6 @@ html:not(#x) .dhdr{min-height:40px}
 /* text roles */
 .tt,.cali label,.wit,.el-name,.trk-entry-val,.cat-choice{font-size:15px;font-weight:600}
 .ts,.trk-entry-date{font-size:12px;font-weight:500}
-.empty{font-size:14px;font-weight:500}
 .albl{font-size:12px;font-weight:600}
 .acnt{font-size:11px;font-weight:500;color:#999}
 .wrt{font-weight:600}.wrd{font-size:12px;font-weight:500}
@@ -772,11 +774,11 @@ html:not(#x) .sh-ico input{position:absolute;inset:0;width:100%;height:100%;bord
 #sheet-photo-preview img{width:100%;height:100%;object-fit:cover;-webkit-user-drag:none}
 .sh-ico-btn{position:absolute;right:-7px;bottom:-7px;width:30px;height:30px;border-radius:50%;border:none;padding:0;background:var(--card);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .sh-win .opt-group{margin-bottom:14px}
-.sh-rin{flex:1;min-width:0;align-self:stretch;border:none;background:transparent;outline:none;font-family:inherit;font-size:15px;font-weight:500;color:#8a8a8e;text-align:right;padding:0;margin:0}
+.sh-rin{flex:1;min-width:0;align-self:stretch;border:none;background:transparent;outline:none;font-family:inherit;font-size:15px;font-weight:500;color:#999;text-align:right;padding:0;margin:0}
 .sh-rin::placeholder{color:#c7c7cc;opacity:1}
 .sh-rin::-webkit-date-and-time-value{text-align:right}
-.sh-unit{flex:none;font-size:15px;font-weight:500;color:#8a8a8e;margin-left:-6px}
-.sh-rval{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;color:#8a8a8e}
+.sh-unit{flex:none;font-size:15px;font-weight:500;color:#999;margin-left:-6px}
+.sh-rval{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;color:#999}
 .sh-rval .color-field-swatch{width:20px;height:20px;border-radius:5px} /* the colour picker's square shape (corner = a quarter), no name next to it */
 .sh-chev{display:flex;color:#c7c7cc;margin-left:-4px}
 html:not(#x) .sheet .opt-row.sh-days-row{height:auto;min-height:0;padding:8px 10px}
@@ -786,8 +788,8 @@ html:not(#x) .sh-days-row .type-btn.active{background:var(--blue-tint);color:var
 .sh-val{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:14px 0 6px}
 html:not(#x) .sh-val input{width:2ch;max-width:70%;border:none;border-radius:0;background:transparent;outline:none;box-shadow:none;font-family:inherit;font-size:48px;line-height:56px;height:auto;font-weight:700;color:var(--ink);text-align:center;padding:0;margin:0}
 .sh-val input::placeholder{color:#c7c7cc;opacity:1}
-.sh-val-u{font-size:22px;line-height:28px;font-weight:600;color:#8a8a8e}
-.sh-val-note{text-align:center;font-size:13px;line-height:18px;font-weight:500;color:#8a8a8e;min-height:18px;margin-bottom:10px}
+.sh-val-u{font-size:22px;line-height:28px;font-weight:600;color:#999}
+.sh-val-note{text-align:center;font-size:13px;line-height:18px;font-weight:500;color:#999;min-height:18px;margin-bottom:10px}
 /* a card whose last row(s) are hidden: the row above them is the last one
    you see, so it has no divider */
 html:not(#x) .opt-group .opt-row:has(+.opt-row[style*="none"]:last-child),html:not(#x) .opt-group .opt-row:has(+.opt-row[style*="none"]+.opt-row[style*="none"]:last-child){border-bottom:none}
@@ -1001,9 +1003,10 @@ html[data-theme="dark"] .wm-sw.off{background:#3a3a3a}
 .tpl-items{display:none}.tpl-card.on .tpl-items{display:block}
 .tpl-it{min-height:52px;padding:6px 14px 6px 56px}
 .tpl-card.none .tpl-head{cursor:default}.tpl-card.none .tpl-head input,.tpl-card.none .tpl-ico,.tpl-card.none .ics-t{opacity:.4}
-.cal-none{font-size:13px;font-weight:500;color:#bbb;padding:12px 14px 14px}
-/* a "Coming soon" card on a Menu page: one row of the page's height, text centred */
-.cal-none.soon-row{height:46px;padding:0 14px;display:flex;align-items:center}
+/* An empty message is one row of its card: 13px grey, 20px line, 13px above
+   and below = 46px like a Menu row, text centred (multi-line grows evenly).
+   Every "nothing here" uses it, in a card (.opt-group) where it stands alone. */
+.cal-none{font-size:13px;line-height:20px;font-weight:500;color:#bbb;padding:13px 14px}
 .wdays{scrollbar-width:none}.wdays::-webkit-scrollbar{display:none}
 input,textarea,select{font-family:inherit}
 /* lighter weights: text 500 (was 600), titles and labels 700 (was 800) */
@@ -1314,7 +1317,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   <div class="sl">Developer</div>
   <div id="general-dev"></div>
   <div class="sl">Notifications</div>
-  <div class="opt-group"><div class="cal-none soon-row">Coming soon</div></div>
+  <div class="opt-group"><div class="cal-none">Coming soon</div></div>
 </div>
 
 <div class="page sp" id="p-dev">
@@ -1489,7 +1492,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
   <div class="today-sec" data-s="tasks"><div class="shdr" id="today-tasks-hdr">Tasks</div>
   <div id="today-priorities" class="card-list"></div></div>
   <div class="today-sec" data-s="calendar" id="today-cal"></div>
-  <div class="empty" id="today-none" style="display:none">Nothing to do today.</div>
+  <div class="opt-group" id="today-none" style="display:none"><div class="cal-none">Nothing to do today.</div></div>
 </div>
 
 <div class="page" id="p-lockedin">
@@ -1872,7 +1875,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=15;
+var BETA_BUILD=16;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3203,6 +3206,7 @@ var CHANGELOG=[
     "A tracker's value window on the iPhone fades in where it ends up with the keyboard already up, and no word suggestions above the number pad",
     "Tracker charts with the moving average: zoomed far out, the lines down to each entry get thinner so they don't run into each other",
     "The tab bar is white (the card colour in dark mode) with a darker hairline on top, and the selected tab's icon is filled",
+    "Every \"nothing here\" message looks the same: one grey line in a white card, like Coming soon (No habits, Nothing to do today, No tasks yet, the calendar, a tracker's entries, Trash); empty charts match each other; the edit windows' grey values, units and goal notes use the same grey as Menu",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first"
   ]}
@@ -4524,7 +4528,7 @@ function renderTracker(pid){
   // Linked into Daily: entries fold away behind one row (closed by default,
   // remembered while the app is open) and the habit's stats follow.
   var entriesH;
-  if(!listH)entriesH='<div class="empty">No entries yet</div>';
+  if(!listH)entriesH='<div class="opt-group"><div class="cal-none">No entries yet</div></div>';
   else if(link)entriesH='<div class="calsec trk-entries'+(TrackerPage.open[pid]?' open':'')+'" style="padding:0">'
     +'<div class="trk-entries-hdr" onclick="TrackerPage.toggle(this,\''+pid+'\')"><span class="trk-entries-t">Entries</span>'
     +'<span class="trk-entries-n">'+entries.length+'</span><span class="trk-entries-chev">'+ICON_CHEVRON+'</span></div>'
@@ -4593,7 +4597,7 @@ TrkZ.prototype._clamp=function(){
 TrkZ.prototype.zoom=function(D){this.D=Math.max(this.Dmin,Math.min(this.Dmax,D));this._clamp();};
 TrkZ.prototype.render=function(){
   var W=300,H=172,T=42,B=24,R=this.R,PW=W-R,E=this.e,n=E.length,self=this; // T: room for the tap readout
-  if(!n){this._pts=[];this.plot.innerHTML='<div class="empty" style="padding:36px 0">No data yet</div>';return;}
+  if(!n){this._pts=[];this.plot.innerHTML='<div class="chart-empty">No data yet</div>';return;}
   var Dms=this.D*DAY_MS,left=this.end-Dms,end=this.end;
   function x(ts){return (ts-left)/Dms*PW;}
   function f(v){return v.toFixed(1);}
@@ -5008,7 +5012,7 @@ function renderLockedIn(){
   }
   var rk=DB.taskRank();all.sort(function(a,b){return rk[a.key]-rk[b.key];});
   var c=document.getElementById('lockedin-list');
-  if(!all.length){c.innerHTML='<div class="empty">No tasks yet.</div>';return;}
+  if(!all.length){c.innerHTML='<div class="opt-group"><div class="cal-none">No tasks yet.</div></div>';return;}
   // Grouped by priority tier — one header per tier instead of a badge on
   // every row, and each row's badge shows its project (color + name)
   // instead of repeating the priority the header already says.
@@ -5047,7 +5051,7 @@ function renderLockedInList(){
       });
     });
   });
-  c.innerHTML=h?'<div class="card-list">'+h+'</div>':'<div class="empty">No list tasks yet.</div>';
+  c.innerHTML=h?'<div class="card-list">'+h+'</div>':'<div class="opt-group"><div class="cal-none">No list tasks yet.</div></div>';
   var cl=c.querySelector('.card-list');
   if(cl)wireTaskDrag(cl,{same:'data-pid',redraw:renderLockedInList});
 }
@@ -5055,7 +5059,7 @@ function renderLockedInList(){
 function renderLockedInCalendar(){
   var c=document.getElementById('lockedin-list');
   var items=DB.data.dailyOnce.slice().sort(function(a,b){return a.date<b.date?-1:(a.date>b.date?1:0);});
-  if(!items.length){c.innerHTML='<div class="empty">Nothing in the calendar yet.</div>';return;}
+  if(!items.length){c.innerHTML='<div class="opt-group"><div class="cal-none">Nothing in the calendar yet.</div></div>';return;}
   var todayStr=dStr(new Date());
   c.innerHTML='<div class="card-list">'+items.map(function(o){
     var overdue=o.date<todayStr;
@@ -6736,7 +6740,7 @@ ZChart.prototype.zoomTo=function(D){ // keeps the right edge where it is in time
 };
 ZChart.prototype.render=function(){
   var host=this.host,src=this.src,id=host.id;
-  if(src.single&&src.empty){host.innerHTML='<div class="empty" style="padding:20px 0">No schedule set for this habit.</div>';return;}
+  if(src.single&&src.empty){host.innerHTML='<div class="chart-empty">No schedule set for this habit.</div>';return;}
   var g=this.gran,n=this.count,o=this.offset,w=300,h=112,pb=18,pt=14,innerH=h-pt-pb;
   // every visible column, also the ones older than the first habit (they
   // get the low grey stripe); scrolling still stops at the oldest data
@@ -7482,7 +7486,7 @@ function renderToday(){
     pg.insertBefore(sec,none);
   });
   applyTodayOrder();
-  none.textContent=off?'Nothing on this day.':'Nothing to do today.';
+  none.firstElementChild.textContent=off?'Nothing on this day.':'Nothing to do today.';
   syncTodaySections();
   // Same edge-row marking Daily's panels use (see markEdgeRows) — needed
   // here too: with "Skip habits" on, each row is wrapped in its own
