@@ -1875,7 +1875,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=16;
+var BETA_BUILD=17;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3207,6 +3207,7 @@ var CHANGELOG=[
     "Tracker charts with the moving average: zoomed far out, the lines down to each entry get thinner so they don't run into each other",
     "The tab bar is white (the card colour in dark mode) with a darker hairline on top, and the selected tab's icon is filled",
     "Every \"nothing here\" message looks the same: one grey line in a white card, like Coming soon (No habits, Nothing to do today, No tasks yet, the calendar, a tracker's entries, Trash); empty charts match each other; the edit windows' grey values, units and goal notes use the same grey as Menu",
+    "A Habits project always opens on today (coming back to it from a habit keeps the day you were on)",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first"
   ]}
@@ -6311,7 +6312,9 @@ function navBack(targetId){
 var Nav={cur:'today',sd:0,stack:[],
   go:function(id){
     if(isHabitsProject(id)){
-      var same=this.cur==='habits';Habits.pid=id;id='habits';
+      // opening a Habits project always shows today (going BACK to it keeps
+      // the day you were on — that's navBack, not here)
+      var same=this.cur==='habits';Habits.pid=id;id='habits';this.sd=0;
       if(same){renderHabits();return;}
     }
     var prev=this.cur;

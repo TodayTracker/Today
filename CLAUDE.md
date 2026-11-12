@@ -104,7 +104,12 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   button; its own press, NOT in SQ_BTNS — their transform rule would
   override its show/hide transform) shows on today's side and that end
   fades to 76px (@property transition) — `syncJump`; tap = `toToday()` =
-  pick(0). The user said "f1 or f3", tried both in Beta 1.0 (F1 = the same
+  pick(0). OPENING a Habits project resets to today (4.67.17, "when I open a
+  habit project it should automatically have the current day open"):
+  `Nav.go` sets `sd=0` for any Habits project (incl. switching projects
+  while on the page); navBack (e.g. from a habit page) doesn't go through
+  Nav.go, so the day you were on stays. Before, the picked day survived
+  between visits. The user said "f1 or f3", tried both in Beta 1.0 (F1 = the same
   chevron in a 34px round white button with a shadow) and picked F3: "just
   the arrow without a button looks cleaner". The Developer switch used to
   compare them is gone (a stray 'lifeos-dayarrow' key may remain on the
