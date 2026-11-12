@@ -943,6 +943,13 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   FIRST svg, so a new tab icon must keep its outline first. Checked:
   light/dark bar colour = cut colour, Menu's 5 tab-icon rows still 20px
   outlines, Welcome copies the outline.
+  4.67.18 ("the last 3 icons are just getting thicker, not filled"): F1's
+  Tasks/Stats/Menu twins were the same lines drawn bolder (a list, bars and
+  sliders have no inside to fill). Now every selected icon is the SAME solid
+  rounded square as Today/Overview's (x/y 2.8, 18.4, rx 5.2) with its
+  picture cut out: the list (dots `.cf` = fill:var(--cut), lines `.ct`),
+  the three bars, the two sliders with ring knobs. Blocker stays the solid
+  shield.
 - EMPTY MESSAGES (4.67.16, "No habits should have the same design as the
   Coming soon… look for anywhere else where two things should have the
   same design but don't"): ONE look for every "nothing here" — a `.cal-none`
