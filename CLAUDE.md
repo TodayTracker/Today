@@ -1054,6 +1054,29 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (manifest/sw use relative paths), so the same data moves to a new
   address via Export → Import inside the NEW home-screen icon (each icon
   has its own storage).
+- BACKUP FILE (4.67.19, "why don't we just save as a file… export pictures
+  with that as well for the projects' icons"): Menu → Data has two cards —
+  Export file / Import file (`Backup`, complete) and Export text / Import
+  text (the old LOS3 text, no photos; ExportSheet / A.importData). The file
+  is "Today backup YYYY-MM-DD.json" = {app:'Today',backup:1,made:ISO,data:
+  <localStorage 'lifeos' exactly as stored>} — ids, settings, photos (also
+  in the Trash) untouched; built as a string synchronously inside the tap.
+  Saving: navigator.share({files}) when canShare says yes (iPhone → share
+  sheet: Save to Files / AirDrop / a chat — a home-screen app can't save a
+  file by itself), else an <a download> (Android Chrome doesn't share
+  .json; computers). A share error other than AbortError falls back to the
+  download. Import file (`#backup-file`, accept .json/text): a backup →
+  Alert.confirm "Replace your data with this backup?" with its date →
+  `A._applyImport(json)`; a file holding a text export or an old plain
+  JSON export goes through `A._importText`; anything else → "This file
+  isn't a backup from this app". `_applyImport` (shared by both imports)
+  now refuses a data set without a `projects` object before writing
+  anything. Tested: photo project round trip byte-identical (ids and
+  photo), wrong file, text export in a file, download path, German. Not
+  testable here: the real share sheet / Files picker on the iPhone. NEXT
+  (asked "add docs to tasks"): files attached to tasks, kept in IndexedDB
+  (localStorage holds ~5 MB), carried by this file as a `files` part
+  (bump `backup` if the shape changes; keep reading backup:1).
 - Import (4.4, after "That isn't data from this app" on a direct copy from
   the old icon into the new one — cause not visible from here, so both
   suspects fixed and the message made diagnostic): (1) importData used to

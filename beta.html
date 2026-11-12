@@ -1427,9 +1427,16 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     <div class="hh-title">Data</div>
   </div>
   <div class="opt-group" style="margin-top:8px">
-    <div class="opt-row btn-row" onclick="A.exportData()"><div class="opt-text"><div class="opt-title">Export</div></div></div>
-    <div class="opt-row btn-row" onclick="A.importData()"><div class="opt-text"><div class="opt-title">Import</div></div></div>
+    <div class="opt-row btn-row" onclick="Backup.save()"><div class="opt-text"><div class="opt-title">Export file</div></div></div>
+    <div class="opt-row btn-row" onclick="Backup.pick()"><div class="opt-text"><div class="opt-title">Import file</div></div></div>
   </div>
+  <div class="data-note">One file with everything in the app, project photos too. Save it to Files or send it to yourself — Import file brings it all back.</div>
+  <input type="file" id="backup-file" accept=".json,application/json,text/plain" style="display:none" onchange="Backup.read(this)">
+  <div class="opt-group">
+    <div class="opt-row btn-row" onclick="A.exportData()"><div class="opt-text"><div class="opt-title">Export text</div></div></div>
+    <div class="opt-row btn-row" onclick="A.importData()"><div class="opt-text"><div class="opt-title">Import text</div></div></div>
+  </div>
+  <div class="data-note">Text to paste into a chat or a note, without project photos.</div>
   <div class="opt-group">
     <div class="opt-row btn-row" onclick="IcsImport.pick()"><div class="opt-text"><div class="opt-title">Import calendar</div></div></div>
   </div>
@@ -1679,7 +1686,7 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 <div class="sheet-overlay" id="export-sheet-overlay" onclick="if(event.target===this)ExportSheet.close()">
   <div class="sheet">
     <div class="sheet-title">Export</div>
-    <div class="exp-note">Your data as text. Keep it somewhere safe — Import in Menu → Data brings it back.</div>
+    <div class="exp-note">Your data as text, without project photos (Export file keeps them). Import text in Menu → Data brings it back.</div>
     <div class="exp-text" id="export-text"></div>
     <div class="exp-note" id="export-len"></div>
     <div class="sheet-btns"><button class="sheet-save native-tap" id="export-copy" onclick="ExportSheet.copy()">Copy</button></div>
@@ -1876,7 +1883,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=18;
+var BETA_BUILD=19;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3210,7 +3217,8 @@ var CHANGELOG=[
     "Every \"nothing here\" message looks the same: one grey line in a white card, like Coming soon (No habits, Nothing to do today, No tasks yet, the calendar, a tracker's entries, Trash); empty charts match each other; the edit windows' grey values, units and goal notes use the same grey as Menu",
     "A Habits project always opens on today (coming back to it from a habit keeps the day you were on)",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
-    "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first"
+    "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first",
+    "Menu → Data: Export file saves everything as one file, project photos too (on the iPhone through the share sheet: Save to Files, AirDrop or a chat), and Import file brings it back. The text export stays for pasting into a chat"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3353,7 +3361,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4086,7 +4094,7 @@ var I18N=(function(){
     'Version history':'Versionsverlauf','Advanced update info':'Erweiterte Update-Infos','Bug fixes':'Fehlerbehebungen','Design fixes':'Design-Korrekturen','Design and bug fixes':'Design-Korrekturen und Fehlerbehebungen',"What's new":'Neuigkeiten','Got it':'Verstanden','General':'Allgemein','Data':'Daten',
     // headers
     '📆 Daily':'📆 Täglich','📅 One-time':'📅 Einmalig','One-time tasks':'Einmalige Aufgaben','One-time':'Einmalig',
-    'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Your data as text. Keep it somewhere safe — Import in Menu → Data brings it back.':'Deine Daten als Text. Bewahre ihn sicher auf — Import in Menü → Daten holt sie zurück.','Copy':'Kopieren','characters':'Zeichen','Habit history':'Gewohnheits-Verlauf','Done tasks':'Erledigte Aufgaben','Projects & settings':'Projekte & Einstellungen','Copied':'Kopiert','Share':'Teilen','Preparing…':'Wird vorbereitet…','Tap and hold the text to copy it':'Halte den Text gedrückt, um ihn zu kopieren',"That isn't data from this app — copy the whole export and try again.":'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal.','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
+    'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Your data as text, without project photos (Export file keeps them). Import text in Menu → Data brings it back.':'Deine Daten als Text, ohne Projektfotos (Datei exportieren behält sie). Text importieren in Menü → Daten holt sie zurück.','Export file':'Datei exportieren','Import file':'Datei importieren','Export text':'Text exportieren','Import text':'Text importieren','Replace':'Ersetzen','One file with everything in the app, project photos too. Save it to Files or send it to yourself — Import file brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Speichere sie in Dateien oder schick sie dir selbst — Datei importieren holt alles zurück.','Text to paste into a chat or a note, without project photos.':'Text zum Einfügen in einen Chat oder eine Notiz, ohne Projektfotos.',"This file isn't a backup from this app — pick a file made with Export file.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Datei exportieren erstellt wurde.','Copy':'Kopieren','characters':'Zeichen','Habit history':'Gewohnheits-Verlauf','Done tasks':'Erledigte Aufgaben','Projects & settings':'Projekte & Einstellungen','Copied':'Kopiert','Share':'Teilen','Preparing…':'Wird vorbereitet…','Tap and hold the text to copy it':'Halte den Text gedrückt, um ihn zu kopieren',"That isn't data from this app — copy the whole export and try again.":'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal.','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
     'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
@@ -4166,6 +4174,8 @@ var I18N=(function(){
     [/^Habit in (.*)$/,'Gewohnheit in $1'],
     [/^Move all (habits and categories|habits|entries|tasks) of "(.*)" to the Trash\?$/,function(m,w,n){return 'Alle '+({'habits and categories':'Gewohnheiten und Kategorien','habits':'Gewohnheiten','entries':'Einträge','tasks':'Aufgaben'})[w]+' von „'+n+'“ in den Papierkorb legen?';}],
     [/^Current streak: (\d+)$/,'Aktuelle Serie: $1'],
+    [/^Replace your data with this backup\? It was made on (.*)\. Everything in the app now is replaced by it\.$/,'Daten durch dieses Backup ersetzen? Es wurde am $1 erstellt. Alles, was jetzt in der App ist, wird dadurch ersetzt.'],
+    [/^This backup couldn't be loaded — (.*)$/,'Dieses Backup konnte nicht geladen werden — $1'],
     [/^That isn't data from this app — copy the whole export and try again\. Pasted: (\d+) characters, starting with "(.*)"$/,'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal. Eingefügt: $1 Zeichen, beginnend mit „$2“'],
     [/^This export couldn't be read — (\d+) characters arrived; Export shows how many it has\. Step: (.*)$/,'Dieser Export konnte nicht gelesen werden — $1 Zeichen sind angekommen; beim Export steht, wie viele es sind. Schritt: $2'],
     [/^Longest streak: (\d+)$/,'Längste Serie: $1'],
@@ -5669,33 +5679,41 @@ var A={
   // although the data was already saved. A failure says which step failed
   // and what arrived, so a screenshot tells what went wrong.
   importData:function(){
-    InputSheet.show('Paste exported data','Paste here',function(pasted){
-      var step='read';
-      Promise.resolve().then(function(){return DataCodec.unpack(pasted);}).then(function(json){
-        step='check';var o=JSON.parse(json);
-        // Exports leave out settings equal to the defaults. Hold to complete
-        // was ON by default until 4.15, so an older export without it had it on.
-        var at=function(v){return CHANGELOG.findIndex(function(c){return c.v===v;});};
-        if(o&&o.settings&&!('holdToComplete' in o.settings)){
-          var from=at(o.settings.lastSeenVersion);
-          if(from!==-1&&from<at('Beta 4.15')){o.settings.holdToComplete=true;json=JSON.stringify(o);}
-        }
-        // Best/worst score are off by default since 4.30 — an older export
-        // without statsHidden had every widget on.
-        if(o&&o.settings&&!('statsHidden' in o.settings)){
-          var from2=at(o.settings.lastSeenVersion);
-          if(from2!==-1&&from2<at('Beta 4.30')){o.settings.statsHidden=[];json=JSON.stringify(o);}
-        }
-        step='save';localStorage.setItem('lifeos',json.trim());
-        DB.load(); // from here on the app holds the imported data (nothing can save the old over it)
-        step='restart';location.reload();
-      }).catch(function(err){
-        var text=pasted||'',tag=DataCodec.findTag(text);
-        var start=text.trim().slice(0,12).replace(/\s+/g,' ');
-        if(!tag&&text.trim().charAt(0)!=='{'&&!/^e[AFJN]/.test(text.replace(/[^A-Za-z0-9+\/=]/g,'')))Alert.info("That isn't data from this app — copy the whole export and try again. Pasted: "+text.length+' characters, starting with "'+start+'"');
-        else Alert.info("This export couldn't be read — "+((tag?text.slice(tag.index+tag[0].length).replace(/[^A-Za-z0-9+\/=]/g,'').length+5:text.length))+' characters arrived; Export shows how many it has. Step: '+step+', '+((err&&err.message)||String(err)));
-      });
+    InputSheet.show('Paste exported data','Paste here',function(pasted){A._importText(pasted);});
+  },
+  _importText:function(pasted){
+    var step='read';
+    Promise.resolve().then(function(){return DataCodec.unpack(pasted);}).then(function(json){
+      return A._applyImport(json,function(s){step=s;});
+    }).catch(function(err){
+      var text=pasted||'',tag=DataCodec.findTag(text);
+      var start=text.trim().slice(0,12).replace(/\s+/g,' ');
+      if(!tag&&text.trim().charAt(0)!=='{'&&!/^e[AFJN]/.test(text.replace(/[^A-Za-z0-9+\/=]/g,'')))Alert.info("That isn't data from this app — copy the whole export and try again. Pasted: "+text.length+' characters, starting with "'+start+'"');
+      else Alert.info("This export couldn't be read — "+((tag?text.slice(tag.index+tag[0].length).replace(/[^A-Za-z0-9+\/=]/g,'').length+5:text.length))+' characters arrived; Export shows how many it has. Step: '+step+', '+((err&&err.message)||String(err)));
     });
+  },
+  // Puts an imported data set in place and restarts the app on it. Throws
+  // (the caller shows it) when it isn't a data set; mark() names the step.
+  _applyImport:function(json,mark){
+    mark=mark||function(){};
+    mark('check');var o=JSON.parse(json);
+    if(!o||typeof o!=='object'||Array.isArray(o)||typeof o.projects!=='object')throw new Error('no projects in it');
+    // Exports leave out settings equal to the defaults. Hold to complete
+    // was ON by default until 4.15, so an older export without it had it on.
+    var at=function(v){return CHANGELOG.findIndex(function(c){return c.v===v;});};
+    if(o&&o.settings&&!('holdToComplete' in o.settings)){
+      var from=at(o.settings.lastSeenVersion);
+      if(from!==-1&&from<at('Beta 4.15')){o.settings.holdToComplete=true;json=JSON.stringify(o);}
+    }
+    // Best/worst score are off by default since 4.30 — an older export
+    // without statsHidden had every widget on.
+    if(o&&o.settings&&!('statsHidden' in o.settings)){
+      var from2=at(o.settings.lastSeenVersion);
+      if(from2!==-1&&from2<at('Beta 4.30')){o.settings.statsHidden=[];json=JSON.stringify(o);}
+    }
+    mark('save');localStorage.setItem('lifeos',json.trim());
+    DB.load(); // from here on the app holds the imported data (nothing can save the old over it)
+    mark('restart');location.reload();
   },
   // Is the sw.js on the server the one this device already runs? Every
   // release bumps CACHE_NAME, and a device on that release has a cache of
@@ -8070,6 +8088,51 @@ var Templates={
   close:function(){_overlayClose('tpl-sheet-overlay');}
 };
 
+// Menu → Data → Export file: everything in the app, project photos too, as
+// one JSON file — {app:'Today',backup:1,made:<ISO time>,data:<the saved
+// data exactly as stored>} (ids, settings and photos untouched, unlike the
+// text export). A home-screen app can't save a file by itself, so where
+// files can be shared (iPhone) it goes to the share sheet → Save to Files,
+// AirDrop, a chat; elsewhere (Android: Chrome doesn't share .json files,
+// computers) it's downloaded. Built synchronously inside the tap — sharing
+// needs the tap's activation. Import file reads such a file, or a text
+// export / old plain export saved as a file.
+var Backup={
+  name:function(){return 'Today backup '+dStr(new Date())+'.json';},
+  save:function(){
+    var raw=localStorage.getItem('lifeos');if(!raw)return;
+    var txt='{"app":"Today","backup":1,"made":'+JSON.stringify(new Date().toISOString())+',"data":'+raw+'}';
+    var name=this.name(),f=null;
+    try{f=new File([txt],name,{type:'application/json'});}catch(e){}
+    var can=false;try{can=!!(f&&navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}));}catch(e){}
+    if(can){navigator.share({files:[f]}).catch(function(err){if(!err||err.name!=='AbortError')Backup._download(txt,name);});return;}
+    this._download(txt,name);
+  },
+  _download:function(txt,name){
+    var url=URL.createObjectURL(new Blob([txt],{type:'application/json'})),a=document.createElement('a');
+    a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},10000);
+  },
+  pick:function(){var f=document.getElementById('backup-file');f.value='';f.click();},
+  read:function(inp){
+    var file=inp.files&&inp.files[0];if(!file)return;
+    var rd=file.text?file.text():new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok(r.result);};r.onerror=no;r.readAsText(file);});
+    rd.then(function(text){
+      var o=null;try{o=JSON.parse(text);}catch(e){}
+      if(o&&o.app==='Today'&&o.backup&&o.data&&typeof o.data==='object'){
+        var d=new Date(o.made),when=isNaN(d)?'?':d.toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'});
+        Alert.confirm('Replace your data with this backup? It was made on '+when+'. Everything in the app now is replaced by it.',function(){
+          try{A._applyImport(JSON.stringify(o.data));}
+          catch(err){Alert.info("This backup couldn't be loaded — "+((err&&err.message)||String(err)));}
+        },'Replace');
+        return;
+      }
+      // a text export (or an old plain export) saved as a file
+      if(DataCodec.findTag(text)||(o&&typeof o.projects==='object')){A._importText(text);return;}
+      Alert.info("This file isn't a backup from this app — pick a file made with Export file.");
+    }).catch(function(){Alert.info("This file isn't a backup from this app — pick a file made with Export file.");});
+  }
+};
 var ExportSheet={
   text:'',
   open:function(){
