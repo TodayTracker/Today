@@ -950,6 +950,21 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   picture cut out: the list (dots `.cf` = fill:var(--cut), lines `.ct`),
   the three bars, the two sliders with ring knobs. Blocker stays the solid
   shield.
+- TAB ICONS "D0 · O4 · T4 · S3 · M2" (4.67.22, picked on
+  https://claude.ai/artifact/5Ft84okpSFL8SRh6BFEpd1 — "lets do this for now
+  but keep those somewhere maybe i wanna go back later and change": KEEP
+  that page; it has D0–D5 / O0–O5 / T0–T6 / S0–S6 / M0–M5 and a live bar).
+  Why: "when i said the 3 icons look bad i meant the base version… we need
+  icons that can be filled" — 4.67.18's tiles fixed only the selected
+  state; a bare list/bars/sliders has no inside to fill. Now every tab icon
+  is a SHAPE that fills: Today tick box (unchanged), Overview LAYERS (top
+  diamond fills, the two chevrons under it stay lines), Tasks INBOX (box
+  fills, the tray line is a `.ct` cut), Stats PIE (disk fills, the quarter
+  lines are a `.ct` cut, butt caps reaching past the edge), Menu GEAR (8
+  teeth, generated: root r 6.7 ±14°, tip r 8.6 ±8°; fills, hole = `.cf`
+  r 3). Filled shapes keep their stroke so the filled edge = the plain
+  one. All centred on 12,12 (getBBox, measured). The Menu rows and Welcome
+  pictures copy the outline automatically.
 - EMPTY MESSAGES (4.67.16, "No habits should have the same design as the
   Coming soon… look for anywhere else where two things should have the
   same design but don't"): ONE look for every "nothing here" — a `.cal-none`
