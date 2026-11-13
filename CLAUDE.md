@@ -997,7 +997,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   one-field inputs (new/rename category, rename habit, tracker values) —
   a centred box with a field needs its own keyboard handling. Longer windows
   stay sheets.
-- Export / Import — CURRENT (4.0): `DataCodec.pack` writes "LOS3:" + plain
+- Export / Import as TEXT — REMOVED in 4.67.20 (replaced by the backup FILE,
+  see BACKUP FILE; kept here as history). Was (4.0): `DataCodec.pack` writes "LOS3:" + plain
   base64 of the deflated `_prep(json)`: `_shortIds` (every id → prefix +
   counter; only habits ('di') keep their 13-digit time), `_noPhotos` (ALL
   data:image strings dropped, Trash too — "leave the photos out for now";
@@ -1055,28 +1056,42 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   address via Export → Import inside the NEW home-screen icon (each icon
   has its own storage).
 - BACKUP FILE (4.67.19, "why don't we just save as a file… export pictures
-  with that as well for the projects' icons"): Menu → Data has two cards —
-  Export file / Import file (`Backup`, complete) and Export text / Import
-  text (the old LOS3 text, no photos; ExportSheet / A.importData). The file
-  is "Today backup YYYY-MM-DD.json" = {app:'Today',backup:1,made:ISO,data:
-  <localStorage 'lifeos' exactly as stored>} — ids, settings, photos (also
-  in the Trash) untouched; built as a string synchronously inside the tap.
-  Saving: navigator.share({files}) when canShare says yes (iPhone → share
-  sheet: Save to Files / AirDrop / a chat — a home-screen app can't save a
-  file by itself), else an <a download> (Android Chrome doesn't share
-  .json; computers). A share error other than AbortError falls back to the
-  download. Import file (`#backup-file`, accept .json/text): a backup →
-  Alert.confirm "Replace your data with this backup?" with its date →
-  `A._applyImport(json)`; a file holding a text export or an old plain
-  JSON export goes through `A._importText`; anything else → "This file
-  isn't a backup from this app". `_applyImport` (shared by both imports)
-  now refuses a data set without a `projects` object before writing
-  anything. Tested: photo project round trip byte-identical (ids and
-  photo), wrong file, text export in a file, download path, German. Not
-  testable here: the real share sheet / Files picker on the iPhone. NEXT
-  (asked "add docs to tasks"): files attached to tasks, kept in IndexedDB
-  (localStorage holds ~5 MB), carried by this file as a `files` part
-  (bump `backup` if the shape changes; keep reading backup:1).
+  with that as well for the projects' icons"; 4.67.20 "the text ex and
+  import is also no longer needed"): Menu → Data = ONE card, Export /
+  Import (`Backup`), + the calendar import. The file is "Today backup
+  YYYY-MM-DD.json" = {app:'Today',backup:1,made:ISO,data:<localStorage
+  'lifeos' exactly as stored>} — ids, settings, photos (also in the Trash)
+  untouched; built as a string synchronously inside the tap. Saving:
+  navigator.share({files}) when canShare says yes (iPhone → share sheet:
+  Save to Files / AirDrop / a chat — a home-screen app can't save a file by
+  itself), else an <a download> (Android Chrome doesn't share .json;
+  computers); a share error other than AbortError falls back to the
+  download. Import (`#backup-file`): only a backup file (app 'Today' +
+  data with a projects object), else "This file isn't a backup from this
+  app". Confirm: "Replace all data with this backup? Backup from <date>.
+  Your current data will be overwritten." (4.67.19 said "Everything in the
+  app now is replaced by it" — read as already done: "makes no sense";
+  say what WILL happen). Then `Backup.load`: the update screen with
+  "Loading backup" (`UpdateOverlay.show(i,label,p0)`), the heavy part
+  (setItem + DB.load) only after two frames, `UpdateOverlay.carry()` →
+  sessionStorage 'lifeos-boot' (quote index/text, line, bar, shown time),
+  location.reload(). Asked: "instead of just freezing then going white and
+  then loading, put a loading screen there". On the next start a head
+  script adds `html.booting` (body hidden, the overlay shown, html
+  background --pg), a tiny script right after the overlay markup fills in
+  the same quote/line/bar, and `UpdateOverlay.resume()` (startup, after the
+  first render) takes over: the bar continues from where it was (the creep
+  curve offset so it doesn't jump), fills by the quote's reading time
+  counted from BEFORE the restart (min 1.3s), then `hide(true)` fades it
+  out (.3s, `.fade`). A normal start never has the key. Tested: photo
+  project round trip identical, the restart with the screen up, resume
+  timing (4.6s quote → fade at 4.58s), booting look, German, wrong file.
+  The text export/import, ExportSheet, DataCodec (LOS1/2/3 reading too),
+  A.importData/_applyImport and their DE entries are GONE (git 36f9a7b has
+  them); an old text export can't be imported any more. NEXT (asked "add
+  docs to tasks"): files attached to tasks, kept in IndexedDB
+  (localStorage holds ~5 MB), carried by this file as a `files` part (bump
+  `backup` if the shape changes; keep reading backup:1).
 - Import (4.4, after "That isn't data from this app" on a direct copy from
   the old icon into the new one — cause not visible from here, so both
   suspects fixed and the message made diagnostic): (1) importData used to
@@ -2963,8 +2978,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   first-day trap: a new user's tap on a tick box did nothing). Existing
   users keep their stored value. Exports drop settings equal to the
   defaults, so an export made before 4.15 by someone with it ON has no
-  key — `A.importData` sets it back to true when the export's
-  lastSeenVersion is older than 'Beta 4.15' (CHANGELOG order).
+  key — `A.importData` set it back to true when the export's
+  lastSeenVersion was older than 'Beta 4.15' (gone with the text import
+  in 4.67.20: a backup file keeps every setting as stored).
 - Hold to complete shows NO progress while holding (3.79, by request): the
   grey bar that filled under the row (`::before` driven by `.holding`/
   `.snap`) and those classes are gone; the hold still completes after

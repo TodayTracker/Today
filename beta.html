@@ -425,6 +425,11 @@ html[data-theme="light"] .switch-slider{background:#d1d1d1}
    the one that stuck: frozen, not a background pill). */
 .update-overlay{display:none;position:fixed;inset:0;background:var(--pg);z-index:600;align-items:center;justify-content:center;flex-direction:column;padding:0 28px 8vh}
 .update-overlay.on{display:flex}
+.update-overlay.fade{opacity:0;transition:opacity .3s ease}
+/* restarting after an import: only the loading screen until the app is drawn */
+html.booting{background:var(--pg)}
+html.booting body{visibility:hidden}
+html.booting .update-overlay{display:flex;visibility:visible}
 .update-overlay{touch-action:none}
 /* The update screen's quote: Apple's own serif (New York via ui-serif — on
    the phone already, nothing downloaded), italic; the author small and
@@ -506,9 +511,8 @@ html[data-theme="light"] .sheet-inp:focus{border-color:#000}
 html[data-theme="dark"] .sheet-color.sel{border-color:#fff}
 html[data-theme="light"] .sheet-color.sel{border-color:#000}
 .sheet-btns{display:flex;gap:10px}
-/* Export window: the data as selectable text (the app blocks selection elsewhere) */
+/* small grey note in a window */
 .exp-note{font-size:13px;line-height:18px;color:#999;margin:0 2px 10px}
-.exp-text{background:var(--card,#fff);color:var(--ink,#000);border-radius:14px;padding:12px 14px;max-height:132px;overflow-y:auto;font-size:13px;line-height:18px;word-break:break-all;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;margin-bottom:10px}
 .sheet-save{flex:1;padding:14px;background:#fff;color:#000;border:1.5px solid #000;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer}
 @media(prefers-color-scheme:dark){.sheet-save{background:#1e1c1a;border-color:#fff;color:#fff}}
 html[data-theme="dark"] .sheet-save{background:#1e1c1a;border-color:#fff;color:#fff}
@@ -1242,6 +1246,10 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
 .alert-btn:active{background:var(--press)}
 </style>
 <script>
+// restarting after an import: keep the loading screen up (UpdateOverlay.resume)
+try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.add('booting');}catch(e){}
+</script>
+<script>
 // Developer beta (Menu → Developer → Version): the home-screen icon always
 // opens the released app; a device switched to the beta goes on to
 // beta.html, and the rest of this page is swallowed unparsed so none of the
@@ -1427,16 +1435,11 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     <div class="hh-title">Data</div>
   </div>
   <div class="opt-group" style="margin-top:8px">
-    <div class="opt-row btn-row" onclick="Backup.save()"><div class="opt-text"><div class="opt-title">Export file</div></div></div>
-    <div class="opt-row btn-row" onclick="Backup.pick()"><div class="opt-text"><div class="opt-title">Import file</div></div></div>
+    <div class="opt-row btn-row" onclick="Backup.save()"><div class="opt-text"><div class="opt-title">Export</div></div></div>
+    <div class="opt-row btn-row" onclick="Backup.pick()"><div class="opt-text"><div class="opt-title">Import</div></div></div>
   </div>
-  <div class="data-note">One file with everything in the app, project photos too. Save it to Files or send it to yourself — Import file brings it all back.</div>
+  <div class="data-note">One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.</div>
   <input type="file" id="backup-file" accept=".json,application/json,text/plain" style="display:none" onchange="Backup.read(this)">
-  <div class="opt-group">
-    <div class="opt-row btn-row" onclick="A.exportData()"><div class="opt-text"><div class="opt-title">Export text</div></div></div>
-    <div class="opt-row btn-row" onclick="A.importData()"><div class="opt-text"><div class="opt-title">Import text</div></div></div>
-  </div>
-  <div class="data-note">Text to paste into a chat or a note, without project photos.</div>
   <div class="opt-group">
     <div class="opt-row btn-row" onclick="IcsImport.pick()"><div class="opt-text"><div class="opt-title">Import calendar</div></div></div>
   </div>
@@ -1674,23 +1677,20 @@ html:not(#x) #p-overview.ov-min .acard:is(.dragging,.drag-landing,.press-lift){b
     </div>
   </div>
 </div>
+<script>
+// restarting after an import: the same quote, line and bar as before the restart
+(function(){try{var b=JSON.parse(sessionStorage.getItem('lifeos-boot')||'null');if(!b)return;
+  document.getElementById('upd-q-text').textContent=b.q||'';document.getElementById('upd-q-by').textContent=b.by||'';
+  document.getElementById('update-text').textContent=b.lab||'';
+  document.getElementById('update-bar-fill').style.transform='translateX('+(((b.p||0)-1)*100).toFixed(3)+'%)';
+}catch(e){}})();
+</script>
 
 
 <div class="sheet-overlay" id="whatsnew-overlay" onclick="if(event.target===this)WhatsNew.close()">
   <div class="sheet">
     <div class="sheet-title" id="whatsnew-title">What's new</div>
     <div id="whatsnew-body" style="margin-bottom:10px"></div>
-  </div>
-</div>
-
-<div class="sheet-overlay" id="export-sheet-overlay" onclick="if(event.target===this)ExportSheet.close()">
-  <div class="sheet">
-    <div class="sheet-title">Export</div>
-    <div class="exp-note">Your data as text, without project photos (Export file keeps them). Import text in Menu → Data brings it back.</div>
-    <div class="exp-text" id="export-text"></div>
-    <div class="exp-note" id="export-len"></div>
-    <div class="sheet-btns"><button class="sheet-save native-tap" id="export-copy" onclick="ExportSheet.copy()">Copy</button></div>
-    <div class="sheet-btns" id="export-share-row" style="margin-top:8px"><button class="sheet-save native-tap" onclick="ExportSheet.share()">Share</button></div>
   </div>
 </div>
 
@@ -1883,7 +1883,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=19;
+var BETA_BUILD=20;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3218,7 +3218,7 @@ var CHANGELOG=[
     "A Habits project always opens on today (coming back to it from a habit keeps the day you were on)",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first",
-    "Menu → Data: Export file saves everything as one file, project photos too (on the iPhone through the share sheet: Save to Files, AirDrop or a chat), and Import file brings it back. The text export stays for pasting into a chat"
+    "Menu → Data: Export saves everything as one file, project photos too (on the iPhone through the share sheet: Save to Files, AirDrop or a chat), and Import brings it back — after asking, with the loading screen up while the app restarts on it. The copy-paste text export is gone"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -4094,7 +4094,7 @@ var I18N=(function(){
     'Version history':'Versionsverlauf','Advanced update info':'Erweiterte Update-Infos','Bug fixes':'Fehlerbehebungen','Design fixes':'Design-Korrekturen','Design and bug fixes':'Design-Korrekturen und Fehlerbehebungen',"What's new":'Neuigkeiten','Got it':'Verstanden','General':'Allgemein','Data':'Daten',
     // headers
     '📆 Daily':'📆 Täglich','📅 One-time':'📅 Einmalig','One-time tasks':'Einmalige Aufgaben','One-time':'Einmalig',
-    'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Your data as text, without project photos (Export file keeps them). Import text in Menu → Data brings it back.':'Deine Daten als Text, ohne Projektfotos (Datei exportieren behält sie). Text importieren in Menü → Daten holt sie zurück.','Export file':'Datei exportieren','Import file':'Datei importieren','Export text':'Text exportieren','Import text':'Text importieren','Replace':'Ersetzen','One file with everything in the app, project photos too. Save it to Files or send it to yourself — Import file brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Speichere sie in Dateien oder schick sie dir selbst — Datei importieren holt alles zurück.','Text to paste into a chat or a note, without project photos.':'Text zum Einfügen in einen Chat oder eine Notiz, ohne Projektfotos.',"This file isn't a backup from this app — pick a file made with Export file.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Datei exportieren erstellt wurde.','Copy':'Kopieren','characters':'Zeichen','Habit history':'Gewohnheits-Verlauf','Done tasks':'Erledigte Aufgaben','Projects & settings':'Projekte & Einstellungen','Copied':'Kopiert','Share':'Teilen','Preparing…':'Wird vorbereitet…','Tap and hold the text to copy it':'Halte den Text gedrückt, um ihn zu kopieren',"That isn't data from this app — copy the whole export and try again.":'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal.','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
+    'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen','One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Bewahre sie in Dateien auf oder schick sie dir selbst — Importieren holt alles zurück.',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
     'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
@@ -4132,7 +4132,7 @@ var I18N=(function(){
     // settings
     'System':'System','Light':'Hell','Dark':'Dunkel','Language':'Sprache','Hold to complete tasks':'Zum Erledigen gedrückt halten',
     'Day starts at':'Tag beginnt um','Habits disappear when checked off':'Gewohnheiten verschwinden beim Abhaken','Tasks shown':'Angezeigte Aufgaben','Refill automatically':'Automatisch auffüllen',
-    'Copy & save this data':'Diese Daten kopieren und speichern','Paste exported data':'Exportierte Daten einfügen','Paste here':'Hier einfügen',
+    
     // trash tabs
     'Lists':'Listen','Projects':'Projekte','Categories':'Kategorien','Entries':'Einträge',
     // stats
@@ -4174,10 +4174,8 @@ var I18N=(function(){
     [/^Habit in (.*)$/,'Gewohnheit in $1'],
     [/^Move all (habits and categories|habits|entries|tasks) of "(.*)" to the Trash\?$/,function(m,w,n){return 'Alle '+({'habits and categories':'Gewohnheiten und Kategorien','habits':'Gewohnheiten','entries':'Einträge','tasks':'Aufgaben'})[w]+' von „'+n+'“ in den Papierkorb legen?';}],
     [/^Current streak: (\d+)$/,'Aktuelle Serie: $1'],
-    [/^Replace your data with this backup\? It was made on (.*)\. Everything in the app now is replaced by it\.$/,'Daten durch dieses Backup ersetzen? Es wurde am $1 erstellt. Alles, was jetzt in der App ist, wird dadurch ersetzt.'],
+    [/^Replace all data with this backup\? Backup from (.*)\. Your current data will be overwritten\.$/,'Alle Daten durch dieses Backup ersetzen? Backup vom $1. Deine aktuellen Daten werden überschrieben.'],
     [/^This backup couldn't be loaded — (.*)$/,'Dieses Backup konnte nicht geladen werden — $1'],
-    [/^That isn't data from this app — copy the whole export and try again\. Pasted: (\d+) characters, starting with "(.*)"$/,'Das sind keine Daten aus dieser App — kopiere den ganzen Export und versuche es nochmal. Eingefügt: $1 Zeichen, beginnend mit „$2“'],
-    [/^This export couldn't be read — (\d+) characters arrived; Export shows how many it has\. Step: (.*)$/,'Dieser Export konnte nicht gelesen werden — $1 Zeichen sind angekommen; beim Export steht, wie viele es sind. Schritt: $2'],
     [/^Longest streak: (\d+)$/,'Längste Serie: $1'],
     [/^Goal: at most (.*)$/,'Ziel: höchstens $1'],
     [/^Goal: (.*)$/,'Ziel: $1'],
@@ -5670,50 +5668,6 @@ var A={
       DB.data.trackerEntries[pid]=DB.data.trackerEntries[pid].filter(function(e){return e.ts!==ts;});
       DB.save();renderTracker(pid);
     },'Move to Trash');
-  },
-  // Export: a window with the compressed data (ExportSheet)
-  exportData:function(){ExportSheet.open();},
-  // Import takes the compressed export or an old plain one. It saves the
-  // data and restarts the app on it — redrawing in place used to run right
-  // after saving, and a redraw error then showed "isn't data from this app"
-  // although the data was already saved. A failure says which step failed
-  // and what arrived, so a screenshot tells what went wrong.
-  importData:function(){
-    InputSheet.show('Paste exported data','Paste here',function(pasted){A._importText(pasted);});
-  },
-  _importText:function(pasted){
-    var step='read';
-    Promise.resolve().then(function(){return DataCodec.unpack(pasted);}).then(function(json){
-      return A._applyImport(json,function(s){step=s;});
-    }).catch(function(err){
-      var text=pasted||'',tag=DataCodec.findTag(text);
-      var start=text.trim().slice(0,12).replace(/\s+/g,' ');
-      if(!tag&&text.trim().charAt(0)!=='{'&&!/^e[AFJN]/.test(text.replace(/[^A-Za-z0-9+\/=]/g,'')))Alert.info("That isn't data from this app — copy the whole export and try again. Pasted: "+text.length+' characters, starting with "'+start+'"');
-      else Alert.info("This export couldn't be read — "+((tag?text.slice(tag.index+tag[0].length).replace(/[^A-Za-z0-9+\/=]/g,'').length+5:text.length))+' characters arrived; Export shows how many it has. Step: '+step+', '+((err&&err.message)||String(err)));
-    });
-  },
-  // Puts an imported data set in place and restarts the app on it. Throws
-  // (the caller shows it) when it isn't a data set; mark() names the step.
-  _applyImport:function(json,mark){
-    mark=mark||function(){};
-    mark('check');var o=JSON.parse(json);
-    if(!o||typeof o!=='object'||Array.isArray(o)||typeof o.projects!=='object')throw new Error('no projects in it');
-    // Exports leave out settings equal to the defaults. Hold to complete
-    // was ON by default until 4.15, so an older export without it had it on.
-    var at=function(v){return CHANGELOG.findIndex(function(c){return c.v===v;});};
-    if(o&&o.settings&&!('holdToComplete' in o.settings)){
-      var from=at(o.settings.lastSeenVersion);
-      if(from!==-1&&from<at('Beta 4.15')){o.settings.holdToComplete=true;json=JSON.stringify(o);}
-    }
-    // Best/worst score are off by default since 4.30 — an older export
-    // without statsHidden had every widget on.
-    if(o&&o.settings&&!('statsHidden' in o.settings)){
-      var from2=at(o.settings.lastSeenVersion);
-      if(from2!==-1&&from2<at('Beta 4.30')){o.settings.statsHidden=[];json=JSON.stringify(o);}
-    }
-    mark('save');localStorage.setItem('lifeos',json.trim());
-    DB.load(); // from here on the app holds the imported data (nothing can save the old over it)
-    mark('restart');location.reload();
   },
   // Is the sw.js on the server the one this device already runs? Every
   // release bumps CACHE_NAME, and a device on that release has a cache of
@@ -7773,12 +7727,6 @@ document.addEventListener('change',function(e){
   clearTimeout(cb._swT);
   cb._swT=setTimeout(function(){cb.onchange.call(cb,{target:cb});},SWITCH_MS);
 },true);
-// Menu > Data > Export: a window with the (compressed) data and a Copy and
-// a Share button. Copying straight from the Export tap (the text was handed
-// to the clipboard before it was ready, to stay inside the tap) left the
-// clipboard empty on the iPhone ("paste into Telegram, nothing happens").
-// Here the text is ready before Copy is tapped; Share opens the phone's own
-// share sheet (Telegram, Notes…); and the text itself can be selected.
 // Menu > Data > Import calendar: a calendar file (.ics — Google, Apple,
 // Outlook) or Google Calendar's export (.zip of .ics files). Each upcoming
 // one-off event becomes a Calendar task (dailyOnce: title + date). Past
@@ -8088,15 +8036,16 @@ var Templates={
   close:function(){_overlayClose('tpl-sheet-overlay');}
 };
 
-// Menu → Data → Export file: everything in the app, project photos too, as
-// one JSON file — {app:'Today',backup:1,made:<ISO time>,data:<the saved
-// data exactly as stored>} (ids, settings and photos untouched, unlike the
-// text export). A home-screen app can't save a file by itself, so where
-// files can be shared (iPhone) it goes to the share sheet → Save to Files,
-// AirDrop, a chat; elsewhere (Android: Chrome doesn't share .json files,
-// computers) it's downloaded. Built synchronously inside the tap — sharing
-// needs the tap's activation. Import file reads such a file, or a text
-// export / old plain export saved as a file.
+// Menu → Data → Export: everything in the app, project photos too, as one
+// JSON file — {app:'Today',backup:1,made:<ISO time>,data:<the saved data
+// exactly as stored>} (ids, settings and photos untouched). A home-screen
+// app can't save a file by itself, so where files can be shared (iPhone)
+// it goes to the share sheet → Save to Files, AirDrop, a chat; elsewhere
+// (Android: Chrome doesn't share .json files, computers) it's downloaded.
+// Built synchronously inside the tap — sharing needs the tap's activation.
+// Import reads such a file, asks first, then shows the loading screen,
+// saves and restarts the app on the backup (the screen stays up across the
+// restart: UpdateOverlay.carry/resume).
 var Backup={
   name:function(){return 'Today backup '+dStr(new Date())+'.json';},
   save:function(){
@@ -8114,256 +8063,32 @@ var Backup={
     setTimeout(function(){URL.revokeObjectURL(url);},10000);
   },
   pick:function(){var f=document.getElementById('backup-file');f.value='';f.click();},
+  _notOurs:function(){Alert.info("This file isn't a backup from this app — pick a file made with Export.");},
   read:function(inp){
-    var file=inp.files&&inp.files[0];if(!file)return;
+    var file=inp.files&&inp.files[0],self=this;if(!file)return;
     var rd=file.text?file.text():new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok(r.result);};r.onerror=no;r.readAsText(file);});
     rd.then(function(text){
       var o=null;try{o=JSON.parse(text);}catch(e){}
-      if(o&&o.app==='Today'&&o.backup&&o.data&&typeof o.data==='object'){
-        var d=new Date(o.made),when=isNaN(d)?'?':d.toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'});
-        Alert.confirm('Replace your data with this backup? It was made on '+when+'. Everything in the app now is replaced by it.',function(){
-          try{A._applyImport(JSON.stringify(o.data));}
-          catch(err){Alert.info("This backup couldn't be loaded — "+((err&&err.message)||String(err)));}
-        },'Replace');
-        return;
-      }
-      // a text export (or an old plain export) saved as a file
-      if(DataCodec.findTag(text)||(o&&typeof o.projects==='object')){A._importText(text);return;}
-      Alert.info("This file isn't a backup from this app — pick a file made with Export file.");
-    }).catch(function(){Alert.info("This file isn't a backup from this app — pick a file made with Export file.");});
-  }
-};
-var ExportSheet={
-  text:'',
-  open:function(){
-    var data=localStorage.getItem('lifeos');if(!data)return;
-    var box=document.getElementById('export-text'),len=document.getElementById('export-len'),self=this;
-    this.text='';box.textContent='Preparing…';len.textContent='';
-    document.getElementById('export-copy').textContent='Copy';
-    document.getElementById('export-share-row').style.display=navigator.share?'':'none';
-    _overlayOpen('export-sheet-overlay');
-    DataCodec.pack(data).then(function(txt){
-      self.text=txt;box.textContent=txt;
-      // how long it is, and what takes the room (biggest first)
-      return DataCodec.sizes(data).then(function(parts){
-        len.textContent=txt.length+' '+t('characters')+' — '+parts.filter(function(p){return p[1]>12;})
-          .sort(function(a,b){return b[1]-a[1];}).map(function(p){return t(p[0])+' '+p[1];}).join(' · ');
-      });
-    }).catch(function(){});
+      var d=o&&o.app==='Today'&&o.backup&&o.data;
+      if(!d||typeof d!=='object'||Array.isArray(d)||!d.projects||typeof d.projects!=='object'){self._notOurs();return;}
+      var at=new Date(o.made),when=isNaN(at)?'?':at.toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'})+', '+at.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'});
+      Alert.confirm('Replace all data with this backup? Backup from '+when+'. Your current data will be overwritten.',function(){self.load(d);},'Replace');
+    }).catch(function(){self._notOurs();});
   },
-  close:function(){_overlayClose('export-sheet-overlay');},
-  copy:function(){
-    if(!this.text)return;
-    var btn=document.getElementById('export-copy'),self=this;
-    function ok(){btn.textContent='Copied';}
-    // clipboard refused: select the text and try the old copy command; if
-    // that fails too, the text stays selected for the phone's own Copy
-    function manual(){if(self._selectCopy())ok();else btn.textContent='Tap and hold the text to copy it';}
-    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(this.text).then(ok,manual);
-    else manual();
-  },
-  _selectCopy:function(){
-    try{
-      var r=document.createRange(),sel=window.getSelection();
-      r.selectNodeContents(document.getElementById('export-text'));sel.removeAllRanges();sel.addRange(r);
-      return document.execCommand('copy');
-    }catch(e){return false;}
-  },
-  share:function(){
-    if(this.text&&navigator.share)navigator.share({text:this.text}).catch(function(){});
-  }
-};
-// Menu > Data's export text: "LOS3:" + the data
-//  1. with shorter internal ids — every id (prefix + 13-digit creation time
-//     + random) becomes prefix + a short counter, the same everywhere it's
-//     used; only habits keep the time (a habit's start date is read from
-//     it). Random text can't be compressed, so this matters most;
-//  2. restructured — habit check-offs as one row of marks per habit (was
-//     one entry per habit per day), every list of same-shaped items (tasks,
-//     entries, done tasks…) as columns without repeated field names, whole
-//     numbers in a column (times) as differences;
-//  3. deflate-compressed, written as plain base64 letters.
-// Project photos are always left out ("leave the photos out for now"):
-// they're already-compressed pictures, a couple of them outweighed all the
-// rest; after an import, projects show their emoji instead.
-// unpack() also reads the older "LOS2:" (same, in CJK characters — slow to
-// draw on the iPhone), "LOS1:" (base64 deflate) and plain JSON exports.
-// Only in-app ids change (they're internal names); nothing else does.
-var DataCodec={
-  COL:'\u0002c',DEL:'\u0002d',CHK:'\u0002k',CJK:0x4E00,
-  pack:function(json){
-    if(typeof CompressionStream==='undefined')return Promise.resolve(json);
-    return this._zip(JSON.stringify(this._prep(json)),'deflate').then(function(b){return 'LOS3:'+DataCodec._toB64(b);});
-  },
-  // the data as it goes into the export (before compressing)
-  _prep:function(json){
-    var o=this._noPhotos(this._shortIds(JSON.parse(json)));
-    // settings still at their default aren't needed: loading fills in any
-    // missing one from DEFAULT_SETTINGS (DB._migrate)
-    if(o.settings)for(var k in o.settings)if(k in DEFAULT_SETTINGS&&JSON.stringify(o.settings[k])===JSON.stringify(DEFAULT_SETTINGS[k]))delete o.settings[k];
-    if(o.dailyChecks)o.dailyChecks=this._packChecks(o.dailyChecks);
-    return this._enc(o);
-  },
-  // What each part of the data adds to the export, in characters (each part
-  // compressed on its own, so the parts add up to a bit more than the total)
-  sizes:function(json){
-    var o=this._prep(json),self=this,groups=[
-      ['Habit history',['dailyChecks']],['Done tasks',['archived']],['Trash',['trash']],
-      ['Tasks',['extraTasks','dailyOnce','doneKeys','todaySet']],['Trackers',['trackerEntries']],['Habits',['dailyItems','dailyCats']]
-    ],used={};
-    groups.forEach(function(g){g[1].forEach(function(k){used[k]=1;});});
-    var rest={};for(var k in o)if(!used[k])rest[k]=o[k];
-    groups.push(['Projects & settings',null]);
-    return Promise.all(groups.map(function(g){
-      var part={};if(g[1])g[1].forEach(function(k){if(o[k]!==undefined)part[k]=o[k];});else part=rest;
-      return self._zip(JSON.stringify(part),'deflate').then(function(b){return [g[0],Math.ceil(b.length/3)*4];});
-    }));
-  },
-  // The tag is found in any letter case ("los3:" arrived from an iPhone
-  // paste — the export itself was intact), and an export whose tag got lost
-  // is still recognised by its compressed start (zlib = "eA"/"eF"/"eJ"/"eN").
-  unpack:function(text){
-    text=text||'';
-    var m=DataCodec.findTag(text),body=m?text.slice(m.index+m[0].length):'',kind=m&&m[1];
-    function restore(s){
-      var o=DataCodec._dec(JSON.parse(s));
-      if(o.dailyChecks&&o.dailyChecks[DataCodec.CHK])o.dailyChecks=DataCodec._unpackChecks(o.dailyChecks);
-      return JSON.stringify(o);
+  load:function(data){
+    var json=JSON.stringify(data),went=false;
+    UpdateOverlay.show(undefined,'Loading backup');
+    // the heavy part (saving a few MB) only once the loading screen is drawn
+    function go(){
+      if(went)return;went=true;
+      try{localStorage.setItem('lifeos',json);}
+      catch(err){UpdateOverlay.hide();Alert.info("This backup couldn't be loaded — "+((err&&err.message)||String(err)));return;}
+      DB.load(); // from here on the app holds the backup (nothing can save the old data over it)
+      UpdateOverlay.carry();
+      location.reload();
     }
-    if(!m&&/^e[AFJN]/.test(text.replace(/[^A-Za-z0-9+\/=]/g,''))){kind='3';body=text;}
-    if(kind==='2')return this._unzip(this._fromCjk(body),'deflate').then(restore);
-    if(kind)return this._unzip(this._fromB64(body),'deflate').then(restore); // LOS1 is plain JSON inside: restore leaves it as it is
-    return Promise.resolve(text.trim()); // plain JSON
-  },
-  findTag:function(text){return /los([123])\s*:/i.exec(text||'');},
-  // project photos (data:image/…, also in the Trash) are left out
-  _noPhotos:function(v){
-    if(Array.isArray(v))return v.map(this._noPhotos,this);
-    if(v&&typeof v==='object'){
-      var r={};
-      for(var k in v){var x=v[k];if(typeof x==='string'&&x.indexOf('data:image/')===0)continue;r[k]=this._noPhotos(x);}
-      return r;
-    }
-    return v;
-  },
-  _toB64:function(b){var bin='';for(var i=0;i<b.length;i+=0x8000)bin+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(bin);},
-  // Spaces, line breaks and dashes a notes or chat app added are dropped;
-  // the base64 ends at its "=" padding (or at a whole group of 4), so
-  // words pasted after the export don't make it unreadable.
-  _fromB64:function(t){
-    var c=/^[A-Za-z0-9+\/]*={0,2}/.exec(t.replace(/[^A-Za-z0-9+\/=]/g,''))[0];
-    if(c.charAt(c.length-1)!=='=')c=c.slice(0,c.length-c.length%4);
-    var bin=atob(c),b=new Uint8Array(bin.length);
-    for(var i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);
-    return b;
-  },
-  _zip:function(str,f){return new Response(new Blob([str]).stream().pipeThrough(new CompressionStream(f))).arrayBuffer().then(function(a){return new Uint8Array(a);});},
-  // Reads the decompressed text piece by piece: if something follows the
-  // end of the compressed data (text a notes/chat app added after the
-  // export), the stream errors only AFTER handing over everything — keep
-  // that. A cut-off export yields half a text, which fails to parse later.
-  _unzip:function(bytes,f){
-    var ds=new DecompressionStream(f),w=ds.writable.getWriter(),r=ds.readable.getReader(),dec=new TextDecoder(),out='';
-    w.write(bytes).catch(function(){});w.close().catch(function(){});
-    function pump(){return r.read().then(function(x){if(x.done)return;out+=dec.decode(x.value,{stream:true});return pump();});}
-    return pump().then(function(){return out+dec.decode();},function(err){out+=dec.decode();if(out)return out;throw err;});
-  },
-  // reads the 3.97–3.99 "LOS2:" exports: 2 characters of length, then 14
-  // bits per CJK character (U+4E00…); anything off that alphabet is skipped
-  _fromCjk:function(s){
-    var c=[],i,v;
-    for(i=0;i<s.length;i++){v=s.charCodeAt(i)-this.CJK;if(v>=0&&v<16384)c.push(v);}
-    var n=(c[0]<<14)|c[1],b=new Uint8Array(n),acc=0,bits=0,j=0;
-    for(i=2;i<c.length&&j<n;i++){acc=(acc<<14)|c[i];bits+=14;while(bits>=8&&j<n){bits-=8;b[j++]=(acc>>>bits)&0xFF;}acc&=(1<<bits)-1;}
-    return b;
-  },
-  // A habit's id keeps its 13-digit creation time (habitCreatedDs reads a
-  // habit's start from it); every other id becomes prefix + counter —
-  // never the shape of a new id (prefix + 13 digits + random), so no clash.
-  _shortIds:function(o){
-    var re=/^(cat|tr|di|once|proj|t)(\d{13})[a-z0-9]+$/,map={},n=0;
-    function id(s){var m=re.exec(s);if(!m)return s;if(!map[s])map[s]=m[1]+(m[1]==='di'?m[2]:'')+(n++).toString(36);return map[s];}
-    function walk(v){
-      if(typeof v==='string')return id(v);
-      if(Array.isArray(v))return v.map(walk);
-      if(v&&typeof v==='object'){var r={};for(var k in v)r[id(k)]=walk(v[k]);return r;}
-      return v;
-    }
-    return walk(o);
-  },
-  // {date:{habitId:true|false|'skip'}} -> day gaps, habit ids, one row of
-  // marks per habit ('.' none, '1' done, '0' unticked, 's' skipped); any
-  // other value goes to x as [date, id, value]
-  _packChecks:function(dc){
-    // only real YYYY-MM-DD days are packed; any other key (an old bug could
-    // have stored 'NaN-NaN-NaN') is kept as it is in w
-    var dates=Object.keys(dc).filter(function(k){return /^\d{4}-\d{2}-\d{2}$/.test(k)&&dc[k]&&typeof dc[k]==='object';}).sort(),ids=[],seen={},x=[],w={};
-    Object.keys(dc).forEach(function(k){if(dates.indexOf(k)===-1)w[k]=dc[k];});
-    dates.forEach(function(ds){for(var id in dc[ds])if(!seen[id]){seen[id]=1;ids.push(id);}});
-    function day(ds){return Date.UTC(+ds.slice(0,4),+ds.slice(5,7)-1,+ds.slice(8,10))/864e5;}
-    var r={};r[this.CHK]=1;
-    r.g=dates.map(function(ds,i){return i?day(ds)-day(dates[i-1]):day(ds);});
-    r.i=ids;
-    r.r=ids.map(function(id){return dates.map(function(ds){
-      if(!(id in dc[ds]))return '.';var v=dc[ds][id];
-      if(v===true)return '1';if(v===false)return '0';if(v==='skip')return 's';
-      x.push([ds,id,v]);return '.';
-    }).join('');});
-    r.x=x;r.w=w;return r;
-  },
-  _unpackChecks:function(p){
-    var dc={},d=0;
-    var dates=p.g.map(function(g,i){d=i?d+g:g;return new Date(d*864e5).toISOString().slice(0,10);});
-    dates.forEach(function(ds){dc[ds]={};});
-    p.i.forEach(function(id,k){
-      var row=p.r[k];
-      for(var j=0;j<dates.length;j++){var c=row.charAt(j);if(c==='1')dc[dates[j]][id]=true;else if(c==='0')dc[dates[j]][id]=false;else if(c==='s')dc[dates[j]][id]='skip';}
-    });
-    p.x.forEach(function(e){(dc[e[0]]=dc[e[0]]||{})[e[1]]=e[2];});
-    if(p.w)for(var k in p.w)dc[k]=p.w[k];
-    return dc;
-  },
-  // lists of 3+ items with the same fields -> {COL:fields, v:columns}; a
-  // column of whole numbers -> {DEL:[first, differences…]}
-  _enc:function(v){
-    var self=this;
-    function isObj(o){return o&&typeof o==='object'&&!Array.isArray(o);}
-    if(Array.isArray(v)){
-      if(v.length>=3&&v.every(isObj)){
-        var keys=Object.keys(v[0]),sig=keys.join('\u0001');
-        if(keys.length&&v.every(function(o){return Object.keys(o).join('\u0001')===sig;})){
-          var r={};r[self.COL]=keys;
-          r.v=keys.map(function(k){
-            var col=v.map(function(o){return self._enc(o[k]);});
-            if(col.every(function(n){return Number.isInteger(n)&&Math.abs(n)<9e15;})){
-              var dl=[col[0]];for(var i=1;i<col.length;i++)dl.push(col[i]-col[i-1]);
-              var q={};q[self.DEL]=dl;return q;
-            }
-            return col;
-          });
-          return r;
-        }
-      }
-      return v.map(function(x){return self._enc(x);});
-    }
-    if(isObj(v)){var o={};for(var k in v)o[k]=self._enc(v[k]);return o;}
-    return v;
-  },
-  _dec:function(v){
-    var self=this;
-    if(Array.isArray(v))return v.map(function(x){return self._dec(x);});
-    if(v&&typeof v==='object'){
-      if(v[self.COL]){
-        var keys=v[self.COL],cols=v.v.map(function(c){
-          if(c&&!Array.isArray(c)&&c[self.DEL]){var s=0;return c[self.DEL].map(function(d,i){s=i?s+d:d;return s;});}
-          return c;
-        }),n=cols.length?cols[0].length:0,out=[];
-        for(var i=0;i<n;i++){var o={};keys.forEach(function(k,j){o[k]=self._dec(cols[j][i]);});out.push(o);}
-        return out;
-      }
-      var r={};for(var k in v)r[k]=self._dec(v[k]);return r;
-    }
-    return v;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(go,0);});});
+    setTimeout(go,250);
   }
 };
 var MenuPage={
@@ -9096,11 +8821,11 @@ LoadBar.prototype.play=function(fn,dur){
 var QuoteText={
   // i: a given quote (Developer → Quotes); none: a random one
   pick:function(i){
-    if(typeof i==='number'&&QUOTES[i])return QUOTES[i];
+    if(typeof i==='number'&&QUOTES[i]){this.idx=i;return QUOTES[i];}
     var last=-1;try{last=parseInt(localStorage.getItem('lifeos-quote'),10);}catch(e){}
     i=Math.floor(Math.random()*QUOTES.length);if(QUOTES.length>1&&i===last)i=(i+1)%QUOTES.length;
     try{localStorage.setItem('lifeos-quote',String(i));}catch(e){}
-    return QUOTES[i];
+    this.idx=i;return QUOTES[i];
   },
   readMs:function(text){
     var words=text.split(/\s+/).length;
@@ -9156,14 +8881,18 @@ function renderDevQuotes(){
 // (scroll lock; every drag on it is cancelled).
 var UpdateOverlay={
   _on:false,_shownAt:0,_readMs:0,_rest:0,_t0:0,_tau:1,_A:.85,_bar:new LoadBar('update-bar-fill'),
-  show:function(i){
-    document.getElementById('update-text').textContent='Updating';
+  // label: the line over the bar ('Updating'); p0: where the bar starts
+  // (it creeps on from there along the same curve)
+  show:function(i,label,p0){
+    this._label=label||'Updating';
+    document.getElementById('update-text').textContent=this._label;
     this._readMs=QuoteText.fill('upd-q-text','upd-q-by',i);this._shownAt=Date.now();
     var A=this._A,tau=this._tau=this._readMs/2;
-    this._t0=performance.now();
-    this._bar.reset();
-    this._bar.play(function(t){return A*(1-Math.exp(-t/tau));},Infinity);
-    document.getElementById('update-overlay').classList.add('on');
+    var off=p0>0?-tau*Math.log(1-Math.min(p0,A*.99)/A):0;
+    this._t0=performance.now()-off;
+    this._bar.stop();this._bar.set(p0||0);
+    this._bar.play(function(t){return A*(1-Math.exp(-(t+off)/tau));},Infinity);
+    var ov=document.getElementById('update-overlay');ov.classList.remove('fade');ov.classList.add('on');
     if(!this._on){this._on=true;_overlayCount++;if(_overlayCount===1)_lockBodyScroll();}
   },
   done:function(){
@@ -9193,9 +8922,30 @@ var UpdateOverlay={
       setTimeout(function(){if(self._demoRun===run)self.hide();},self.wait(2700));
     },1800);
   },
-  hide:function(){
+  // After an import the app restarts on the new data: carry() keeps the
+  // screen for the next start (quote, line, bar, when it was shown);
+  // html.booting (head script) and the small script after the markup show
+  // it from the first frame, and resume() finishes it once the app is
+  // drawn — the bar fills by the quote's reading time, then it fades out.
+  carry:function(){
+    try{sessionStorage.setItem('lifeos-boot',JSON.stringify({i:QuoteText.idx,label:this._label,p:this._bar.p,shown:this._shownAt,
+      q:document.getElementById('upd-q-text').textContent,by:document.getElementById('upd-q-by').textContent,lab:document.getElementById('update-text').textContent}));}catch(e){}
+  },
+  resume:function(){
+    var b=null,self=this;
+    try{b=JSON.parse(sessionStorage.getItem('lifeos-boot')||'null');sessionStorage.removeItem('lifeos-boot');}catch(e){}
+    if(b)this.show(b.i,b.label,b.p);
+    document.documentElement.classList.remove('booting');
+    if(!b)return;
+    this._shownAt=b.shown||Date.now();
+    this.done();
+    setTimeout(function(){self.hide(true);},this.wait(0));
+  },
+  hide:function(fade){
     this._bar.stop();
-    document.getElementById('update-overlay').classList.remove('on');
+    var ov=document.getElementById('update-overlay');
+    if(fade){ov.classList.add('fade');setTimeout(function(){if(ov.classList.contains('fade'))ov.classList.remove('on','fade');},320);}
+    else ov.classList.remove('on','fade');
     if(this._on){this._on=false;_overlayCount=Math.max(0,_overlayCount-1);if(_overlayCount===0)_unlockBodyScroll();}
   }
 };
@@ -10080,9 +9830,7 @@ window.addEventListener('scroll',function(){_lastScrollAt=Date.now();},{passive:
     // starts at/Tasks shown) hit the exact same bug: it too sits inside
     // a TAPPABLE .opt-row with no onclick, so the row swallowed every
     // tap meant for it and the dropdown never opened at all.
-    // .native-tap (Export's Copy/Share): the browser's own click is the
-    // surest "the user tapped" for the clipboard and the share sheet on iOS
-    if(e.target.closest('.switch,.dsel-real,input,.native-tap')){target=null;return;}
+    if(e.target.closest('.switch,.dsel-real,input')){target=null;return;}
     target=e.target.closest(TAPPABLE);
     if(!target)return;
     // Rows that grey open on the browser's own click, exactly like Today's
@@ -10746,6 +10494,7 @@ LockedIn.view=LockedIn.startView();
 TabBar.applyTabs();
 (function(){var st=TabBar.startTab();if(st&&st!=='today'&&document.getElementById('p-'+st))TabBar.go(st);})();
 if(DB.data.settings.onboard&&!DB.readOnly)Welcome.open(); // a new install's first open
+UpdateOverlay.resume(); // after an import's restart
 setTimeout(function(){WhatsNew.checkAndShow();},400);
 // automatic updates: check shortly after launch, and again when the app is reopened after a while
 var _lastAutoCheck=Date.now();
