@@ -1201,6 +1201,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   buttons are soft 40px squares (`.hh-btn`, and `.hdr-add/.menu-btn/.back/
   .edit-proj-btn` are restyled to match); pushed pages (project pages, Edit
   layout, Daily, habit detail, Settings sub-pages) all use the `.hh` header.
+  HEADER BUTTONS NOW (4.67.21, "i ike p1" on https://claude.ai/artifact/KtbfkE2pbt3FNRQQVL885q
+  — "i dont like how the buttons interact when clicked on"; Now/P1–P7:
+  fade, gentle, icon only, grow, sink, halo, ripple; keep the page): on
+  pages they have NO white square (the Try out "Header buttons without
+  background" became permanent — "we dont have the white background
+  anymore"; its switch, applyHeaderBare, 'lifeos-hbare' and body.hb-bare are
+  gone; buttons inside windows keep their square), and every SQ_BTNS button
+  (+ .tday-b) FADES when pressed: opacity .35 in .06s, back in .3s, nothing
+  moves. The scale/spring below is history.
   PRESS of those small square buttons (4.12, `SQ_BTNS`: .hdr-add .menu-btn
   .back .edit-proj-btn .addbtn .hh-btn .el-btn): NO grey — "the grey color
   change is only for the bar buttons". They scale to .86 (.12s) and spring
@@ -2930,7 +2939,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   TRY OUT (Developer → Try out, under Version): switches for looks being
   compared on the phone, kept in localStorage on that device only (not in
   the data, not exported). Remove each one (switch, CSS, setter, key) once
-  the user has picked. Now: "Header buttons without background" (4.67.3,
+  the user has picked. None at the moment (4.67.21). Was: "Header buttons without background" (4.67.3, kept in 4.67.21 —
   "test how the buttons look without the white window behind them… back,
   + and the menu button in Tasks"): 'lifeos-hbare' → `body.hb-bare`
   (`applyHeaderBare`, `A.setHeaderBare`) clears the white square of
