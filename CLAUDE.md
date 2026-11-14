@@ -600,6 +600,13 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   share sheet needs a tap); Import clears the stored files and writes the
   backup's before the restart (a backup 1 file leaves none). Not done yet:
   a paperclip on task rows that have files (offered).
+- TASK WINDOW NAME + NOTES (4.67.34, "the 2 text inputs in a task tab i want
+  those the same than the 2 text input windows in a project edit tab"): the
+  task window's hero is `.sh-hero.center` like the project window's — name
+  24/700 centred, notes 15/500 centred right under it (4px), starting one
+  line tall (the 120px min-height is gone) and growing as you type (unlike a
+  project description, no 5-line cap); 18px from the hero to the Files card
+  (its own 20px margin is gone), as from a description to the first card.
 - TASK WINDOW PRIORITY = "F" (4.67.28, picked on
   https://claude.ai/artifact/ECSy2yZvgPVnJVeCYtbYzc — "i like F the most";
   keep the page): no Priority row any more; the task's badge (`.ts-pri bdg
