@@ -581,11 +581,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   temporary habits… click on any day you want"; picked "the c2 calendar
   itself… the window of c1… take c2 for the name"): the two arrows by
   Today's title are GONE (TodayDay.step too); top right is `.tday-date`
-  (`#today-date-t` = chDM of the day shown, written by todayHead) + an icon —
-  I1, C2's calendar outline, as a STAND-IN: the icon and where it sits are
-  still being picked on https://claude.ai/artifact/BEQpscM2Rn62hzLjGfLMrT
-  (I1–I8; icon left/right of the date or all on the left after the title;
-  grey/black/blue). A tap opens `TodayCal`: a dropdown under the date,
+  (`#today-date-t` = chDM of the day shown, written by todayHead) with an
+  icon LEFT of it — "I1 left on the date grey" (4.67.27), C2's calendar
+  outline in the date's grey #999, picked on
+  https://claude.ai/artifact/BEQpscM2Rn62hzLjGfLMrT (I1–I8, left/right/all
+  on the left, grey/black/blue; keep the page). A tap opens `TodayCal`: a dropdown under the date,
   right-aligned (`.tcal`, 316px, z 600, the DSel card; closes like DSel: a
   tap outside does nothing else, a scroll, a resize). Month header with a
   blue "Today" (when away from today or its month) and ‹ ›; weekday letters

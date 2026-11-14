@@ -1563,7 +1563,7 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
       <div class="dico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
       <div><div class="dtitle" id="today-title" onclick="TodayDay.go(0)">Today</div></div>
     </div>
-    <button class="tday-date" id="today-date" onclick="TodayCal.toggle(this)" aria-label="Pick a day"><span id="today-date-t"></span><span class="tday-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="6.5"/><line x1="16" y1="3" x2="16" y2="6.5"/></svg></span></button>
+    <button class="tday-date" id="today-date" onclick="TodayCal.toggle(this)" aria-label="Pick a day"><span class="tday-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="6.5"/><line x1="16" y1="3" x2="16" y2="6.5"/></svg></span><span id="today-date-t"></span></button>
   </div>
   <div class="today-sec" data-s="tasks"><div class="shdr" id="today-tasks-hdr">Tasks</div>
   <div id="today-priorities" class="card-list"></div></div>
@@ -1936,7 +1936,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=26;
+var BETA_BUILD=27;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
