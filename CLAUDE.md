@@ -922,7 +922,14 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   periods + labels; `chartSource(item)` (habits) and `trackerChartSource(pid,
   link)` (a column = the day's latest entry, weeks/months add up; grey =
   that day's goal on the days the linked habit is due, goalOn/habitActive;
-  an "at most" goal draws no grey, a column over it is red, `miss`). The old
+  an "at most" goal draws no grey, a column over it is red, `miss`). A
+  SKIPPED day (4.67.35, "when i skip a tracker in the bar chart it should
+  fill to the goal with the light green or if there is no goal the small
+  bulb at the bottom can be light green"): with a goal it counts as done up
+  to that goal, all light green (`skipped`=goal); without one (or "at
+  most") its 3px stripe is light green (`skipDays`). `real` = only what was
+  logged: the averages and a tapped column's number use it; a tapped skipped
+  day says "Skipped". The old
   per-entry `trackerChart` bars, `barReadout`, `_dm` and `.chart-hdr/
   .chart-readout` are gone.
   LINES (TrkZ, a tracker): readout = latest value in view + a change chip

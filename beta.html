@@ -1958,7 +1958,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=34;
+var BETA_BUILD=35;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -6833,19 +6833,24 @@ function zcSource(sum,e0){
 // (its latest entry), weeks and months add their days up. Added as a habit
 // with a goal, grey = what the goal asked for on the days the habit was due
 // (that day's goal, goal history); an "at most" goal draws no grey — a
-// column over it is red instead.
+// column over it is red instead. A day the habit was SKIPPED fills up to its
+// goal in light green (counted as done, like a skipped habit); without a
+// goal (or with an "at most" one) its low stripe turns light green.
+// `real` = only what was logged (for the averages and the tapped number).
 function trackerChartSource(pid,link){
   var E=((DB.data.trackerEntries||{})[pid]||[]).slice().sort(function(a,b){return a.ts-b.ts;}),byDay={},todayS=dStr(T);
   E.forEach(function(e){byDay[dStr(new Date(e.ts))]=e.val;});
   var src=zcSource(function(start,end){
-    var c=0,s=0,lim=0,low=false,cur=new Date(start.getFullYear(),start.getMonth(),start.getDate());
+    var c=0,s=0,k=0,real=0,skipDays=0,lim=0,low=false,cur=new Date(start.getFullYear(),start.getMonth(),start.getDate());
     for(;cur<=end;cur.setDate(cur.getDate()+1)){
       var ds=dStr(cur),v=byDay[ds];
-      var g=link&&link.days&&link.days.indexOf(wIdx(cur))!==-1&&habitActive(link,ds)?goalOn(link,ds):null;
+      var due=!!(link&&link.days&&link.days.indexOf(wIdx(cur))!==-1&&habitActive(link,ds));
+      var g=due?goalOn(link,ds):null,high=!!(g&&g.goal!=null&&!g.low);
       if(g&&g.goal!=null){if(g.low){low=true;lim+=g.goal;}else s+=g.goal;}
-      if(ds<=todayS&&v!=null)c+=v;
+      if(due&&ds<=todayS&&dcv(ds,link.id)==='skip'){skipDays++;if(high){c+=g.goal;k+=g.goal;}continue;}
+      if(ds<=todayS&&v!=null){c+=v;real+=v;}
     }
-    return{completed:c,scheduled:s,skipped:0,miss:low&&c>lim};
+    return{completed:c,scheduled:s,skipped:k,real:real,skipDays:skipDays,miss:low&&real>lim};
   },E.length?new Date(E[0].ts):new Date(T));
   src.empty=!E.length;src.single=true;src.whole=false;src.emptyText='No data yet';
   return src;
@@ -6867,7 +6872,8 @@ function zcReadHabit(q,sel,g,avg,tot){ // one habit's page
 function zcReadTracker(p){
   var u=p.unit||'',r1=function(v){return fmtTrk(Math.round(v*10)/10);};
   return function(q,sel,g,avg){
-    if(sel)return [r1(q.completed),u,q.title+(q.scheduled?' · '+t('Goal')+' '+r1(q.scheduled)+(q.completed>=q.scheduled?' ✓':''):'')];
+    if(sel&&q.skipDays&&!q.real)return [t('Skipped'),'',q.title];
+    if(sel)return [r1(q.real),u,q.title+(q.scheduled?' · '+t('Goal')+' '+r1(q.scheduled)+(q.completed>=q.scheduled?' ✓':''):'')+(q.skipDays?' · '+q.skipDays+' '+t('skipped'):'')];
     return [g==='day'?r1(avg):fmtTrk(Math.round(avg)),(u?u+' ':'')+t(ZC_PER[g]),t('Average of the '+ZC_NAME[g]+' shown')];
   };
 }
@@ -6909,7 +6915,7 @@ ZChart.prototype.render=function(){
   var ps=[],maxVal=1,sum=0,cnt=0,tot={c:0,s:0},i;
   for(i=i0;i<=i1;i++){
     var q=src.period(g,i);ps.push(q);maxVal=Math.max(maxVal,q.completed,q.scheduled);
-    if(i>=Math.round(o)&&i<Math.round(o)+Math.round(n)&&(q.scheduled||q.completed)&&i<=mi){sum+=q.completed;cnt++;tot.c+=q.completed;tot.s+=q.scheduled;}
+    if(i>=Math.round(o)&&i<Math.round(o)+Math.round(n)&&(q.scheduled||q.completed)&&i<=mi){sum+=(q.real!==undefined?q.real:q.completed);cnt++;tot.c+=q.completed;tot.s+=q.scheduled;}
   }
   var step=iw/n,gap=Math.min(6,step*0.3),bw=Math.max(1,step-gap),base=Tp+ph;
   this._W=W;this._step=step;this._a0=a0;this._a1=a1;
@@ -6926,7 +6932,7 @@ ZChart.prototype.render=function(){
   for(var j=i1;j>=i0;j--){
     var p=ps[j-i0],x=a1-(j+1-o)*step+gap/2,rx=Math.min(8,bw*0.23).toFixed(1),xs=x.toFixed(1),ws=bw.toFixed(1);
     var empty=!p.completed&&!p.scheduled,greyH=empty?3:hOf(Math.max(p.scheduled,p.completed));
-    bars+='<rect class="hd-bar-empty" x="'+xs+'" y="'+(base-greyH)+'" width="'+ws+'" height="'+greyH+'" rx="'+rx+'"/>';
+    bars+='<rect '+(empty&&p.skipDays?'fill="'+SKIP_COLOR+'"':'class="hd-bar-empty"')+' x="'+xs+'" y="'+(base-greyH)+'" width="'+ws+'" height="'+greyH+'" rx="'+rx+'"/>';
     if(p.completed){
       var bh=hOf(p.completed),by=base-bh,k=Math.min(p.skipped||0,p.completed),shape='x="'+xs+'" y="'+by+'" width="'+ws+'" height="'+bh+'"';
       if(k>0&&k<p.completed){
@@ -7027,7 +7033,7 @@ ZChart.prototype._wire=function(){
     var j=Math.floor((self._a1-x)/self._step+self.offset);
     var q=j>=0&&j<=self.src.maxIdx(self.gran)?self.src.period(self.gran,j):null;
     // the tapped column goes into the header (tap it again to let go)
-    self.sel=q&&(q.completed||q.scheduled)&&self.sel!==j?j:null;self.render();
+    self.sel=q&&(q.completed||q.scheduled||q.skipDays)&&self.sel!==j?j:null;self.render();
   });
   // drawn while hidden (0 wide), or the phone turned: draw again at the real width
   if(window.ResizeObserver)new ResizeObserver(function(){if(h.clientWidth&&h.clientWidth!==self._W)self.render();}).observe(h);
