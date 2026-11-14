@@ -466,8 +466,13 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   Weeks/Months) sits where the buttons were; a tap still shows the readout
   (`barReadout` uses the period's `title`). `chartSource(item|null)` gives
   one cached period at a time (`period(gran,idx)`, idx back from now);
-  one habit's day columns are its scheduled days only (`dayLen` = 7/k
-  calendar days each), Statistics' are calendar days. `.zchart` has
+  day columns are CALENDAR days everywhere since 4.67.24 ("when a habit is
+  only once a week it only shows those days… it should show all days and
+  just put a green or grey bar where I need to do the habit"): a day the
+  habit isn't due has nothing scheduled and draws as the 3px stripe (a tap
+  on it does nothing); `dayLen` is 1 and schedDay is gone. Before, one
+  habit's day columns were its scheduled days only (dayLen = 7/k), so a
+  once-a-week habit looked like a daily one. `.zchart` has
   touch-action:pan-y (vertical drags scroll the page; horizontal and pinch
   are the chart's), iOS `gesturestart` is prevented (no page zoom), and the
   swipe-back ignores touches that start on a chart. `zChart(hostId,...)`

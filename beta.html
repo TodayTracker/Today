@@ -1884,7 +1884,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=23;
+var BETA_BUILD=24;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3219,6 +3219,7 @@ var CHANGELOG=[
     "A Habits project always opens on today (coming back to it from a habit keeps the day you were on)",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first",
+    "A habit's own chart shows every day: a column on the days it's due, the low grey stripe on the others (it used to show only the due days, so a once-a-week habit looked like a daily one)",
     "A tracker habit remembers its old goals: raising a goal counts from today on, and the days before stay done or not done by the goal they had",
     "New tab icons that fill black when their tab is open: Overview layers, Tasks an inbox, Stats a pie, Menu a gear (Today keeps its tick box)",
     "Header buttons (back, menu, +, edit, Today's day arrows) have no white square any more and fade while pressed instead of shrinking and bouncing",
@@ -6642,22 +6643,14 @@ function chartSource(item){
   var earliest=items.reduce(function(m,it){var c=habitCreatedDs(it);return c<m?c:m;},todayS);
   if(earliest<dStr(floor))earliest=dStr(floor); // undated old habits: at most five years back
   var e0=new Date(earliest+'T00:00:00');
-  var cache={},maxCache={},sched=[],schedCur=new Date(today0);
-  function schedDay(idx){ // one habit: its idx-th scheduled day back from today
-    while(sched.length<=idx){
-      if(dStr(schedCur)<earliest)return null;
-      if(item.days.indexOf(wIdx(schedCur))!==-1&&habitCountsOn(item,dStr(schedCur)))sched.push(new Date(schedCur));
-      schedCur.setDate(schedCur.getDate()-1);
-    }
-    return sched[idx];
-  }
+  var cache={},maxCache={};
   function period(gran,idx){
     var key=gran+idx;if(cache[key])return cache[key];
     var p;
     if(gran==='day'){
-      var d;
-      if(item){d=schedDay(idx);if(!d)return cache[key]={label:'',title:'',completed:0,scheduled:0,skipped:0};}
-      else{d=new Date(today0);d.setDate(d.getDate()-idx);}
+      // every calendar day, one habit too (4.67.24): a day it isn't due has
+      // nothing scheduled and draws as the low grey stripe
+      var d=new Date(today0);d.setDate(d.getDate()-idx);
       p=_sumDays(items,d,d);p.label=_dm(d);
       p.title=d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
     } else if(gran==='week'){
@@ -6676,8 +6669,7 @@ function chartSource(item){
     if(maxCache[gran]!==undefined)return maxCache[gran];
     var n;
     if(gran==='day'){
-      if(item){n=0;while(schedDay(n+1))n++;}
-      else n=Math.max(0,Math.round((today0-e0)/864e5));
+      n=Math.max(0,Math.round((today0-e0)/864e5));
     } else if(gran==='week'){
       var ws=new Date(today0);ws.setDate(ws.getDate()-wIdx(today0));
       var es=new Date(e0);es.setDate(es.getDate()-wIdx(e0));
@@ -6686,7 +6678,7 @@ function chartSource(item){
     return maxCache[gran]=n;
   }
   return{period:period,maxIdx:maxIdx,empty:!items.length,single:!!item,
-    dayLen:item?7/item.days.length:1, // calendar days per day column
+    dayLen:1, // calendar days per day column
     spanDays:Math.round((today0-e0)/864e5)+1};
 }
 function ZChart(host){this.host=host;}
