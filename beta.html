@@ -672,8 +672,42 @@ html:not(#x) .dhdr{min-height:40px}
 /* Today's arrows to the day before / after (TodayDay): bare chevrons like
    the Habits day bar's arrow, 36px to tap, the outer one flush with the
    page edge's 16px */
-.tday-nav{display:flex;gap:2px;margin-right:-8px}
-.tday-b{width:36px;height:36px;border:none;background:none;padding:0;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tday-date{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 0 0 8px;border:none;background:none;font:inherit;font-size:15px;font-weight:500;color:#999;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tday-ico{display:flex}
+/* Today's calendar (1.0: the date's dropdown from the "Pick a day in Today"
+   page, C1's window with C2's month): under the date, right-aligned, like the
+   app's other dropdowns */
+.tcal{position:fixed;z-index:600;width:316px;max-width:calc(100vw - 24px);background:#fff;border-radius:16px;box-shadow:0 12px 36px rgba(0,0,0,.2),0 0 0 1px rgba(127,127,127,.15);padding:12px 12px 10px;animation:tcalIn .16s ease-out}
+@media(prefers-color-scheme:dark){.tcal{background:#26292f}}
+html[data-theme="dark"] .tcal{background:#26292f}
+html[data-theme="light"] .tcal{background:#fff}
+@keyframes tcalIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.tcal button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tcal-head{display:flex;align-items:center;gap:6px;margin:0 2px 8px}
+.tcal-m{font-size:16px;line-height:20px;font-weight:700;margin-right:auto;color:var(--ink)}
+html:not(#x) .tcal .tcal-today{font-size:14px;font-weight:600;color:var(--blue);padding:0 8px;height:32px}
+html:not(#x) .tcal .tcal-nav{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.tcal-wk{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;line-height:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--label);margin-bottom:4px}
+.tcal-days{display:grid;grid-template-columns:repeat(7,1fr);row-gap:2px}
+html:not(#x) .tcal .tcal-day{position:relative;height:44px;display:flex;justify-content:center;align-items:flex-start;padding-top:4px}
+.tcal-n{position:relative;z-index:1;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--ink);border:1px solid transparent;box-sizing:border-box}
+.tcal-day.out .tcal-n{color:#c7c7cc}
+@media(prefers-color-scheme:dark){.tcal-day.out .tcal-n{color:#5a5a5e}}
+html[data-theme="dark"] .tcal-day.out .tcal-n{color:#5a5a5e}
+html[data-theme="light"] .tcal-day.out .tcal-n{color:#c7c7cc}
+.tcal-day.today .tcal-n{border-color:var(--ink)}
+.tcal-day.pick .tcal-n{background:var(--blue-tint);border:1.67px solid var(--blue);color:var(--blue);font-weight:600}
+.tcal-band{position:absolute;left:0;right:0;top:4px;height:30px}
+.tcal-band.s{left:7px;border-radius:9px 0 0 9px}
+.tcal-band.e{right:7px;border-radius:0 9px 9px 0}
+.tcal-band.s.e{border-radius:9px}
+.tcal-band.two{top:6px;height:26px}
+.tcal-dot{position:absolute;left:50%;bottom:3px;width:5px;height:5px;border-radius:3px;background:var(--blue);transform:translateX(-50%)}
+.tcal-dot.two{box-shadow:7px 0 0 var(--blue);transform:translateX(calc(-50% - 3.5px))}
+.tcal-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;line-height:16px;font-weight:500;color:#999;margin:8px 4px 0}
+.tcal-leg i{display:inline-block;vertical-align:middle;margin:-2px 5px 0 0}
+.tcal-ld{width:6px;height:6px;border-radius:3px;background:var(--blue)}
+.tcal-ll{width:14px;height:3px;border-radius:2px}
 .dtitle{font-size:20px;font-weight:800}
 .dsub{font-size:13px;font-weight:500}
 .tlbl{font-size:13px;font-weight:500;color:#999}
@@ -1091,12 +1125,12 @@ html:not(#x) .calsec{border:none}
 html:not(#x) .opt-row,html:not(#x) .sheet-save,html:not(#x) .ti,html:not(#x) .wri,html:not(#x) .cali,html:not(#x) .cat-choice,html:not(#x) .acard{transition:background .4s ease .15s}
 html:not(#x) .sheet-save:active,html:not(#x) .cat-choice:active,html:not(#x) .pressed-row{transition:background .2s ease}
 /* Small square buttons (header +, back, Tasks' view button, edit, Today's
-   day arrows, the Edit layout buttons) never grey — the grey is for
+   date, the Edit layout buttons) never grey — the grey is for
    rows/bars. Pressed they fade (P1 from the press options page): nothing
    moves, they turn see-through at once and fade back. `.sq-press` comes
    from touchstart and is held a moment (see SQ_BTNS), so a quick tap shows it. */
-html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-b){transition:opacity .3s ease}
-html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-b):is(:active,.sq-press){opacity:.35;transition:opacity .06s ease}
+html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-date){transition:opacity .3s ease}
+html:not(#x) :is(.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-date):is(:active,.sq-press){opacity:.35;transition:opacity .06s ease}
 /* New tracker entry window: the tracker's unit sits inside the value field
    on the right. */
 /* A row with no border-radius of its own relies entirely on its card's
@@ -1529,7 +1563,7 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
       <div class="dico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
       <div><div class="dtitle" id="today-title" onclick="TodayDay.go(0)">Today</div></div>
     </div>
-    <div class="tday-nav"><button class="tday-b" onclick="TodayDay.step(-1)" aria-label="Previous day"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg></button><button class="tday-b" onclick="TodayDay.step(1)" aria-label="Next day"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+    <button class="tday-date" id="today-date" onclick="TodayCal.toggle(this)" aria-label="Pick a day"><span id="today-date-t"></span><span class="tday-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="6.5"/><line x1="16" y1="3" x2="16" y2="6.5"/></svg></span></button>
   </div>
   <div class="today-sec" data-s="tasks"><div class="shdr" id="today-tasks-hdr">Tasks</div>
   <div id="today-priorities" class="card-list"></div></div>
@@ -1902,7 +1936,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=25;
+var BETA_BUILD=26;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3235,12 +3269,12 @@ var CHANGELOG=[
     "The tab bar is white (the card colour in dark mode) with a darker hairline on top, and the selected tab's icon is filled",
     "Every \"nothing here\" message looks the same: one grey line in a white card, like Coming soon (No habits, Nothing to do today, No tasks yet, the calendar, a tracker's entries, Trash); empty charts match each other; the edit windows' grey values, units and goal notes use the same grey as Menu",
     "A Habits project always opens on today (coming back to it from a habit keeps the day you were on)",
-    "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
+    "Today can show other days: tap the date top right for a month (Calendar tasks as blue dots, temporary habits shading their days in their project's colour) and pick any day; the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first",
     "A habit's own chart shows every day: a column on the days it's due, the low grey stripe on the others (it used to show only the due days, so a once-a-week habit looked like a daily one)",
     "A tracker habit remembers its old goals: raising a goal counts from today on, and the days before stay done or not done by the goal they had",
     "New tab icons that fill black when their tab is open: Overview layers, Tasks an inbox, Stats a pie, Menu a gear (Today keeps its tick box)",
-    "Header buttons (back, menu, +, edit, Today's day arrows) have no white square any more and fade while pressed instead of shrinking and bouncing",
+    "Header buttons (back, menu, +, edit) have no white square any more and fade while pressed instead of shrinking and bouncing",
     "Menu → Data: Export saves everything as one file, project photos too (on the iPhone through the share sheet: Save to Files, AirDrop or a chat), and Import brings it back — after asking, with the loading screen up while the app restarts on it. The copy-paste text export is gone",
     "New look for every chart: the number on top shows what's in view (or the column or point you tap), fine lines with their numbers on the right, the 1st of each month named along the bottom and the left date with its month, so you know where you are after scrolling back",
     "Tracker lines: the part on the wrong side of the goal is red (above an \"at most\" goal, below an \"at least\" one), and zoomed far out the line goes through a few days' averages",
@@ -7546,15 +7580,13 @@ function _dropEmptyCard(sec){
   syncTodaySections();
 }
 // Today can show another day (1.0: "the name Today, then Tomorrow, then the
-// date… so the date is in the title and there's only arrows"): the title
-// says which day — Today, Tomorrow, Yesterday, else the date — and two
-// arrows step a day back or forward. A tap on the title goes back to today,
-// and so does the Today tab. Another day shows its habits (ticks, skips,
+// date…"): the title says which day — Today, Tomorrow, Yesterday, else the
+// date — and the date top right opens a month to pick any day (TodayCal). A
+// tap on the title goes back to today, and so does the Today tab. Another day shows its habits (ticks, skips,
 // tracker values, like that day on a Habits project) and its Calendar
 // items; tasks only show on today (they aren't tied to a day).
 var TodayDay={
   off:0,
-  step:function(d){this.go(this.off+d);},
   go:function(o){
     if(o===this.off)return;
     this.off=o;todayHead();renderToday();
@@ -7566,7 +7598,110 @@ function todayName(o){
   var d=new Date(T);d.setDate(T.getDate()+o);
   return d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
 }
-function todayHead(){var t=document.getElementById('today-title');if(t)t.textContent=todayName(TodayDay.off);}
+function todayHead(){
+  var t=document.getElementById('today-title');if(t)t.textContent=todayName(TodayDay.off);
+  var d=new Date(T);d.setDate(T.getDate()+TodayDay.off);
+  var dt=document.getElementById('today-date-t');if(dt)dt.textContent=chDM(d);
+}
+// The date top right on Today opens a month under it (1.0, the user's idea:
+// "the date… you can click it and it opens an overlay window with a mini
+// calendar where you can see scheduled tasks with a colour indicator as well
+// as temporary habits, and you can click on any day you want"; picked C1's
+// dropdown with C2's month). Monday first; Calendar tasks are blue dots (two
+// for 2+), a temporary habit shades the days it runs in its Habits project's
+// colour (at most two per day); today has the thin ink outline, the day shown
+// the day bar's blue. Tap a day = show it; "Today" goes back. Closes like a
+// dropdown (DSel): a tap outside (that tap does nothing else), a scroll.
+var TodayCal=(function(){
+  var el=null,btn=null,m=null,swallowEl=null,swallowUntil=0;
+  var L='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg>';
+  var R='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
+  document.addEventListener('click',function(e){
+    if(!swallowEl)return;
+    if(Date.now()>swallowUntil){swallowEl=null;return;}
+    if(e.target===swallowEl||(e.target.contains&&e.target.contains(swallowEl))){e.stopPropagation();e.preventDefault();swallowEl=null;}
+  },true);
+  function inside(e){return el&&(el.contains(e.target)||(btn&&btn.contains(e.target)));}
+  function outsideStart(e){if(!el||inside(e))return;swallowEl=e.target;swallowUntil=Date.now()+700;close();}
+  function outside(e){if(!el||inside(e))return;e.stopPropagation();e.preventDefault();close();}
+  function onScroll(e){var tg=e.target;if(!el||tg===document||tg===window||tg===document.documentElement||tg===document.body||el.contains(tg))return;close();}
+  function close(){
+    if(el){el.remove();el=null;}
+    if(btn)btn.classList.remove('open');btn=null;
+    document.removeEventListener('click',outside,true);
+    document.removeEventListener('touchstart',outsideStart,true);
+    document.removeEventListener('mousedown',outsideStart,true);
+    window.removeEventListener('scroll',onScroll,true);
+    window.removeEventListener('resize',close);
+  }
+  function day0(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+  function offOf(d){return Math.round((day0(d)-day0(T))/864e5);}
+  // temporary habits (a start and an end), each in its Habits project's colour
+  function temps(){
+    return DB.data.dailyItems.filter(function(it){return it.until;}).map(function(it){
+      var p=DB.data.projects[habitPid(it)],col=themeCol(COLORS[p&&p.color]||COLORS['c-grey']);
+      return{a:habitCreatedDs(it),b:it.until,col:col,name:habitName(it)};
+    });
+  }
+  function render(){
+    var first=new Date(m.getFullYear(),m.getMonth(),1),lead=wIdx(first),start=new Date(first);start.setDate(1-lead);
+    var weeks=Math.ceil((lead+new Date(m.getFullYear(),m.getMonth()+1,0).getDate())/7);
+    var shown=new Date(T);shown.setDate(T.getDate()+TodayDay.off);
+    var pickS=dStr(shown),todayS=dStr(T),once={},tl=temps(),used=[],anyCal=false,a=isDarkNow()?'40':'2e';
+    (DB.data.dailyOnce||[]).forEach(function(o){once[o.date]=(once[o.date]||0)+1;});
+    var away=TodayDay.off||m.getMonth()!==T.getMonth()||m.getFullYear()!==T.getFullYear();
+    var h='<div class="tcal-head"><span class="tcal-m">'+esc(first.toLocaleDateString(dLoc(),{month:'long',year:'numeric'}))+'</span>'
+      +(away?'<button class="tcal-today" data-a="today">'+esc(t('Today'))+'</button>':'')
+      +'<button class="tcal-nav" data-a="prev" aria-label="Previous month">'+L+'</button><button class="tcal-nav" data-a="next" aria-label="Next month">'+R+'</button></div>'
+      +'<div class="tcal-wk">'+DN.map(function(x){return '<span>'+esc(t(x))+'</span>';}).join('')+'</div><div class="tcal-days">';
+    for(var i=0;i<weeks*7;i++){
+      var d=new Date(start);d.setDate(start.getDate()+i);
+      var ds=dStr(d),out=d.getMonth()!==m.getMonth(),bands='',k=0,n=once[ds]||0;
+      tl.forEach(function(x){
+        if(ds<x.a||ds>x.b||k>=2)return;
+        if(!out&&used.indexOf(x)<0)used.push(x);
+        bands+='<span class="tcal-band'+(ds===x.a?' s':'')+(ds===x.b?' e':'')+(k?' two':'')+'" style="background:'+x.col+a+'"></span>';k++;
+      });
+      if(n&&!out)anyCal=true;
+      h+='<button class="tcal-day'+(out?' out':'')+(ds===todayS?' today':'')+(ds===pickS?' pick':'')+'" data-o="'+offOf(d)+'" aria-label="'+esc(d.toLocaleDateString(dLoc(),{weekday:'long',day:'numeric',month:'long'}))+'">'
+        +bands+'<span class="tcal-n">'+d.getDate()+'</span>'+(n?'<span class="tcal-dot'+(n>1?' two':'')+'"></span>':'')+'</button>';
+    }
+    h+='</div>';
+    if(anyCal||used.length)h+='<div class="tcal-leg">'+(anyCal?'<span><i class="tcal-ld"></i>'+esc(t('Calendar'))+'</span>':'')
+      +used.map(function(x){return '<span><i class="tcal-ll" style="background:'+x.col+'"></i>'+esc(x.name)+'</span>';}).join('')+'</div>';
+    el.innerHTML=h;
+  }
+  function place(){
+    var r=btn.getBoundingClientRect(),w=el.offsetWidth;
+    el.style.top=(r.bottom+6)+'px';
+    el.style.left=Math.max(12,Math.min(r.right-w,window.innerWidth-w-12))+'px';
+  }
+  function onClick(e){
+    var b=e.target.closest('button');if(!b)return;
+    var act=b.getAttribute('data-a');
+    if(act==='prev'||act==='next'){m=new Date(m.getFullYear(),m.getMonth()+(act==='prev'?-1:1),1);render();return;}
+    var o=act==='today'?0:b.hasAttribute('data-o')?+b.getAttribute('data-o'):null;
+    if(o===null)return;
+    close();TodayDay.go(o);
+  }
+  return{
+    close:close,
+    toggle:function(b){
+      if(el&&btn===b){close();return;}
+      close();btn=b;b.classList.add('open');
+      var d=new Date(T);d.setDate(T.getDate()+TodayDay.off);m=new Date(d.getFullYear(),d.getMonth(),1);
+      el=document.createElement('div');el.className='tcal';el.addEventListener('click',onClick);
+      document.body.appendChild(el);render();place();
+      setTimeout(function(){
+        document.addEventListener('click',outside,true);
+        document.addEventListener('touchstart',outsideStart,true);
+        document.addEventListener('mousedown',outsideStart,true);
+        window.addEventListener('scroll',onScroll,true);
+        window.addEventListener('resize',close);
+      },0);
+    }
+  };
+})();
 function renderToday(){
   var off=TodayDay.off,dd=new Date(T);dd.setDate(T.getDate()+off);
   var wd=wIdx(dd);
@@ -7671,7 +7806,7 @@ var _pressHeld=null,_pressCancel=function(){};
 // Small square buttons press in (CSS "Small square buttons"): `.sq-press`
 // from touchstart, kept at least SQ_PRESS_MIN ms so a quick tap still
 // shows it; moving the finger away (>10px) lets go.
-var SQ_BTNS='.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-b',SQ_PRESS_MIN=110;
+var SQ_BTNS='.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.tday-date',SQ_PRESS_MIN=110;
 (function(){
   var el=null,t0=0,sx=0,sy=0,tm=null;
   function release(){
@@ -9953,7 +10088,7 @@ window.addEventListener('scroll',function(){_lastScrollAt=Date.now();},{passive:
 (function(){
   var TAPPABLE='.tab-item,.fab,.hdr-add,.menu-btn,.menu-item,.acard,.opt-row,'
     +'.back,.edit-proj-btn,.hh-btn,.hh-title-btn,.addbtn,.el-btn,.type-btn,'
-    +'.cat-choice,.dpill,.day-jump,.tday-b,.sheet-save,.sh-save,.sh-x';
+    +'.cat-choice,.dpill,.day-jump,.tday-date,.sheet-save,.sh-save,.sh-x';
   var sx=0,sy=0,moved=false,target=null;
   document.addEventListener('touchstart',function(e){
     // A toggle switch inside a TAPPABLE row (e.g. an .opt-row that's just

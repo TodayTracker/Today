@@ -574,6 +574,27 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   the last 'h:' key (`todayOrder()`). Edit layout rows: `todaySecName(k)`
   (the project's name). Anything that reads Today's habit rows uses
   `#p-today .today-hab`. Measured: 22px between every section, as before.
+- TODAY'S DATE + CALENDAR (4.67.26, the user's own idea, mocked on
+  https://claude.ai/artifact/2rYagzY6pbNgNZhjTGZRhN — "the date top right
+  (like it was before)… click it and it opens an overlay window with a mini
+  calendar where u can see scheduled tasks with a color indicator as well as
+  temporary habits… click on any day you want"; picked "the c2 calendar
+  itself… the window of c1… take c2 for the name"): the two arrows by
+  Today's title are GONE (TodayDay.step too); top right is `.tday-date`
+  (`#today-date-t` = chDM of the day shown, written by todayHead) + an icon —
+  I1, C2's calendar outline, as a STAND-IN: the icon and where it sits are
+  still being picked on https://claude.ai/artifact/BEQpscM2Rn62hzLjGfLMrT
+  (I1–I8; icon left/right of the date or all on the left after the title;
+  grey/black/blue). A tap opens `TodayCal`: a dropdown under the date,
+  right-aligned (`.tcal`, 316px, z 600, the DSel card; closes like DSel: a
+  tap outside does nothing else, a scroll, a resize). Month header with a
+  blue "Today" (when away from today or its month) and ‹ ›; weekday letters
+  from DN (German via DE); Monday first; Calendar tasks = blue dots (two for
+  2+, `dailyOnce` by date); temporary habits (dailyItems with `until`,
+  from habitCreatedDs) shade their days in their Habits project's colour
+  (COLORS[p.color] + 2e alpha, 40 in dark; at most two per day, the second
+  slightly smaller); legend under the month for what's in it; today = 1px
+  ink outline, the day shown = the day bar's blue. A day = TodayDay.go(off).
 - TODAY SHOWS OTHER DAYS (1.0, after the compact day picker page
   https://claude.ai/artifact/7dLiCBpr72xYq6EqWUoAx8: "for the Today tab
   changing the name to Today and then Tomorrow and then the date… the date
