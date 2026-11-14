@@ -604,9 +604,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   https://claude.ai/artifact/ECSy2yZvgPVnJVeCYtbYzc — "i like F the most";
   keep the page): no Priority row any more; the task's badge (`.ts-pri bdg
   <pri>` + a small down arrow) sits top left in `.sh-bar` across from Save;
-  a tap opens `Pop` (a small panel under a button that closes like DSel —
-  TodayCal uses it too) with the four badges, the current one on a grey
-  background. Hidden for List projects.
+  a tap opens the app's usual dropdown (DSel.menu, the four names, a tick on
+  the current one) — 4.67.28 had the four badges in their own panel; 4.67.29
+  "just do a normal drop down with the same style than all the others".
+  Hidden for List projects. (`Pop`, the small panel that closes like DSel,
+  is now only TodayCal's.)
 - TODAY'S DATE + CALENDAR (4.67.26, the user's own idea, mocked on
   https://claude.ai/artifact/2rYagzY6pbNgNZhjTGZRhN — "the date top right
   (like it was before)… click it and it opens an overlay window with a mini

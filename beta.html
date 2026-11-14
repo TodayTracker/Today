@@ -672,16 +672,10 @@ html:not(#x) .dhdr{min-height:40px}
 /* Today's arrows to the day before / after (TodayDay): bare chevrons like
    the Habits day bar's arrow, 36px to tap, the outer one flush with the
    page edge's 16px */
-/* Task window (1.0): the priority badge top left ("F"), its four badges in a
-   small panel; the Files card (a row per file + "Attach a file") */
+/* Task window (1.0): the priority badge top left ("F", it opens the usual
+   dropdown); the Files card (a row per file + "Attach a file") */
 .sh-bar .ts-pri{grid-column:1;justify-self:start;display:inline-flex;align-items:center;gap:4px;border:none;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
 .sh-bar .ts-pri svg{flex:none;opacity:.7}
-.pri-pop{position:fixed;z-index:600;background:#fff;border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.18),0 0 0 1px rgba(127,127,127,.15);padding:6px;display:flex;flex-direction:column;gap:2px;animation:tcalIn .16s ease-out}
-@media(prefers-color-scheme:dark){.pri-pop{background:#26292f}}
-html[data-theme="dark"] .pri-pop{background:#26292f}
-html[data-theme="light"] .pri-pop{background:#fff}
-.pri-opt{display:flex;padding:6px 8px;border:none;border-radius:10px;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.pri-opt.sel{background:var(--pg)}
 #task-sheet-files{margin-top:20px}
 .ts-thumb{flex:none;width:30px;height:30px;border-radius:7px;overflow:hidden;background:var(--box,#eceef1);display:flex;align-items:center;justify-content:center}
 .ts-thumb img{width:100%;height:100%;object-fit:cover;display:block}
@@ -1959,7 +1953,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=28;
+var BETA_BUILD=29;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -9679,8 +9673,7 @@ var FileView={
   },
   hide:function(){var v=document.getElementById('file-view');v.classList.remove('on');v.innerHTML='';}
 };
-// A small panel under a button (Today's calendar, the task window's
-// priority). It closes like a dropdown (DSel): a tap outside (that tap does
+// A small panel under a button (Today's calendar). It closes like a dropdown (DSel): a tap outside (that tap does
 // nothing else), a scroll of a page, a resize.
 var Pop=(function(){
   var el=null,btn=null,swallowEl=null,swallowUntil=0;
@@ -9752,7 +9745,7 @@ var TaskSheet={
     el.style.height=el.scrollHeight+'px';
   },
   // Priority ("F", picked on the priority page): the task's badge top left,
-  // across from Save; a tap drops the four badges down to pick from. List
+  // across from Save; a tap opens the usual dropdown with the four. List
   // projects don't sort by priority, so there's no badge there. Tasks stay in
   // their project: there's no Project row (removed by request, 3.73).
   renderPri:function(){
@@ -9760,15 +9753,10 @@ var TaskSheet={
     b.className='ts-pri bdg '+this.pri;b.style.display=isList?'none':'';
     b.innerHTML='<span>'+esc(t(PLBL[this.pri]))+'</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
   },
+  // the app's usual dropdown (DSel), under the badge
   priMenu:function(b){
-    if(Pop.isOpen(b)){Pop.close();return;}
     var self=this;
-    Pop.open(b,'pri-pop',function(el){
-      el.innerHTML=['bu','bs','bp','bl'].map(function(k){
-        return '<button type="button" class="pri-opt'+(k===self.pri?' sel':'')+'" data-v="'+k+'"><span class="bdg '+k+'">'+esc(t(PLBL[k]))+'</span></button>';
-      }).join('');
-      el.addEventListener('click',function(e){var o=e.target.closest('.pri-opt');if(!o)return;self.pri=o.getAttribute('data-v');Pop.close();self.renderPri();});
-    },'left');
+    DSel.menu(b,['bu','bs','bp','bl'].map(function(k){return{value:k,label:PLBL[k]};}),this.pri,function(v){self.pri=v;self.renderPri();});
   },
   // Files: one card under the notes, a row per file (its picture or ending,
   // name, size, × to remove — to the Trash) and "Attach a file" last. A tap
@@ -9868,14 +9856,14 @@ var TaskSheet={
     } else {
       DB.updateTask(this.pid,this.key,{text:text,pri:this.pri,desc:desc});
     }
-    Pop.close();this.dropCache();
+    this.dropCache();
     _overlayClose('task-sheet-overlay');
     renderAllTaskViews();
   },
   close:function(){
     // a new task that wasn't saved: its files go with it
     this.pending.forEach(function(id){FileStore.del(id).catch(function(){});});this.pending=[];
-    Pop.close();this.dropCache();
+    this.dropCache();
     _overlayClose('task-sheet-overlay');
   }
 };
