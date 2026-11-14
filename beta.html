@@ -687,7 +687,7 @@ html:not(#x) .dhdr{min-height:40px}
 .file-view{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);touch-action:none}
 .file-view.on{display:flex}
 .file-view img{max-width:100%;max-height:100%;object-fit:contain}
-.tday-date{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 0 0 8px;border:none;background:none;font:inherit;font-size:15px;font-weight:500;color:#999;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tday-date{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 0 0 8px;border:none;background:none;font:inherit;font-size:15px;font-weight:500;color:var(--ink);white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tday-ico{display:flex}
 /* Today's calendar (1.0: the date's dropdown from the "Pick a day in Today"
    page, C1's window with C2's month): under the date, right-aligned, like the
@@ -697,6 +697,11 @@ html:not(#x) .dhdr{min-height:40px}
 html[data-theme="dark"] .tcal{background:#26292f}
 html[data-theme="light"] .tcal{background:#fff}
 @keyframes tcalIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.tcal{touch-action:none}
+.tcal-days.in-next{animation:tcalNext .22s ease-out}
+.tcal-days.in-prev{animation:tcalPrev .22s ease-out}
+@keyframes tcalNext{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tcalPrev{from{transform:translateX(-40px);opacity:0}to{transform:none;opacity:1}}
 .tcal button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tcal-head{display:flex;align-items:center;gap:6px;margin:0 2px 8px}
 .tcal-m{font-size:16px;line-height:20px;font-weight:700;margin-right:auto;color:var(--ink)}
@@ -1954,7 +1959,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=30;
+var BETA_BUILD=31;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3287,7 +3292,7 @@ var CHANGELOG=[
     "The tab bar is white (the card colour in dark mode) with a darker hairline on top, and the selected tab's icon is filled",
     "Every \"nothing here\" message looks the same: one grey line in a white card, like Coming soon (No habits, Nothing to do today, No tasks yet, the calendar, a tracker's entries, Trash); empty charts match each other; the edit windows' grey values, units and goal notes use the same grey as Menu",
     "A Habits project always opens on today (coming back to it from a habit keeps the day you were on)",
-    "Today can show other days: tap the date top right for a month (Calendar tasks as blue dots, temporary habits shading their days in their project's colour) and pick any day; the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
+    "Today can show other days: tap the date top right for a month (Calendar tasks as blue dots, temporary habits shading their days in their project's colour; swipe for other months) and pick any day; the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first",
     "A habit's own chart shows every day: a column on the days it's due, the low grey stripe on the others (it used to show only the due days, so a once-a-week habit looked like a daily one)",
     "A tracker habit remembers its old goals: raising a goal counts from today on, and the days before stay done or not done by the goal they had",
@@ -5309,6 +5314,7 @@ var DSel=(function(){
   function outsideStart(e){
     if(!menu||isInside(e))return;
     swallowEl=e.target;swallowUntil=Date.now()+700; // the click that follows this press is dropped
+    e.stopPropagation(); // and the press itself goes no further: the row under it doesn't grey (or start a hold)
     close();
   }
   function outside(e){
@@ -7647,7 +7653,7 @@ function todayHead(){
 // the day bar's blue. Tap a day = show it; "Today" goes back. A Pop panel:
 // closes like a dropdown (DSel).
 var TodayCal=(function(){
-  var el=null,m=null;
+  var el=null,m=null,swipedAt=0;
   var L='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg>';
   var R='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
   function day0(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
@@ -7659,7 +7665,8 @@ var TodayCal=(function(){
       return{a:habitCreatedDs(it),b:it.until,col:col,name:habitName(it)};
     });
   }
-  function render(){
+  // dir: 'next' / 'prev' slides the new month in from that side
+  function render(dir){
     var first=new Date(m.getFullYear(),m.getMonth(),1),lead=wIdx(first),start=new Date(first);start.setDate(1-lead);
     var weeks=Math.ceil((lead+new Date(m.getFullYear(),m.getMonth()+1,0).getDate())/7);
     var shown=new Date(T);shown.setDate(T.getDate()+TodayDay.off);
@@ -7686,11 +7693,40 @@ var TodayCal=(function(){
     if(anyCal||used.length)h+='<div class="tcal-leg">'+(anyCal?'<span><i class="tcal-ld"></i>'+esc(t('Calendar'))+'</span>':'')
       +used.map(function(x){return '<span><i class="tcal-ll" style="background:'+x.col+'"></i>'+esc(x.name)+'</span>';}).join('')+'</div>';
     el.innerHTML=h;
+    if(dir)el.querySelector('.tcal-days').classList.add(dir==='next'?'in-next':'in-prev');
+  }
+  function step(n){m=new Date(m.getFullYear(),m.getMonth()+n,1);render(n>0?'next':'prev');}
+  // Swipe sideways between months ("add swiping to the calendar so i can
+  // swipe between months"): the days follow the finger, past 50px the next /
+  // previous month slides in, else they glide back. Up/down does nothing (the
+  // panel takes its touches: touch-action:none), and a swipe never picks a day.
+  function swipe(p){
+    var sx=0,sy=0,dx=0,on=false,lock=null;
+    p.addEventListener('touchstart',function(e){if(e.touches.length!==1){on=false;return;}sx=e.touches[0].clientX;sy=e.touches[0].clientY;dx=0;on=true;lock=null;},{passive:true});
+    p.addEventListener('touchmove',function(e){
+      if(!on)return;
+      var x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;
+      if(lock===null&&(Math.abs(x)>8||Math.abs(y)>8))lock=Math.abs(x)>Math.abs(y)?'x':'y';
+      if(lock!=='x')return;
+      e.preventDefault();dx=x;
+      var g=p.querySelector('.tcal-days');
+      if(g){g.style.transition='none';g.style.transform='translateX('+dx+'px)';g.style.opacity=String(Math.max(.3,1-Math.abs(dx)/260));}
+    },{passive:false});
+    function end(){
+      if(!on)return;on=false;
+      if(lock!=='x')return;
+      swipedAt=Date.now();
+      if(Math.abs(dx)>50){step(dx<0?1:-1);return;}
+      var g=p.querySelector('.tcal-days');
+      if(g){g.style.transition='transform .2s ease,opacity .2s ease';g.style.transform='';g.style.opacity='';}
+    }
+    p.addEventListener('touchend',end);p.addEventListener('touchcancel',end);
   }
   function onClick(e){
+    if(Date.now()-swipedAt<400)return; // the end of a swipe isn't a tap
     var b=e.target.closest('button');if(!b)return;
     var act=b.getAttribute('data-a');
-    if(act==='prev'||act==='next'){m=new Date(m.getFullYear(),m.getMonth()+(act==='prev'?-1:1),1);render();return;}
+    if(act==='prev'||act==='next'){step(act==='prev'?-1:1);return;}
     var o=act==='today'?0:b.hasAttribute('data-o')?+b.getAttribute('data-o'):null;
     if(o===null)return;
     Pop.close();TodayDay.go(o);
@@ -7700,7 +7736,7 @@ var TodayCal=(function(){
     toggle:function(b){
       if(Pop.isOpen(b)){Pop.close();return;}
       var d=new Date(T);d.setDate(T.getDate()+TodayDay.off);m=new Date(d.getFullYear(),d.getMonth(),1);
-      Pop.open(b,'tcal',function(p){el=p;p.addEventListener('click',onClick);render();},'right');
+      Pop.open(b,'tcal',function(p){el=p;p.addEventListener('click',onClick);swipe(p);render();},'right');
     }
   };
 })();
@@ -9684,7 +9720,8 @@ var Pop=(function(){
     if(e.target===swallowEl||(e.target.contains&&e.target.contains(swallowEl))){e.stopPropagation();e.preventDefault();swallowEl=null;}
   },true);
   function inside(e){return el&&(el.contains(e.target)||(btn&&btn.contains(e.target)));}
-  function outsideStart(e){if(!el||inside(e))return;swallowEl=e.target;swallowUntil=Date.now()+700;close();}
+  // the touch that closes it goes no further: nothing under it greys, holds or opens
+  function outsideStart(e){if(!el||inside(e))return;swallowEl=e.target;swallowUntil=Date.now()+700;e.stopPropagation();close();}
   function outside(e){if(!el||inside(e))return;e.stopPropagation();e.preventDefault();close();}
   function onScroll(e){var tg=e.target;if(!el||tg===document||tg===window||tg===document.documentElement||tg===document.body||el.contains(tg))return;close();}
   function close(){
@@ -10030,16 +10067,15 @@ var TabPlus={
     if(p&&p.type==='tracker'){TrackerAddSheet.open(cur);return;}
     if(p&&p.type!=='daily'){TaskSheet.openNew(cur);return;}
     if(btn){
-      DSel.menu(btn,[{value:'category',label:'Category'},{value:'project',label:'Project'},{value:'calendar',label:'Calendar'},{value:'template',label:'Template'}],null,function(v){
-        if(v==='category')A.newCategory();else if(v==='calendar')OnceAddSheet.open();else if(v==='template')Templates.open();else A.newProject();
+      DSel.menu(btn,[{value:'category',label:'Category'},{value:'project',label:'Project'},{value:'calendar',label:'Calendar'}],null,function(v){
+        if(v==='category')A.newCategory();else if(v==='calendar')OnceAddSheet.open();else A.newProject();
       });
       return;
     }
     AddChoice.show('Add',[
       {icon:'',label:'Category',fn:function(){A.newCategory();}},
       {icon:'',label:'Project',fn:function(){A.newProject();}},
-      {icon:'',label:'Calendar',fn:function(){OnceAddSheet.open();}},
-      {icon:'',label:'Template',fn:function(){Templates.open();}}
+      {icon:'',label:'Calendar',fn:function(){OnceAddSheet.open();}}
     ]);
   }
 };

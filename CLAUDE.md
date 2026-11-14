@@ -624,7 +624,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   Today's title are GONE (TodayDay.step too); top right is `.tday-date`
   (`#today-date-t` = chDM of the day shown, written by todayHead) with an
   icon LEFT of it — "I1 left on the date grey" (4.67.27), C2's calendar
-  outline in the date's grey #999, picked on
+  outline; both BLACK (ink) since 4.67.31 ("make the date and calendar icon
+  black since its like the other buttons on homepages"), picked on
   https://claude.ai/artifact/BEQpscM2Rn62hzLjGfLMrT (I1–I8, left/right/all
   on the left, grey/black/blue; keep the page). A tap opens `TodayCal`: a dropdown under the date,
   right-aligned (`.tcal`, 316px, z 600, the DSel card; closes like DSel: a
@@ -636,6 +637,16 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (COLORS[p.color] + 2e alpha, 40 in dark; at most two per day, the second
   slightly smaller); legend under the month for what's in it; today = 1px
   ink outline, the day shown = the day bar's blue. A day = TodayDay.go(off).
+  Swipe sideways between months (4.67.31, "add swiping to the calendar so i
+  can swipe between months"): the days follow the finger, past 50px the
+  next/previous month slides in (`.in-next/.in-prev`, also on the ‹ ›
+  arrows), else they glide back; `.tcal{touch-action:none}`; a click within
+  400ms of a swipe is ignored (no day picked by the swipe's end).
+  The tap OUTSIDE that closes it (Pop, and every DSel dropdown) stops at the
+  document's capture listener (`e.stopPropagation()` in outsideStart): before
+  4.67.31 it still reached the row under it — "the getting dark animation is
+  still playing if i click on a habit" (the press grey, a hold too) — although
+  its click was already swallowed.
 - TODAY SHOWS OTHER DAYS (1.0, after the compact day picker page
   https://claude.ai/artifact/7dLiCBpr72xYq6EqWUoAx8: "for the Today tab
   changing the name to Today and then Tomorrow and then the date… the date
@@ -3018,7 +3029,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
 - STARTER TEMPLATES (4.25, `TEMPLATES` + `Templates`, `#tpl-sheet-overlay`,
   z-index 660 so it opens over the welcome screens): opened from the
   welcome start page ("Use a template", `Templates.open(true)` → Welcome.
-  finish() after Add) and Overview "+" > Template. Basics, Student,
+  finish() after Add) — only there since 4.67.31 (Overview "+" > Template was
+  removed: "remove the templates on + in overview"). Basics, Student,
   Fitness, Work & focus, Routines. Several can be ticked; a ticked one
   folds out its items (projects, habits, tracker, calendar task), each
   with its own tick (`.ics-row` labels like the calendar import — not
