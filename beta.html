@@ -223,8 +223,6 @@ html[data-theme="light"] .hd-pie-track{stroke:#e5e3dd}
 @media(prefers-color-scheme:dark){.hd-pie-pct{fill:#fff}}
 html[data-theme="dark"] .hd-pie-pct{fill:#fff}
 html[data-theme="light"] .hd-pie-pct{fill:#000}
-.hd-bar-label{fill:#bbb}
-.hd-axis{stroke:rgba(127,127,127,.35);stroke-width:1}
 @media(prefers-color-scheme:dark){.calsec{background:#1e1c1a;border-color:#2a2927}}
 html[data-theme="dark"] .calsec{background:#1e1c1a;border-color:#2a2927}
 html[data-theme="light"] .calsec{background:#fff;border-color:#e8e5e0}
@@ -546,19 +544,16 @@ html:not(#x) .sp .opt-row.trash-row{height:48px;gap:12px}
 .trash-ico{flex:none;position:relative;width:30px;height:30px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
 .trash-type{flex:none;color:#8e8e93;display:flex}
 html:not(#x) .btn-row.danger .opt-title,.dsel-opt.danger{color:var(--red)}
-.chart-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;min-height:24px}
 .zchart{touch-action:pan-y;-webkit-user-select:none;user-select:none}
 /* the chart redraws while a finger is on it: the drawing must never be the touch's target (see ZChart._wire) */
 .zchart svg{pointer-events:none}
 .chart-scale{flex:none;font-size:12px;font-weight:600;color:#999}
-.chart-hdr .chart-readout{font-size:12px;font-weight:700;color:#999;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(prefers-color-scheme:dark){.type-btn.active{border-color:#fff;color:#fff;background:#252320}}
 html[data-theme="dark"] .type-btn.active{border-color:#fff;color:#fff;background:#252320}
 html[data-theme="light"] .type-btn.active{border-color:#000;color:#000;background:#f3f4f6}
 
 .trk-val{font-size:32px;font-weight:800;letter-spacing:-.02em;margin:4px 0 12px;line-height:38px}
 .trk-u{font-size:15px;font-weight:500;color:#999;letter-spacing:0;margin-left:5px}
-.trk-chart{width:100%;height:140px;margin:4px 0 12px}
 .trk-entry{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ede8}
 .trk-entry-val{font-size:15px;font-weight:700}
 .trk-entry-date{font-size:12px;color:#999}
@@ -746,11 +741,46 @@ html:not(#x) .el-btn.danger{background:#dc2626}
    chart card has no padding at the sides — the bars, a tracker's line and
    its fade run to the card's edges, the labels sit inside. No big number in
    the card: a tracker's latest value is written next to the last point. */
-html:not(#x) .calsec.zc-card{padding:10px 0 0;overflow:hidden}
-.zc-card .chart-hdr{padding:0 12px;margin-bottom:2px}
-html:not(#x) .calsec.trk-card{padding:0;overflow:hidden;position:relative;cursor:pointer}
-.trk-card .chart-hdr{position:absolute;top:9px;left:12px;right:12px;margin:0;pointer-events:none}
-html:not(#x) .trk-card .trk-chart{display:block;width:100%;height:auto;margin:0}
+/* Chart cards (1.0, picked on the "Every chart in Today" page): the readout
+   on top (big number + unit, one line under it, the column size on the
+   right), a 230px plot below with fine grid lines and their numbers on the
+   right, dates along the bottom (ch-tick; bold where a month starts). */
+:root{--ch-grid:#ebebe8;--ch-tick:#8b8983;--ch-ink2:#52514e;--ch-ref:#b9b7b1;--ch-track:#e5e3dd;--ch-chip:rgba(120,120,128,.12)}
+@media(prefers-color-scheme:dark){:root{--ch-grid:#2a2a28;--ch-tick:#8f8d86;--ch-ink2:#c3c2b7;--ch-ref:#55544f;--ch-track:#333230;--ch-chip:rgba(120,120,128,.24)}}
+html[data-theme="dark"]{--ch-grid:#2a2a28;--ch-tick:#8f8d86;--ch-ink2:#c3c2b7;--ch-ref:#55544f;--ch-track:#333230;--ch-chip:rgba(120,120,128,.24)}
+html[data-theme="light"]{--ch-grid:#ebebe8;--ch-tick:#8b8983;--ch-ink2:#52514e;--ch-ref:#b9b7b1;--ch-track:#e5e3dd;--ch-chip:rgba(120,120,128,.12)}
+html:not(#x) .calsec.zc-card{padding:18px 0 8px;overflow:hidden}
+.zc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:0 18px}
+.zc-read{min-width:0}
+.zc-big{display:flex;align-items:baseline;gap:6px;white-space:nowrap;min-height:40px}
+.zc-big b{font-size:34px;line-height:40px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.zc-big span{font-size:15px;font-weight:500;color:var(--ch-ink2)}
+.zc-sub{font-size:13px;line-height:18px;font-weight:500;color:var(--ch-ink2);margin-top:2px;height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chipd{display:inline-block;font-weight:600;line-height:18px;color:var(--ink);background:var(--ch-chip);border-radius:999px;padding:0 8px;vertical-align:top}
+.zc-head .chart-scale{line-height:16px;padding-top:2px}
+.zc-plot{height:230px;margin-top:6px;position:relative}
+.zc-plot svg{display:block;width:100%;height:100%;overflow:visible}
+.ch-grid{stroke:var(--ch-grid);stroke-width:1}
+.ch-ref{stroke:var(--ch-ref);stroke-width:1}
+.ch-cross{stroke:var(--ch-ink2);stroke-width:1}
+.ch-tick{font-size:11px;font-weight:500;fill:var(--ch-tick);font-variant-numeric:tabular-nums}
+.ch-tick.mo{font-weight:600;fill:var(--ch-ink2)}
+.ch-lbl{font-size:11px;font-weight:600;fill:var(--ch-ink2)}
+.ch-halo{stroke:var(--card);stroke-width:4px;stroke-linejoin:round;paint-order:stroke}
+.ch-red{stroke:var(--red)}.ch-red-fill{fill:var(--red)}.ch-red-stop{stop-color:var(--red)}
+/* Consistency ("N2"): the ring, beside it the time span (bold) and the
+   done / skipped / not done counts as rows */
+html:not(#x) .calsec.cs-card{padding:0}
+.cs-n2{display:flex;align-items:center;gap:18px;padding:18px}
+.cs-n2 svg{flex-shrink:0;display:block}
+.cs-side{flex:1;min-width:0}
+.cs-title{font-size:15px;line-height:20px;font-weight:600;color:var(--ink);margin:0 0 8px}
+.cs-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--ch-grid)}
+.cs-row span{display:flex;align-items:center;font-size:13px;line-height:18px;font-weight:500;color:var(--ch-ink2);min-width:0}
+.cs-row i{width:10px;height:10px;border-radius:3px;margin-right:8px;flex-shrink:0}
+.cs-row i.cs-grey{background:var(--ch-track)}
+.cs-row b{font-size:15px;line-height:18px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.hd-pie-sub{fill:var(--ch-ink2)}
 .trk-goal{stroke:#9a9a9a;stroke-opacity:.6;stroke-width:1;stroke-dasharray:2 4;stroke-linecap:round}
 /* EDIT WINDOWS (4.44, style "C · Header", picked from a suggestions page):
    every window that edits something (.sh-win) has Save at the top right,
@@ -1531,19 +1561,13 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
   <!-- each widget can be switched off in Menu > Statistics (STAT_WIDGETS) -->
   <div class="stat-w" data-w="score">
   <div class="sl">Consistency score</div>
-  <div class="calsec" style="display:flex;flex-direction:column;align-items:center;padding:22px 14px;gap:10px">
-    <div id="stats-pie"></div>
-    <div id="stats-pie-text" class="stat-note"></div>
-  </div>
+  <div class="calsec cs-card" id="stats-pie"></div>
   </div>
 
   <div class="stat-w" data-w="chart">
   <div class="calsec zc-card">
-    <div class="chart-hdr">
-      <div id="stats-chart-readout" class="chart-readout">&nbsp;</div>
-      <div class="chart-scale" id="stats-scale"></div>
-    </div>
-    <div id="stats-chart" class="zchart"></div>
+    <div class="zc-head" id="stats-chart-head"><div class="zc-read"><div class="zc-big"><b class="zc-v"></b><span class="zc-u"></span></div><div class="zc-sub"></div></div><div class="chart-scale" id="stats-scale"></div></div>
+    <div id="stats-chart" class="zchart zc-plot"></div>
   </div>
   </div>
 
@@ -1641,17 +1665,11 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
     <div class="hh-desc" id="hd-desc" style="display:none"></div>
   </div>
   <div class="calsec zc-card">
-    <div class="chart-hdr">
-      <div id="hd-chart-readout" class="chart-readout">&nbsp;</div>
-      <div class="chart-scale" id="hd-scale"></div>
-    </div>
-    <div id="hd-chart" class="zchart"></div>
+    <div class="zc-head" id="hd-chart-head"><div class="zc-read"><div class="zc-big"><b class="zc-v"></b><span class="zc-u"></span></div><div class="zc-sub"></div></div><div class="chart-scale" id="hd-scale"></div></div>
+    <div id="hd-chart" class="zchart zc-plot"></div>
   </div>
   <div class="shdr">Consistency</div>
-  <div class="calsec" style="display:flex;flex-direction:column;align-items:center;padding:22px 14px;gap:10px">
-    <div id="hd-pie"></div>
-    <div id="hd-streak-text" class="stat-note"></div>
-  </div>
+  <div class="calsec cs-card" id="hd-pie"></div>
   <div class="shdr">Longest streak</div>
   <div class="calsec" style="display:flex;flex-direction:column;align-items:center;padding:18px 14px;gap:4px">
     <div id="hd-best-streak" class="stat-num"></div>
@@ -1884,7 +1902,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=24;
+var BETA_BUILD=25;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3223,7 +3241,11 @@ var CHANGELOG=[
     "A tracker habit remembers its old goals: raising a goal counts from today on, and the days before stay done or not done by the goal they had",
     "New tab icons that fill black when their tab is open: Overview layers, Tasks an inbox, Stats a pie, Menu a gear (Today keeps its tick box)",
     "Header buttons (back, menu, +, edit, Today's day arrows) have no white square any more and fade while pressed instead of shrinking and bouncing",
-    "Menu → Data: Export saves everything as one file, project photos too (on the iPhone through the share sheet: Save to Files, AirDrop or a chat), and Import brings it back — after asking, with the loading screen up while the app restarts on it. The copy-paste text export is gone"
+    "Menu → Data: Export saves everything as one file, project photos too (on the iPhone through the share sheet: Save to Files, AirDrop or a chat), and Import brings it back — after asking, with the loading screen up while the app restarts on it. The copy-paste text export is gone",
+    "New look for every chart: the number on top shows what's in view (or the column or point you tap), fine lines with their numbers on the right, the 1st of each month named along the bottom and the left date with its month, so you know where you are after scrolling back",
+    "Tracker lines: the part on the wrong side of the goal is red (above an \"at most\" goal, below an \"at least\" one), and zoomed far out the line goes through a few days' averages",
+    "A tracker with Bar chart on shows a column per day, week or month (pinch and drag like the habit charts); with a goal, the grey is what that day's goal asked for",
+    "Consistency (Statistics, a habit's page, a tracker habit's page): the ring with the score inside, and beside it the time span and how many were done, skipped and not done"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3366,7 +3388,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos","New look for the charts"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4099,7 +4121,7 @@ var I18N=(function(){
     'Version history':'Versionsverlauf','Advanced update info':'Erweiterte Update-Infos','Bug fixes':'Fehlerbehebungen','Design fixes':'Design-Korrekturen','Design and bug fixes':'Design-Korrekturen und Fehlerbehebungen',"What's new":'Neuigkeiten','Got it':'Verstanden','General':'Allgemein','Data':'Daten',
     // headers
     '📆 Daily':'📆 Täglich','📅 One-time':'📅 Einmalig','One-time tasks':'Einmalige Aufgaben','One-time':'Einmalig',
-    'Consistency score':'Konsistenz-Wert','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen','One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Bewahre sie in Dateien auf oder schick sie dir selbst — Importieren holt alles zurück.',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
+    'Consistency score':'Konsistenz-Wert','Last 3 months':'Letzte 3 Monate','Last month':'Letzter Monat','Last week':'Letzte Woche','done':'erledigt','skipped':'übersprungen','since':'seit','logged':'erfasst','Average':'Schnitt','7-day average':'7-Tage-Schnitt','a day':'pro Tag','a week':'pro Woche','a month':'pro Monat','Average of the days shown':'Schnitt der gezeigten Tage','Average of the weeks shown':'Schnitt der gezeigten Wochen','Average of the months shown':'Schnitt der gezeigten Monate','Of the days shown':'Von den gezeigten Tagen','Of the weeks shown':'Von den gezeigten Wochen','Of the months shown':'Von den gezeigten Monaten','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen','One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Bewahre sie in Dateien auf oder schick sie dir selbst — Importieren holt alles zurück.',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
     'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
@@ -4518,8 +4540,6 @@ function renderTracker(pid){
   // A tracker added as a habit can have a goal (on the habit): the habit
   // the page was opened from, else its first habit
   var ctx=trackerLinkFor(pid),links=trackerLinks(pid),link=ctx||links[0]||null;
-  var goal=link&&hasGoal(link)?link.goal:null;
-  var svgH=p.chartBars?trackerChart(pid,p,entries,goal,!!(link&&link.goalLow),link):'';
   // That habit's days under the name, like a habit's page — tap them for
   // its window (days, goal, project, remove from habits). Opened as the
   // project with 2+ habits, there's no one habit to show.
@@ -4549,38 +4569,30 @@ function renderTracker(pid){
     +'<span class="trk-entries-n">'+entries.length+'</span><span class="trk-entries-chev">'+ICON_CHEVRON+'</span></div>'
     +'<div class="trk-entries-list">'+listH+'</div></div>';
   else entriesH='<div class="sl">Entries</div><div class="calsec" style="padding:2px 14px">'+listH+'</div>';
+  // the chart: the line (TrkZ), or with Bar chart on a column per day / week / month (ZChart)
   c.innerHTML=(p.chartBars
-      ?'<div class="calsec" style="padding:16px 14px 6px">'+svgH+'</div>'
-      :'<div class="calsec trk-card zchart"><div class="chart-hdr"><div class="chart-readout">&nbsp;</div></div><div class="trk-plot"></div></div>')
+      ?'<div class="calsec zc-card">'+zcHeadHTML('trkh-'+pid,'trks-'+pid)+'<div class="zchart zc-plot" id="trkc-'+pid+'"></div></div>'
+      :'<div class="calsec zc-card trk-card">'+zcHeadHTML('','')+'<div class="trk-plot zchart zc-plot"></div></div>')
     +entriesH
     +(link?TrackerPage.habitHTML(pid,link):'');
-  if(!p.chartBars)new TrkZ(c.querySelector('.trk-card'),pid,p,entries,goal);
+  if(p.chartBars)zChart('trkc-'+pid,'trkh-'+pid,'trks-'+pid,trackerChartSource(pid,link),zcReadTracker(p));
+  else new TrkZ(c.querySelector('.trk-card'),pid,p,entries,link);
 }
-// A tracker's chart (its own entries, oldest → newest). Line (default): a
-// 3px line in the Statistics green with a small dark grey dot on every
-// entry — with the moving average on (always the last 7 entries) the line
-// is the average and the dots stay, unconnected. Bar chart (p.chartBars):
-// one bar per entry from a little below the lowest value, the latest that
-// fit. With a goal (a tracker added as a habit): a dotted goal line; the
-// line is green above it and red below, with a soft fade between the line
-// and the goal; bars are coloured by their own value (reaching the goal =
-// green, like habitDayVal).
 var TRK_GREEN='#30d158';
-// The tracker's line, "D · Edge to edge" (4.52, picked from the chart
-// suggestions page): one smooth green line with a soft fade down to the
-// card's edge, the latest value written next to the last point (a ring), one
-// number (the highest value shown) at its height, a soft dotted goal line
-// labelled on the left, dates inside along the bottom; no dots. With the
-// moving average (the last 7 entries) the line is the average and each entry
-// hangs from it as a short soft green bar ("I5"). A window of time like the
-// habit bars (4.53): last 30 days to start, a sideways drag scrolls back and
-// forth (with a fling), a pinch zooms from 3 hours (several entries on one
-// day spread out; the bottom then shows round times instead of dates, the
-// date at midnight) out to all the data (the right edge stays put); the y
-// range follows what's in view. Where it was
-// left is kept per tracker while the app runs (TRK_VIEW). A tap shows the
-// nearest entry. The card is the touch target (.zchart: its svg ignores
-// touches, the page still scrolls up and down, swipe-back leaves it alone).
+// The tracker's line (1.0 look, from the "Every chart in Today" page): one
+// smooth green line with a soft fade under it and a hollow ring on the latest
+// entry; with a goal (the habit it's linked to), a goal line labelled on the
+// left, and whatever is on its wrong side red — above an "at most" goal,
+// below an "at least" one. With the moving average (the last 7 entries) the
+// line is the average and each entry hangs from it. A window of time: last 30
+// days to start, a sideways drag scrolls (with a fling), a pinch zooms from 3
+// hours out to all the data (the right edge stays put); zoomed far out, the
+// line goes through a few days' averages. The y range follows what's in view.
+// The number on top is the latest value in view and how it moved since the
+// first one; a tap shows the nearest point there instead. Where it was left
+// is kept per tracker while the app runs (TRK_VIEW). The plot is the touch
+// target (.zchart: its svg ignores touches, the page still scrolls up and
+// down, swipe-back leaves it alone).
 var TRK_VIEW={},DAY_MS=864e5,TRK_DMIN=3/24; // the closest zoom: 3 hours
 // A tracker's 7-entry moving average at each entry (entries sorted by time)
 function trkAvgs(entries){return entries.map(function(x,i){var sl=entries.slice(Math.max(0,i-6),i+1);return sl.reduce(function(a,y){return a+y.val;},0)/sl.length;});}
@@ -4590,17 +4602,17 @@ function trkNow(p,entries){
   var n=entries.length;if(!n)return null;
   return p.maEnabled?Math.round(trkAvgs(entries)[n-1]*10)/10:entries[n-1].val;
 }
-function TrkZ(card,pid,p,entries,goal){
-  this.card=card;this.plot=card.querySelector('.trk-plot');this.ro=card.querySelector('.chart-readout');
-  this.pid=pid;this.e=entries;this.goal=goal;this.unit=p.unit||'';
-  this.avg=p.maEnabled?trkAvgs(entries):null;
+function TrkZ(card,pid,p,entries,link){
+  this.card=card;this.plot=card.querySelector('.trk-plot');this.head=zcHeadEls(card);
+  this.pid=pid;this.unit=p.unit||'';
+  this.goal=link&&hasGoal(link)?link.goal:null;this.low=!!(link&&link.goalLow);
+  var avg=p.maEnabled?trkAvgs(entries):null;this.avgOn=!!avg;
+  this.e=entries.map(function(e,i){return {ts:e.ts,v:e.val,a:avg?avg[i]:null};});
   this.now=Date.now();this.t0=entries.length?entries[0].ts:this.now;
   this.Dmin=TRK_DMIN;this.Dmax=Math.max(30,(this.now-this.t0)/DAY_MS*1.08+2);
   var v=TRK_VIEW[pid]||{D:30,live:true};
   this.D=Math.max(this.Dmin,Math.min(this.Dmax,v.D));this.end=v.live?this.now:v.end;this._clamp();
-  var n=entries.length;
-  this.endTxt=fmtTrk(n?Math.round(trkNow(p,entries)*10)/10:0);
-  this.R=Math.max(30,Math.ceil(16+this.endTxt.length*7.2+(this.unit?(this.unit.length+1)*6:0))); // room for the latest value
+  this.sel=null; // the tapped point (its time), shown in the header
   this._wire();this.render();
 }
 // keeps the right edge between "the first entry still in view" and now; true if it had to
@@ -4610,77 +4622,146 @@ TrkZ.prototype._clamp=function(){
   return hit;
 };
 TrkZ.prototype.zoom=function(D){this.D=Math.max(this.Dmin,Math.min(this.Dmax,D));this._clamp();};
+TrkZ.prototype._val=function(q){return this.avgOn?q.a:q.v;};
+// What the line goes through: the entries — or, zoomed out so far that they'd
+// crowd (under 6px a day), the average of every 2 / 3 / 7 / 14 / 30 days,
+// counted from a fixed Monday so the groups don't shift while scrolling; the
+// latest entry stays itself (the line ends on it). One entry outside the
+// window on each side, so the line runs off the edges.
+TrkZ.prototype._points=function(tA,tB,pxDay){
+  var E=this.e,n=E.length,b=1,i;
+  if(!this.avgOn){var LD=[1,2,3,7,14,30];for(i=0;i<LD.length;i++){b=LD[i];if(b*pxDay>=6)break;}}
+  if(b===1){var a=0,z=n-1;while(a<n-1&&E[a+1].ts<tA)a++;while(z>0&&E[z-1].ts>tB)z--;return E.slice(a,z+1);}
+  var pad=(b+1)*DAY_MS,out=[],cur=null,last=E[n-1],ep=new Date(2000,0,3).getTime();
+  for(i=0;i<n;i++){
+    var e=E[i];if(e.ts<tA-pad||e.ts>tB+pad)continue;
+    var d=new Date(e.ts),k=Math.floor(Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()-ep)/DAY_MS)/b);
+    if(!cur||cur.k!==k){cur={k:k,s:0,n:0,last:e};out.push(cur);}
+    cur.s+=e.v;cur.n++;cur.last=e;
+  }
+  return out.map(function(g){
+    if(g.last===last)return last;
+    var f=new Date(2000,0,3+g.k*b),to=new Date(2000,0,3+g.k*b+b-1);
+    return {ts:(f.getTime()+to.getTime())/2+12*3600e3,v:g.s/g.n,bk:[f,to]};
+  });
+};
 TrkZ.prototype.render=function(){
-  var W=300,H=172,T=42,B=24,R=this.R,PW=W-R,E=this.e,n=E.length,self=this; // T: room for the tap readout
-  if(!n){this._pts=[];this.plot.innerHTML='<div class="chart-empty">No data yet</div>';return;}
-  var Dms=this.D*DAY_MS,left=this.end-Dms,end=this.end;
-  function x(ts){return (ts-left)/Dms*PW;}
+  var self=this,E=this.e,n=E.length,plot=this.plot,pid=this.pid;
+  if(!n){plot.innerHTML='<div class="chart-empty">'+esc(t('No data yet'))+'</div>';zcHeadSet(this.head,['–','','']);return;}
+  var W=plot.clientWidth||300,H=plot.clientHeight||230,B=CH_BOX,L=B.L,R=B.R,Tp=B.T,pw=W-L-R,ph=H-Tp-B.B,a0=L+B.IN,a1=L+pw-B.IN;
+  var tB=this.end,tA=tB-this.D*DAY_MS,pxDay=(a1-a0)/this.D,P=this._P=this._points(tA,tB,pxDay),one=n===1;
+  function val(q){return self._val(q);}
   function f(v){return v.toFixed(1);}
-  // what's in view, plus one entry on each side so the line runs off the edges
-  var a=0,b=n-1,i;
-  while(a<n-1&&E[a+1].ts<left)a++;
-  while(b>0&&E[b-1].ts>end)b--;
-  var vis=[];for(i=a;i<=b;i++)if(E[i].ts>=left&&E[i].ts<=end)vis.push(i);
-  if(!vis.length)vis=a===b?[a]:[a,b];
-  var lo=Infinity,hi=-Infinity,top=-Infinity;
-  vis.forEach(function(k){var v=E[k].val;top=Math.max(top,v);lo=Math.min(lo,v);hi=Math.max(hi,v);if(self.avg){lo=Math.min(lo,self.avg[k]);hi=Math.max(hi,self.avg[k]);}});
-  var has=this.goal!=null,goal=this.goal;
-  if(has){lo=Math.min(lo,goal);hi=Math.max(hi,goal);}
-  var pad=(hi-lo)*.12||Math.abs(hi)*.05||1;lo-=pad;hi+=pad;
-  function y(v){return T+(hi-v)/(hi-lo)*(H-T-B);}
-  var idx=[];for(i=a;i<=b;i++)idx.push(i);
-  var one=n===1,raw=idx.map(function(k){return [one?PW/2:x(E[k].ts),y(E[k].val)];});
-  var pts=this.avg?idx.map(function(k,j){return [raw[j][0],y(self.avg[k])];}):raw;
-  this._pts=idx.map(function(k,j){return {x:raw[j][0],v:E[k].val,ts:E[k].ts};});
-  var gid='trkf-'+this.pid,s='<svg class="trk-chart" viewBox="0 0 '+W+' '+H+'">';
-  s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+TRK_GREEN+'" stop-opacity=".22"/><stop offset="1" stop-color="'+TRK_GREEN+'" stop-opacity="0"/></linearGradient></defs>';
-  var gy=has?y(goal):null;
-  if(!has||Math.abs(y(top)-gy)>14)s+='<text class="hd-bar-label" x="10" y="'+f(y(top)-6)+'" font-size="9">'+esc(fmtTrk(top))+'</text>';
-  if(has)s+='<line class="trk-goal" x1="0" x2="'+W+'" y1="'+f(gy)+'" y2="'+f(gy)+'"/><text class="hd-bar-label" x="10" y="'+f(gy-5)+'" font-size="9">'+esc(t('Goal')+' '+fmtTrk(goal))+'</text>';
-  var d=monotonePath(pts),lp=pts[pts.length-1];
-  if(pts.length>1)s+='<path d="'+d+'L'+f(lp[0])+','+H+'L'+f(pts[0][0])+','+H+'Z" fill="url(#'+gid+')"/>';
-  if(this.avg){
-    // each entry hangs from the average: 3px wide with room, thinner as the
-    // entries in view crowd together (zoomed far out), so they don't merge
-    var gaps=raw.slice(1).map(function(q,j){return q[0]-raw[j][0];}).sort(function(p,q){return p-q;});
-    var sw=gaps.length?Math.max(1,Math.min(3,gaps[Math.floor(gaps.length/4)]*.6)):3;
-    raw.forEach(function(q,j){s+='<line x1="'+f(q[0])+'" x2="'+f(q[0])+'" y1="'+f(q[1])+'" y2="'+f(pts[j][1])+'" stroke="'+TRK_GREEN+'" stroke-opacity=".28" stroke-width="'+f(sw)+'" stroke-linecap="round"/>';});
+  var vis=P.filter(function(q){return q.ts>=tA&&q.ts<=tB;});if(!vis.length)vis=P.slice(-1);
+  // the y range follows what's in view (and the goal)
+  var vals=vis.map(val);if(this.avgOn)vals=vals.concat(vis.map(function(q){return q.v;}));if(this.goal!=null)vals.push(this.goal);
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);
+  var st=chNice(hi-lo||Math.abs(hi)*.1||1,3),y0=Math.floor((lo-st*.25)/st)*st,y1=Math.ceil((hi+st*.15)/st)*st;
+  function X(ts){return one?(a0+a1)/2:a0+(ts-tA)/(tB-tA)*(a1-a0);}
+  function Y(v){return Tp+ph-(v-y0)/(y1-y0)*ph;}
+  var goal=this.goal,low=this.low,G=goal!=null?Y(goal):null;
+  function met(v){return goal==null||(low?v<=goal:v>=goal);}
+  var s='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'"><defs>'
+    +'<linearGradient id="trkf-'+pid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+TRK_GREEN+'" stop-opacity=".22"/><stop offset="1" stop-color="'+TRK_GREEN+'" stop-opacity="0"/></linearGradient>'
+    +'<linearGradient id="trkm-'+pid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="ch-red-stop" stop-opacity=".18"/><stop offset="1" class="ch-red-stop" stop-opacity="0"/></linearGradient>'
+    +'<clipPath id="trkp-'+pid+'"><rect x="'+L+'" y="0" width="'+pw+'" height="'+H+'"/></clipPath>'
+    +'<clipPath id="trkl-'+pid+'"><rect x="'+(L-8)+'" y="0" width="'+(pw+12)+'" height="'+H+'"/></clipPath>';
+  // with a goal, whatever is on its wrong side is red: above an "at most" goal,
+  // below an "at least" one — line, fade and the average's stems are cut at the goal
+  var parts=[{st:'stroke="'+TRK_GREEN+'"',fill:'trkf-'+pid,clip:''}];
+  if(G!=null){
+    var up='x="0" y="0" width="'+W+'" height="'+f(Math.max(0,G))+'"',dn='x="0" y="'+f(G)+'" width="'+W+'" height="'+f(Math.max(0,H-G))+'"';
+    s+='<clipPath id="trko-'+pid+'"><rect '+(low?dn:up)+'/></clipPath><clipPath id="trkx-'+pid+'"><rect '+(low?up:dn)+'/></clipPath>';
+    parts=[{st:'stroke="'+TRK_GREEN+'"',fill:'trkf-'+pid,clip:'trko-'+pid},{st:'class="ch-red"',fill:'trkm-'+pid,clip:'trkx-'+pid}];
   }
-  if(pts.length>1)s+='<path d="'+d+'" fill="none" stroke="'+TRK_GREEN+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-  // the latest value, when the latest entry is in view
-  if(b===n-1&&(one||E[n-1].ts<=end)){
-    s+='<circle cx="'+f(lp[0])+'" cy="'+f(lp[1])+'" r="4.5" style="fill:var(--card)" stroke="'+TRK_GREEN+'" stroke-width="2.5"/>'
-      +'<text x="'+f(lp[0]+9)+'" y="'+f(lp[1]+4)+'" font-size="12" font-weight="700" style="fill:var(--ink)">'+esc(this.endTxt)
-      +(this.unit?'<tspan class="hd-bar-label" font-size="10" font-weight="600"> '+esc(this.unit)+'</tspan>':'')+'</text>';
+  s+='</defs>';
+  for(var v=y0;v<=y1+1e-9;v+=st){var yy=Y(v);
+    s+='<line class="ch-grid" x1="'+L+'" x2="'+(L+pw)+'" y1="'+f(yy)+'" y2="'+f(yy)+'" shape-rendering="crispEdges"/><text class="ch-tick" x="'+(W-R+10)+'" y="'+f(yy+4)+'">'+chTick(v)+'</text>';}
+  if(G!=null)s+='<line class="ch-ref" x1="'+L+'" x2="'+(L+pw)+'" y1="'+f(G)+'" y2="'+f(G)+'" shape-rendering="crispEdges"/>'
+    +'<text class="ch-lbl ch-halo" x="'+a0+'" y="'+f(G-6)+'">'+esc(t('Goal')+' '+fmtTrk(goal))+'</text>';
+  var pts=P.map(function(q){return [X(q.ts),Y(val(q))];}),line=pts.length>1?monotonePath(pts):'',lp=pts[pts.length-1];
+  var sw=3;
+  if(this.avgOn){ // each entry hangs from the average: thinner as the entries in view crowd together
+    var vx=vis.map(function(q){return X(q.ts);}),gaps=vx.slice(1).map(function(x,j){return x-vx[j];}).sort(function(a,b){return a-b;});
+    sw=gaps.length?Math.max(1,Math.min(3,gaps[Math.floor(gaps.length/4)]*.6)):3;
   }
-  // dates along the bottom, inside the card; zoomed into two days or less,
-  // round times (the date at midnight)
-  if(this.D>2){
-    var seen={};
-    [0,1,2,3,4].forEach(function(k){
-      var ts=left+Dms*k/4,lbl=_dm(new Date(ts));if(seen[lbl])return;seen[lbl]=1;
-      var xx=PW*k/4,an=k===0?'start':k===4?'end':'middle';if(k===0)xx=10;if(k===4)xx=PW+4;
-      s+='<text class="hd-bar-label" x="'+f(xx)+'" y="'+(H-8)+'" font-size="9" text-anchor="'+an+'">'+lbl+'</text>';
-    });
+  var g='<g clip-path="url(#trkp-'+pid+')">';
+  parts.forEach(function(pt){
+    g+='<g'+(pt.clip?' clip-path="url(#'+pt.clip+')"':'')+'>';
+    if(self.avgOn)P.forEach(function(q,j){g+='<line '+pt.st+' x1="'+f(pts[j][0])+'" x2="'+f(pts[j][0])+'" y1="'+f(Y(q.v))+'" y2="'+f(pts[j][1])+'" stroke-opacity=".28" stroke-width="'+f(sw)+'" stroke-linecap="round"/>';});
+    if(line)g+='<path d="'+line+'L'+f(lp[0])+','+f(Tp+ph)+'L'+f(pts[0][0])+','+f(Tp+ph)+'Z" fill="url(#'+pt.fill+')"/>'
+      +'<path '+pt.st+' d="'+line+'" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+    g+='</g>';
+  });
+  s+=g+'</g>';
+  // the end: a hollow ring on the latest entry while it's in view, in its side's colour (its value is in the header)
+  var li=P.indexOf(E[n-1]);
+  if(li>=0&&(one||E[n-1].ts<=tB))s+='<circle cx="'+f(pts[li][0])+'" cy="'+f(pts[li][1])+'" r="4.5" style="fill:var(--card)" '
+    +(met(val(E[n-1]))?'stroke="'+TRK_GREEN+'"':'class="ch-red"')+' stroke-width="2.5"/>';
+  // dates along the bottom: round times up to two days (the date at midnight),
+  // days up to two months (the 1st as its month), months beyond (January as its year)
+  var lbl=[],dd;
+  if(this.D<=2){
+    var hrs=this.D*24,stp=[1,2,3,4,6,12].filter(function(h){return hrs/h<=6;})[0]||24,tk=new Date(tA);
+    tk.setMinutes(0,0,0);tk.setHours(Math.ceil(tk.getHours()/stp)*stp);
+    for(;tk.getTime()<=tB;tk.setHours(tk.getHours()+stp)){
+      var hx=X(tk.getTime());if(hx<a0||hx>a1)continue;
+      var mid=!tk.getHours(),tm=tk.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'});
+      lbl.push({x:hx,t:mid?chDM(tk):tm,mo:mid,ctx:chDM(tk)+' '+tm});
+    }
+  } else if(this.D<=62){
+    var every=Math.max(1,Math.ceil(30/pxDay)),ep=new Date(2000,0,3).getTime(),dA=new Date(tA);
+    for(dd=new Date(dA.getFullYear(),dA.getMonth(),dA.getDate()-1);dd.getTime()<=tB+DAY_MS;dd=new Date(dd.getFullYear(),dd.getMonth(),dd.getDate()+1)){
+      var dn=Math.round((dd.getTime()-ep)/DAY_MS),mo=dd.getDate()===1;
+      if(!mo&&((dn%every)+every)%every)continue;
+      var lx=X(dd.getTime()+12*3600e3),lt=mo?chMonth(dd):String(dd.getDate());
+      if(lx>=a0&&lx<=a1)lbl.push({x:lx,t:lt,mo:mo,ctx:mo?chCtx(lt,dd):chDM(dd)+chYr(dd)});
+    }
   } else {
-    var hrs=this.D*24,step=[1,2,3,4,6,12].filter(function(h){return hrs/h<=4.5;})[0]||24;
-    var tk=new Date(left);tk.setMinutes(0,0,0);tk.setHours(Math.ceil((tk.getHours()+(left>tk.getTime()?1:0))/step)*step);
-    for(;tk.getTime()<=end;tk.setHours(tk.getHours()+step)){
-      var xx=x(tk.getTime());if(xx<6||xx>PW-2)continue;
-      var lbl=tk.getHours()?tk.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'}):_dm(tk);
-      var an=xx<24?'start':xx>PW-24?'end':'middle';
-      s+='<text class="hd-bar-label" x="'+f(xx)+'" y="'+(H-8)+'" font-size="9" text-anchor="'+an+'">'+lbl+'</text>';
+    var mA=new Date(tA);
+    for(dd=new Date(mA.getFullYear(),mA.getMonth(),1);dd.getTime()<=tB;dd=new Date(dd.getFullYear(),dd.getMonth()+1,1)){
+      var mx=X(dd.getTime()),mt=chMonth(dd);if(mx>=a0&&mx<=a1)lbl.push({x:mx,t:mt,mo:!dd.getMonth(),ctx:chCtx(mt,dd)});
     }
   }
-  this.plot.innerHTML=s+'</svg>';
+  s+='<g clip-path="url(#trkl-'+pid+')">'+chLabels(lbl,L,H)+'</g>';
+  // the tapped point
+  var si=-1;if(this.sel!==null)P.forEach(function(q,j){if(q.ts===self.sel)si=j;});
+  if(si<0)this.sel=null;
+  else{var fp=pts[si];
+    s+='<line class="ch-cross" x1="'+f(fp[0])+'" x2="'+f(fp[0])+'" y1="'+(Tp-10)+'" y2="'+f(Tp+ph)+'" shape-rendering="crispEdges"/>'
+      +'<circle cx="'+f(fp[0])+'" cy="'+f(fp[1])+'" r="6" style="fill:var(--card)"/><circle cx="'+f(fp[0])+'" cy="'+f(fp[1])+'" r="4" '
+      +(met(val(P[si]))?'fill="'+TRK_GREEN+'"':'class="ch-red-fill"')+'/>';}
+  plot.innerHTML=s+'</svg>';
+  this._W=W;this._pts=pts;this._a0=a0;this._a1=a1;this._pxDay=pxDay;
+  this._headNow(vis,si>=0?P[si]:null);
+};
+// The header: the tapped point, else the latest value in view and how it
+// moved since the first one in view
+TrkZ.prototype._headNow=function(vis,sel){
+  var u=this.unit,r1=function(v){return fmtTrk(Math.round(v*10)/10);};
+  if(sel){
+    var d=new Date(sel.ts),sub;
+    if(sel.bk)sub=t('Average')+' '+chDM(sel.bk[0])+' – '+chDM(sel.bk[1]);
+    else{
+      var ds=dStr(d),many=this.D<=3||this.e.filter(function(q){return dStr(new Date(q.ts))===ds;}).length>1;
+      sub=d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'})+(many?' · '+d.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'}):'');
+      if(this.avgOn)sub+=' · '+t('logged')+' '+r1(sel.v);
+    }
+    zcHeadSet(this.head,[r1(this._val(sel)),u,sub]);return;
+  }
+  var first=vis[0],last=vis[vis.length-1],diff=Math.round((this._val(last)-this._val(first))*10)/10;
+  var chip=document.createElement('span');chip.className='chipd';
+  chip.textContent=(diff>0?'+':diff<0?'−':'±')+fmtTrk(Math.abs(diff))+(u&&u.length<=3?' '+u:'');
+  var tail=this.avgOn?' · '+t('7-day average'):' '+t('since')+' '+chDM(first.bk?first.bk[0]:new Date(first.ts));
+  zcHeadSet(this.head,[r1(this._val(last)),u,[chip,document.createTextNode(tail)]]);
 };
 TrkZ.prototype._wire=function(){
-  var self=this,h=this.card,mode=0,sx=0,sy=0,e0=0,d0=1,D0=0,moves=[],raf=0,anim=0;
+  var self=this,h=this.plot,mode=0,sx=0,sy=0,e0=0,d0=1,D0=0,moves=[],raf=0,anim=0;
   function dist(ts){var dx=ts[0].clientX-ts[1].clientX,dy=ts[0].clientY-ts[1].clientY;return Math.sqrt(dx*dx+dy*dy)||1;}
-  function pxPerMs(){return h.getBoundingClientRect().width/300*(300-self.R)/(self.D*DAY_MS);}
+  function pxPerMs(){return (self._pxDay||1)/DAY_MS;}
   function draw(){if(!raf)raf=requestAnimationFrame(function(){raf=0;self.render();});}
   function stop(){if(anim){cancelAnimationFrame(anim);anim=0;}}
-  function clear(){self.ro.innerHTML='&nbsp;';}
+  function clear(){self.sel=null;}
   // modes as in ZChart: 1 touched, 2 sideways drag, 3 pinch, 4 pinch over (wait for all fingers up)
   h.addEventListener('touchstart',function(e){
     stop();
@@ -4724,17 +4805,16 @@ TrkZ.prototype._wire=function(){
   h.addEventListener('touchend',end,{passive:true});
   h.addEventListener('touchcancel',end,{passive:true});
   h.addEventListener('gesturestart',function(e){e.preventDefault();}); // iOS: no page zoom
-  // a tap: the nearest entry's value and day
+  // a tap: the nearest point goes into the header (tap it again to let go)
   h.addEventListener('click',function(e){
-    var pts=self._pts,svg=self.plot.querySelector('svg');if(!pts||!pts.length||!svg)return;
-    var r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*300,best=pts[0];
-    pts.forEach(function(q){if(Math.abs(q.x-x)<Math.abs(best.x-x))best=q;});
-    var d=new Date(best.ts),ds=dStr(d);
-    // the time too when zoomed in, or when that day has more than one entry
-    var many=self.D<=3||self.e.filter(function(q){return dStr(new Date(q.ts))===ds;}).length>1;
-    self.ro.textContent=fmtTrk(best.v)+(self.unit?' '+self.unit:'')+' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'})
-      +(many?' · '+d.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'}):'');
+    var pts=self._pts;if(!pts||!pts.length)return;
+    var x=e.clientX-h.getBoundingClientRect().left,best=-1,bd=1e9;
+    pts.forEach(function(q,i){if(q[0]<self._a0-4||q[0]>self._a1+4)return;var d=Math.abs(q[0]-x);if(d<bd){bd=d;best=i;}});
+    var ts=best>=0?self._P[best].ts:null;
+    self.sel=(ts!==null&&ts!==self.sel)?ts:null;self.render();
   });
+  // drawn while hidden (0 wide), or the phone turned: draw again at the real width
+  if(window.ResizeObserver)new ResizeObserver(function(){if(h.clientWidth&&h.clientWidth!==self._W)self.render();}).observe(h);
 };
 // A smooth line through points in time order that only ever goes forward
 // and never swings past the values it joins (monotone cubic, Fritsch–
@@ -4759,79 +4839,6 @@ function monotonePath(p){
   return d;
 }
 // The bar version (Bar chart switch in the tracker's window)
-function trackerChart(pid,p,entries,goal,low,link){
-  var PL=44,PR=12,PT=12,PB=28,W=300,H=140,CW=W-PL-PR,CH=H-PT-PB;
-  var dark=isDarkNow(),RED=dark?'#ff453a':'#ff3b30',gridCol=dark?'#333':'#e8e5e0',goalCol='#9a9a9a';
-  var DOT=dark?'#aeaeb2':'#3a3a3c'; // entry dots: dark grey (a light grey on a dark card)
-  var has=goal!=null,svg='<svg class="trk-chart" viewBox="0 0 '+W+' '+H+'" style="overflow:visible">';
-  if(!entries.length)return svg+'<text x="'+W/2+'" y="'+(H/2)+'" text-anchor="middle" fill="#ccc" font-size="12">No data yet</text></svg>';
-  var bars=!!p.chartBars;
-  if(bars)entries=entries.slice(-Math.floor(CW/4)); // bars at least ~2.4px wide
-  var vals=entries.map(function(e){return e.val;});
-  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);
-  if(has){lo=Math.min(lo,goal);hi=Math.max(hi,goal);}
-  // Bars start a little below the lowest value (a quarter of the spread,
-  // rounded down to a round number), not at 0 — from 0, a kg or two of
-  // weight change was invisible. Never below 0 for positive values.
-  if(bars){
-    var pad=(hi-lo)/4||Math.abs(lo)/10||1,step=Math.pow(10,Math.floor(Math.log10(pad)));
-    lo=Math.floor((lo-pad)/step)*step;
-    if(lo<0&&Math.min.apply(null,vals)>=0)lo=0;
-  }
-  var range=hi-lo||1;
-  function yOf(v){return PT+(1-(v-lo)/range)*CH;}
-  // each entry against the goal its day had (habitDayVal's rule)
-  function colOf(v,ts){var g=link?goalOn(link,dStr(new Date(ts))):{goal:has?goal:null,low:low};return g.goal!=null&&!goalMet(g,v)?RED:TRK_GREEN;}
-  // y axis: top, middle, bottom
-  [hi,(hi+lo)/2,lo].forEach(function(v,i){
-    var y=PT+CH*i/2;
-    svg+='<line x1="'+PL+'" y1="'+y+'" x2="'+(W-PR)+'" y2="'+y+'" stroke="'+gridCol+'" stroke-width="1"/>'
-      +'<text x="'+(PL-6)+'" y="'+(y+4)+'" text-anchor="end" fill="#bbb" font-size="9">'+fmtTrk(v)+'</text>';
-  });
-  var gy=has?yOf(goal):0,xs;
-  var goalLine=has?'<line x1="'+PL+'" y1="'+gy+'" x2="'+(W-PR)+'" y2="'+gy+'" stroke="'+goalCol+'" stroke-width="1" stroke-dasharray="2 3"/>':'';
-  if(bars){
-    var slot=CW/entries.length,bw=Math.min(18,slot*0.6),y0=yOf(Math.max(0,lo));
-    xs=entries.map(function(e,i){return PL+slot*(i+0.5);});
-    entries.forEach(function(e,i){
-      var y=yOf(e.val),x=xs[i]-bw/2,h=Math.abs(y0-y),r=Math.min(3,bw/6,h/2),top=Math.min(y,y0); // corners in proportion to the bar (a full 18-wide bar: 3)
-      if(h<=0)return;
-      // rounded on top, flat on the baseline
-      svg+='<path fill="'+colOf(e.val,e.ts)+'" d="M'+x+','+(top+h)+'V'+(top+r)+'Q'+x+','+top+' '+(x+r)+','+top+'H'+(x+bw-r)+'Q'+(x+bw)+','+top+' '+(x+bw)+','+(top+r)+'V'+(top+h)+'Z"/>';
-    });
-    svg+=goalLine;
-  } else {
-    var t0=entries[0].ts,tR=(entries[entries.length-1].ts-t0)||1,one=entries.length===1;
-    xs=entries.map(function(e){return one?PL+CW/2:PL+(e.ts-t0)/tR*CW;});
-    svg+=goalLine;
-    if(!one){
-      var line=entries.map(function(e,i){
-        var v=e.val;
-        if(p.maEnabled){var sl=entries.slice(Math.max(0,i-6),i+1);v=sl.reduce(function(a,x){return a+x.val;},0)/sl.length;}
-        return xs[i]+','+yOf(v);
-      });
-      var poly='<polyline fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="'+line.join(' ')+'" ';
-      if(has){
-        // green above the goal, red below: the same line (and the fade
-        // between it and the goal) drawn twice, each half clipped at the goal
-        var A='trkA-'+pid,B='trkB-'+pid,area='<path d="M'+line.join('L')+'L'+xs[xs.length-1]+','+gy+'L'+xs[0]+','+gy+'Z" ';
-        svg+='<defs><clipPath id="'+A+'"><rect x="0" y="-20" width="'+W+'" height="'+(gy+20)+'"/></clipPath>'
-          +'<clipPath id="'+B+'"><rect x="0" y="'+gy+'" width="'+W+'" height="'+(H+20-gy)+'"/></clipPath>'
-          +'<linearGradient id="'+A+'g" gradientUnits="userSpaceOnUse" x1="0" y1="'+PT+'" x2="0" y2="'+gy+'"><stop offset="0" stop-color="'+TRK_GREEN+'" stop-opacity=".3"/><stop offset="1" stop-color="'+TRK_GREEN+'" stop-opacity="0"/></linearGradient>'
-          +'<linearGradient id="'+B+'g" gradientUnits="userSpaceOnUse" x1="0" y1="'+gy+'" x2="0" y2="'+(PT+CH)+'"><stop offset="0" stop-color="'+RED+'" stop-opacity="0"/><stop offset="1" stop-color="'+RED+'" stop-opacity=".3"/></linearGradient></defs>'
-          +area+'fill="url(#'+A+'g)" clip-path="url(#'+A+')"/>'+area+'fill="url(#'+B+'g)" clip-path="url(#'+B+')"/>'
-          +poly+'stroke="'+TRK_GREEN+'" clip-path="url(#'+A+')"/>'+poly+'stroke="'+RED+'" clip-path="url(#'+B+')"/>';
-      } else svg+=poly+'stroke="'+TRK_GREEN+'"/>';
-    }
-    entries.forEach(function(e,i){svg+='<circle cx="'+xs[i]+'" cy="'+yOf(e.val)+'" r="2.25" fill="'+DOT+'"/>';});
-  }
-  // x axis: first, middle, last entry
-  [0,Math.floor((entries.length-1)/2),entries.length-1].filter(function(v,i,a){return a.indexOf(v)===i;}).forEach(function(i){
-    var lbl=new Date(entries[i].ts).toLocaleDateString(dLoc(),{day:'numeric',month:'short'});
-    svg+='<text x="'+xs[i]+'" y="'+(H-4)+'" text-anchor="middle" fill="#bbb" font-size="9">'+lbl+'</text>';
-  });
-  return svg+'</svg>';
-}
 // The habit side of a tracker page (see renderTracker): the consistency
 // ring and streak like a habit's own page. Its days sit under the page
 // title (tap them to edit days/goal); the goal shows as the chart's goal
@@ -4845,9 +4852,7 @@ var TrackerPage={
   habitHTML:function(pid,it){
     var s=habitConsistency(it),st=habitStreaks(it);
     return '<div class="shdr">Consistency</div>'
-      +'<div class="calsec" style="display:flex;flex-direction:column;align-items:center;padding:22px 14px;gap:10px">'
-      +renderPieChart(s.pct,s.skipped,s.target)
-      +'<div class="stat-note"><b>'+s.completed+'</b> of <b>'+s.target+'</b> scheduled days completed'+(s.skipped?' ('+s.skipped+' skipped)':'')+'</div></div>'
+      +'<div class="calsec cs-card">'+consistencyHTML(s,'Last 3 months','No data yet')+'</div>'
       +'<div class="shdr">Longest streak</div>'
       +'<div class="calsec" style="display:flex;flex-direction:column;align-items:center;padding:18px 14px;gap:4px">'
       +'<div class="stat-num">'+st.best+'</div>'
@@ -6597,19 +6602,80 @@ function habitConsistency(item,span){
   }
   return{completed:completed,target:target,skipped:skipped,pct:target?Math.min(100,Math.round(completed/target*100)):0};
 }
+// ── CHART LOOK (1.0, from the "Every chart in Today" page) ──────────────
+// One plot box for every chart: 18px left, 40px right for the round numbers
+// on the fine grid lines, 24px on top, 26px for the dates along the bottom;
+// columns and lines stay 8px inside it. The number at the top of a chart card
+// (zc-head) is the readout: the summary at rest, a tapped column or point.
+var CH_BOX={L:18,R:40,T:24,B:26,IN:8};
+// round steps for the fine lines: 1, 2 or 5 of a power of ten (no 2.5 — its
+// numbers, 77.75, didn't fit in the 40px on the right)
+function chNice(span,n){var raw=span/n,m=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/m;return (f<=1?1:f<=2?2:f<=5?5:10)*m;}
+function chTick(v){return Math.abs(v)>=10000?(Math.round(v/100)/10)+'k':fmtTrk(Math.round(v*100)/100);}
+var _chMc;
+function chTextW(txt,bold){
+  try{_chMc=_chMc||document.createElement('canvas').getContext('2d');
+    _chMc.font=(bold?'600':'500')+' 11px '+getComputedStyle(document.body).fontFamily;return _chMc.measureText(txt).width;}
+  catch(e){return txt.length*6.2;}
+}
+// dates along the bottom: a month's name ("Oct"; January is its year,
+// "2026"), and a day with its month ("5 Oct", the year too when it isn't this one)
+function chYr(d){return d.getFullYear()===T.getFullYear()?'':' '+d.getFullYear();}
+function chMonth(d){return d.getMonth()?d.toLocaleDateString(dLoc(),{month:'short'}):String(d.getFullYear());}
+function chCtx(lbl,d){return d.getMonth()?lbl+chYr(d):lbl;}
+function chDM(d){return d.toLocaleDateString(dLoc(),{day:'numeric',month:'short'});}
+// Which date labels show: the ones that start a month (mo) first, then the
+// others from today backwards; two labels never closer than 32px centre to
+// centre or 14px edge to edge. The leftmost one says its month (ctx: "5 Oct",
+// and the year when it isn't this one), so after scrolling back you still
+// know where you are — unless that would crowd a month's name, then it goes.
+// Bold only where a month or a year starts. lbl: [{x,t,mo,ctx}]
+function chLabels(lbl,L,H){
+  var ch=[],out='';
+  function clash(c){for(var q=0;q<ch.length;q++){var o=ch[q];if(o!==c&&Math.abs(c.x-o.x)<Math.max(32,(c.w+o.w)/2+14))return o;}return null;}
+  [true,false].forEach(function(pass){for(var i=lbl.length-1;i>=0;i--){var c=lbl[i];if(!!c.mo!==pass)continue;c.w=chTextW(c.t,c.mo);if(!clash(c))ch.push(c);}});
+  ch.sort(function(a,b){return a.x-b.x;});
+  while(ch.length){
+    var f0=ch[0];if(!f0.ctx||f0.ctx===f0.t)break;
+    var w2=chTextW(f0.ctx,f0.mo),nx=Math.max(f0.x,L-4+w2/2),hit=[],stop=false;
+    for(var q=1;q<ch.length;q++){var o=ch[q];if(Math.abs(nx-o.x)<Math.max(32,(w2+o.w)/2+14)){if(o.mo)stop=true;hit.push(o);}}
+    if(stop){ch.shift();continue;}
+    f0.t=f0.ctx;f0.w=w2;f0.x=nx;ch=ch.filter(function(o){return hit.indexOf(o)<0;});break;
+  }
+  ch.forEach(function(c){out+='<text x="'+c.x.toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" class="ch-tick'+(c.mo?' mo':'')+'">'+esc(c.t)+'</text>';});
+  return out;
+}
+// The header of a chart card: the big number, its unit, one line under it
+// (and on the right the column size for the bar charts)
+function zcHeadHTML(id,scaleId){
+  return '<div class="zc-head"'+(id?' id="'+id+'"':'')+'><div class="zc-read"><div class="zc-big"><b class="zc-v"></b><span class="zc-u"></span></div><div class="zc-sub"></div></div>'
+    +(scaleId?'<div class="chart-scale" id="'+scaleId+'"></div>':'')+'</div>';
+}
+function zcHeadEls(root){
+  var h=!root?null:root.classList.contains('zc-head')?root:root.querySelector('.zc-head');
+  return h?{v:h.querySelector('.zc-v'),u:h.querySelector('.zc-u'),s:h.querySelector('.zc-sub')}:null;
+}
+// r: [number, unit, line under it — text, or a list of nodes (a change chip and text)]
+function zcHeadSet(h,r){
+  if(!h)return;
+  h.v.textContent=r[0];h.u.textContent=r[1]||'';h.s.textContent='';
+  if(typeof r[2]==='string')h.s.textContent=r[2];else if(r[2])r[2].forEach(function(n){h.s.appendChild(n);});
+}
+
 // ── ZOOMABLE CHART ────────────────────────────────────────
-// The bar chart on Statistics, a habit's page and a tracker's habit (like a
-// trading chart): pinch with two fingers to zoom — the view is a span of
+// The bar chart on Statistics, a habit's page and a tracker's page with Bar
+// chart on (like a trading chart): pinch with two fingers to zoom — the view is a span of
 // time, and zoomed out far enough the columns turn from days into weeks,
 // then months (ZC_* limits below); drag sideways to scroll back through
 // history, with a little momentum, settling on whole columns. It stops at
 // today on the right and at the first day with data on the left. Vertical
-// drags still scroll the page (touch-action:pan-y). A tap on a bar shows its
-// numbers above the chart.
-// A source (chartSource) gives one period at a time, cached: the period idx
-// steps before the current one (0 = today / this week / this month). For one
-// habit the day columns are its scheduled days only; for Statistics every
-// calendar day.
+// drags still scroll the page (touch-action:pan-y). The number on top is the
+// average of the columns in view (a habit's page: its score in view); a tap
+// on a column puts that column there instead, a second tap lets go.
+// A source (zcSource: chartSource for habits, trackerChartSource for a
+// tracker) gives one period at a time, cached: the period idx steps before
+// the current one (0 = today / this week / this month). Day columns are
+// calendar days everywhere.
 // columns on screen: at least ZC_MIN; days up to ZC_DAY_MAX, then weeks up to
 // ZC_WEEK_MAX (half a year), then months up to ZC_MONTH_MAX (five years).
 // Zooming out always reaches ZC_OUT_MIN calendar days (a year: months), more
@@ -6634,7 +6700,6 @@ function _sumDays(items,start,end){
   }
   return{completed:c,scheduled:s,skipped:k};
 }
-function _dm(d){return I18N.lang==='de'?d.getDate()+'.'+(d.getMonth()+1)+'.':d.getDate()+'/'+(d.getMonth()+1);}
 // item: one habit, or null for every habit with a schedule (Statistics)
 function chartSource(item){
   var items=item?[item]:statsHabits().filter(function(it){return it.days&&it.days.length;});
@@ -6642,25 +6707,36 @@ function chartSource(item){
   var floor=new Date(today0);floor.setFullYear(floor.getFullYear()-5);
   var earliest=items.reduce(function(m,it){var c=habitCreatedDs(it);return c<m?c:m;},todayS);
   if(earliest<dStr(floor))earliest=dStr(floor); // undated old habits: at most five years back
-  var e0=new Date(earliest+'T00:00:00');
-  var cache={},maxCache={};
+  var src=zcSource(function(s,e){return _sumDays(items,s,e);},new Date(earliest+'T00:00:00'));
+  src.empty=!items.length;src.single=!!item;
+  return src;
+}
+// The columns of a bar chart, one period at a time (cached): idx steps back
+// from now (0 = today / this week / this month). sum(start,end) gives
+// {completed, scheduled, skipped}; e0 is the first day with data.
+function zcSource(sum,e0){
+  var today0=new Date(T.getFullYear(),T.getMonth(),T.getDate()),cache={},maxCache={};
+  e0=new Date(e0.getFullYear(),e0.getMonth(),e0.getDate());
   function period(gran,idx){
     var key=gran+idx;if(cache[key])return cache[key];
     var p;
     if(gran==='day'){
-      // every calendar day, one habit too (4.67.24): a day it isn't due has
-      // nothing scheduled and draws as the low grey stripe
+      // every calendar day (a habit's too, 4.67.24): one that has nothing
+      // due draws as the low grey stripe. Labelled with its date; the 1st
+      // with its month's name.
       var d=new Date(today0);d.setDate(d.getDate()-idx);
-      p=_sumDays(items,d,d);p.label=_dm(d);
+      p=sum(d,d);p.mo=d.getDate()===1;p.label=p.mo?chMonth(d):String(d.getDate());
+      p.ctx=p.mo?chCtx(p.label,d):chDM(d)+chYr(d);
       p.title=d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'});
     } else if(gran==='week'){
+      // weeks only carry a month's name, on the week that month starts in
       var s=new Date(today0);s.setDate(s.getDate()-wIdx(today0)-7*idx);
       var e=new Date(s);e.setDate(e.getDate()+6);
-      p=_sumDays(items,s,e);p.label=_dm(s);p.title=_dm(s)+' – '+_dm(e);
+      p=sum(s,e);p.label=(s.getDate()===1||e.getMonth()!==s.getMonth())?chMonth(e):'';
+      p.mo=!!p.label&&!e.getMonth();p.ctx=p.label?chCtx(p.label,e):'';p.title=chDM(s)+' – '+chDM(e);
     } else {
       var ms=new Date(today0.getFullYear(),today0.getMonth()-idx,1),me=new Date(today0.getFullYear(),today0.getMonth()-idx+1,0);
-      p=_sumDays(items,ms,me);
-      p.label=ms.getMonth()===0?String(ms.getFullYear()):ms.toLocaleDateString(dLoc(),{month:'short'});
+      p=sum(ms,me);p.label=chMonth(ms);p.mo=!ms.getMonth();p.ctx=chCtx(p.label,ms);
       p.title=ms.toLocaleDateString(dLoc(),{month:'long',year:'numeric'});
     }
     return cache[key]=p;
@@ -6677,13 +6753,53 @@ function chartSource(item){
     } else n=Math.max(0,(today0.getFullYear()-e0.getFullYear())*12+today0.getMonth()-e0.getMonth());
     return maxCache[gran]=n;
   }
-  return{period:period,maxIdx:maxIdx,empty:!items.length,single:!!item,
-    dayLen:1, // calendar days per day column
-    spanDays:Math.round((today0-e0)/864e5)+1};
+  return{period:period,maxIdx:maxIdx,dayLen:1,spanDays:Math.round((today0-e0)/864e5)+1};
+}
+// A tracker's bar chart (Bar chart on): a column per day = the day's value
+// (its latest entry), weeks and months add their days up. Added as a habit
+// with a goal, grey = what the goal asked for on the days the habit was due
+// (that day's goal, goal history); an "at most" goal draws no grey — a
+// column over it is red instead.
+function trackerChartSource(pid,link){
+  var E=((DB.data.trackerEntries||{})[pid]||[]).slice().sort(function(a,b){return a.ts-b.ts;}),byDay={},todayS=dStr(T);
+  E.forEach(function(e){byDay[dStr(new Date(e.ts))]=e.val;});
+  var src=zcSource(function(start,end){
+    var c=0,s=0,lim=0,low=false,cur=new Date(start.getFullYear(),start.getMonth(),start.getDate());
+    for(;cur<=end;cur.setDate(cur.getDate()+1)){
+      var ds=dStr(cur),v=byDay[ds];
+      var g=link&&link.days&&link.days.indexOf(wIdx(cur))!==-1&&habitActive(link,ds)?goalOn(link,ds):null;
+      if(g&&g.goal!=null){if(g.low){low=true;lim+=g.goal;}else s+=g.goal;}
+      if(ds<=todayS&&v!=null)c+=v;
+    }
+    return{completed:c,scheduled:s,skipped:0,miss:low&&c>lim};
+  },E.length?new Date(E[0].ts):new Date(T));
+  src.empty=!E.length;src.single=true;src.whole=false;src.emptyText='No data yet';
+  return src;
+}
+// What the header of a bar chart says: [number, unit, line under it] for the
+// tapped column (sel) or for what's in view (avg: per column with data;
+// tot: done / due in view)
+var ZC_NAME={day:'days',week:'weeks',month:'months'},ZC_PER={day:'a day',week:'a week',month:'a month'};
+function zcSkipTxt(q){return q.skipped?' · '+q.skipped+' '+t('skipped'):'';}
+function zcReadHabits(q,sel,g,avg){ // Statistics: every habit
+  if(sel)return [String(q.completed),t('of')+' '+q.scheduled,q.title+zcSkipTxt(q)];
+  return [g==='day'?avg.toFixed(1):String(Math.round(avg)),t(ZC_PER[g]),t('Average of the '+ZC_NAME[g]+' shown')];
+}
+function zcReadHabit(q,sel,g,avg,tot){ // one habit's page
+  if(sel&&g==='day')return [t(q.skipped?'Skipped':q.completed?'Done':'Not done'),'',q.title];
+  if(sel)return [String(q.completed),t('of')+' '+q.scheduled,q.title+zcSkipTxt(q)];
+  return [tot.s?Math.round(tot.c/tot.s*100)+'%':'–',t('done'),t('Of the '+ZC_NAME[g]+' shown')];
+}
+function zcReadTracker(p){
+  var u=p.unit||'',r1=function(v){return fmtTrk(Math.round(v*10)/10);};
+  return function(q,sel,g,avg){
+    if(sel)return [r1(q.completed),u,q.title+(q.scheduled?' · '+t('Goal')+' '+r1(q.scheduled)+(q.completed>=q.scheduled?' ✓':''):'')];
+    return [g==='day'?r1(avg):fmtTrk(Math.round(avg)),(u?u+' ':'')+t(ZC_PER[g]),t('Average of the '+ZC_NAME[g]+' shown')];
+  };
 }
 function ZChart(host){this.host=host;}
-ZChart.prototype.reset=function(src,readout,scale){
-  this.src=src;this.readout=readout;this.scale=scale;
+ZChart.prototype.reset=function(src,head,scale,read){
+  this.src=src;this.head=head;this.scale=scale;this.read=read;this.sel=null;
   this.len={day:src.dayLen,week:7,month:30.44};
   this.Dmin=ZC_MIN*src.dayLen;
   // zoom out as far as the data goes (a little past it), but always to a year
@@ -6691,7 +6807,6 @@ ZChart.prototype.reset=function(src,readout,scale){
   this.D=ZC_DEFAULT*src.dayLen; // calendar days in view
   this.offset=0; // columns back from now (0 = today at the right edge)
   this._stopAnim();this._apply();
-  if(readout)readout.innerHTML='&nbsp;';
 };
 ZChart.prototype._apply=function(){ // D -> column size and count
   var D=this.D,l=this.len;
@@ -6708,54 +6823,55 @@ ZChart.prototype.zoomTo=function(D){ // keeps the right edge where it is in time
   this.setOffset(days/this.len[this.gran]);
 };
 ZChart.prototype.render=function(){
-  var host=this.host,src=this.src,id=host.id;
-  if(src.single&&src.empty){host.innerHTML='<div class="chart-empty">No schedule set for this habit.</div>';return;}
-  var g=this.gran,n=this.count,o=this.offset,w=300,h=112,pb=18,pt=14,innerH=h-pt-pb;
-  // every visible column, also the ones older than the first habit (they
-  // get the low grey stripe); scrolling still stops at the oldest data
-  var i0=Math.max(0,Math.floor(o)),i1=Math.ceil(o+n);
-  var ps=[],maxVal=1,tallest=0;
-  for(var i=i0;i<=i1;i++){var p=src.period(g,i);ps.push(p);maxVal=Math.max(maxVal,p.completed,p.scheduled);tallest=Math.max(tallest,p.completed,p.scheduled);}
-  var padL=10,padR=10;this._padL=padL;this._padR=padR; // the card has no side padding: bars run 10px from its edges
-  var step=(w-padL-padR)/n,gap=Math.min(6,step*0.3),bw=Math.max(1,step-gap);this._step=step;
-  // Every column: a grey bar as tall as the habits it had (a low grey stripe
-  // when it had none — before any habit existed, or nothing scheduled), and
-  // the done part in green (skipped in light green) growing up inside it.
-  var bars='',labels='',every=Math.max(1,Math.ceil(24/step));
-  function hOf(v){return Math.max(6,Math.round(v/maxVal*innerH));}
-  for(var j=i1;j>=i0;j--){
-    // corners in proportion to the bar (28% of its width, at most 4 — the
-    // 14-day view's look); thin zoomed-out bars no longer end in half circles
-    var q=ps[j-i0],x=w-padR-(j+1-o)*step+gap/2,rx=Math.min(4,bw*0.28);
-    var empty=!q.completed&&!q.scheduled;
-    var greyH=empty?3:hOf(Math.max(q.scheduled,q.completed));
-    bars+='<rect x="'+x.toFixed(1)+'" y="'+(h-pb-greyH)+'" width="'+bw.toFixed(1)+'" height="'+greyH+'" rx="'+rx.toFixed(1)+'" class="hd-bar-empty"'+(empty?'':' data-i="'+j+'"')+'></rect>';
-    var barH=hOf(q.completed),y=h-pb-barH;
-    var sk=Math.min(q.skipped||0,q.completed);
-    var shape='x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+barH+'"';
-    if(!q.completed){
-      // nothing done: just the grey
-    } else if(sk>0&&sk<q.completed){
-      // Skipped days sit on top of the bar in light green: both colors are
-      // square blocks clipped to ONE rounded bar, so the seam is flat.
-      var skH=Math.max(3,Math.round(barH*sk/q.completed)),cid=id+'-c'+j;
-      bars+='<clipPath id="'+cid+'"><rect '+shape+' rx="'+rx.toFixed(1)+'"></rect></clipPath>'
-        +'<g clip-path="url(#'+cid+')">'
-        +'<rect '+shape+' fill="#30d158" data-i="'+j+'"></rect>'
-        +'<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+skH+'" fill="'+SKIP_COLOR+'" data-i="'+j+'"></rect></g>';
-    } else {
-      bars+='<rect '+shape+' rx="'+rx.toFixed(1)+'" fill="'+(sk===q.completed?SKIP_COLOR:'#30d158')+'" data-i="'+j+'"></rect>';
-    }
-    if(j%every===0&&q.label)labels+='<text class="hd-bar-label" x="'+(x+bw/2).toFixed(1)+'" y="'+(h-4)+'" font-size="7.5" text-anchor="middle">'+esc(q.label)+'</text>';
+  var host=this.host,src=this.src,id=host.id,self=this;
+  if(src.single&&src.empty){
+    host.innerHTML='<div class="chart-empty">'+esc(t(src.emptyText||'No schedule set for this habit.'))+'</div>';
+    zcHeadSet(this.head,['–','','']);if(this.scale)this.scale.textContent='';return;
   }
-  // ONE number: the tallest bar's (grey or green), just above its top, inside the card
-  var axis=tallest>0?'<text class="hd-bar-label" x="'+padL+'" y="'+(h-pb-hOf(tallest)-4)+'" font-size="7.5">'+tallest+'</text>':'';
-  // columns sliding past are cut just inside the card (a slice of the next
-  // column would show at the edge at rest)
-  host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:122px;display:block">'
-    +'<defs><clipPath id="'+id+'-plot"><rect x="'+(padL-1)+'" y="0" width="'+(w-padL-padR+2)+'" height="'+h+'"></rect></clipPath></defs>'
-    +axis+'<g clip-path="url(#'+id+'-plot)">'+bars+labels+'</g></svg>';
+  var W=host.clientWidth||300,H=host.clientHeight||230,B=CH_BOX,L=B.L,R=B.R,Tp=B.T,pw=W-L-R,ph=H-Tp-B.B,a0=L+B.IN,a1=L+pw-B.IN,iw=a1-a0;
+  var g=this.gran,n=this.count,o=this.offset,i0=Math.max(0,Math.floor(o)),i1=Math.ceil(o+n),mi=src.maxIdx(g);
+  // every visible column, also the ones older than the data (they get the
+  // low grey stripe); scrolling still stops at the oldest data
+  var ps=[],maxVal=1,sum=0,cnt=0,tot={c:0,s:0},i;
+  for(i=i0;i<=i1;i++){
+    var q=src.period(g,i);ps.push(q);maxVal=Math.max(maxVal,q.completed,q.scheduled);
+    if(i>=Math.round(o)&&i<Math.round(o)+Math.round(n)&&(q.scheduled||q.completed)&&i<=mi){sum+=q.completed;cnt++;tot.c+=q.completed;tot.s+=q.scheduled;}
+  }
+  var step=iw/n,gap=Math.min(6,step*0.3),bw=Math.max(1,step-gap),base=Tp+ph;
+  this._W=W;this._step=step;this._a0=a0;this._a1=a1;
+  function y(v){return base-v/maxVal*ph;}
+  function hOf(v){return Math.max(6,Math.round(v/maxVal*ph));}
+  // the fine lines always show (habit counts are whole numbers: at least 1 apart)
+  var tk=chNice(maxVal,3);if(src.whole!==false)tk=Math.max(1,tk);
+  var out='',bars='',lbl=[],every=g==='week'?1:Math.max(1,Math.ceil(30/step)),v;
+  for(v=0;v<=maxVal+1e-9;v+=tk){var yy=y(v).toFixed(1);
+    out+='<line class="ch-grid" x1="'+L+'" x2="'+(L+pw)+'" y1="'+yy+'" y2="'+yy+'" shape-rendering="crispEdges"/><text class="ch-tick" x="'+(W-R+10)+'" y="'+(+yy+4)+'">'+chTick(v)+'</text>';}
+  // Every column: a grey bar as tall as what was due (a low grey stripe when
+  // nothing was), the done part in green (skipped in light green) growing up
+  // inside it; corners 23% of the bar's width (at most 8)
+  for(var j=i1;j>=i0;j--){
+    var p=ps[j-i0],x=a1-(j+1-o)*step+gap/2,rx=Math.min(8,bw*0.23).toFixed(1),xs=x.toFixed(1),ws=bw.toFixed(1);
+    var empty=!p.completed&&!p.scheduled,greyH=empty?3:hOf(Math.max(p.scheduled,p.completed));
+    bars+='<rect class="hd-bar-empty" x="'+xs+'" y="'+(base-greyH)+'" width="'+ws+'" height="'+greyH+'" rx="'+rx+'"/>';
+    if(p.completed){
+      var bh=hOf(p.completed),by=base-bh,k=Math.min(p.skipped||0,p.completed),shape='x="'+xs+'" y="'+by+'" width="'+ws+'" height="'+bh+'"';
+      if(k>0&&k<p.completed){
+        // skipped sits on top in light green: two square blocks clipped to ONE rounded bar, so the seam is flat
+        var skH=Math.max(3,Math.round(bh*k/p.completed)),cid=id+'-c'+j;
+        bars+='<clipPath id="'+cid+'"><rect '+shape+' rx="'+rx+'"/></clipPath><g clip-path="url(#'+cid+')"><rect '+shape+' fill="#30d158"/>'
+          +'<rect x="'+xs+'" y="'+by+'" width="'+ws+'" height="'+skH+'" fill="'+SKIP_COLOR+'"/></g>';
+      } else bars+='<rect '+shape+' rx="'+rx+'" '+(p.miss?'class="ch-red-fill"':'fill="'+(k===p.completed?SKIP_COLOR:'#30d158')+'"')+'/>';
+    }
+    var cx=x+bw/2;if(p.label&&cx>=a0&&cx<=a1&&(p.mo||j%every===0))lbl.push({x:cx,t:p.label,mo:p.mo,ctx:p.ctx});
+  }
+  // columns are cut just outside the plot; their dates may reach a little further
+  out+='<defs><clipPath id="'+id+'-pc"><rect x="'+(a0-1)+'" y="0" width="'+(iw+2)+'" height="'+H+'"/></clipPath>'
+    +'<clipPath id="'+id+'-lc"><rect x="'+(L-8)+'" y="0" width="'+(pw+12)+'" height="'+H+'"/></clipPath></defs>'
+    +'<g clip-path="url(#'+id+'-pc)">'+bars+'</g><g clip-path="url(#'+id+'-lc)">'+chLabels(lbl,L,H)+'</g>';
+  host.innerHTML='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+out+'</svg>';
   if(this.scale)this.scale.textContent=t({day:'Days',week:'Weeks',month:'Months'}[g]);
+  if(this.sel!==null&&(this.sel<0||this.sel>mi))this.sel=null;
+  if(this.read)zcHeadSet(this.head,this.read(this.sel!==null?src.period(g,this.sel):null,this.sel!==null,g,cnt?sum/cnt:0,tot));
 };
 ZChart.prototype._stopAnim=function(){if(this._anim){cancelAnimationFrame(this._anim);this._anim=0;}};
 // glide with the finger's speed, slow down, then settle on a whole column
@@ -6787,9 +6903,9 @@ ZChart.prototype._settle=function(){
 ZChart.prototype._wire=function(){
   var self=this,h=this.host,mode=0,sx=0,sy=0,o0=0,d0=1,D0=0,moves=[],raf=0;
   function dist(ts){var dx=ts[0].clientX-ts[1].clientX,dy=ts[0].clientY-ts[1].clientY;return Math.sqrt(dx*dx+dy*dy)||1;}
-  function colPx(){return h.getBoundingClientRect().width/300*((300-(self._padL||10)-(self._padR||10))/self.count);}
+  function colPx(){return self._step||1;}
   function draw(){if(!raf)raf=requestAnimationFrame(function(){raf=0;self.render();});}
-  function clear(){if(self.readout)self.readout.innerHTML='&nbsp;';}
+  function clear(){self.sel=null;}
   // modes: 1 = touched, direction not decided; 2 = sideways drag; 3 = pinch; 4 = pinch over, wait for all fingers up
   h.addEventListener('touchstart',function(e){
     self._stopAnim();
@@ -6831,20 +6947,23 @@ ZChart.prototype._wire=function(){
   // nothing reaches these listeners (each pinch zoomed one frame, then
   // stopped). So the host is the target, and a tap finds its bar by position.
   h.addEventListener('click',function(e){
-    if(!self.readout||!self._step)return;
-    var r=h.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*300;
-    if(x<(self._padL||0)||x>300-(self._padR||0))return;
-    var q=self.src.period(self.gran,Math.floor((300-(self._padR||0)-x)/self._step+self.offset));
-    if(!q.completed&&!q.scheduled)return;
-    self.readout.textContent=barReadout(q);
+    if(!self._step)return;
+    var x=e.clientX-h.getBoundingClientRect().left;
+    if(x<self._a0-4||x>self._a1+4)return;
+    var j=Math.floor((self._a1-x)/self._step+self.offset);
+    var q=j>=0&&j<=self.src.maxIdx(self.gran)?self.src.period(self.gran,j):null;
+    // the tapped column goes into the header (tap it again to let go)
+    self.sel=q&&(q.completed||q.scheduled)&&self.sel!==j?j:null;self.render();
   });
+  // drawn while hidden (0 wide), or the phone turned: draw again at the real width
+  if(window.ResizeObserver)new ResizeObserver(function(){if(h.clientWidth&&h.clientWidth!==self._W)self.render();}).observe(h);
 };
 // Draws (or re-draws) the chart in hostId. The host keeps its ZChart, so
 // its touch listeners are added once even though the page re-renders it.
-function zChart(hostId,readoutId,scaleId,src){
+function zChart(hostId,headId,scaleId,src,read){
   var h=document.getElementById(hostId);if(!h)return;
   if(!h._zc){h._zc=new ZChart(h);h._zc._wire();}
-  h._zc.reset(src,document.getElementById(readoutId),document.getElementById(scaleId));
+  h._zc.reset(src,zcHeadEls(document.getElementById(headId)),document.getElementById(scaleId),read);
   h._zc.render();
 }
 
@@ -6893,11 +7012,25 @@ function renderPieChart(pct,skipped,target){
     var col=greenPct>0?'#30d158':SKIP_COLOR;
     arcs=full?ringSegment(0,1,col):ringSegment(0,pct/100,col,true,true);
   }
-  return '<svg viewBox="0 0 100 100" style="width:150px;height:150px">'
+  return '<svg viewBox="0 0 100 100" width="140" height="140">'
     +'<circle class="hd-pie-track" cx="50" cy="50" r="42" fill="none" stroke-width="10"></circle>'
     +arcs
-    +'<text class="hd-pie-pct" x="50" y="57" text-anchor="middle" font-size="24" font-weight="800">'+pct+'%</text>'
+    +'<text class="hd-pie-pct" x="50" y="55" text-anchor="middle" font-size="18.6" font-weight="700">'+pct+'%</text>'
+    +'<text class="hd-pie-sub" x="50" y="67.9" text-anchor="middle" font-size="9.3" font-weight="500">'+esc(t('done'))+'</text>'
     +'</svg>';
+}
+// The consistency card ("N2", picked on the charts page): the ring with the
+// score inside, beside it the time span as its title and what the score is
+// made of — done, skipped, not done. s: habitConsistency's {completed,
+// target, skipped, pct}
+var STATS_RANGE_TITLE={all:'All time','3m':'Last 3 months','1m':'Last month','1w':'Last week'};
+function consistencyHTML(s,title,empty){
+  if(!s.target)return '<div class="cal-none">'+esc(t(empty||'No data yet'))+'</div>';
+  var k=s.skipped||0;
+  return '<div class="cs-n2">'+renderPieChart(s.pct,k,s.target)+'<div class="cs-side"><div class="cs-title">'+esc(t(title))+'</div>'
+    +[[s.completed-k,'style="background:#30d158"','Done'],[k,'style="background:'+SKIP_COLOR+'"','Skipped'],[s.target-s.completed,'class="cs-grey"','Not done']].map(function(x){
+      return '<div class="cs-row"><span><i '+x[1]+'></i>'+esc(t(x[2]))+'</span><b>'+x[0]+'</b></div>';}).join('')
+    +'</div></div>';
 }
 
 // ── COMBINED STATS (Statistics tab) ─────────────────────────
@@ -7022,11 +7155,7 @@ var Stats={
   render:function(){
     this.applyWidgets();
     if(this.shown('score')){
-      var agg=aggHabitConsistency();
-      document.getElementById('stats-pie').innerHTML=renderPieChart(agg.pct,agg.skipped,agg.target);
-      document.getElementById('stats-pie-text').innerHTML=agg.target
-        ?'<b>'+agg.completed+'</b> / <b>'+agg.target+'</b> done'+(agg.skipped?' \u00b7 '+agg.skipped+' skipped':'')
-        :this.emptyText();
+      document.getElementById('stats-pie').innerHTML=consistencyHTML(aggHabitConsistency(),STATS_RANGE_TITLE[statsRange()],this.emptyText());
     }
     if(this.shown('chart'))this.renderChart();
     if(this.shown('best'))document.getElementById('stats-best').innerHTML=this.habitRow(bestHabitConsistency(),STAT_ICON_UP,'#22c55e');
@@ -7085,16 +7214,10 @@ var Stats={
       +'<span style="display:inline-flex;transform:rotate(-90deg);margin-left:-2px">'+ICON_CHEVRON+'</span></div></div>';
   },
   renderChart:function(){
-    zChart('stats-chart','stats-chart-readout','stats-scale',chartSource(null));
+    zChart('stats-chart','stats-chart-head','stats-scale',chartSource(null),zcReadHabits);
   }
 };
 
-// What a tapped bar in a habit's bar chart says above the chart.
-function barReadout(p){
-  var l=p.title||p.label;
-  return p.scheduled>1?(p.completed+' / '+p.scheduled+(p.skipped?' ('+p.skipped+' skipped)':'')+' — '+l)
-    :(p.skipped?'Skipped — '+l:(p.completed?'Done — '+l:'Not done — '+l));
-}
 var HabitDetail={
   itemId:null,origin:'today',
   open:function(itemId){
@@ -7125,15 +7248,12 @@ var HabitDetail={
   renderChart:function(){
     var item=DB.data.dailyItems.find(function(x){return x.id===HabitDetail.itemId;});
     if(!item)return;
-    zChart('hd-chart','hd-chart-readout','hd-scale',chartSource(item));
+    zChart('hd-chart','hd-chart-head','hd-scale',chartSource(item),zcReadHabit);
   },
   renderPie:function(){
     var item=DB.data.dailyItems.find(function(x){return x.id===HabitDetail.itemId;});
     if(!item)return;
-    var s=habitConsistency(item);
-    document.getElementById('hd-pie').innerHTML=renderPieChart(s.pct,s.skipped,s.target);
-    document.getElementById('hd-streak-text').innerHTML=
-      '<b>'+s.completed+'</b> of <b>'+s.target+'</b> scheduled days completed'+(s.skipped?' ('+s.skipped+' skipped)':'');
+    document.getElementById('hd-pie').innerHTML=consistencyHTML(habitConsistency(item),'Last 3 months','No data yet');
     var st=habitStreaks(item);
     document.getElementById('hd-best-streak').textContent=st.best;
     document.getElementById('hd-cur-streak').textContent='Current streak: '+st.current;

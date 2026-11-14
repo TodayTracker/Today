@@ -807,6 +807,64 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   on resume after 5 min. Every release must still bump CACHE_NAME (that's what the
   comparison keys on).
 
+- CHARTS NOW (4.67.25, from https://claude.ai/artifact/D8woa5UaWXmgWd82RDrZvK
+  "Every chart in Today" — "integrate those and the charts fully into the
+  app"; KEEP that page, its source is .claude/optprev/chart-studies.src.html;
+  the older "D · Edge to edge" notes below are history). Every chart card
+  (`.calsec.zc-card`, padding 18px 0 8px) = a readout on top (`.zc-head`:
+  big number 34/700 + unit, one line under it 13/500, the column size
+  Days/Weeks/Months on the right; `zcHeadHTML/zcHeadEls/zcHeadSet`) and a
+  230px plot (`.zc-plot`, px-sized svg, `CH_BOX` L18 R40 T24 B26, 8px in):
+  fine grid lines (`.ch-grid`, ALWAYS shown — "i mean always": with a tallest
+  column of 1 there were none) with round numbers on the right (`chNice`
+  1/2/5 steps — 2.5 gave "77.75", cut off in the 40px; `chTick`, 10000+ as
+  "10k"), dates along the bottom through ONE picker, `chLabels(lbl,L,H)`:
+  month starts first (`mo`, bold `.ch-tick.mo`; the 1st of a month = its name,
+  January = its year "2026"), then the others from today back, never closer
+  than 32px centre / 14px edge; the leftmost label carries its month ("5 Oct",
+  `ctx`, + year when not this year — "if i scroll in the past its impossible
+  to know where im at") in normal weight ("why is the one from the far left
+  also bold?"), dropped instead if it would crowd a month's name. Week columns
+  are labelled ONLY with the month, on the week it starts in ("anything too
+  much is overwhelming"). No value at a line's end ring (it's in the
+  readout); no average line in bar charts. Text sizes are CSS (`.ch-*`),
+  colours `--ch-grid/--ch-tick/--ch-ink2/--ch-ref/--ch-track/--ch-chip`.
+  BAR CHARTS (ZChart; Statistics, a habit's page, a tracker with Bar chart
+  on): same gestures as before; corners min(8, 23% of the bar) ("a touch less
+  round" than 28%); readouts per chart = `read(q,sel,gran,avg,tot)` →
+  [number, unit, line]: Statistics `zcReadHabits` (average per day/week/
+  month in view; tapped: "7 of 8 · Sun 8 Nov"), habit `zcReadHabit` (its
+  score in view "79% done"; a tapped day "Done/Skipped/Not done"),
+  tracker `zcReadTracker(p)`. A tap selects a column (`this.sel`), a second
+  tap or any drag/pinch lets go. Sources: `zcSource(sum,e0)` makes the
+  periods + labels; `chartSource(item)` (habits) and `trackerChartSource(pid,
+  link)` (a column = the day's latest entry, weeks/months add up; grey =
+  that day's goal on the days the linked habit is due, goalOn/habitActive;
+  an "at most" goal draws no grey, a column over it is red, `miss`). The old
+  per-entry `trackerChart` bars, `barReadout`, `_dm` and `.chart-hdr/
+  .chart-readout` are gone.
+  LINES (TrkZ, a tracker): readout = latest value in view + a change chip
+  "−0.6 kg since 16 Oct" (moving average: "· 7-day average"); a tap = the
+  nearest point (date, time when zoomed in or the day has 2+ entries;
+  "Average 6 Jul – 12 Jul" for a group); with a goal (the linked habit's,
+  `goalLow` = at most), everything on the wrong side is red — line, fade,
+  stems (`.ch-red`, clipPaths per pid), end ring too; zoomed out under 6px a
+  day the line goes through 2/3/7/14/30-day averages counted from a fixed
+  Monday (no shimmer while scrolling), the latest entry stays itself. Still
+  3 hours … everything, 30 days to start, TRK_VIEW. The plot (not the card)
+  is the touch target. Both charts redraw at their real width through a
+  ResizeObserver (drawn while their page is hidden = 0 wide).
+  CONSISTENCY = "N2" (Statistics, a habit's page, a tracker habit's page;
+  `consistencyHTML(s,title,empty)` in `.calsec.cs-card`): the app's ring at
+  140px with the % and "done" inside (`renderPieChart`), beside it the time
+  span as a bold title (Statistics: `STATS_RANGE_TITLE[statsRange()]`; habit
+  pages "Last 3 months") and rows Done / Skipped / Not done with the counts
+  on the right, 15px weight 500 ("not that fat", "a bit smaller"). The
+  card's title stays OUTSIDE (`.sl`/`.shdr`) like every Statistics widget.
+  Picked after: rings removed by me by mistake ("i never said i want the
+  cons changed or without a ring"), ring-free options rejected ("i want only
+  pie charts"), P1 variations → P1c → placements → N2. Lesson: "better
+  suggestions for X" means better X.
 - CHART LOOK "D · Edge to edge" + "I5" (4.52, picked by elimination on
   https://claude.ai/artifact/1E5WuHAob9Jz6HFwuNMVTG — layouts 1/A–E, dot
   styles G1–G5/I1–I5; the user wants those options KEPT to choose again
