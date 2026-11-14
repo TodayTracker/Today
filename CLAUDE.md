@@ -640,7 +640,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   Swipe sideways between months (4.67.31, "add swiping to the calendar so i
   can swipe between months"): the days follow the finger, past 50px the
   next/previous month slides in (`.in-next/.in-prev`, also on the ‹ ›
-  arrows), else they glide back; `.tcal{touch-action:none}`; a click within
+  arrows), else they glide back; `.tcal{touch-action:none;overflow:hidden}`
+  — the overflow since 4.67.32 ("it moves outside of the window, it
+  shouldn't"): the moving days are cut at the window's rounded edge; a click within
   400ms of a swipe is ignored (no day picked by the swipe's end).
   The tap OUTSIDE that closes it (Pop, and every DSel dropdown) stops at the
   document's capture listener (`e.stopPropagation()` in outsideStart): before
