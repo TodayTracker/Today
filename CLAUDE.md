@@ -574,6 +574,39 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   the last 'h:' key (`todayOrder()`). Edit layout rows: `todaySecName(k)`
   (the project's name). Anything that reads Today's habit rows uses
   `#p-today .today-hab`. Measured: 22px between every section, as before.
+- FILES ON TASKS (4.67.28, "add docs to tasks", "dont forget we need a
+  button to attach docs and a space where they are visible"): the files live
+  in IndexedDB (`FileStore`: db 'lifeos-files', store 'files', {id, name,
+  type, size, data: ArrayBuffer, added}; localStorage only holds ~5 MB). A
+  task keeps `files: [{id,name,type,size}]`; DB.completeTask / restoreTask /
+  resetProject carry it (done tasks keep their files). Ids 'f'+time+random —
+  `fileIdsIn(json)` finds them by that shape (keep it unique). Task window:
+  a Files card under the notes (`#task-sheet-files`: a row per file —
+  picture or its ending ("PDF"), name, size, `.sh-x` → Alert → Trash type
+  'file' {pid,key,file} — then a blue "Attach a file" row → hidden
+  `#task-file` multiple input). Files are stored at once; on an existing
+  task its `files` saves at once too, on a NEW task they're `pending` until
+  Save and deleted on close without Save. TaskSheet.loadFiles reads the open
+  task's files into memory (`cache`) so a tap opens one INSIDE the tap: a
+  picture full screen (`FileView`, #file-view, tap closes), anything else
+  navigator.share({files}) (iPhone share sheet: open in another app, save),
+  else a download. Max 50 MB a file (FILE_MAX). Trash: a "Files" kind;
+  restore puts it back on its task ("Restore the task first." if gone);
+  Delete forever / Delete all forever → `FileStore.dropUnused()` deletes
+  every stored file no data mentions (never runs while DB.readOnly; nothing
+  else deletes files). Backup: with files it's `backup:2` + `files:[{id,
+  name,type,size,data:base64}]`; reading files is async, so Export shows
+  "Backup ready — N files are in it too." whose Save button shares it (the
+  share sheet needs a tap); Import clears the stored files and writes the
+  backup's before the restart (a backup 1 file leaves none). Not done yet:
+  a paperclip on task rows that have files (offered).
+- TASK WINDOW PRIORITY = "F" (4.67.28, picked on
+  https://claude.ai/artifact/ECSy2yZvgPVnJVeCYtbYzc — "i like F the most";
+  keep the page): no Priority row any more; the task's badge (`.ts-pri bdg
+  <pri>` + a small down arrow) sits top left in `.sh-bar` across from Save;
+  a tap opens `Pop` (a small panel under a button that closes like DSel —
+  TodayCal uses it too) with the four badges, the current one on a grey
+  background. Hidden for List projects.
 - TODAY'S DATE + CALENDAR (4.67.26, the user's own idea, mocked on
   https://claude.ai/artifact/2rYagzY6pbNgNZhjTGZRhN — "the date top right
   (like it was before)… click it and it opens an overlay window with a mini

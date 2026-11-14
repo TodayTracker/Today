@@ -672,6 +672,26 @@ html:not(#x) .dhdr{min-height:40px}
 /* Today's arrows to the day before / after (TodayDay): bare chevrons like
    the Habits day bar's arrow, 36px to tap, the outer one flush with the
    page edge's 16px */
+/* Task window (1.0): the priority badge top left ("F"), its four badges in a
+   small panel; the Files card (a row per file + "Attach a file") */
+.sh-bar .ts-pri{grid-column:1;justify-self:start;display:inline-flex;align-items:center;gap:4px;border:none;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.sh-bar .ts-pri svg{flex:none;opacity:.7}
+.pri-pop{position:fixed;z-index:600;background:#fff;border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.18),0 0 0 1px rgba(127,127,127,.15);padding:6px;display:flex;flex-direction:column;gap:2px;animation:tcalIn .16s ease-out}
+@media(prefers-color-scheme:dark){.pri-pop{background:#26292f}}
+html[data-theme="dark"] .pri-pop{background:#26292f}
+html[data-theme="light"] .pri-pop{background:#fff}
+.pri-opt{display:flex;padding:6px 8px;border:none;border-radius:10px;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pri-opt.sel{background:var(--pg)}
+#task-sheet-files{margin-top:20px}
+.ts-thumb{flex:none;width:30px;height:30px;border-radius:7px;overflow:hidden;background:var(--box,#eceef1);display:flex;align-items:center;justify-content:center}
+.ts-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ts-ext{font-size:9px;font-weight:700;letter-spacing:.02em;color:#8e8e93}
+.ts-size{flex:none;margin-left:auto;font-size:15px;font-weight:500;color:#999}
+.ts-file .sh-x{margin-left:4px}
+.ts-attach .ts-clip{display:flex;color:var(--blue)}
+.file-view{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);touch-action:none}
+.file-view.on{display:flex}
+.file-view img{max-width:100%;max-height:100%;object-fit:contain}
 .tday-date{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 0 0 8px;border:none;background:none;font:inherit;font-size:15px;font-weight:500;color:#999;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tday-ico{display:flex}
 /* Today's calendar (1.0: the date's dropdown from the "Pick a day in Today"
@@ -1712,6 +1732,8 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
   </div>
 </div>
 
+<div class="file-view" id="file-view" onclick="FileView.hide()"></div>
+
 <div class="wel" id="welcome">
   <button class="wel-skip" id="wel-skip" onclick="Welcome.skip()">Skip</button>
   <div class="wel-body" id="wel-body"></div>
@@ -1876,12 +1898,13 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
 
 <div class="sheet-overlay" id="task-sheet-overlay" onclick="if(event.target===this)TaskSheet.close()">
   <div class="sheet sh-win">
-    <div class="sh-bar"><span class="sh-bar-t" id="task-sheet-title"></span><button type="button" class="sh-save" onclick="TaskSheet.save()">Save</button></div>
+    <div class="sh-bar"><button type="button" class="ts-pri bdg bs" id="task-sheet-pri" onclick="TaskSheet.priMenu(this)"></button><span class="sh-bar-t" id="task-sheet-title"></span><button type="button" class="sh-save" onclick="TaskSheet.save()">Save</button></div>
     <div class="sh-hero">
       <input class="sh-name" id="task-sheet-name" placeholder="Task name">
       <textarea class="sh-text sh-notes" id="task-sheet-desc" placeholder="Notes" oninput="TaskSheet.autosize()"></textarea>
     </div>
-    <div class="opt-group" id="task-sheet-rows"></div>
+    <div class="opt-group" id="task-sheet-files"></div>
+    <input type="file" id="task-file" multiple style="display:none" onchange="TaskSheet.addFiles(this)">
   </div>
 </div>
 
@@ -1936,7 +1959,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=27;
+var BETA_BUILD=28;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3279,7 +3302,9 @@ var CHANGELOG=[
     "New look for every chart: the number on top shows what's in view (or the column or point you tap), fine lines with their numbers on the right, the 1st of each month named along the bottom and the left date with its month, so you know where you are after scrolling back",
     "Tracker lines: the part on the wrong side of the goal is red (above an \"at most\" goal, below an \"at least\" one), and zoomed far out the line goes through a few days' averages",
     "A tracker with Bar chart on shows a column per day, week or month (pinch and drag like the habit charts); with a goal, the grey is what that day's goal asked for",
-    "Consistency (Statistics, a habit's page, a tracker habit's page): the ring with the score inside, and beside it the time span and how many were done, skipped and not done"
+    "Consistency (Statistics, a habit's page, a tracker habit's page): the ring with the score inside, and beside it the time span and how many were done, skipped and not done",
+    "Files on tasks: in a task's window, Attach a file adds documents or photos; a picture opens full screen, anything else opens through the share sheet; removing one puts it in the Trash (a new Files kind there); the backup file carries them",
+    "The task window's priority is the task's own badge, top left across from Save: tap it and pick one of the four badges"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3422,7 +3447,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos","New look for the charts"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos","New look for the charts","Attach files to tasks"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3710,6 +3735,11 @@ var DB={
       if(!d.trackerEntries[x.pid])d.trackerEntries[x.pid]=[];
       d.trackerEntries[x.pid].push(x.entry);
       d.trackerEntries[x.pid].sort(function(a,b){return a.ts-b.ts;});
+    } else if(t.type==='file'){
+      // back onto its task, if the task is still there
+      var tk=(d.extraTasks[x.pid]||[]).find(function(q){return q.key===x.key;});
+      if(!tk)return 'Restore the task first.';
+      tk.files=(tk.files||[]).concat([x.file]);
     }
     d.trash.splice(i,1);
     this.save();
@@ -3776,6 +3806,7 @@ var DB={
     if(fields.text!==undefined)t.text=fields.text;
     if(fields.pri!==undefined)t.pri=fields.pri;
     if(fields.desc!==undefined)t.desc=fields.desc;
+    if(fields.files!==undefined){if(fields.files.length)t.files=fields.files;else delete t.files;}
     if(priChanged)this._placeTask(projId,key);else this._sortTasks(projId);
     this.save();
   },
@@ -3837,7 +3868,7 @@ var DB={
     for(var lp in this.data.extraTasks){
       (this.data.extraTasks[lp]||[]).forEach(function(t){if(t.key===key){task=t;taskPid=lp;var pr=self.data.projects[lp];fromList=!!(pr&&pr.type==='list');}});
     }
-    this.data.archived.push({key:key,text:text,section:projName,pid:taskPid,list:fromList,pri:task&&task.pri,desc:task&&task.desc,
+    this.data.archived.push({key:key,text:text,section:projName,pid:taskPid,list:fromList,pri:task&&task.pri,desc:task&&task.desc,files:task&&task.files,
       date:new Date().toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'}),
       dateISO:dStr(new Date())});
     for(var pid in this.data.extraTasks)
@@ -3863,6 +3894,7 @@ var DB={
     if(!this.data.extraTasks[pid])this.data.extraTasks[pid]=[];
     var nk='t'+Date.now()+Math.random().toString(36).slice(2);
     this.data.extraTasks[pid].push({key:nk,text:item.text,pri:item.pri||'bs',desc:item.desc||''});
+    if(item.files&&item.files.length)this.data.extraTasks[pid][this.data.extraTasks[pid].length-1].files=item.files;
     this._placeTask(pid,nk); // back like a new task
     this.save();
     return '';
@@ -3906,7 +3938,7 @@ var DB={
       var isList=p.type==='list',when=new Date().toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'});
       (d.extraTasks[pid]||[]).forEach(function(t){
         // no dateISO: these were removed, not completed, so they stay out of the completed-per-day stats
-        d.archived.push({key:t.key,text:t.text,section:p.name,list:isList,pri:t.pri,desc:t.desc,date:when,removed:true});n++;
+        d.archived.push({key:t.key,text:t.text,section:p.name,list:isList,pri:t.pri,desc:t.desc,files:t.files,date:when,removed:true});n++;
       });
       d.extraTasks[pid]=[];
     }
@@ -4155,7 +4187,7 @@ var I18N=(function(){
     'Version history':'Versionsverlauf','Advanced update info':'Erweiterte Update-Infos','Bug fixes':'Fehlerbehebungen','Design fixes':'Design-Korrekturen','Design and bug fixes':'Design-Korrekturen und Fehlerbehebungen',"What's new":'Neuigkeiten','Got it':'Verstanden','General':'Allgemein','Data':'Daten',
     // headers
     '📆 Daily':'📆 Täglich','📅 One-time':'📅 Einmalig','One-time tasks':'Einmalige Aufgaben','One-time':'Einmalig',
-    'Consistency score':'Konsistenz-Wert','Last 3 months':'Letzte 3 Monate','Last month':'Letzter Monat','Last week':'Letzte Woche','done':'erledigt','skipped':'übersprungen','since':'seit','logged':'erfasst','Average':'Schnitt','7-day average':'7-Tage-Schnitt','a day':'pro Tag','a week':'pro Woche','a month':'pro Monat','Average of the days shown':'Schnitt der gezeigten Tage','Average of the weeks shown':'Schnitt der gezeigten Wochen','Average of the months shown':'Schnitt der gezeigten Monate','Of the days shown':'Von den gezeigten Tagen','Of the weeks shown':'Von den gezeigten Wochen','Of the months shown':'Von den gezeigten Monaten','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen','One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Bewahre sie in Dateien auf oder schick sie dir selbst — Importieren holt alles zurück.',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
+    'Consistency score':'Konsistenz-Wert','Files':'Dateien','Attach a file':'Datei anhängen','Restore the task first.':'Stell zuerst die Aufgabe wieder her.','This file is still loading — try again in a moment.':'Diese Datei lädt noch — versuch es gleich nochmal.',"This file isn't on this phone any more.":'Diese Datei ist nicht mehr auf diesem Handy.','Last 3 months':'Letzte 3 Monate','Last month':'Letzter Monat','Last week':'Letzte Woche','done':'erledigt','skipped':'übersprungen','since':'seit','logged':'erfasst','Average':'Schnitt','7-day average':'7-Tage-Schnitt','a day':'pro Tag','a week':'pro Woche','a month':'pro Monat','Average of the days shown':'Schnitt der gezeigten Tage','Average of the weeks shown':'Schnitt der gezeigten Wochen','Average of the months shown':'Schnitt der gezeigten Monate','Of the days shown':'Von den gezeigten Tagen','Of the weeks shown':'Von den gezeigten Wochen','Of the months shown':'Von den gezeigten Monaten','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen','One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Bewahre sie in Dateien auf oder schick sie dir selbst — Importieren holt alles zurück.',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
     'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
@@ -4219,6 +4251,10 @@ var I18N=(function(){
     'Blue':'Blau','Indigo':'Indigo','Violet':'Violett','Purple':'Lila','Fuchsia':'Fuchsia','Pink':'Pink','Slate':'Schiefer','Black':'Schwarz'
   };
   var RULES=[
+    [/^Remove "(.*)"\? It goes to the Trash\.$/,'„$1" entfernen? Sie kommt in den Papierkorb.'],
+    [/^Backup ready — 1 file is in it too\.$/,'Backup bereit — 1 Datei ist auch drin.'],[/^Backup ready — (\d+) files are in it too\.$/,'Backup bereit — $1 Dateien sind auch drin.'],
+    [/^Files can be up to 50 MB — (.*) is too big\.$/,'Dateien dürfen bis 50 MB gross sein — $1 ist zu gross.'],
+    [/^This file couldn't be saved — (.*)$/,'Diese Datei konnte nicht gespeichert werden — $1'],
     [/^Upcoming events: (\d+)$/,'Kommende Termine: $1'],[/^(\d+) past$/,'$1 vergangen'],[/^(\d+) repeating$/,'$1 wiederkehrend'],
     [/^(\d+) already added$/,'$1 schon vorhanden'],[/^Import (\d+)$/,'$1 importieren'],
     [/^(\d+) events added to your calendar\.$/,'$1 Termine zu deinem Kalender hinzugefügt.'],
@@ -4960,7 +4996,7 @@ function wireTasksDrag(c){
 // archive of ticked-off tasks; the rest come from DB.data.trash.
 var Trash={
   tab:'completed',
-  TABS:[{id:'completed',label:'Tasks'},{id:'lists',label:'Lists'},{id:'habit',label:'Habits'},{id:'project',label:'Projects'},{id:'entry',label:'Entries'}],
+  TABS:[{id:'completed',label:'Tasks'},{id:'lists',label:'Lists'},{id:'habit',label:'Habits'},{id:'project',label:'Projects'},{id:'entry',label:'Entries'},{id:'file',label:'Files'}],
   items:function(tab){
     var d=DB.data;
     if(tab==='completed')return d.archived.filter(function(a){return !Trash.isList(a);});
@@ -5021,6 +5057,9 @@ function renderArchive(){
         r.right='<span class="trash-type">'+(TYPE_ICONS[pr.type]||TYPE_ICONS.todo)+'</span>';
       } else if(x.type==='habit'){
         r.right=d.item&&d.item.pid&&DB.data.projects[d.item.pid]?badge(d.item.pid):badge(null,x.sub);
+      } else if(x.type==='file'){
+        r.ico=d.file?fileThumb({id:'',name:d.file.name,type:''}):'';
+        r.right=d.pid&&DB.data.projects[d.pid]?badge(d.pid):badge(null,x.sub);
       } else {
         var tp=d.pid&&DB.data.projects[d.pid];
         r.right=tp?badge(d.pid):badge(null,String(x.sub||'').replace(/^\S+\s/,''));
@@ -5653,13 +5692,13 @@ var A={
   trashDelete:function(id){
     Alert.confirm('Delete this forever?',function(){
       DB.data.trash=DB.data.trash.filter(function(t){return t.id!==id;});
-      DB.save();renderGrids();renderArchive();
+      DB.save();renderGrids();renderArchive();FileStore.dropUnused();
     });
   },
   trashDeleteCompleted:function(idx){
     Alert.confirm('Delete this forever?',function(){
       DB.data.archived.splice(idx,1);
-      DB.save();renderGrids();renderArchive();
+      DB.save();renderGrids();renderArchive();FileStore.dropUnused();
     });
   },
   // Empties the tab that's showing.
@@ -5669,7 +5708,7 @@ var A={
     Alert.confirm('Delete all '+items.length+' items in this tab forever?',function(){
       if(Trash.archivedTab(Trash.tab))DB.data.archived=DB.data.archived.filter(function(a){return items.indexOf(a)===-1;});
       else{var ids=items.map(function(t){return t.id;});DB.data.trash=DB.data.trash.filter(function(t){return ids.indexOf(t.id)===-1;});}
-      DB.save();renderGrids();renderArchive();
+      DB.save();renderGrids();renderArchive();FileStore.dropUnused();
     },'Delete all');
   },
   newCategory:function(){
@@ -7610,30 +7649,12 @@ function todayHead(){
 // dropdown with C2's month). Monday first; Calendar tasks are blue dots (two
 // for 2+), a temporary habit shades the days it runs in its Habits project's
 // colour (at most two per day); today has the thin ink outline, the day shown
-// the day bar's blue. Tap a day = show it; "Today" goes back. Closes like a
-// dropdown (DSel): a tap outside (that tap does nothing else), a scroll.
+// the day bar's blue. Tap a day = show it; "Today" goes back. A Pop panel:
+// closes like a dropdown (DSel).
 var TodayCal=(function(){
-  var el=null,btn=null,m=null,swallowEl=null,swallowUntil=0;
+  var el=null,m=null;
   var L='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg>';
   var R='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
-  document.addEventListener('click',function(e){
-    if(!swallowEl)return;
-    if(Date.now()>swallowUntil){swallowEl=null;return;}
-    if(e.target===swallowEl||(e.target.contains&&e.target.contains(swallowEl))){e.stopPropagation();e.preventDefault();swallowEl=null;}
-  },true);
-  function inside(e){return el&&(el.contains(e.target)||(btn&&btn.contains(e.target)));}
-  function outsideStart(e){if(!el||inside(e))return;swallowEl=e.target;swallowUntil=Date.now()+700;close();}
-  function outside(e){if(!el||inside(e))return;e.stopPropagation();e.preventDefault();close();}
-  function onScroll(e){var tg=e.target;if(!el||tg===document||tg===window||tg===document.documentElement||tg===document.body||el.contains(tg))return;close();}
-  function close(){
-    if(el){el.remove();el=null;}
-    if(btn)btn.classList.remove('open');btn=null;
-    document.removeEventListener('click',outside,true);
-    document.removeEventListener('touchstart',outsideStart,true);
-    document.removeEventListener('mousedown',outsideStart,true);
-    window.removeEventListener('scroll',onScroll,true);
-    window.removeEventListener('resize',close);
-  }
   function day0(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
   function offOf(d){return Math.round((day0(d)-day0(T))/864e5);}
   // temporary habits (a start and an end), each in its Habits project's colour
@@ -7671,34 +7692,20 @@ var TodayCal=(function(){
       +used.map(function(x){return '<span><i class="tcal-ll" style="background:'+x.col+'"></i>'+esc(x.name)+'</span>';}).join('')+'</div>';
     el.innerHTML=h;
   }
-  function place(){
-    var r=btn.getBoundingClientRect(),w=el.offsetWidth;
-    el.style.top=(r.bottom+6)+'px';
-    el.style.left=Math.max(12,Math.min(r.right-w,window.innerWidth-w-12))+'px';
-  }
   function onClick(e){
     var b=e.target.closest('button');if(!b)return;
     var act=b.getAttribute('data-a');
     if(act==='prev'||act==='next'){m=new Date(m.getFullYear(),m.getMonth()+(act==='prev'?-1:1),1);render();return;}
     var o=act==='today'?0:b.hasAttribute('data-o')?+b.getAttribute('data-o'):null;
     if(o===null)return;
-    close();TodayDay.go(o);
+    Pop.close();TodayDay.go(o);
   }
   return{
-    close:close,
+    close:function(){Pop.close();},
     toggle:function(b){
-      if(el&&btn===b){close();return;}
-      close();btn=b;b.classList.add('open');
+      if(Pop.isOpen(b)){Pop.close();return;}
       var d=new Date(T);d.setDate(T.getDate()+TodayDay.off);m=new Date(d.getFullYear(),d.getMonth(),1);
-      el=document.createElement('div');el.className='tcal';el.addEventListener('click',onClick);
-      document.body.appendChild(el);render();place();
-      setTimeout(function(){
-        document.addEventListener('click',outside,true);
-        document.addEventListener('touchstart',outsideStart,true);
-        document.addEventListener('mousedown',outsideStart,true);
-        window.addEventListener('scroll',onScroll,true);
-        window.addEventListener('resize',close);
-      },0);
+      Pop.open(b,'tcal',function(p){el=p;p.addEventListener('click',onClick);render();},'right');
     }
   };
 })();
@@ -8326,9 +8333,20 @@ var Templates={
 // restart: UpdateOverlay.carry/resume).
 var Backup={
   name:function(){return 'Today backup '+dStr(new Date())+'.json';},
+  // With files on tasks (backup 2) they're read first — that takes a moment,
+  // and the phone's share sheet only opens straight from a tap — so a pop-up
+  // says the backup is ready and its Save button shares it.
   save:function(){
     var raw=localStorage.getItem('lifeos');if(!raw)return;
-    var txt='{"app":"Today","backup":1,"made":'+JSON.stringify(new Date().toISOString())+',"data":'+raw+'}';
+    var made=JSON.stringify(new Date().toISOString()),ids=fileIdsIn(raw),self=this;
+    if(!ids.length){this._share('{"app":"Today","backup":1,"made":'+made+',"data":'+raw+'}');return;}
+    Promise.all(ids.map(function(id){return FileStore.get(id).catch(function(){return null;});})).then(function(recs){
+      var files=recs.filter(Boolean).map(function(r){return{id:r.id,name:r.name,type:r.type,size:r.size,data:bufToB64(r.data)};});
+      var txt='{"app":"Today","backup":2,"made":'+made+',"data":'+raw+',"files":'+JSON.stringify(files)+'}';
+      Alert.show('Backup ready — '+(files.length===1?'1 file is':files.length+' files are')+' in it too.',[{label:'Cancel'},{label:'Save',fn:function(){self._share(txt);}}]);
+    });
+  },
+  _share:function(txt){
     var name=this.name(),f=null;
     try{f=new File([txt],name,{type:'application/json'});}catch(e){}
     var can=false;try{can=!!(f&&navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}));}catch(e){}
@@ -8350,10 +8368,11 @@ var Backup={
       var d=o&&o.app==='Today'&&o.backup&&o.data;
       if(!d||typeof d!=='object'||Array.isArray(d)||!d.projects||typeof d.projects!=='object'){self._notOurs();return;}
       var at=new Date(o.made),when=isNaN(at)?'?':at.toLocaleDateString(dLoc(),{day:'numeric',month:'short',year:'numeric'})+', '+at.toLocaleTimeString(dLoc(),{hour:'2-digit',minute:'2-digit'});
-      Alert.confirm('Replace all data with this backup? Backup from '+when+'. Your current data will be overwritten.',function(){self.load(d);},'Replace');
+      var files=Array.isArray(o.files)?o.files:[];
+      Alert.confirm('Replace all data with this backup? Backup from '+when+'. Your current data will be overwritten.',function(){self.load(d,files);},'Replace');
     }).catch(function(){self._notOurs();});
   },
-  load:function(data){
+  load:function(data,files){
     var json=JSON.stringify(data),went=false;
     UpdateOverlay.show(undefined,'Loading backup');
     // the heavy part (saving a few MB) only once the loading screen is drawn
@@ -8362,8 +8381,13 @@ var Backup={
       try{localStorage.setItem('lifeos',json);}
       catch(err){UpdateOverlay.hide();Alert.info("This backup couldn't be loaded — "+((err&&err.message)||String(err)));return;}
       DB.load(); // from here on the app holds the backup (nothing can save the old data over it)
-      UpdateOverlay.carry();
-      location.reload();
+      // the files replace the ones stored now (a backup without files leaves none)
+      var put=FileStore.clear().then(function(){
+        return Promise.all((files||[]).map(function(f){
+          return FileStore.put({id:f.id,name:f.name,type:f.type,size:f.size,data:b64ToBuf(f.data),added:Date.now()});
+        }));
+      }).catch(function(){});
+      put.then(function(){UpdateOverlay.carry();location.reload();});
     }
     requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(go,0);});});
     setTimeout(go,250);
@@ -9584,25 +9608,140 @@ function renderAllTaskViews(){
 
 // The Task window, for editing a task (open) or adding one (openNew — the
 // project page's "+"; key stays null until Save creates the task).
+// ── FILES ON TASKS (1.0: "add docs to tasks", "a button to attach docs and a
+// space where they are visible") ─────────────────────────────────────────
+// The files themselves live in IndexedDB ('lifeos-files', store 'files':
+// {id, name, type, size, data: ArrayBuffer, added}) — localStorage holds only
+// ~5 MB. A task keeps their names in `files: [{id, name, type, size}]`, and
+// so does its done (archived) entry, so they come back with it. Ids are
+// 'f' + time + a few random letters. Removing a file from a task puts it in
+// the Trash (type 'file'); only Delete forever / Delete all forever in the
+// Trash really delete it (FileStore.dropUnused: every stored file no data
+// mentions any more). The backup file carries them (backup 2, `files`).
+var FILE_MAX=50*1024*1024; // per file
+var FileStore=(function(){
+  var dbp=null;
+  function open(){
+    if(!dbp)dbp=new Promise(function(ok,no){
+      try{
+        var r=indexedDB.open('lifeos-files',1);
+        r.onupgradeneeded=function(){if(!r.result.objectStoreNames.contains('files'))r.result.createObjectStore('files',{keyPath:'id'});};
+        r.onsuccess=function(){ok(r.result);};
+        r.onerror=function(){dbp=null;no(r.error);};
+      }catch(e){dbp=null;no(e);}
+    });
+    return dbp;
+  }
+  function run(mode,fn){
+    return open().then(function(db){return new Promise(function(ok,no){
+      var tx=db.transaction('files',mode),q=fn(tx.objectStore('files')),res;
+      if(q)q.onsuccess=function(){res=q.result;};
+      tx.oncomplete=function(){ok(res);};
+      tx.onerror=tx.onabort=function(){no(tx.error);};
+    });});
+  }
+  return{
+    put:function(rec){return run('readwrite',function(st){return st.put(rec);});},
+    get:function(id){return run('readonly',function(st){return st.get(id);});},
+    del:function(id){return run('readwrite',function(st){return st.delete(id);});},
+    keys:function(){return run('readonly',function(st){return st.getAllKeys();});},
+    clear:function(){return run('readwrite',function(st){return st.clear();});},
+    // after something was deleted forever: drop every stored file that no
+    // task, done task or Trash entry mentions any more
+    dropUnused:function(){
+      if(DB.readOnly)return;
+      var s=JSON.stringify(DB.data),self=this;
+      this.keys().then(function(ks){(ks||[]).forEach(function(k){if(s.indexOf('"'+k+'"')===-1)self.del(k);});}).catch(function(){});
+    }
+  };
+})();
+function fileIdsIn(txt){var m=txt.match(/"f\d{13}[a-z0-9]{0,8}"/g)||[],o=[];m.forEach(function(x){x=x.slice(1,-1);if(o.indexOf(x)===-1)o.push(x);});return o;}
+function bufToB64(buf){var u=new Uint8Array(buf),s='',CH=0x8000;for(var i=0;i<u.length;i+=CH)s+=String.fromCharCode.apply(null,u.subarray(i,i+CH));return btoa(s);}
+function b64ToBuf(b){var s=atob(b),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer;}
+function readBuf(file){
+  if(file.arrayBuffer)return file.arrayBuffer();
+  return new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok(r.result);};r.onerror=function(){no(r.error);};r.readAsArrayBuffer(file);});
+}
+function fmtSize(n){return n<1024?n+' B':n<1048576?Math.max(1,Math.round(n/1024))+' KB':(Math.round(n/104857.6)/10)+' MB';}
+// what a file looks like in a list: its picture (images, filled in once
+// loaded), else its ending in a grey tile ("PDF")
+function fileThumb(f){
+  if(/^image\//.test(f.type||''))return '<span class="ts-thumb" data-fid="'+f.id+'"></span>';
+  var ext=((f.name||'').match(/\.([a-z0-9]{1,4})$/i)||[])[1]||'File';
+  return '<span class="ts-thumb ts-ext">'+esc(ext.toUpperCase())+'</span>';
+}
+var CLIP_SVG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5l-8.2 8.2a5.2 5.2 0 0 1-7.4-7.4l8.6-8.6a3.5 3.5 0 0 1 4.9 4.9l-8.6 8.6a1.75 1.75 0 0 1-2.5-2.5l7.9-7.9"/></svg>';
+// A picture full screen over everything; a tap closes it
+var FileView={
+  show:function(url){
+    var v=document.getElementById('file-view');
+    v.innerHTML='<img alt="">';v.firstChild.src=url;v.classList.add('on');
+  },
+  hide:function(){var v=document.getElementById('file-view');v.classList.remove('on');v.innerHTML='';}
+};
+// A small panel under a button (Today's calendar, the task window's
+// priority). It closes like a dropdown (DSel): a tap outside (that tap does
+// nothing else), a scroll of a page, a resize.
+var Pop=(function(){
+  var el=null,btn=null,swallowEl=null,swallowUntil=0;
+  document.addEventListener('click',function(e){
+    if(!swallowEl)return;
+    if(Date.now()>swallowUntil){swallowEl=null;return;}
+    if(e.target===swallowEl||(e.target.contains&&e.target.contains(swallowEl))){e.stopPropagation();e.preventDefault();swallowEl=null;}
+  },true);
+  function inside(e){return el&&(el.contains(e.target)||(btn&&btn.contains(e.target)));}
+  function outsideStart(e){if(!el||inside(e))return;swallowEl=e.target;swallowUntil=Date.now()+700;close();}
+  function outside(e){if(!el||inside(e))return;e.stopPropagation();e.preventDefault();close();}
+  function onScroll(e){var tg=e.target;if(!el||tg===document||tg===window||tg===document.documentElement||tg===document.body||el.contains(tg))return;close();}
+  function close(){
+    if(el){el.remove();el=null;}
+    if(btn)btn.classList.remove('open');btn=null;
+    document.removeEventListener('click',outside,true);
+    document.removeEventListener('touchstart',outsideStart,true);
+    document.removeEventListener('mousedown',outsideStart,true);
+    window.removeEventListener('scroll',onScroll,true);
+    window.removeEventListener('resize',close);
+  }
+  return{
+    close:close,
+    isOpen:function(b){return !!el&&btn===b;},
+    // cls: the panel's class; fill(panel) draws it; align: which edge of the button it lines up with
+    open:function(b,cls,fill,align){
+      close();btn=b;b.classList.add('open');
+      el=document.createElement('div');el.className=cls;document.body.appendChild(el);fill(el);
+      var r=b.getBoundingClientRect(),w=el.offsetWidth;
+      el.style.top=(r.bottom+6)+'px';
+      el.style.left=Math.max(12,Math.min(align==='left'?r.left:r.right-w,window.innerWidth-w-12))+'px';
+      setTimeout(function(){
+        document.addEventListener('click',outside,true);
+        document.addEventListener('touchstart',outsideStart,true);
+        document.addEventListener('mousedown',outsideStart,true);
+        window.addEventListener('scroll',onScroll,true);
+        window.addEventListener('resize',close);
+      },0);
+      return el;
+    }
+  };
+})();
 var TaskSheet={
-  pid:null,key:null,pri:'bs',
+  pid:null,key:null,pri:'bs',files:[],pending:[],cache:{},
   open:function(pid,key){
     var t=(DB.data.extraTasks[pid]||[]).find(function(x){return x.key===key;});
     if(!t)return;
-    this.pid=pid;this.key=key;this.pri=t.pri||'bs';
+    this.pid=pid;this.key=key;this.pri=t.pri||'bs';this.files=(t.files||[]).slice();this.pending=[];
     document.getElementById('task-sheet-title').textContent='';
     document.getElementById('task-sheet-name').value=t.text;
     document.getElementById('task-sheet-desc').value=t.desc||'';
-    this.renderRows();
+    this.renderPri();this.renderFiles();this.loadFiles();
     _overlayOpen('task-sheet-overlay');
     this.autosize();
   },
   openNew:function(pid){
-    this.pid=pid;this.key=null;this.pri='bs';
+    this.pid=pid;this.key=null;this.pri='bs';this.files=[];this.pending=[];
     document.getElementById('task-sheet-title').textContent='New task';
     document.getElementById('task-sheet-name').value='';
     document.getElementById('task-sheet-desc').value='';
-    this.renderRows();
+    this.renderPri();this.renderFiles();
     _overlayOpen('task-sheet-overlay');
     this.autosize();
     setTimeout(function(){_autoFocus(document.getElementById('task-sheet-name'));},300);
@@ -9612,17 +9751,111 @@ var TaskSheet={
     el.style.height='auto';
     el.style.height=el.scrollHeight+'px';
   },
-  // Priority is a dropdown row (same DSel list as Settings). Tasks stay in
+  // Priority ("F", picked on the priority page): the task's badge top left,
+  // across from Save; a tap drops the four badges down to pick from. List
+  // projects don't sort by priority, so there's no badge there. Tasks stay in
   // their project: there's no Project row (removed by request, 3.73).
-  renderRows:function(){
-    var pri=['bu','bs','bp','bl'].map(function(k){return {value:k,label:PLBL[k]};});
-    // List projects don't sort by priority, so there's nothing to pick there.
-    var p=DB.data.projects[this.pid],isList=p&&p.type==='list';
-    var rows=document.getElementById('task-sheet-rows');
-    rows.innerHTML=isList?'':'<div class="opt-row"><div class="opt-text"><div class="opt-title">Priority</div></div>'+customSelect(pri,this.pri,'TaskSheet.setPri(this.value)')+'</div>';
-    rows.style.display=isList?'none':'';
+  renderPri:function(){
+    var p=DB.data.projects[this.pid],isList=p&&p.type==='list',b=document.getElementById('task-sheet-pri');
+    b.className='ts-pri bdg '+this.pri;b.style.display=isList?'none':'';
+    b.innerHTML='<span>'+esc(t(PLBL[this.pri]))+'</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
   },
-  setPri:function(v){this.pri=v;this.renderRows();},
+  priMenu:function(b){
+    if(Pop.isOpen(b)){Pop.close();return;}
+    var self=this;
+    Pop.open(b,'pri-pop',function(el){
+      el.innerHTML=['bu','bs','bp','bl'].map(function(k){
+        return '<button type="button" class="pri-opt'+(k===self.pri?' sel':'')+'" data-v="'+k+'"><span class="bdg '+k+'">'+esc(t(PLBL[k]))+'</span></button>';
+      }).join('');
+      el.addEventListener('click',function(e){var o=e.target.closest('.pri-opt');if(!o)return;self.pri=o.getAttribute('data-v');Pop.close();self.renderPri();});
+    },'left');
+  },
+  // Files: one card under the notes, a row per file (its picture or ending,
+  // name, size, × to remove — to the Trash) and "Attach a file" last. A tap
+  // on a file opens it: a picture full screen, anything else through the
+  // phone's share sheet (open it in another app, save it); a computer
+  // downloads it. Added files are stored right away; on a new task they
+  // belong to it once it's saved (closing without Save deletes them).
+  renderFiles:function(){
+    var self=this;
+    var h=this.files.map(function(f){
+      return '<div class="opt-row ts-file" onclick="TaskSheet.openFile(\''+f.id+'\')">'+fileThumb(f)
+        +'<div class="opt-text"><div class="opt-title">'+esc(f.name)+'</div></div><span class="ts-size">'+fmtSize(f.size||0)+'</span>'
+        +'<button class="sh-x" onclick="event.stopPropagation();TaskSheet.removeFile(\''+f.id+'\')" aria-label="Remove">'+SH_X+'</button></div>';
+    }).join('');
+    h+='<div class="opt-row btn-row ts-attach" onclick="TaskSheet.pickFiles()"><span class="ts-clip">'+CLIP_SVG+'</span><div class="opt-text"><div class="opt-title">'+esc(t('Attach a file'))+'</div></div></div>';
+    document.getElementById('task-sheet-files').innerHTML=h;
+    this.fillThumbs();
+  },
+  fillThumbs:function(){
+    var self=this;
+    document.querySelectorAll('#task-sheet-files [data-fid]').forEach(function(s){
+      var c=self.cache[s.getAttribute('data-fid')];
+      if(c&&c.url&&!s.firstChild){var im=document.createElement('img');im.alt='';im.src=c.url;s.appendChild(im);}
+    });
+  },
+  // the open task's files into memory, so a tap can open one right inside
+  // the tap (the phone's share sheet needs that)
+  loadFiles:function(){
+    var self=this,key=this.key;
+    this.files.forEach(function(f){
+      if(self.cache[f.id])return;
+      FileStore.get(f.id).then(function(rec){
+        if(self.key!==key)return;
+        self.cache[f.id]=rec?{buf:rec.data,url:URL.createObjectURL(new Blob([rec.data],{type:f.type||''}))}:{missing:true};
+        self.fillThumbs();
+      }).catch(function(){self.cache[f.id]={missing:true};});
+    });
+  },
+  dropCache:function(){
+    var c=this.cache;this.cache={};
+    setTimeout(function(){Object.keys(c).forEach(function(k){if(c[k].url)URL.revokeObjectURL(c[k].url);});},SHEET_ANIM_MS+200);
+  },
+  pickFiles:function(){var f=document.getElementById('task-file');f.value='';f.click();},
+  addFiles:function(inp){
+    var self=this,all=Array.prototype.slice.call(inp.files||[]),key=this.key,pid=this.pid;
+    var big=all.filter(function(f){return f.size>FILE_MAX;}),list=all.filter(function(f){return f.size<=FILE_MAX;});
+    if(big.length)Alert.info('Files can be up to 50 MB — '+big.map(function(f){return f.name;}).join(', ')+' is too big.');
+    if(!list.length)return;
+    Promise.all(list.map(function(file,i){
+      var id='f'+Date.now()+Math.random().toString(36).slice(2,6)+i;
+      return readBuf(file).then(function(buf){
+        var meta={id:id,name:file.name||'File',type:file.type||'',size:file.size};
+        return FileStore.put({id:id,name:meta.name,type:meta.type,size:meta.size,data:buf,added:Date.now()}).then(function(){
+          self.cache[id]={buf:buf,url:URL.createObjectURL(new Blob([buf],{type:meta.type}))};return meta;
+        });
+      });
+    })).then(function(metas){
+      if(self.key!==key||self.pid!==pid)return; // the window moved on meanwhile
+      self.files=self.files.concat(metas);
+      if(key)DB.updateTask(pid,key,{files:self.files});else self.pending=self.pending.concat(metas.map(function(m){return m.id;}));
+      self.renderFiles();
+      if(key)renderAllTaskViews();
+    }).catch(function(err){Alert.info("This file couldn't be saved — "+((err&&err.message)||String(err)));});
+  },
+  removeFile:function(id){
+    var self=this,f=this.files.find(function(x){return x.id===id;});if(!f)return;
+    Alert.confirm('Remove "'+f.name+'"? It goes to the Trash.',function(){
+      self.files=self.files.filter(function(x){return x.id!==id;});
+      if(self.key){
+        var p=DB.data.projects[self.pid];
+        DB._trash('file',f.name,p?p.name:'',{pid:self.pid,key:self.key,file:f});
+        DB.updateTask(self.pid,self.key,{files:self.files});
+        renderAllTaskViews();
+      } else {self.pending=self.pending.filter(function(x){return x!==id;});FileStore.del(id).catch(function(){});}
+      self.renderFiles();
+    },'Remove');
+  },
+  openFile:function(id){
+    var f=this.files.find(function(x){return x.id===id;}),c=this.cache[id];if(!f)return;
+    if(!c){Alert.info('This file is still loading — try again in a moment.');return;}
+    if(c.missing){Alert.info("This file isn't on this phone any more.");return;}
+    if(/^image\//.test(f.type||'')){FileView.show(c.url);return;}
+    var file=null;try{file=new File([c.buf],f.name,{type:f.type||'application/octet-stream'});}catch(e){}
+    var can=false;try{can=!!(file&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}));}catch(e){}
+    if(can){navigator.share({files:[file]}).catch(function(){});return;}
+    var a=document.createElement('a');a.href=c.url;a.download=f.name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+  },
   save:function(){
     if(!_sheetLive('task-sheet-overlay'))return; // already saved, window closing
     var text=document.getElementById('task-sheet-name').value.trim();
@@ -9630,14 +9863,21 @@ var TaskSheet={
     var desc=document.getElementById('task-sheet-desc').value.trim();
     if(!this.key){
       var key=DB.addTask(this.pid,text,this.pri);
-      if(desc)DB.updateTask(this.pid,key,{desc:desc});
+      DB.updateTask(this.pid,key,{desc:desc,files:this.files});
+      this.pending=[]; // they belong to the task now
     } else {
       DB.updateTask(this.pid,this.key,{text:text,pri:this.pri,desc:desc});
     }
+    Pop.close();this.dropCache();
     _overlayClose('task-sheet-overlay');
     renderAllTaskViews();
   },
-  close:function(){_overlayClose('task-sheet-overlay');}
+  close:function(){
+    // a new task that wasn't saved: its files go with it
+    this.pending.forEach(function(id){FileStore.del(id).catch(function(){});});this.pending=[];
+    Pop.close();this.dropCache();
+    _overlayClose('task-sheet-overlay');
+  }
 };
 document.getElementById('task-sheet-name').addEventListener('keydown',function(e){if(e.key==='Enter')TaskSheet.save();});
 
