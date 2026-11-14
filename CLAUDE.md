@@ -605,10 +605,16 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   keep the page): no Priority row any more; the task's badge (`.ts-pri bdg
   <pri>` + a small down arrow) sits top left in `.sh-bar` across from Save;
   a tap opens the app's usual dropdown (DSel.menu, the four names, a tick on
-  the current one) — 4.67.28 had the four badges in their own panel; 4.67.29
+  the current one); the badge's arrow points sideways and turns down while
+  the dropdown is open (4.67.30, "the arrow should be sideways and then
+  rotate down"; DSel puts `.open` on the button) — 4.67.28 had the four badges in their own panel; 4.67.29
   "just do a normal drop down with the same style than all the others".
   Hidden for List projects. (`Pop`, the small panel that closes like DSel,
   is now only TodayCal's.)
+  B on that page (the four badges in a row, the picked one coloured with a
+  tick) and E (the badge in a Priority row, each tap goes to the next
+  priority) are runners-up the user also liked — "keep that", "E is also
+  nice": offer them again if the priority picker comes up.
 - TODAY'S DATE + CALENDAR (4.67.26, the user's own idea, mocked on
   https://claude.ai/artifact/2rYagzY6pbNgNZhjTGZRhN — "the date top right
   (like it was before)… click it and it opens an overlay window with a mini
