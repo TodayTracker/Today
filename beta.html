@@ -1528,7 +1528,7 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
   <div class="opt-group">
     <div class="opt-row btn-row" onclick="IcsImport.pick()"><div class="opt-text"><div class="opt-title">Import calendar</div></div></div>
   </div>
-  <div class="data-note">Upcoming events from Google Calendar, Apple Calendar or Outlook become Calendar tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import &amp; export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.</div>
+  <div class="data-note">Upcoming events from Google Calendar, Apple Calendar or Outlook become scheduled tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import &amp; export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.</div>
   <input type="file" id="ics-file" accept=".ics,.zip,text/calendar,application/zip" style="display:none" onchange="IcsImport.read(this)">
 </div>
 
@@ -1890,7 +1890,7 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
 
 <div class="sheet-overlay" id="once-add-sheet-overlay" onclick="if(event.target===this)OnceAddSheet.close()">
   <div class="sheet sh-win">
-    <div class="sh-bar"><span class="sh-bar-t">Calendar</span><button type="button" class="sh-save" onclick="OnceAddSheet.save()">Save</button></div>
+    <div class="sh-bar"><span class="sh-bar-t">Scheduled task</span><button type="button" class="sh-save" onclick="OnceAddSheet.save()">Save</button></div>
     <div class="sh-hero"><input class="sh-name" id="once-add-text" placeholder="Task"></div>
     <div class="opt-group"><div class="opt-row"><div class="opt-text"><div class="opt-title">Date</div></div><input type="date" class="sh-rin" id="once-add-date"></div></div>
   </div>
@@ -1959,7 +1959,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=32;
+var BETA_BUILD=33;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3304,7 +3304,8 @@ var CHANGELOG=[
     "A tracker with Bar chart on shows a column per day, week or month (pinch and drag like the habit charts); with a goal, the grey is what that day's goal asked for",
     "Consistency (Statistics, a habit's page, a tracker habit's page): the ring with the score inside, and beside it the time span and how many were done, skipped and not done",
     "Files on tasks: in a task's window, Attach a file adds documents or photos; a picture opens full screen, anything else opens through the share sheet; removing one puts it in the Trash (a new Files kind there); the backup file carries them",
-    "The task window's priority is the task's own badge, top left across from Save: tap it and pick one of the four badges"
+    "The task window's priority is the task's own badge, top left across from Save: tap it and pick one of the four badges",
+    "Calendar is called Scheduled tasks now: Today's section, the + on Overview (Scheduled task), the Tasks view, Menu → Tasks → Open on and the Trash"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -4180,14 +4181,14 @@ var I18N=(function(){
     "Block apps and websites, set limits and get warnings, and see your screen time and app usage.":"Sperre Apps und Websites, setze Limits und erhalte Warnungen, und sieh deine Bildschirmzeit und App-Nutzung.",
     "Customize and adjust everything here. The Guide explains the hidden features, and under Data you back up your data, which stays on this phone.":"Hier passt du alles an und stellst alles ein. Die Anleitung erklärt die versteckten Funktionen, und unter Daten sicherst du deine Daten, die auf diesem Handy bleiben.",
     'Import calendar':'Kalender importieren','Untitled':'Ohne Titel','Left out:':'Nicht übernommen:',
-    'Upcoming events from Google Calendar, Apple Calendar or Outlook become Calendar tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import & export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.':'Kommende Termine aus Google Kalender, Apple Kalender oder Outlook werden zu Kalender-Aufgaben. Exportiere deinen Kalender zuerst als Datei: Google Kalender am Computer, Einstellungen → Importieren & exportieren → Exportieren; Apple Kalender am Mac, Ablage → Exportieren; Outlook, Kalender speichern.',
-    '1 event added to your calendar.':'1 Termin zu deinem Kalender hinzugefügt.',
+    'Upcoming events from Google Calendar, Apple Calendar or Outlook become scheduled tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import & export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.':'Kommende Termine aus Google Kalender, Apple Kalender oder Outlook werden zu geplanten Aufgaben. Exportiere deinen Kalender zuerst als Datei: Google Kalender am Computer, Einstellungen → Importieren & exportieren → Exportieren; Apple Kalender am Mac, Ablage → Exportieren; Outlook, Kalender speichern.',
+    '1 event added as a scheduled task.':'1 Termin als geplante Aufgabe hinzugefügt.',
     "This file couldn't be read — pick a calendar file (.ics) or Google Calendar's export (.zip).":"Diese Datei konnte nicht gelesen werden — wähle eine Kalenderdatei (.ics) oder den Export von Google Kalender (.zip).",
     "No upcoming events in this file — past and repeating events aren't imported.":"Keine kommenden Termine in dieser Datei — vergangene und wiederkehrende Termine werden nicht übernommen.",
     'Version history':'Versionsverlauf','Advanced update info':'Erweiterte Update-Infos','Bug fixes':'Fehlerbehebungen','Design fixes':'Design-Korrekturen','Design and bug fixes':'Design-Korrekturen und Fehlerbehebungen',"What's new":'Neuigkeiten','Got it':'Verstanden','General':'Allgemein','Data':'Daten',
     // headers
     '📆 Daily':'📆 Täglich','📅 One-time':'📅 Einmalig','One-time tasks':'Einmalige Aufgaben','One-time':'Einmalig',
-    'Consistency score':'Konsistenz-Wert','Files':'Dateien','Attach a file':'Datei anhängen','Restore the task first.':'Stell zuerst die Aufgabe wieder her.','This file is still loading — try again in a moment.':'Diese Datei lädt noch — versuch es gleich nochmal.',"This file isn't on this phone any more.":'Diese Datei ist nicht mehr auf diesem Handy.','Last 3 months':'Letzte 3 Monate','Last month':'Letzter Monat','Last week':'Letzte Woche','done':'erledigt','skipped':'übersprungen','since':'seit','logged':'erfasst','Average':'Schnitt','7-day average':'7-Tage-Schnitt','a day':'pro Tag','a week':'pro Woche','a month':'pro Monat','Average of the days shown':'Schnitt der gezeigten Tage','Average of the weeks shown':'Schnitt der gezeigten Wochen','Average of the months shown':'Schnitt der gezeigten Monate','Of the days shown':'Von den gezeigten Tagen','Of the weeks shown':'Von den gezeigten Wochen','Of the months shown':'Von den gezeigten Monaten','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen','One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Bewahre sie in Dateien auf oder schick sie dir selbst — Importieren holt alles zurück.',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
+    'Consistency score':'Konsistenz-Wert','Scheduled tasks':'Geplante Aufgaben','Scheduled task':'Geplante Aufgabe','Scheduled':'Geplant','No scheduled tasks yet.':'Noch keine geplanten Aufgaben.','Files':'Dateien','Attach a file':'Datei anhängen','Restore the task first.':'Stell zuerst die Aufgabe wieder her.','This file is still loading — try again in a moment.':'Diese Datei lädt noch — versuch es gleich nochmal.',"This file isn't on this phone any more.":'Diese Datei ist nicht mehr auf diesem Handy.','Last 3 months':'Letzte 3 Monate','Last month':'Letzter Monat','Last week':'Letzte Woche','done':'erledigt','skipped':'übersprungen','since':'seit','logged':'erfasst','Average':'Schnitt','7-day average':'7-Tage-Schnitt','a day':'pro Tag','a week':'pro Woche','a month':'pro Monat','Average of the days shown':'Schnitt der gezeigten Tage','Average of the weeks shown':'Schnitt der gezeigten Wochen','Average of the months shown':'Schnitt der gezeigten Monate','Of the days shown':'Von den gezeigten Tagen','Of the weeks shown':'Von den gezeigten Wochen','Of the months shown':'Von den gezeigten Monaten','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen','One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Bewahre sie in Dateien auf oder schick sie dir selbst — Importieren holt alles zurück.',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
     'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
@@ -4257,7 +4258,7 @@ var I18N=(function(){
     [/^This file couldn't be saved — (.*)$/,'Diese Datei konnte nicht gespeichert werden — $1'],
     [/^Upcoming events: (\d+)$/,'Kommende Termine: $1'],[/^(\d+) past$/,'$1 vergangen'],[/^(\d+) repeating$/,'$1 wiederkehrend'],
     [/^(\d+) already added$/,'$1 schon vorhanden'],[/^Import (\d+)$/,'$1 importieren'],
-    [/^(\d+) events added to your calendar\.$/,'$1 Termine zu deinem Kalender hinzugefügt.'],
+    [/^(\d+) events added as scheduled tasks\.$/,'$1 Termine als geplante Aufgaben hinzugefügt.'],[/^1 event added as a scheduled task\.$/,'1 Termin als geplante Aufgabe hinzugefügt.'],
     [/^1 tasks?$/,'1 Aufgabe'],[/^(\d+) tasks$/,'$1 Aufgaben'],
     [/^1 habit$/,'1 Gewohnheit'],
     [/^(\d+) quotes · tap one to see it on the update screen\.$/,'$1 Zitate · tippe eines an, um es auf dem Update-Bildschirm zu sehen.'],[/^(\d+) habits$/,'$1 Gewohnheiten'],
@@ -5045,7 +5046,7 @@ function renderArchive(){
     DB.data.archived.forEach(function(item,idx){
       if(!!Trash.isList(item)!==wantList)return;
       rows.push({ds:item.dateISO||'',title:esc(item.text),act:"Trash.menu(this,'a',"+idx+")",
-        right:item.once?'<span class="bdg" style="'+tintStyle('#6b7280')+'">Calendar</span>':badge(item.pid,item.section)});
+        right:item.once?'<span class="bdg" style="'+tintStyle('#6b7280')+'">Scheduled</span>':badge(item.pid,item.section)});
     });
   } else {
     DB.data.trash.forEach(function(x){
@@ -5089,7 +5090,7 @@ var LockedIn={
   // What the Tasks tab shows: a dropdown under the header button.
   openViewMenu:function(btn){
     var self=this;
-    DSel.menu(btn,[{value:'tasks',label:'Tasks'},{value:'list',label:'List'},{value:'calendar',label:'Calendar'}],this.view,function(v){self.setView(v);});
+    DSel.menu(btn,[{value:'tasks',label:'Tasks'},{value:'list',label:'List'},{value:'calendar',label:'Scheduled tasks'}],this.view,function(v){self.setView(v);});
   }
 };
 
@@ -5153,7 +5154,7 @@ function renderLockedInList(){
 function renderLockedInCalendar(){
   var c=document.getElementById('lockedin-list');
   var items=DB.data.dailyOnce.slice().sort(function(a,b){return a.date<b.date?-1:(a.date>b.date?1:0);});
-  if(!items.length){c.innerHTML='<div class="opt-group"><div class="cal-none">Nothing in the calendar yet.</div></div>';return;}
+  if(!items.length){c.innerHTML='<div class="opt-group"><div class="cal-none">No scheduled tasks yet.</div></div>';return;}
   var todayStr=dStr(new Date());
   c.innerHTML='<div class="card-list">'+items.map(function(o){
     var overdue=o.date<todayStr;
@@ -5570,7 +5571,7 @@ function renderSettings(){
 
   document.getElementById('settings-tasks').innerHTML='<div class="opt-group"><div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Open on</div></div>'
-    +customSelect([{value:'tasks',label:'Tasks'},{value:'list',label:'List'},{value:'calendar',label:'Calendar'}],LockedIn.startView(),'A.setTasksView(this.value)')
+    +customSelect([{value:'tasks',label:'Tasks'},{value:'list',label:'List'},{value:'calendar',label:'Scheduled tasks'}],LockedIn.startView(),'A.setTasksView(this.value)')
     +'</div><div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">New tasks</div></div>'
     +customSelect([{value:'bottom',label:'At the bottom'},{value:'top',label:'At the top'}],DB.data.settings.newTaskPos==='top'?'top':'bottom','A.setNewTaskPos(this.value)')
@@ -7521,7 +7522,7 @@ function todayOrder(){
 }
 // [key, name] for the Edit layout list
 function todaySecName(k){
-  return k==='tasks'?'Tasks':k==='calendar'?'Calendar':esc(habitsTitle(k.slice(2)));
+  return k==='tasks'?'Tasks':k==='calendar'?'Scheduled tasks':esc(habitsTitle(k.slice(2)));
 }
 function applyTodayOrder(){
   var pg=document.getElementById('p-today'),none=document.getElementById('today-none');
@@ -7690,7 +7691,7 @@ var TodayCal=(function(){
         +bands+'<span class="tcal-n">'+d.getDate()+'</span>'+(n?'<span class="tcal-dot'+(n>1?' two':'')+'"></span>':'')+'</button>';
     }
     h+='</div>';
-    if(anyCal||used.length)h+='<div class="tcal-leg">'+(anyCal?'<span><i class="tcal-ld"></i>'+esc(t('Calendar'))+'</span>':'')
+    if(anyCal||used.length)h+='<div class="tcal-leg">'+(anyCal?'<span><i class="tcal-ld"></i>'+esc(t('Scheduled tasks'))+'</span>':'')
       +used.map(function(x){return '<span><i class="tcal-ll" style="background:'+x.col+'"></i>'+esc(x.name)+'</span>';}).join('')+'</div>';
     el.innerHTML=h;
     if(dir)el.querySelector('.tcal-days').classList.add(dir==='next'?'in-next':'in-prev');
@@ -7753,7 +7754,7 @@ function renderToday(){
   // that day's
   var onceToday=DB.data.dailyOnce.filter(function(o){return off?o.date===ds:o.date<=ds;});
   document.getElementById('today-cal').innerHTML=onceToday.length
-    ?'<div class="caltitle">Calendar</div><div class="calsec">'+onceToday.map(onceRow).join('')+'</div>':'';
+    ?'<div class="caltitle">Scheduled tasks</div><div class="calsec">'+onceToday.map(onceRow).join('')+'</div>':'';
   var vanish=DB.data.settings.todayHabitsDisappear;
   var all=DB.data.dailyItems.filter(function(it){
     if(it.days.indexOf(wd)===-1||!habitActive(it,ds))return false;
@@ -8149,7 +8150,7 @@ var IcsImport={
     _overlayClose('ics-sheet-overlay');
     if(Nav.cur==='today')renderToday();
     if(Nav.cur==='lockedin')renderLockedIn();
-    setTimeout(function(){Alert.info(sel.length===1?'1 event added to your calendar.':sel.length+' events added to your calendar.');},SHEET_ANIM_MS+30);
+    setTimeout(function(){Alert.info(sel.length===1?'1 event added as a scheduled task.':sel.length+' events added as scheduled tasks.');},SHEET_ANIM_MS+30);
   },
   close:function(){_overlayClose('ics-sheet-overlay');}
 };
@@ -8246,7 +8247,7 @@ var Templates={
   _detail:function(tp,it){
     var L=this.L;
     if(it.kind==='habit')return L(tp.hp[it.hp].name)+' · '+this._days(it,it.days);
-    if(it.kind==='cal')return L(['Calendar · tomorrow','Kalender · morgen']);
+    if(it.kind==='cal')return L(['Scheduled task · tomorrow','Geplante Aufgabe · morgen']);
     if(it.kind==='list')return L(['List','Liste']);
     if(it.kind==='todo'){var n=(it.tasks||[]).length;return 'To-do'+(n?' · '+n+' '+L(n===1?['task','Aufgabe']:['tasks','Aufgaben']):'');}
     var parts=['Tracker'];
@@ -8309,7 +8310,7 @@ var Templates={
     var parts=[];
     if(c.p)parts.push(P(c.p,['project','projects','Projekt','Projekte']));
     if(c.h)parts.push(P(c.h,['habit','habits','Gewohnheit','Gewohnheiten']));
-    if(c.c)parts.push(c.c+' '+L(['in the calendar','im Kalender']));
+    if(c.c)parts.push(c.c+' '+L(['scheduled','geplant']));
     if(c.k)parts.push(P(c.k,['category','categories','Kategorie','Kategorien']));
     document.getElementById('tpl-sum').textContent=n?L(['Adds ','Fügt hinzu: '])+parts.join(' · '):L(['Nothing picked yet','Noch nichts ausgewählt']);
     var b=document.getElementById('tpl-go');
@@ -10067,7 +10068,7 @@ var TabPlus={
     if(p&&p.type==='tracker'){TrackerAddSheet.open(cur);return;}
     if(p&&p.type!=='daily'){TaskSheet.openNew(cur);return;}
     if(btn){
-      DSel.menu(btn,[{value:'category',label:'Category'},{value:'project',label:'Project'},{value:'calendar',label:'Calendar'}],null,function(v){
+      DSel.menu(btn,[{value:'category',label:'Category'},{value:'project',label:'Project'},{value:'calendar',label:'Scheduled task'}],null,function(v){
         if(v==='category')A.newCategory();else if(v==='calendar')OnceAddSheet.open();else A.newProject();
       });
       return;
@@ -10075,7 +10076,7 @@ var TabPlus={
     AddChoice.show('Add',[
       {icon:'',label:'Category',fn:function(){A.newCategory();}},
       {icon:'',label:'Project',fn:function(){A.newProject();}},
-      {icon:'',label:'Calendar',fn:function(){OnceAddSheet.open();}}
+      {icon:'',label:'Scheduled task',fn:function(){OnceAddSheet.open();}}
     ]);
   }
 };

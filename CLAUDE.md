@@ -3295,7 +3295,13 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   small JPEGs. Photos saved before 3.34 keep their baked-in color until
   re-picked.
   Naming: "one-time tasks" (`dailyOnce`, `onceRow`, OnceAddSheet) are
-  called just CALENDAR on screen everywhere since 3.58 (3.34 had "Calendar
+  SCHEDULED TASKS on screen since 4.67.33 ("lets rename calendar to Scheduled
+  tasks"): Today's section, Today's calendar legend, the Tasks view and Menu
+  → Tasks → Open on ("Scheduled tasks"), Overview "+" and the window title
+  ("Scheduled task"), the Trash badge ("Scheduled"), "No scheduled tasks
+  yet.", templates; German Geplante Aufgaben. "Import calendar" keeps its
+  name (it imports a real calendar). Before that they were called just
+  CALENDAR on screen everywhere since 3.58 (3.34 had "Calendar
   task(s)"): the window title, Daily's "+" entry, Daily's section, Today's
   section, Tasks' view, Trash; empty state "Nothing in the calendar yet."
   The stored archive tag stays `section:'One-time'`; code names unchanged.
