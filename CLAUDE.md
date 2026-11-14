@@ -336,6 +336,26 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   without a goal drops both. New tracker habits pass it to
   `addTrackerDailyItem(...,low)`. The line chart (TrkZ) only draws the
   goal line, so it needed nothing.
+  GOAL HISTORY (4.67.23, "if I put a goal at 10 push-ups, do it for a
+  week, then raise it to 12, it shows the whole last week as not done…
+  it must not calculate the last ones with the new goal"): a day is judged
+  by the goal it had THEN. `it.goals` = [{ds,goal,low}], each the goal
+  from day ds on (goal null = no goal = anything logged counts); a day
+  before the first entry uses the first. `goalOn(it,ds)` → {goal,low} is
+  the ONE read — habitDayVal, goalNote(it,p,ds) (the value windows show
+  that day's goal), the old bar chart's colours; `goalMet(g,v)` takes that
+  object now. `setHabitGoal(it,goal,low)` is the ONE write (the habit
+  window's Save): the first change records the old goal from
+  habitCreatedDs(it), the new one from today (pDate(0)); a second change
+  the same day replaces today's entry; going back to the old one leaves no
+  entry for today. it.goal/it.goalLow stay the CURRENT goal — the released
+  app (same data) only reads those, so it keeps working. Goals raised
+  BEFORE 4.67.23 have no history: those past days stay judged by the
+  current goal (nothing to recover them from). The line chart's goal line
+  is still the current goal only. Tested: a week of 10 stays done after
+  10 → 12 and → 14 through the real window, today needs 12, notes "Goal:
+  10" yesterday / "Goal: 12" today, no-goal → goal keeps the past done,
+  Lower direction 80 → 78 keeps 79s done.
   CURRENT VALUE (1.0, "when avg is turned on, the Overview card shows the
   avg and not the current input"): `trkNow(p,entries)` = the latest entry,
   or with the moving average on the latest 7-entry average (`trkAvgs`,

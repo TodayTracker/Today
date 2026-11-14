@@ -1884,7 +1884,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=22;
+var BETA_BUILD=23;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3219,6 +3219,7 @@ var CHANGELOG=[
     "A Habits project always opens on today (coming back to it from a habit keeps the day you were on)",
     "Today can show other days: the arrows next to the title step a day back or forward, the title says Today, Tomorrow, Yesterday or the date (tap it to come back to today). Another day shows its habits and Calendar; tasks stay on today",
     "Overview: tap a category's title to fold it — its projects close and open like a drawer. Holding a category's title picks it up to move it, with its projects; an open one folds first",
+    "A tracker habit remembers its old goals: raising a goal counts from today on, and the days before stay done or not done by the goal they had",
     "New tab icons that fill black when their tab is open: Overview layers, Tasks an inbox, Stats a pie, Menu a gear (Today keeps its tick box)",
     "Header buttons (back, menu, +, edit, Today's day arrows) have no white square any more and fade while pressed instead of shrinking and bouncing",
     "Menu → Data: Export saves everything as one file, project photos too (on the iPhone through the share sheet: Save to Files, AirDrop or a chat), and Import brings it back — after asking, with the loading screen up while the app restarts on it. The copy-paste text export is gone"
@@ -4517,7 +4518,7 @@ function renderTracker(pid){
   // the page was opened from, else its first habit
   var ctx=trackerLinkFor(pid),links=trackerLinks(pid),link=ctx||links[0]||null;
   var goal=link&&hasGoal(link)?link.goal:null;
-  var svgH=p.chartBars?trackerChart(pid,p,entries,goal,!!(link&&link.goalLow)):'';
+  var svgH=p.chartBars?trackerChart(pid,p,entries,goal,!!(link&&link.goalLow),link):'';
   // That habit's days under the name, like a habit's page — tap them for
   // its window (days, goal, project, remove from habits). Opened as the
   // project with 2+ habits, there's no one habit to show.
@@ -4757,7 +4758,7 @@ function monotonePath(p){
   return d;
 }
 // The bar version (Bar chart switch in the tracker's window)
-function trackerChart(pid,p,entries,goal,low){
+function trackerChart(pid,p,entries,goal,low,link){
   var PL=44,PR=12,PT=12,PB=28,W=300,H=140,CW=W-PL-PR,CH=H-PT-PB;
   var dark=isDarkNow(),RED=dark?'#ff453a':'#ff3b30',gridCol=dark?'#333':'#e8e5e0',goalCol='#9a9a9a';
   var DOT=dark?'#aeaeb2':'#3a3a3c'; // entry dots: dark grey (a light grey on a dark card)
@@ -4778,7 +4779,8 @@ function trackerChart(pid,p,entries,goal,low){
   }
   var range=hi-lo||1;
   function yOf(v){return PT+(1-(v-lo)/range)*CH;}
-  function colOf(v){return has&&(low?v>goal:v<goal)?RED:TRK_GREEN;}
+  // each entry against the goal its day had (habitDayVal's rule)
+  function colOf(v,ts){var g=link?goalOn(link,dStr(new Date(ts))):{goal:has?goal:null,low:low};return g.goal!=null&&!goalMet(g,v)?RED:TRK_GREEN;}
   // y axis: top, middle, bottom
   [hi,(hi+lo)/2,lo].forEach(function(v,i){
     var y=PT+CH*i/2;
@@ -4794,7 +4796,7 @@ function trackerChart(pid,p,entries,goal,low){
       var y=yOf(e.val),x=xs[i]-bw/2,h=Math.abs(y0-y),r=Math.min(3,bw/6,h/2),top=Math.min(y,y0); // corners in proportion to the bar (a full 18-wide bar: 3)
       if(h<=0)return;
       // rounded on top, flat on the baseline
-      svg+='<path fill="'+colOf(e.val)+'" d="M'+x+','+(top+h)+'V'+(top+r)+'Q'+x+','+top+' '+(x+r)+','+top+'H'+(x+bw-r)+'Q'+(x+bw)+','+top+' '+(x+bw)+','+(top+r)+'V'+(top+h)+'Z"/>';
+      svg+='<path fill="'+colOf(e.val,e.ts)+'" d="M'+x+','+(top+h)+'V'+(top+r)+'Q'+x+','+top+' '+(x+r)+','+top+'H'+(x+bw-r)+'Q'+(x+bw)+','+top+' '+(x+bw)+','+(top+r)+'V'+(top+h)+'Z"/>';
     });
     svg+=goalLine;
   } else {
@@ -7250,15 +7252,45 @@ function dcv(ds,id){return DB.data.dailyChecks[ds]&&DB.data.dailyChecks[ds][id];
 function habitDayVal(it,ds){
   if(!it.trackerPid)return dcv(ds,it.id);
   var v=trackerDayValue(it,ds);
-  if(v!=null&&(!hasGoal(it)||goalMet(it,v)))return true;
+  if(v!=null){var g=goalOn(it,ds);if(g.goal==null||goalMet(g,v))return true;}
   return dcv(ds,it.id)==='skip'?'skip':false;
 }
 function hasGoal(it){return typeof it.goal==='number'&&!isNaN(it.goal);}
-// A goal is reached at or above it, or — "Aim for: Lower" (it.goalLow, e.g.
-// losing weight) — at or below it
-function goalMet(it,v){return it.goalLow?v<=it.goal:v>=it.goal;}
-// "Goal: 75 kg" under a tracker's value; a lower-is-better goal says "at most"
-function goalNote(it,p){return 'Goal: '+(it.goalLow?'at most ':'')+fmtTrk(it.goal)+(p.unit?' '+p.unit:'');}
+// A tracker habit's goal can change, and a day is always judged by the goal
+// it had THEN (raising 10 → 12 push-ups today leaves last week done):
+// it.goals = [{ds,goal,low}], each the goal from day ds on (goal null = no
+// goal); a day before the first entry uses the first. it.goal/it.goalLow
+// stay the CURRENT goal (that's all older versions read). A habit without
+// it.goals has had the same goal all along.
+function goalOn(it,ds){
+  var h=it.goals;
+  if(!h||!h.length)return {goal:hasGoal(it)?it.goal:null,low:!!it.goalLow};
+  var g=h[0];for(var i=1;i<h.length;i++){if(h[i].ds<=ds)g=h[i];else break;}
+  return {goal:(typeof g.goal==='number'&&!isNaN(g.goal))?g.goal:null,low:!!g.low};
+}
+// Sets the goal from today on and records the change; changed twice in a
+// day, today's entry is replaced. The first change also records the goal the
+// habit had until now, from the day it was created.
+function setHabitGoal(it,goal,low){
+  var ng=(typeof goal==='number'&&!isNaN(goal))?goal:null,nl=ng!=null&&!!low,ds=pDate(0);
+  if(!it.goals||!it.goals.length){
+    var og=hasGoal(it)?it.goal:null,ol=og!=null&&!!it.goalLow;
+    if(og===ng&&ol===nl)return; // nothing changed
+    it.goals=[{ds:habitCreatedDs(it),goal:og,low:ol}];
+  }
+  var h=it.goals;
+  if(h.length&&h[h.length-1].ds>=ds)h.pop();
+  var prev=h[h.length-1];
+  if(!prev||prev.goal!==ng||!!prev.low!==nl)h.push({ds:ds,goal:ng,low:nl});
+  if(ng==null){delete it.goal;delete it.goalLow;}
+  else{it.goal=ng;if(nl)it.goalLow=true;else delete it.goalLow;}
+}
+// A goal ({goal,low}) is reached at or above it, or — "Aim for: Lower"
+// (e.g. losing weight) — at or below it
+function goalMet(g,v){return g.low?v<=g.goal:v>=g.goal;}
+// "Goal: 75 kg" under a tracker's value (that day's goal; today if no day
+// given); a lower-is-better goal says "at most"
+function goalNote(it,p,ds){var g=goalOn(it,ds||pDate(0));return g.goal==null?'':'Goal: '+(g.low?'at most ':'')+fmtTrk(g.goal)+(p.unit?' '+p.unit:'');}
 function habitName(it){
   if(!it.trackerPid)return it.text;
   var p=DB.data.projects[it.trackerPid];return p?p.name:'';
@@ -8306,9 +8338,7 @@ var DailyItemSheet={
           it.desc=document.getElementById('daily-item-desc').value.trim();
           this._applyPerDay(it);
         } else {
-          var g=this.readGoal();
-          if(g==null){delete it.goal;delete it.goalLow;}
-          else{it.goal=g;if(this.goalLow)it.goalLow=true;else delete it.goalLow;}
+          setHabitGoal(it,this.readGoal(),this.goalLow); // past days keep the goal they had
         }
         it.days=this.selectedDays.slice().sort();
         if(this.movePid&&isHabitsProject(this.movePid))it.pid=this.movePid; // the Project row
@@ -9377,7 +9407,7 @@ var TrackerAddSheet={
     // opened from a habit: the entry is that habit's (else the first habit's)
     var link=trackerLinkFor(pid);this.hid=link?link.id:null;
     link=link||trackerLinks(pid)[0];
-    document.getElementById('trk-add-goal').textContent=link&&hasGoal(link)?goalNote(link,p):'';
+    document.getElementById('trk-add-goal').textContent=link?goalNote(link,p):'';
     var inp=document.getElementById('trk-add-val');inp.value='';_shFitVal(inp);
     _overlayOpen('trk-add-sheet-overlay');
     _focusSoon(inp);
@@ -9429,7 +9459,7 @@ var TrackerDaySheet={
     document.getElementById('trk-day-title').textContent=p.name+(dayIdx?' · '+d.toLocaleDateString(dLoc(),{weekday:'short',day:'numeric',month:'short'}):'');
     document.getElementById('trk-day-unit').textContent=p.unit||'';
     var g=document.getElementById('trk-day-goal');
-    g.textContent=hasGoal(it)?goalNote(it,p):'';
+    g.textContent=goalNote(it,p,pDate(dayIdx));
     var v=trackerDayValue(it,pDate(dayIdx));
     var inp=document.getElementById('trk-day-val');inp.value=v!=null?fmtTrk(v):'';_shFitVal(inp);
     _overlayOpen('trk-day-sheet-overlay');
