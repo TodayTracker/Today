@@ -1652,13 +1652,12 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
     <div class="opt-row btn-row" onclick="Backup.save()"><div class="opt-text"><div class="opt-title">Export</div></div></div>
     <div class="opt-row btn-row" onclick="Backup.pick()"><div class="opt-text"><div class="opt-title">Import</div></div></div>
   </div>
-  <div class="data-note">One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.</div>
-  <input type="file" id="backup-file" accept=".json,application/json,text/plain" style="display:none" onchange="Backup.read(this)">
   <div class="opt-group">
     <div class="opt-row btn-row" onclick="IcsImport.pick()"><div class="opt-text"><div class="opt-title">Import calendar</div></div></div>
   </div>
   <div class="data-note">Upcoming events from Google Calendar, Apple Calendar or Outlook become scheduled tasks. Export your calendar as a file first: Google Calendar on a computer, Settings → Import &amp; export → Export; Apple Calendar on a Mac, File → Export; Outlook, Save calendar.</div>
   <input type="file" id="ics-file" accept=".ics,.zip,text/calendar,application/zip" style="display:none" onchange="IcsImport.read(this)">
+  <input type="file" id="backup-file" accept=".json,application/json,text/plain" style="display:none" onchange="Backup.read(this)">
 </div>
 
 <div class="page sp" id="p-settoday">
@@ -2087,7 +2086,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=38;
+var BETA_BUILD=39;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3438,7 +3437,8 @@ var CHANGELOG=[
     "New template window: the templates are tiles, two per row, and under them a list of everything that gets added, with a switch for each part; Add sits at the top right",
     "The welcome pages' pictures and the three cards on the last page are white now instead of a different pastel colour each",
     "Windows no longer close while you scroll inside them: a touch that scrolled the window never pulls it down, even once it reaches the top. Only a pull that starts at the top closes it",
-    "The template window keeps one height and no longer grows or shrinks when you pick a template"
+    "The template window keeps one height and no longer grows or shrinks when you pick a template",
+    "Menu → Data: the explanation under Export and Import is gone"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -4321,7 +4321,7 @@ var I18N=(function(){
     'Version history':'Versionsverlauf','Advanced update info':'Erweiterte Update-Infos','Bug fixes':'Fehlerbehebungen','Design fixes':'Design-Korrekturen','Design and bug fixes':'Design-Korrekturen und Fehlerbehebungen',"What's new":'Neuigkeiten','Got it':'Verstanden','General':'Allgemein','Data':'Daten',
     // headers
     '📆 Daily':'📆 Täglich','📅 One-time':'📅 Einmalig','One-time tasks':'Einmalige Aufgaben','One-time':'Einmalig',
-    'Consistency score':'Konsistenz-Wert','Scheduled tasks':'Geplante Aufgaben','Scheduled task':'Geplante Aufgabe','Scheduled':'Geplant','No scheduled tasks yet.':'Noch keine geplanten Aufgaben.','Files':'Dateien','Attach a file':'Datei anhängen','Restore the task first.':'Stell zuerst die Aufgabe wieder her.','This file is still loading — try again in a moment.':'Diese Datei lädt noch — versuch es gleich nochmal.',"This file isn't on this phone any more.":'Diese Datei ist nicht mehr auf diesem Handy.','Last 3 months':'Letzte 3 Monate','Last month':'Letzter Monat','Last week':'Letzte Woche','done':'erledigt','skipped':'übersprungen','since':'seit','logged':'erfasst','Average':'Schnitt','7-day average':'7-Tage-Schnitt','a day':'pro Tag','a week':'pro Woche','a month':'pro Monat','Average of the days shown':'Schnitt der gezeigten Tage','Average of the weeks shown':'Schnitt der gezeigten Wochen','Average of the months shown':'Schnitt der gezeigten Monate','Of the days shown':'Von den gezeigten Tagen','Of the weeks shown':'Von den gezeigten Wochen','Of the months shown':'Von den gezeigten Monaten','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen','One file with everything in the app, project photos too. Keep it in Files or send it to yourself — Import brings it all back.':'Eine Datei mit allem aus der App, auch den Projektfotos. Bewahre sie in Dateien auf oder schick sie dir selbst — Importieren holt alles zurück.',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
+    'Consistency score':'Konsistenz-Wert','Scheduled tasks':'Geplante Aufgaben','Scheduled task':'Geplante Aufgabe','Scheduled':'Geplant','No scheduled tasks yet.':'Noch keine geplanten Aufgaben.','Files':'Dateien','Attach a file':'Datei anhängen','Restore the task first.':'Stell zuerst die Aufgabe wieder her.','This file is still loading — try again in a moment.':'Diese Datei lädt noch — versuch es gleich nochmal.',"This file isn't on this phone any more.":'Diese Datei ist nicht mehr auf diesem Handy.','Last 3 months':'Letzte 3 Monate','Last month':'Letzter Monat','Last week':'Letzte Woche','done':'erledigt','skipped':'übersprungen','since':'seit','logged':'erfasst','Average':'Schnitt','7-day average':'7-Tage-Schnitt','a day':'pro Tag','a week':'pro Woche','a month':'pro Monat','Average of the days shown':'Schnitt der gezeigten Tage','Average of the weeks shown':'Schnitt der gezeigten Wochen','Average of the months shown':'Schnitt der gezeigten Monate','Of the days shown':'Von den gezeigten Tagen','Of the weeks shown':'Von den gezeigten Wochen','Of the months shown':'Von den gezeigten Monaten','Time range':'Zeitraum','All time':'Gesamte Zeit','3 months':'3 Monate','1 month':'1 Monat','1 week':'1 Woche','Best score':'Bester Wert','Widgets':'Widgets','Chart':'Diagramm','Replace':'Ersetzen','Loading backup':'Backup wird geladen',"This file isn't a backup from this app — pick a file made with Export.":'Diese Datei ist kein Backup aus dieser App — wähle eine Datei, die mit Exportieren erstellt wurde.','Done tasks':'Erledigte Aufgaben','Share':'Teilen','Bar chart':'Balkendiagramm','Perfect streak':'Perfekte Serie','days in a row with every habit done':'Tage in Folge mit allen Gewohnheiten erledigt','All widgets are turned off':'Alle Widgets sind ausgeschaltet','Worst score':'Schlechtester Wert','Consistency':'Konsistenz',
     '⚠️ War Room':'⚠️ War Room','War Room':'War Room','📈 Tracker':'📈 Tracker','📋 List':'📋 Liste','✅ To-do':'✅ To-do',
     'Nothing else matters until the War Room is clear.':'Nichts anderes zählt, bis der War Room leer ist.',
     'Nothing to do today.':'Heute nichts zu tun.','Nothing scheduled for today.':'Für heute ist nichts geplant.','Nothing here.':'Hier ist nichts.','Delete forever':'Endgültig löschen','New task':'Neue Aufgabe','New habit':'Neue Gewohnheit','Unit':'Einheit','Delete project':'Projekt löschen','Remove from habits':'Aus Gewohnheiten entfernen','Project settings':'Projekteinstellungen','Remove':'Entfernen','Remove this tracker from your habits? The tracker and its entries stay.':'Diesen Tracker aus den Gewohnheiten entfernen? Der Tracker und seine Einträge bleiben.','Optional':'Optional','kg, kcal, h':'kg, kcal, h','Temporary habit':'Befristete Gewohnheit','Start':'Start','End':'Ende','Delete all forever':'Alle endgültig löschen','Delete all':'Alle löschen','Yesterday':'Gestern','Earlier':'Früher',
