@@ -1245,7 +1245,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
 - BACKUP FILE (4.67.19, "why don't we just save as a file… export pictures
   with that as well for the projects' icons"; 4.67.20 "the text ex and
   import is also no longer needed"): Menu → Data = ONE card, Export /
-  Import (`Backup`), + the calendar import. The file is "Today backup
+  Import (`Backup`), + the calendar import. No note under Export / Import
+  since 1.0 ("remove the info text under export import in data"; the
+  calendar import keeps its how-to); the hidden #backup-file input sits at
+  the END of the page so the two cards stay neighbours (20px, not 22).
+  The file is "Today backup
   YYYY-MM-DD.json" = {app:'Today',backup:1,made:ISO,data:<localStorage
   'lifeos' exactly as stored>} — ids, settings, photos (also in the Trash)
   untouched; built as a string synchronously inside the tap. Saving:
