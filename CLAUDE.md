@@ -3557,6 +3557,16 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   field (at load, and on touchstart/focusin for fields rendered later). iOS
   may still show an empty or AutoFill-only bar above the keyboard; pages
   can't remove that bar entirely.
+  1.0 ("when creating categories the word suggestions is up in the beginning
+  and vanishes as soon as i start typing… same for projects", then "it
+  doesnt show anything its mostly empty. I think it showed my name once"):
+  that was the AutoFill bar — "Project name" / "Category name" look like a
+  name field to iOS, which ignores autocomplete="off" for AutoFill; the bar
+  hid once the typed text matched no contact. `_noSuggest` now also gives
+  every typing field name="search<N>" (no forms exist, nothing reads it):
+  WebKit doesn't AutoFill fields with "search" in their name. Unconfirmed on
+  the phone — if the bar still comes, the next step is the placeholders and
+  titles (avoid the word "name"/"Business" next to the field).
   4.42 — tracker "+" (`TrackerAddSheet.open`) focuses its field
   SYNCHRONOUSLY right after _overlayOpen, inside the tap on "+" ("it should
   open the keyboard automatically"): a focus inside the user's tap is what

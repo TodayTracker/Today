@@ -2172,7 +2172,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=43;
+var BETA_BUILD=44;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3527,7 +3527,8 @@ var CHANGELOG=[
     "Menu → Data: the explanation under Export and Import is gone",
     "Projects can have files too: tap a project's name, then Attach a file under the description. Like on tasks: a tap opens one, × puts it in the Trash",
     "Menu → General: Hold to complete and Sounds have a title, Completing tasks",
-    "New Guide (Menu → Guide): every part is a card, every tip starts with its question, and Hidden features shows each gesture moving. More hidden features, and the new Tab by tab explains every tab"
+    "New Guide (Menu → Guide): every part is a card, every tip starts with its question, and Hidden features shows each gesture moving. More hidden features, and the new Tab by tab explains every tab",
+    "Typing a name (project, category, task…) no longer brings up the iPhone's AutoFill bar above the keyboard"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -10769,9 +10770,16 @@ document.querySelectorAll('.sheet-overlay .sheet').forEach(function(sh){
 // suggestion bar above the keyboard). Set before focus — on load for every
 // field, and on touchstart for fields rendered later — since the keyboard
 // reads them when it opens.
+// iOS ignores autocomplete="off" for its own AutoFill: a field that looks like
+// it asks for a name ("Project name", "Category name") got the AutoFill bar
+// above the keyboard (empty, once with the user's own name) until typing
+// matched nothing. A field whose name has "search" in it is never filled in,
+// so every typing field gets one (there are no forms; nothing reads it).
+var _noSugN=0;
 function _noSuggest(el){
   if(!el||!_isTypingField(el)||el.hasAttribute('data-nosug'))return;
   el.setAttribute('autocomplete','off');el.setAttribute('autocorrect','off');el.setAttribute('spellcheck','false');
+  if(!el.hasAttribute('name'))el.setAttribute('name','search'+(++_noSugN));
   el.setAttribute('data-nosug','');
 }
 document.querySelectorAll('input,textarea').forEach(_noSuggest);
