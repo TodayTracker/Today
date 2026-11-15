@@ -2980,14 +2980,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   install (browser only) → 'hello' (app icon, "Welcome to Today", A's big
   centred title) → one page per tab ('today','overview','lockedin','stats',
   'settings' = Welcome.TABS: tab name in its colour, big centred title, one
-  line; a small copy of that tab on a tinted block, `_pic(tab)`, `.wm-*`
-  classes — NOT the app's .ti/.cali, so no handlers touch it) → 'start'
+  line; a picture of that tab on a tinted block, `_pic(tab)` — since 1.0
+  "C", see TAB PICTURES below; 4.55–4.67.35 drew small `.wm-*` copies) → 'start'
   (4.62 "R3d", picked after two rounds on the welcome options page — round
   1's buttons/rows/greyed-out AI were "cheap"; lesson: mock options at real
   size with real pictures): title + "You can change everything later.",
   then three `.wel-opt` picture cards (158px, radius 22, on --wt-amber /
   --wt-sky / --wt-violet): the real picture at 80% on top (`.wel-opt-pic`,
-  `.wp-*` classes: the template window with real TEMPLATES names, an empty
+  `.wp-*` classes: the template window with real TEMPLATES names — since
+  1.0 its T2 tiles (`.wp-tg/.wp-tl`), Basics and Fitness picked — an empty
   Overview with a New project tile, an AI chat), the name and a line on the
   picture at the bottom over a fade to the card colour, a round white
   arrow. Template → Templates.open(true), scratch → Welcome.finish(), AI =
@@ -3042,15 +3043,50 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   path, rounded triangle scaled .88 around 12,12 with the exclamation cut
   out (evenodd), so it works on any background. 4.17's hand-drawn chess
   knight was called ugly — don't bring it back.
+- TAB PICTURES = "C" (1.0, picked on https://claude.ai/artifact/XP1qc23y8SMWXhu5yJ2Qrw
+  — "i wanna improve the pics on the welcoming pages"; Now / A phone / B
+  real cards / C moving phone, keep the page): `Welcome._pic(tab)` draws a
+  phone (`.wv-phone`, 288 wide, 7px bezel, top 26px, cut off by the
+  picture's bottom; `.wel-ill.wv-ill` = position:relative, no padding) with
+  the top of that tab as the app looks now, at real size (375 wide,
+  `.wv-scr` zoom .7307) with a status bar, and one thing happening on a
+  loop (CSS keyframes `wv*`, restart each time the page is drawn): Today
+  ticks "Plan the week" (a finger dot `.wv-fing`, green tick, row folds,
+  6s); Overview lifts Personal and swaps it with Daily (3.4s, alternate);
+  Tasks taps ≡, the view dropdown, List view, back (7s); Stats sweeps the
+  N2 ring (a conic mask on `--wv-sweep`, @property) and grows the bars
+  (6s); Blocker's YouTube limit runs out → "Blocked for today" (6s); Menu
+  taps Appearance → Dark, the screen turns dark (`.wv-dk` = dark tokens,
+  8s). Own `wv-*` classes, its own German via `_L` (translate="no"),
+  aria-hidden; the Menu icons are the app's real ones (copied); the
+  Today date and the Stats day labels are real dates (chDM). Reduced
+  motion = the first frame. Finger positions are screen px — re-measure
+  if a row moves (getBoundingClientRect / (width/375)). Gone: `.wm-*` CSS,
+  `Welcome._ico`, the `.wp-tr/.wp-box/.wp-tt/.wp-card` rows.
+- TEMPLATE WINDOW = "T2" (1.0, same page — "the template window is really
+  unclean and bad design", "i like T2"): `.sheet.sh-win` with the edit
+  windows' bar (centred "Templates", blue "Add N" top right, grey and
+  disabled while nothing is picked — `.sh-save:disabled`), the templates as
+  `.tpl-tile` buttons two per row (tinted emoji tile, name, line, a round
+  tick top right; picked = blue ring + blue tick; nothing left =
+  "Already added", dimmed, disabled, no tick), then "What gets added" — one
+  `.opt-group` (`#tpl-sel`) with a `.tpl-r` per part of the picked
+  templates: its kind's icon on its colour (`_KIND`: habit green, To-do
+  blue, List amber, Tracker indigo, Scheduled red), name, "<template> ·
+  detail", and the app's `.switch` (on = added). State: `_rows` (every part
+  not there yet), `_on` (picked templates), `_off` (switched-off rows);
+  a switch's change comes SWITCH_MS late, so `_sync()` reads the switches
+  back before any redraw or Add. Picking a template again turns all its
+  parts back on. The old one (4.25–4.67.35): left title, a hint, one card
+  per template with a tick box that folded out ticked items, Add as a row
+  at the bottom.
 - STARTER TEMPLATES (4.25, `TEMPLATES` + `Templates`, `#tpl-sheet-overlay`,
   z-index 660 so it opens over the welcome screens): opened from the
   welcome start page ("Use a template", `Templates.open(true)` → Welcome.
   finish() after Add) — only there since 4.67.31 (Overview "+" > Template was
   removed: "remove the templates on + in overview"). Basics, Student,
-  Fitness, Work & focus, Routines. Several can be ticked; a ticked one
-  folds out its items (projects, habits, tracker, calendar task), each
-  with its own tick (`.ics-row` labels like the calendar import — not
-  .opt-row). It ONLY ADDS: an item whose name already exists (project,
+  Fitness, Work & focus, Routines. Several can be picked (the window: see
+  TEMPLATE WINDOW above). It ONLY ADDS: an item whose name already exists (project,
   habit text, calendar text — in EITHER language, `_find`) is left out;
   a template with nothing left reads "Already added" (disabled); a Habits
   project / category of the same name is reused. Names are created in the
