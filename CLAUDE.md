@@ -602,8 +602,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   a paperclip on task rows that have files (offered).
   ON PROJECTS TOO (1.0, "i want to be able to attach docs to projects as
   well"): `p.files` like a task's, in the project window (SheetEditor) as
-  `#proj-sheet-files` right under the description (18px, like the task
-  window; every project type). The card is ONE shared piece now,
+  `#proj-sheet-files` — first right under the description (like the task
+  window), moved in 1.0.46 to the LAST card, right above Delete project
+  ("attach a file button in projects i want it right above delete
+  project"), once the files showed on the page; every project type. The card is ONE shared piece now,
   `FileCard(name,cardId,inputId,hooks)` → `TaskFiles` / `ProjFiles` (the
   global name is in the rows' onclick); hooks owner/get/set/trash. `start`
   on open, `end(keep)` on Save (true) / close (false: pending files of an
