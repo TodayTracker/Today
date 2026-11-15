@@ -2088,7 +2088,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=40;
+var BETA_BUILD=41;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3441,7 +3441,8 @@ var CHANGELOG=[
     "Windows no longer close while you scroll inside them: a touch that scrolled the window never pulls it down, even once it reaches the top. Only a pull that starts at the top closes it",
     "The template window keeps one height and no longer grows or shrinks when you pick a template",
     "Menu → Data: the explanation under Export and Import is gone",
-    "Projects can have files too: tap a project's name, then Attach a file under the description. Like on tasks: a tap opens one, × puts it in the Trash"
+    "Projects can have files too: tap a project's name, then Attach a file under the description. Like on tasks: a tap opens one, × puts it in the Trash",
+    "Menu → General: Hold to complete and Sounds have a title, Ticking off"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -4302,7 +4303,7 @@ var I18N=(function(){
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
     "Add a tracker":"Tracker hinzufügen","Name per day":"Name pro Tag",
-    "Tab bar":"Tab-Leiste","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
+    "Tab bar":"Tab-Leiste","Ticking off":"Abhaken","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
     "Tu":"Di","We":"Mi","Th":"Do","Su":"So","Pick the days first.":"Wähle zuerst die Tage.",
     "Deleted":"Gelöscht","Deleted habits":"Gelöschte Gewohnheiten","Keep in statistics":"In der Statistik behalten","No habits yet.":"Noch keine Gewohnheiten.","Remove":"Entfernen",
     "On: a habit you delete keeps its past days in your statistics, as they really were. Off: it's left out, as if it never existed. The Habits widget lists the deleted ones that still count.":"Ein: Eine gelöschte Gewohnheit behält ihre vergangenen Tage in deiner Statistik, so wie sie wirklich waren. Aus: Sie wird weggelassen, als hätte es sie nie gegeben. Das Widget Gewohnheiten zeigt die gelöschten, die noch zählen.",
@@ -5588,6 +5589,7 @@ function renderGeneralTop(){
     +'<div class="opt-text"><div class="opt-title">Open app on</div></div>'
     +customSelect(startOpts,TabBar.startTab(),'A.setStartTab(this.value)')
     +'</div></div>'
+    +'<div class="sl">Ticking off</div>'
     +'<div class="opt-group">'
     +'<div class="opt-row" style="cursor:default">'
     +'<div class="opt-text"><div class="opt-title">Hold to complete</div></div>'

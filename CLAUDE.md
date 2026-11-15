@@ -847,6 +847,8 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
 - Sound and Notifications live in Menu > General (3.63; a separate Menu
   card in 3.61 and their own pages in 3.62 were both dropped by request):
   "Sounds" (3.65; was "Tick-off sound") is a switch in the Hold-to-complete card
+  (the card has the section title "Ticking off" since 1.0 — "smt in the
+  direction of ticking off tasks or completing tasks"; German "Abhaken")
   (`settings.sound`, default on; off makes `playClick()` — the click when a
   hold completes something, the app's only sound — return early), and a
   "Notifications" section at the bottom is a card saying "Coming soon"
