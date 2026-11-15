@@ -1340,6 +1340,19 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   cancel callbacks) with `_instantClose=true` so `_overlayClose` doesn't wait
   a second animation. A new sheet only needs `.sheet-overlay` with an onclick
   close and a `.sheet` child — no close button, and don't add one.
+  PULL OR SCROLL (1.0, "the template window closes way too quick when im
+  just scrolling inside the window up and down"): the pull used to start
+  in the MIDDLE of a scroll — a finger moving down scrolled the content to
+  its top, and from then on `dy` (counted from the touch's start, already
+  100-200px) moved the sheet at once and a release closed it. Now each
+  touch is decided once by its first 6px (PULL_DECIDE): a pull only if
+  the scroller was at its top at touchstart (`atTop`) and the first move
+  is down; anything else scrolls for the whole touch. Tested with finger-
+  style touches on an overflowing sheet: scroll-to-top-then-down stays
+  put, up-then-down stays put, a pull from the top closes, a 40px pull
+  springs back. Same release: the template window is a fixed 88vh
+  (`height`, not only max-height) — it grew/shrank as templates were
+  picked ("the window also jumps up and down / getting bigger").
 
 - Design system (2.55, the "DESIGN SYSTEM" block at the end of the CSS): the
   Settings look is the look of the whole app. (`--press`, the pressed-row
