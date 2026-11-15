@@ -600,6 +600,19 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   share sheet needs a tap); Import clears the stored files and writes the
   backup's before the restart (a backup 1 file leaves none). Not done yet:
   a paperclip on task rows that have files (offered).
+  ON PROJECTS TOO (1.0, "i want to be able to attach docs to projects as
+  well"): `p.files` like a task's, in the project window (SheetEditor) as
+  `#proj-sheet-files` right under the description (18px, like the task
+  window; every project type). The card is ONE shared piece now,
+  `FileCard(name,cardId,inputId,hooks)` → `TaskFiles` / `ProjFiles` (the
+  global name is in the rows' onclick); hooks owner/get/set/trash. `start`
+  on open, `end(keep)` on Save (true) / close (false: pending files of an
+  unsaved new task/project are deleted); a `tok` drops reads/adds that
+  finish after the window moved on (an add for a saved owner still lands
+  on it). A removed project file is Trash 'file' with NO key → restore puts
+  it back on the project ("Restore the project first." if gone). Deleting
+  the project keeps them in its Trash snapshot; backup and dropUnused see
+  them through the data's JSON. Not on the project PAGE yet (offered).
 - TASK WINDOW NAME + NOTES (4.67.34, "the 2 text inputs in a task tab i want
   those the same than the 2 text input windows in a project edit tab"): the
   task window's hero is `.sh-hero.center` like the project window's — name

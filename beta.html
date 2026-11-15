@@ -677,7 +677,7 @@ html:not(#x) .dhdr{min-height:40px}
 .sh-bar .ts-pri{grid-column:1;justify-self:start;display:inline-flex;align-items:center;gap:4px;border:none;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
 .sh-bar .ts-pri svg{flex:none;opacity:.7;transform:rotate(-90deg);transition:transform .2s ease} /* sideways, turning down while its dropdown is open (DSel adds .open) */
 .sh-bar .ts-pri.open svg{transform:none}
-#task-sheet-files{margin-top:0}
+#task-sheet-files,#proj-sheet-files{margin-top:0}
 .ts-thumb{flex:none;width:30px;height:30px;border-radius:7px;overflow:hidden;background:var(--box,#eceef1);display:flex;align-items:center;justify-content:center}
 .ts-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .ts-ext{font-size:9px;font-weight:700;letter-spacing:.02em;color:#8e8e93}
@@ -1956,6 +1956,8 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
       <input class="sh-name" id="sheet-name" placeholder="Project name">
       <textarea class="sh-text" id="sheet-desc" rows="1" placeholder="Description" oninput="_shGrow(this)"></textarea>
     </div>
+    <div class="opt-group" id="proj-sheet-files"></div>
+    <input type="file" id="proj-file" multiple style="display:none" onchange="ProjFiles.add(this)">
     <div class="opt-group" id="new-proj-rows" style="display:none">
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Type</div></div><div id="new-proj-type"></div></div>
       <div class="opt-row"><div class="opt-text"><div class="opt-title">Category</div></div><div id="new-proj-cat"></div></div>
@@ -2031,7 +2033,7 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
       <textarea class="sh-text sh-notes" id="task-sheet-desc" rows="1" placeholder="Notes" oninput="TaskSheet.autosize()"></textarea>
     </div>
     <div class="opt-group" id="task-sheet-files"></div>
-    <input type="file" id="task-file" multiple style="display:none" onchange="TaskSheet.addFiles(this)">
+    <input type="file" id="task-file" multiple style="display:none" onchange="TaskFiles.add(this)">
   </div>
 </div>
 
@@ -2086,7 +2088,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=39;
+var BETA_BUILD=40;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3438,7 +3440,8 @@ var CHANGELOG=[
     "The welcome pages' pictures and the three cards on the last page are white now instead of a different pastel colour each",
     "Windows no longer close while you scroll inside them: a touch that scrolled the window never pulls it down, even once it reaches the top. Only a pull that starts at the top closes it",
     "The template window keeps one height and no longer grows or shrinks when you pick a template",
-    "Menu → Data: the explanation under Export and Import is gone"
+    "Menu → Data: the explanation under Export and Import is gone",
+    "Projects can have files too: tap a project's name, then Attach a file under the description. Like on tasks: a tap opens one, × puts it in the Trash"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3581,7 +3584,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos","New look for the charts","Attach files to tasks"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos","New look for the charts","Attach files to tasks and projects"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -3870,10 +3873,16 @@ var DB={
       d.trackerEntries[x.pid].push(x.entry);
       d.trackerEntries[x.pid].sort(function(a,b){return a.ts-b.ts;});
     } else if(t.type==='file'){
-      // back onto its task, if the task is still there
-      var tk=(d.extraTasks[x.pid]||[]).find(function(q){return q.key===x.key;});
-      if(!tk)return 'Restore the task first.';
-      tk.files=(tk.files||[]).concat([x.file]);
+      // back onto its task (or its project: no key), if that's still there
+      if(x.key){
+        var tk=(d.extraTasks[x.pid]||[]).find(function(q){return q.key===x.key;});
+        if(!tk)return 'Restore the task first.';
+        tk.files=(tk.files||[]).concat([x.file]);
+      } else {
+        var pj=d.projects[x.pid];
+        if(!pj)return 'Restore the project first.';
+        pj.files=(pj.files||[]).concat([x.file]);
+      }
     }
     d.trash.splice(i,1);
     this.save();
@@ -9870,7 +9879,8 @@ function renderAllTaskViews(){
 // The files themselves live in IndexedDB ('lifeos-files', store 'files':
 // {id, name, type, size, data: ArrayBuffer, added}) — localStorage holds only
 // ~5 MB. A task keeps their names in `files: [{id, name, type, size}]`, and
-// so does its done (archived) entry, so they come back with it. Ids are
+// so does its done (archived) entry, so they come back with it; a project
+// keeps its own the same way (and in its Trash snapshot when deleted). Ids are
 // 'f' + time + a few random letters. Removing a file from a task puts it in
 // the Trash (type 'file'); only Delete forever / Delete all forever in the
 // Trash really delete it (FileStore.dropUnused: every stored file no data
@@ -9980,25 +9990,132 @@ var Pop=(function(){
     }
   };
 })();
+// One Files card — a row per file (its picture or ending, name, size, × to
+// remove it, to the Trash) and "Attach a file" last — shared by the task
+// window and the project window. A tap on a file opens it: a picture full
+// screen, anything else through the phone's share sheet (open it in another
+// app, save it); a computer downloads it. Added files are stored right away;
+// on something not saved yet (a new task or project) they're `pending` and
+// belong to it once it's saved (closing without Save deletes them). The
+// window's files are read into memory (`cache`) when it opens, so a tap can
+// open one right inside the tap (the share sheet needs that).
+// `name` = the global it lives in (for the rows' onclick); h = its owner:
+// owner() (the saved task/project, else null), get(o) / set(o,files) (its
+// stored list), trash(o,f) (the Trash entry for a removed file).
+function FileCard(name,cardId,inputId,h){
+  return {
+    files:[],pending:[],cache:{},tok:0,
+    start:function(files){
+      this.tok++;this.files=(files||[]).slice();this.pending=[];
+      this.render();this.load();
+    },
+    render:function(){
+      var out=this.files.map(function(f){
+        return '<div class="opt-row ts-file" onclick="'+name+'.open(\''+f.id+'\')">'+fileThumb(f)
+          +'<div class="opt-text"><div class="opt-title">'+esc(f.name)+'</div></div><span class="ts-size">'+fmtSize(f.size||0)+'</span>'
+          +'<button class="sh-x" onclick="event.stopPropagation();'+name+'.remove(\''+f.id+'\')" aria-label="Remove">'+SH_X+'</button></div>';
+      }).join('');
+      out+='<div class="opt-row btn-row ts-attach" onclick="'+name+'.pick()"><span class="ts-clip">'+CLIP_SVG+'</span><div class="opt-text"><div class="opt-title">'+esc(t('Attach a file'))+'</div></div></div>';
+      document.getElementById(cardId).innerHTML=out;
+      this.thumbs();
+    },
+    thumbs:function(){
+      var c=this.cache;
+      document.querySelectorAll('#'+cardId+' [data-fid]').forEach(function(sp){
+        var x=c[sp.getAttribute('data-fid')];
+        if(x&&x.url&&!sp.firstChild){var im=document.createElement('img');im.alt='';im.src=x.url;sp.appendChild(im);}
+      });
+    },
+    load:function(){
+      var self=this,tok=this.tok;
+      this.files.forEach(function(f){
+        if(self.cache[f.id])return;
+        FileStore.get(f.id).then(function(rec){
+          if(self.tok!==tok)return;
+          self.cache[f.id]=rec?{buf:rec.data,url:URL.createObjectURL(new Blob([rec.data],{type:f.type||''}))}:{missing:true};
+          self.thumbs();
+        }).catch(function(){if(self.tok===tok)self.cache[f.id]={missing:true};});
+      });
+    },
+    // the window closes: Saved (keep) → its new files stay with it; else they're deleted
+    end:function(keep){
+      if(!keep)this.pending.forEach(function(id){FileStore.del(id).catch(function(){});});
+      this.pending=[];this.tok++;
+      var c=this.cache;this.cache={};
+      setTimeout(function(){Object.keys(c).forEach(function(k){if(c[k].url)URL.revokeObjectURL(c[k].url);});},SHEET_ANIM_MS+200);
+    },
+    pick:function(){var f=document.getElementById(inputId);f.value='';f.click();},
+    add:function(inp){
+      var self=this,all=Array.prototype.slice.call(inp.files||[]),own=h.owner(),tok=this.tok;
+      var big=all.filter(function(f){return f.size>FILE_MAX;}),list=all.filter(function(f){return f.size<=FILE_MAX;});
+      if(big.length)Alert.info('Files can be up to 50 MB — '+big.map(function(f){return f.name;}).join(', ')+' is too big.');
+      if(!list.length)return;
+      var bufs={};
+      Promise.all(list.map(function(file,i){
+        var id='f'+Date.now()+Math.random().toString(36).slice(2,6)+i;
+        return readBuf(file).then(function(buf){
+          var meta={id:id,name:file.name||'File',type:file.type||'',size:file.size};
+          return FileStore.put({id:id,name:meta.name,type:meta.type,size:meta.size,data:buf,added:Date.now()}).then(function(){bufs[id]=buf;return meta;});
+        });
+      })).then(function(metas){
+        if(self.tok!==tok){ // the window closed or moved on meanwhile
+          if(own){var cur=h.get(own);if(cur)h.set(own,cur.concat(metas));}
+          else metas.forEach(function(m){FileStore.del(m.id).catch(function(){});});
+          return;
+        }
+        metas.forEach(function(m){self.cache[m.id]={buf:bufs[m.id],url:URL.createObjectURL(new Blob([bufs[m.id]],{type:m.type}))};});
+        self.files=self.files.concat(metas);
+        if(own)h.set(own,self.files);else self.pending=self.pending.concat(metas.map(function(m){return m.id;}));
+        self.render();
+      }).catch(function(err){Alert.info("This file couldn't be saved — "+((err&&err.message)||String(err)));});
+    },
+    remove:function(id){
+      var self=this,f=this.files.find(function(x){return x.id===id;}),own=h.owner();if(!f)return;
+      Alert.confirm('Remove "'+f.name+'"? It goes to the Trash.',function(){
+        self.files=self.files.filter(function(x){return x.id!==id;});
+        if(own){h.trash(own,f);h.set(own,self.files);}
+        else{self.pending=self.pending.filter(function(x){return x!==id;});FileStore.del(id).catch(function(){});}
+        self.render();
+      },'Remove');
+    },
+    open:function(id){
+      var f=this.files.find(function(x){return x.id===id;}),c=this.cache[id];if(!f)return;
+      if(!c){Alert.info('This file is still loading — try again in a moment.');return;}
+      if(c.missing){Alert.info("This file isn't on this phone any more.");return;}
+      if(/^image\//.test(f.type||'')){FileView.show(c.url);return;}
+      var file=null;try{file=new File([c.buf],f.name,{type:f.type||'application/octet-stream'});}catch(e){}
+      var can=false;try{can=!!(file&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}));}catch(e){}
+      if(can){navigator.share({files:[file]}).catch(function(){});return;}
+      var a=document.createElement('a');a.href=c.url;a.download=f.name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+    }
+  };
+}
+// the task window's files: under the notes
+var TaskFiles=FileCard('TaskFiles','task-sheet-files','task-file',{
+  owner:function(){return TaskSheet.key?{pid:TaskSheet.pid,key:TaskSheet.key}:null;},
+  get:function(o){var tk=(DB.data.extraTasks[o.pid]||[]).find(function(x){return x.key===o.key;});return tk?tk.files||[]:null;},
+  set:function(o,files){DB.updateTask(o.pid,o.key,{files:files});renderAllTaskViews();},
+  trash:function(o,f){var p=DB.data.projects[o.pid];DB._trash('file',f.name,p?p.name:'',{pid:o.pid,key:o.key,file:f});}
+});
 var TaskSheet={
-  pid:null,key:null,pri:'bs',files:[],pending:[],cache:{},
+  pid:null,key:null,pri:'bs',
   open:function(pid,key){
     var t=(DB.data.extraTasks[pid]||[]).find(function(x){return x.key===key;});
     if(!t)return;
-    this.pid=pid;this.key=key;this.pri=t.pri||'bs';this.files=(t.files||[]).slice();this.pending=[];
+    this.pid=pid;this.key=key;this.pri=t.pri||'bs';
     document.getElementById('task-sheet-title').textContent='';
     document.getElementById('task-sheet-name').value=t.text;
     document.getElementById('task-sheet-desc').value=t.desc||'';
-    this.renderPri();this.renderFiles();this.loadFiles();
+    this.renderPri();TaskFiles.start(t.files);
     _overlayOpen('task-sheet-overlay');
     this.autosize();
   },
   openNew:function(pid){
-    this.pid=pid;this.key=null;this.pri='bs';this.files=[];this.pending=[];
+    this.pid=pid;this.key=null;this.pri='bs';
     document.getElementById('task-sheet-title').textContent='New task';
     document.getElementById('task-sheet-name').value='';
     document.getElementById('task-sheet-desc').value='';
-    this.renderPri();this.renderFiles();
+    this.renderPri();TaskFiles.start([]);
     _overlayOpen('task-sheet-overlay');
     this.autosize();
     setTimeout(function(){_autoFocus(document.getElementById('task-sheet-name'));},300);
@@ -10022,92 +10139,6 @@ var TaskSheet={
     var self=this;
     DSel.menu(b,['bu','bs','bp','bl'].map(function(k){return{value:k,label:PLBL[k]};}),this.pri,function(v){self.pri=v;self.renderPri();});
   },
-  // Files: one card under the notes, a row per file (its picture or ending,
-  // name, size, × to remove — to the Trash) and "Attach a file" last. A tap
-  // on a file opens it: a picture full screen, anything else through the
-  // phone's share sheet (open it in another app, save it); a computer
-  // downloads it. Added files are stored right away; on a new task they
-  // belong to it once it's saved (closing without Save deletes them).
-  renderFiles:function(){
-    var self=this;
-    var h=this.files.map(function(f){
-      return '<div class="opt-row ts-file" onclick="TaskSheet.openFile(\''+f.id+'\')">'+fileThumb(f)
-        +'<div class="opt-text"><div class="opt-title">'+esc(f.name)+'</div></div><span class="ts-size">'+fmtSize(f.size||0)+'</span>'
-        +'<button class="sh-x" onclick="event.stopPropagation();TaskSheet.removeFile(\''+f.id+'\')" aria-label="Remove">'+SH_X+'</button></div>';
-    }).join('');
-    h+='<div class="opt-row btn-row ts-attach" onclick="TaskSheet.pickFiles()"><span class="ts-clip">'+CLIP_SVG+'</span><div class="opt-text"><div class="opt-title">'+esc(t('Attach a file'))+'</div></div></div>';
-    document.getElementById('task-sheet-files').innerHTML=h;
-    this.fillThumbs();
-  },
-  fillThumbs:function(){
-    var self=this;
-    document.querySelectorAll('#task-sheet-files [data-fid]').forEach(function(s){
-      var c=self.cache[s.getAttribute('data-fid')];
-      if(c&&c.url&&!s.firstChild){var im=document.createElement('img');im.alt='';im.src=c.url;s.appendChild(im);}
-    });
-  },
-  // the open task's files into memory, so a tap can open one right inside
-  // the tap (the phone's share sheet needs that)
-  loadFiles:function(){
-    var self=this,key=this.key;
-    this.files.forEach(function(f){
-      if(self.cache[f.id])return;
-      FileStore.get(f.id).then(function(rec){
-        if(self.key!==key)return;
-        self.cache[f.id]=rec?{buf:rec.data,url:URL.createObjectURL(new Blob([rec.data],{type:f.type||''}))}:{missing:true};
-        self.fillThumbs();
-      }).catch(function(){self.cache[f.id]={missing:true};});
-    });
-  },
-  dropCache:function(){
-    var c=this.cache;this.cache={};
-    setTimeout(function(){Object.keys(c).forEach(function(k){if(c[k].url)URL.revokeObjectURL(c[k].url);});},SHEET_ANIM_MS+200);
-  },
-  pickFiles:function(){var f=document.getElementById('task-file');f.value='';f.click();},
-  addFiles:function(inp){
-    var self=this,all=Array.prototype.slice.call(inp.files||[]),key=this.key,pid=this.pid;
-    var big=all.filter(function(f){return f.size>FILE_MAX;}),list=all.filter(function(f){return f.size<=FILE_MAX;});
-    if(big.length)Alert.info('Files can be up to 50 MB — '+big.map(function(f){return f.name;}).join(', ')+' is too big.');
-    if(!list.length)return;
-    Promise.all(list.map(function(file,i){
-      var id='f'+Date.now()+Math.random().toString(36).slice(2,6)+i;
-      return readBuf(file).then(function(buf){
-        var meta={id:id,name:file.name||'File',type:file.type||'',size:file.size};
-        return FileStore.put({id:id,name:meta.name,type:meta.type,size:meta.size,data:buf,added:Date.now()}).then(function(){
-          self.cache[id]={buf:buf,url:URL.createObjectURL(new Blob([buf],{type:meta.type}))};return meta;
-        });
-      });
-    })).then(function(metas){
-      if(self.key!==key||self.pid!==pid)return; // the window moved on meanwhile
-      self.files=self.files.concat(metas);
-      if(key)DB.updateTask(pid,key,{files:self.files});else self.pending=self.pending.concat(metas.map(function(m){return m.id;}));
-      self.renderFiles();
-      if(key)renderAllTaskViews();
-    }).catch(function(err){Alert.info("This file couldn't be saved — "+((err&&err.message)||String(err)));});
-  },
-  removeFile:function(id){
-    var self=this,f=this.files.find(function(x){return x.id===id;});if(!f)return;
-    Alert.confirm('Remove "'+f.name+'"? It goes to the Trash.',function(){
-      self.files=self.files.filter(function(x){return x.id!==id;});
-      if(self.key){
-        var p=DB.data.projects[self.pid];
-        DB._trash('file',f.name,p?p.name:'',{pid:self.pid,key:self.key,file:f});
-        DB.updateTask(self.pid,self.key,{files:self.files});
-        renderAllTaskViews();
-      } else {self.pending=self.pending.filter(function(x){return x!==id;});FileStore.del(id).catch(function(){});}
-      self.renderFiles();
-    },'Remove');
-  },
-  openFile:function(id){
-    var f=this.files.find(function(x){return x.id===id;}),c=this.cache[id];if(!f)return;
-    if(!c){Alert.info('This file is still loading — try again in a moment.');return;}
-    if(c.missing){Alert.info("This file isn't on this phone any more.");return;}
-    if(/^image\//.test(f.type||'')){FileView.show(c.url);return;}
-    var file=null;try{file=new File([c.buf],f.name,{type:f.type||'application/octet-stream'});}catch(e){}
-    var can=false;try{can=!!(file&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}));}catch(e){}
-    if(can){navigator.share({files:[file]}).catch(function(){});return;}
-    var a=document.createElement('a');a.href=c.url;a.download=f.name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
-  },
   save:function(){
     if(!_sheetLive('task-sheet-overlay'))return; // already saved, window closing
     var text=document.getElementById('task-sheet-name').value.trim();
@@ -10115,19 +10146,16 @@ var TaskSheet={
     var desc=document.getElementById('task-sheet-desc').value.trim();
     if(!this.key){
       var key=DB.addTask(this.pid,text,this.pri);
-      DB.updateTask(this.pid,key,{desc:desc,files:this.files});
-      this.pending=[]; // they belong to the task now
+      DB.updateTask(this.pid,key,{desc:desc,files:TaskFiles.files});
     } else {
       DB.updateTask(this.pid,this.key,{text:text,pri:this.pri,desc:desc});
     }
-    this.dropCache();
+    TaskFiles.end(true); // a new task's files belong to it now
     _overlayClose('task-sheet-overlay');
     renderAllTaskViews();
   },
   close:function(){
-    // a new task that wasn't saved: its files go with it
-    this.pending.forEach(function(id){FileStore.del(id).catch(function(){});});this.pending=[];
-    this.dropCache();
+    TaskFiles.end(false); // a new task that wasn't saved: its files go with it
     _overlayClose('task-sheet-overlay');
   }
 };
@@ -10977,6 +11005,13 @@ function iconOrPhoto(p){
   if(p&&p.photo)return '<img class="proj-photo" draggable="false" src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">';
   return (p&&p.icon)||'📁';
 }
+// the project window's files: under the description
+var ProjFiles=FileCard('ProjFiles','proj-sheet-files','proj-file',{
+  owner:function(){return SheetEditor.pid&&DB.data.projects[SheetEditor.pid]?SheetEditor.pid:null;},
+  get:function(pid){var p=DB.data.projects[pid];return p?p.files||[]:null;},
+  set:function(pid,files){var p=DB.data.projects[pid];if(!p)return;if(files.length)p.files=files;else delete p.files;DB.save();},
+  trash:function(pid,f){var p=DB.data.projects[pid];DB._trash('file',f.name,p?p.name:'',{pid:pid,file:f});}
+});
 var SheetEditor={
   pid:null,
   selectedColor:'c-grey',
@@ -10999,6 +11034,7 @@ var SheetEditor={
     document.getElementById('sheet-desc').value='';_shGrow(document.getElementById('sheet-desc'));
     document.getElementById('sheet-icon').value='📁';document.getElementById('sheet-icon').dataset.lastGood='📁';
     this.photo=null;this.renderPhotoUI();
+    ProjFiles.start([]);
     document.getElementById('proj-sheet-title').textContent='New project';
     this.selectedColor='c-grey';
     this.renderColors();
@@ -11024,6 +11060,7 @@ var SheetEditor={
     setTimeout(function(){_shGrow(document.getElementById('sheet-desc'));},0); // measured once the window shows
     document.getElementById('sheet-icon').value=p.icon||'📁';document.getElementById('sheet-icon').dataset.lastGood=p.icon||'📁';
     this.photo=p.photo||null;this.renderPhotoUI();
+    ProjFiles.start(p.files);
     this.selectedColor=p.color||'c-grey';
     this.renderColors();
     var mar=document.getElementById('ma-edit-row');
@@ -11081,6 +11118,7 @@ var SheetEditor={
     },SHEET_ANIM_MS+30);
   },
   close:function(){
+    ProjFiles.end(false); // a new project that wasn't saved: its files go with it
     _overlayClose('proj-sheet-overlay');
     this.pid=null;
     this.newCatId=null;
@@ -11181,6 +11219,8 @@ var SheetEditor={
       var unit=document.getElementById('sheet-unit').value.trim();
       var pid=DB.addProject(this.newCatId,name,icon,this.selectedColor,desc,this.projectType||'todo',unit);
       if(this.photo){DB.data.projects[pid].photo=this.photo;DB.save();}
+      if(ProjFiles.files.length){DB.data.projects[pid].files=ProjFiles.files.slice();DB.save();}
+      ProjFiles.end(true); // they belong to the project now
       if(this.projectType==='daily'&&!isHabitsProject(DB.data.habitsProjectId)){DB.data.habitsProjectId=pid;DB.save();} // the first one only
       if(this.projectType==='tracker'){
         DB.data.projects[pid].maEnabled=document.getElementById('sheet-ma-enabled').checked;
@@ -11216,6 +11256,7 @@ var SheetEditor={
       }
       if(p.type==='tracker')renderTracker(this.pid);
       renderGrids();
+      ProjFiles.end(true); // already stored on it as they were added
       _overlayClose('proj-sheet-overlay');
     }
   }
