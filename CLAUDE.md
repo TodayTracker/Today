@@ -908,11 +908,26 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   = the tab's name): the welcome page's moving picture (Welcome._pic), the
   tab's name in its colour, the welcome title, a new lead line, then cards.
   Everything is `Guide` (before MenuPage), drawn by `Guide.render(id)` from
-  _renderPage on every visit (the pictures start over): a part = `.gd-card`
+  _renderPage on every visit (the pictures start over). LOOK (1.0.47, "a
+  consistent layout with the icons because its different than in war room"
+  → picked "a small icon on every card"; and "the text… same as outside of
+  the guide… everything is a bit too big and bold"): EVERY card starts with
+  `.gd-head` = a Menu row (46px, 30px `.gd-ico` tile with a 20px icon,
+  15/600 title), then `.gd-tip`s divided by 1.5px --line like rows: the
+  question `.gd-q` in row text 15/500 ink, the answer `.gd-a` in the
+  paragraph role 13/18 500 #999, a note in blue. War Room = two cards ("What
+  it is" red triangle, "How to use it" red touch ring; its big centred icon
+  is gone); tab pages' cards (What you see = eye, What you can do = touch
+  ring, Make it yours / The pages = sliders) in the tab's Guide.COL colour;
+  the tab hero below the picture is smaller (eyebrow 11px, title 20/700,
+  line 13 grey). (Before: a part was `.gd-card`
   (big 19/700 title, Hidden features with the Menu icon+colour of its place:
-  Today, Habits, Overview, Tasks, Charts, Everywhere), a tip = a paragraph
+  Today, Habits, Overview, Tasks, Charts, Everywhere — Everywhere = the
+  phone ICON_PHONE on grey #6b7280, picked from six (phone / finger / all
+  tabs / arrows / app icon / mask) after "i dont like the everywhere icon";
+  it was a tap glyph), a tip = a paragraph
   starting with its QUESTION in bold, then the answer (ink 82%), a note in
-  blue. Hidden features (15 tips, more than before) and War Room have a
+  blue — replaced by the look above.) Hidden features (15 tips, more than before) and War Room have a
   small moving picture per tip (`.gd-pic`, `_scene(k)`, `gd*` keyframes)
   built from the app's pieces in their real colours — the skip action is
   the app's light green #a7f3c0 (the options page had amber: wrong); the
