@@ -612,7 +612,17 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   on it). A removed project file is Trash 'file' with NO key → restore puts
   it back on the project ("Restore the project first." if gone). Deleting
   the project keeps them in its Trash snapshot; backup and dropUnused see
-  them through the data's JSON. Not on the project PAGE yet (offered).
+  them through the data's JSON. ON THE PAGE TOO (1.0, "i like that docs get
+  shown on the projects page itself"): `PageFiles` — one chip per file
+  (`.ph-file`: fileThumb + name, ellipsis at 180px) in `.ph-files` under the
+  description (projHeadHTML), wrapping instead of a sideways scroll (that
+  would fight the swipe back from the left edge); the Habits page shows the
+  current Habits project's in `#habits-files` under its title (renderHabits
+  → PageFiles.habits). refreshProjHead → PageFiles.load reads their data
+  into `cache` (kept while the app runs) so a tap opens one inside the tap
+  — `fileOpen(f,c)` is the one "open a file" for window rows and chips.
+  ProjFiles' set() redraws the page header at once. Adding/removing is only
+  in the window (not asked on the page).
 - TASK WINDOW NAME + NOTES (4.67.34, "the 2 text inputs in a task tab i want
   those the same than the 2 text input windows in a project edit tab"): the
   task window's hero is `.sh-hero.center` like the project window's — name

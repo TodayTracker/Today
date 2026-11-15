@@ -791,6 +791,14 @@ html:not(#x) .el-btn.danger{background:#dc2626}
 .ph-head .hh-sub{margin-top:8px}
 .ph-desc{margin-top:8px;font-size:13px;line-height:18px;font-weight:500;color:#999;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
 .ph-desc.open{display:block;-webkit-line-clamp:unset}
+/* the project's files, under the description: one chip each (wrapping, no
+   sideways scroll, which would fight the swipe back from the left edge) */
+.ph-files{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ph-file{flex:none;display:flex;align-items:center;gap:8px;max-width:100%;height:38px;padding:0 12px 0 4px;border:none;border-radius:10px;background:var(--card);color:var(--ink);font:inherit;font-size:13px;line-height:16px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .3s}
+.ph-file:active{opacity:.55;transition:opacity .06s}
+.ph-file .ts-thumb{width:30px;height:30px}
+.ph-fn{min-width:0;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#habits-files .ph-files{margin-top:10px}
 /* CHARTS (4.52, "D · Edge to edge" from the chart suggestions page): a
    chart card has no padding at the sides — the bars, a tracker's line and
    its fade run to the card's edges, the labels sit inside. No big number in
@@ -1915,6 +1923,7 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
       <button class="hh-title-btn" onclick="if(curHabitsPid())SheetEditor.open(curHabitsPid())"><span class="hh-title" id="habits-dtitle">Daily</span></button>
       <span class="tlbl" id="wlbl"></span>
     </div>
+    <div id="habits-files"></div>
   </div>
   <div class="wdays-wrap" id="wdays-wrap"><div class="wdays" id="wdays"></div><button class="day-jump r" id="day-jump" onclick="DayStrip.toToday()" aria-label="Back to today"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button></div>
   <div id="dpanels"></div>
@@ -2172,7 +2181,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=44;
+var BETA_BUILD=45;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3528,7 +3537,8 @@ var CHANGELOG=[
     "Projects can have files too: tap a project's name, then Attach a file under the description. Like on tasks: a tap opens one, × puts it in the Trash",
     "Menu → General: Hold to complete and Sounds have a title, Completing tasks",
     "New Guide (Menu → Guide): every part is a card, every tip starts with its question, and Hidden features shows each gesture moving. More hidden features, and the new Tab by tab explains every tab",
-    "Typing a name (project, category, task…) no longer brings up the iPhone's AutoFill bar above the keyboard"
+    "Typing a name (project, category, task…) no longer brings up the iPhone's AutoFill bar above the keyboard",
+    "A project's files also show on its page, under the description, one chip each — tap one to open it"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -5853,6 +5863,7 @@ function renderSettings(){
 function renderHabits(){
   var t=document.getElementById('habits-dtitle');if(t)t.textContent=habitsTitle(curHabitsPid());
   buildPills();buildPanels();var p=document.getElementById('dp-'+Nav.sd);if(p)p.classList.add('on');restoreChecks(Nav.sd);updWL();
+  PageFiles.habits();
 }
 
 // ── ACTIONS ───────────────────────────────────────────────
@@ -6687,16 +6698,19 @@ function projHeadHTML(pid){
   return '<div class="ph-row"><button class="ph-ico" style="'+tintStyle(col,true)+'" onclick="editProjPage(\''+pid+'\')" aria-label="Edit project">'+iconOrPhoto(p)+'</button>'
     +'<button class="hh-title-btn" onclick="editProjPage(\''+pid+'\')"><span class="hh-title">'+esc(p.name)+'</span></button></div>'
     +'<div class="hh-sub" id="hsub-'+pid+'" style="display:none"></div>'
-    +(desc?'<div class="ph-desc" onclick="this.classList.toggle(\'open\')">'+esc(desc)+'</div>':'');
+    +(desc?'<div class="ph-desc" onclick="this.classList.toggle(\'open\')">'+esc(desc)+'</div>':'')
+    +PageFiles.html(pid);
 }
 // Redraws a project page's header (after an edit; and on every visit, so
 // the tile's tint follows a theme change)
 function refreshProjHead(pid){
   var h=document.getElementById('ph-'+pid);if(!h)return;
   var html=projHeadHTML(pid);
-  if(h._html===html)return;
-  h.innerHTML=html;h._html=html;
-  var p=DB.data.projects[pid];if(p&&p.type==='tracker')renderTracker(pid); // refills the days line
+  if(h._html!==html){
+    h.innerHTML=html;h._html=html;
+    var p=DB.data.projects[pid];if(p&&p.type==='tracker')renderTracker(pid); // refills the days line
+  }
+  PageFiles.load(pid); // its files' pictures, and their data for a tap
 }
 function buildProjPages(){
   var h='';
@@ -10355,17 +10369,65 @@ function FileCard(name,cardId,inputId,h){
       },'Remove');
     },
     open:function(id){
-      var f=this.files.find(function(x){return x.id===id;}),c=this.cache[id];if(!f)return;
-      if(!c){Alert.info('This file is still loading — try again in a moment.');return;}
-      if(c.missing){Alert.info("This file isn't on this phone any more.");return;}
-      if(/^image\//.test(f.type||'')){FileView.show(c.url);return;}
-      var file=null;try{file=new File([c.buf],f.name,{type:f.type||'application/octet-stream'});}catch(e){}
-      var can=false;try{can=!!(file&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}));}catch(e){}
-      if(can){navigator.share({files:[file]}).catch(function(){});return;}
-      var a=document.createElement('a');a.href=c.url;a.download=f.name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+      var f=this.files.find(function(x){return x.id===id;});if(f)fileOpen(f,this.cache[id]);
     }
   };
 }
+// Opening a file (c = its data in memory, read beforehand so this runs inside
+// the tap): a picture full screen, anything else through the phone's share
+// sheet (open it in another app, save it); a computer downloads it.
+function fileOpen(f,c){
+  if(!c){Alert.info('This file is still loading — try again in a moment.');return;}
+  if(c.missing){Alert.info("This file isn't on this phone any more.");return;}
+  if(/^image\//.test(f.type||'')){FileView.show(c.url);return;}
+  var file=null;try{file=new File([c.buf],f.name,{type:f.type||'application/octet-stream'});}catch(e){}
+  var can=false;try{can=!!(file&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}));}catch(e){}
+  if(can){navigator.share({files:[file]}).catch(function(){});return;}
+  var a=document.createElement('a');a.href=c.url;a.download=f.name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+}
+// A project's files on its own page, under the description (a Habits
+// project: under its title) — one chip per file; a tap opens it like in the
+// project's window. Their data is read when the page is drawn (`cache`, kept
+// while the app runs), so the tap can open them right away.
+var PageFiles={
+  cache:{},
+  html:function(pid){
+    var p=DB.data.projects[pid],fs=(p&&p.files)||[];
+    if(!fs.length)return '';
+    return '<div class="ph-files">'+fs.map(function(f){
+      return '<button type="button" class="ph-file" onclick="PageFiles.open(\''+pid+'\',\''+f.id+'\')">'+fileThumb(f)+'<span class="ph-fn">'+esc(f.name)+'</span></button>';
+    }).join('')+'</div>';
+  },
+  load:function(pid){
+    var self=this,p=DB.data.projects[pid];
+    ((p&&p.files)||[]).forEach(function(f){
+      if(self.cache[f.id])return;
+      FileStore.get(f.id).then(function(rec){
+        self.cache[f.id]=rec?{buf:rec.data,url:URL.createObjectURL(new Blob([rec.data],{type:f.type||''}))}:{missing:true};
+        self.thumbs();
+      }).catch(function(){self.cache[f.id]={missing:true};});
+    });
+    this.thumbs();
+  },
+  thumbs:function(){
+    var c=this.cache;
+    document.querySelectorAll('.ph-files [data-fid]').forEach(function(sp){
+      var x=c[sp.getAttribute('data-fid')];
+      if(x&&x.url&&!sp.firstChild){var im=document.createElement('img');im.alt='';im.src=x.url;sp.appendChild(im);}
+    });
+  },
+  open:function(pid,id){
+    var p=DB.data.projects[pid],f=p&&(p.files||[]).find(function(x){return x.id===id;});
+    if(f)fileOpen(f,this.cache[id]);
+  },
+  // the Habits page (one page for every Habits project) shows the current one's
+  habits:function(){
+    var el=document.getElementById('habits-files'),pid=curHabitsPid();if(!el)return;
+    var h=pid?this.html(pid):'';
+    if(el._html!==h){el.innerHTML=h;el._html=h;}
+    if(pid)this.load(pid);
+  }
+};
 // the task window's files: under the notes
 var TaskFiles=FileCard('TaskFiles','task-sheet-files','task-file',{
   owner:function(){return TaskSheet.key?{pid:TaskSheet.pid,key:TaskSheet.key}:null;},
@@ -11292,7 +11354,7 @@ function iconOrPhoto(p){
 var ProjFiles=FileCard('ProjFiles','proj-sheet-files','proj-file',{
   owner:function(){return SheetEditor.pid&&DB.data.projects[SheetEditor.pid]?SheetEditor.pid:null;},
   get:function(pid){var p=DB.data.projects[pid];return p?p.files||[]:null;},
-  set:function(pid,files){var p=DB.data.projects[pid];if(!p)return;if(files.length)p.files=files;else delete p.files;DB.save();},
+  set:function(pid,files){var p=DB.data.projects[pid];if(!p)return;if(files.length)p.files=files;else delete p.files;DB.save();refreshProjHead(pid);if(isHabitsProject(pid))PageFiles.habits();},
   trash:function(pid,f){var p=DB.data.projects[pid];DB._trash('file',f.name,p?p.name:'',{pid:pid,file:f});}
 });
 var SheetEditor={
