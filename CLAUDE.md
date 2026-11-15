@@ -3063,6 +3063,18 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   motion = the first frame. Finger positions are screen px — re-measure
   if a row moves (getBoundingClientRect / (width/375)). Gone: `.wm-*` CSS,
   `Welcome._ico`, the `.wp-tr/.wp-box/.wp-tt/.wp-card` rows.
+  WHITE, NOT PASTELS (1.0, "K1" on https://claude.ai/artifact/EWqb8RZTv2gNMWoXndRtjx
+  — "i think the colors are the problem… or the color combo", then "i
+  like white"; the page also has grey, one blue, cool / warm families,
+  muted, bold and black — keep it): every picture block (`.wel-ill`, the
+  install page's too) and the three start cards (`.wel-opt`) are
+  var(--card) with a soft shadow (0 1px 3px .06 + 0 6px 18px .05); the
+  start cards' arrow circle is var(--pg) (white on white didn't show); in
+  dark mode the tiles/cards inside the start pictures get a 1px var(--line)
+  outline (same colour as their card, a shadow doesn't show); the install
+  sheet has a 1px ring. TABS has no `bg` any more; the --wt-sky/indigo/
+  amber/green/grey/red/violet tokens are gone (--wt-blue stays: the
+  install picture's marked row).
 - TEMPLATE WINDOW = "T2" (1.0, same page — "the template window is really
   unclean and bad design", "i like T2"): `.sheet.sh-win` with the edit
   windows' bar (centred "Templates", blue "Add N" top right, grey and
