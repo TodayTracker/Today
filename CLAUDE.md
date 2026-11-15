@@ -881,13 +881,36 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   (`#settings-guide`, orange book icon — asked for with "a fitting emoji",
   done as an icon like the other rows), opening `#p-guide`. Since 3.50
   `#p-guide` is a list of rows like Settings (with icons since 3.51), each
-  opening its own page of tips; first row "Hidden features"
-  (`#p-guide-hidden`: skip by swiping right, move projects by holding, move
-  habits by holding). A tip is a `.guide-item` (`.guide-t` title +
-  `.guide-p` paragraph) in the page's one white card; new tips go into the
-  fitting page (+ a DE entry). A new Guide page: add it to
-  SETTINGS_SUBPAGES (tab lighting) and to `_backTarget`'s no-history
-  fallback (-> 'guide'), like `guide-hidden`. Auto update = a silent
+  opening its own page of tips. GUIDE REWORK = "M2" (1.0, picked on
+  https://claude.ai/artifact/RNNus2NjGxkoTXsH8vLJnv — "work over the guide
+  fully… i like the 2 icons and the inhalt but the layout and text… a third
+  icon which is just a full guide to each of the 5 pages"; G1–G4, then the
+  mixes M1–M3 after "a mix between g2,3,4"; "m2 looks good but the guide
+  page looks horrible. i liked the way it was layout was same to the
+  settings page"; "put the correct colors"; keep the page): `#p-guide`
+  stays a Menu-style list — Hidden features (violet mask), War Room (red
+  triangle), Tab by tab (NEW, blue #0a84ff map) → `#p-guide-tabs`, a
+  Menu-style list of Today / Overview / Tasks / Stats / Menu in the MENU's
+  colours (Guide.COL: #38bdf8 / #3b82f6 / #6b7280 / #22c55e, Menu = the
+  Guide's #f97316) → `Guide.open(k)` → `#p-guide-tab` (one page, its title
+  = the tab's name): the welcome page's moving picture (Welcome._pic), the
+  tab's name in its colour, the welcome title, a new lead line, then cards.
+  Everything is `Guide` (before MenuPage), drawn by `Guide.render(id)` from
+  _renderPage on every visit (the pictures start over): a part = `.gd-card`
+  (big 19/700 title, Hidden features with the Menu icon+colour of its place:
+  Today, Habits, Overview, Tasks, Charts, Everywhere), a tip = a paragraph
+  starting with its QUESTION in bold, then the answer (ink 82%), a note in
+  blue. Hidden features (15 tips, more than before) and War Room have a
+  small moving picture per tip (`.gd-pic`, `_scene(k)`, `gd*` keyframes)
+  built from the app's pieces in their real colours — the skip action is
+  the app's light green #a7f3c0 (the options page had amber: wrong); the
+  pictures carry their own German (`Welcome._L`, translate="no") so the
+  made-up row names ("Personal"…) never become DE keys that would rename a
+  user's own project. All other text is English in `Guide` with a DE entry
+  each (the DOM layer translates it). A new tip: add it to Guide.HIDDEN /
+  WAR / PAGES + its DE entries; a new Guide page: SETTINGS_SUBPAGES and
+  `_backTarget`'s no-history fallback (guide-tab → guide-tabs, the others
+  → guide). The old `.guide-item/.guide-t/.guide-p` are gone. Auto update = a silent
   `A.checkForUpdate(true)` at launch and on resume after 30 min; it only
   speaks up (progress overlay, then reload) when an update exists.
 

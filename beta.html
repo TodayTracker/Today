@@ -1374,12 +1374,110 @@ html:not(#x) .card-list>.drag-placeholder{box-sizing:content-box;border-bottom:0
 html:not(#x) .card-list>.drag-placeholder:last-child,html:not(#x) .card-list>.drag-placeholder:has(+.dragging:last-child){border-bottom:none}
 /* tracker rows and entries */
 .trk-entry{padding:12px 0}
-/* Guide page: each tip is a title (row text) and a paragraph (paragraph role) */
-.guide-item{padding:13px 14px 14px}
-.guide-item+.guide-item{border-top:1.5px solid var(--line)}
-.guide-t{font-size:15px;font-weight:500;margin-bottom:4px}
-.guide-p{font-size:13px;font-weight:500;color:#999;line-height:1.5}
-.guide-p+.guide-p{margin-top:6px}
+/* Guide ("M2", picked on the guide page): one card per part with a big
+   title, every tip a paragraph that starts with its question in bold, small
+   moving pictures of the gestures between them (Hidden features) */
+.gd-card{background:var(--card);border-radius:14px;padding:18px 18px 4px;margin-bottom:20px}
+.gd-card:last-child{margin-bottom:0}
+.gd-card h3{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:19px;line-height:24px;font-weight:700;color:var(--ink)}
+.gd-ico{flex:none;width:28px;height:28px;border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center}
+.gd-ico svg{width:18px;height:18px}
+.gd-card p{margin:0 0 14px;font-size:15px;line-height:22px;font-weight:500;color:color-mix(in srgb,var(--ink) 82%,transparent)}
+.gd-card p b{font-weight:700;color:var(--ink)}
+.gd-nt{color:var(--blue)}
+.gd-hero{display:flex;flex-direction:column;align-items:center;text-align:center;margin:0 0 24px}
+.gd-big{width:64px;height:64px;border-radius:18px;color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.gd-big svg{width:36px;height:36px}
+.gd-hero b{font-size:20px;line-height:25px;font-weight:700;color:var(--ink)}
+.gd-hero span{font-size:15px;line-height:21px;font-weight:500;color:#999;margin-top:4px;text-wrap:balance}
+/* a tab's page: the welcome page's moving picture, then its name, title and line */
+.gd-th{margin:0 0 26px}
+.gd-th .wel-ill{height:300px;margin-bottom:22px}
+.gd-th .wel-eb{margin-bottom:6px}
+.gd-th .wel-title{font-size:26px;line-height:31px;margin-bottom:8px}
+/* the small moving pictures: the app's own pieces, drawn small */
+.gd-pic{position:relative;height:132px;border-radius:12px;background:var(--pg);overflow:hidden;margin:0 0 12px}
+.gd-mn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.gd-rw{position:relative;display:flex;align-items:center;gap:10px;width:230px;height:40px;padding:0 12px;border-radius:10px;background:var(--card);font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap}
+.gd-rw i{flex:1;height:7px;border-radius:4px;background:var(--box)}
+.gd-rw .gd-v{margin-left:auto;font-weight:500;color:#999}
+.gd-bx{flex:none;width:20px;height:20px;border-radius:6px;background:var(--box)}
+.gd-bx.war{background:var(--war-bg);box-shadow:inset 0 0 0 1.5px var(--war)}
+.gd-stack{display:flex;flex-direction:column;gap:6px}
+.gd-skip{position:absolute;left:50%;top:50%;width:230px;height:40px;margin:-20px 0 0 -115px;border-radius:10px;background:#a7f3c0;color:#000;display:flex;align-items:center;padding-left:14px}
+.gd-skip svg{width:18px;height:18px}
+.gd-f{position:absolute;z-index:5;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:rgba(120,120,128,.35);box-shadow:0 0 0 2px rgba(255,255,255,.75);pointer-events:none;opacity:0}
+.gd-swr{animation:gdSw 3.2s ease-in-out infinite}
+.gd-swf{animation:gdSwF 3.2s ease-in-out infinite}
+@keyframes gdSw{0%,18%{transform:none}48%,64%{transform:translateX(96px)}86%,100%{transform:none}}
+@keyframes gdSwF{0%,8%{opacity:0;transform:none}18%{opacity:1;transform:none}48%{opacity:1;transform:translateX(96px)}56%,100%{opacity:0;transform:translateX(96px)}}
+.gd-ha{animation:gdHa 3.6s ease-in-out infinite;position:relative;z-index:2}
+.gd-hb{animation:gdHb 3.6s ease-in-out infinite}
+.gd-hf{animation:gdHf 3.6s ease-in-out infinite}
+@keyframes gdHa{0%,14%{transform:none;box-shadow:none}30%{transform:scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,.16)}62%{transform:translateY(46px) scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,.16)}76%,100%{transform:translateY(46px);box-shadow:none}}
+@keyframes gdHb{0%,36%{transform:none}60%,100%{transform:translateY(-46px)}}
+@keyframes gdHf{0%,6%{opacity:0;transform:none}14%,30%{opacity:1;transform:none}62%{opacity:1;transform:translateY(46px)}70%,100%{opacity:0;transform:translateY(46px)}}
+.gd-tl{display:flex;gap:10px}
+.gd-tl span{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.gd-ta{animation:gdTa 3.4s ease-in-out infinite;position:relative;z-index:2}
+.gd-tb{animation:gdTb 3.4s ease-in-out infinite}
+.gd-tf{animation:gdTf 3.4s ease-in-out infinite}
+@keyframes gdTa{0%,14%{transform:none;box-shadow:none}28%{transform:scale(1.08);box-shadow:0 8px 20px rgba(0,0,0,.16)}62%{transform:translateX(62px) scale(1.08);box-shadow:0 8px 20px rgba(0,0,0,.16)}76%,100%{transform:translateX(62px);box-shadow:none}}
+@keyframes gdTb{0%,34%{transform:none}60%,100%{transform:translateX(-62px)}}
+@keyframes gdTf{0%,6%{opacity:0;transform:none}14%,28%{opacity:1;transform:none}62%{opacity:1;transform:translateX(62px)}70%,100%{opacity:0;transform:translateX(62px)}}
+.gd-tap{animation:gdTap 2.4s ease-out infinite}
+@keyframes gdTap{0%,20%{opacity:0;transform:scale(1.4)}32%{opacity:1;transform:scale(1)}40%{opacity:1;transform:scale(.85)}55%,100%{opacity:0;transform:scale(.85)}}
+.gd-date{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600;color:var(--ink);padding:8px 12px;border-radius:10px;background:var(--card)}
+.gd-date svg{width:16px;height:16px}
+.gd-cal{position:absolute;right:28px;top:58px;width:150px;padding:8px;border-radius:12px;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.12);display:grid;grid-template-columns:repeat(7,1fr);gap:3px;opacity:0;animation:gdCal 3.2s ease-out infinite}
+.gd-cal i{height:12px;border-radius:3px;background:var(--box)}
+.gd-cal i.t{box-shadow:inset 0 0 0 1px var(--ink);background:transparent}
+.gd-cal i.d{background:var(--blue)}
+@keyframes gdCal{0%,30%{opacity:0;transform:translateY(-6px)}40%,86%{opacity:1;transform:none}96%,100%{opacity:0}}
+.gd-fold{width:230px}
+.gd-ft{display:flex;align-items:center;gap:4px;font-size:11px;line-height:14px;font-weight:700;letter-spacing:.06em;color:var(--label);margin-bottom:6px}
+.gd-ft svg{width:11px;height:11px;animation:gdFa 3.4s ease-in-out infinite}
+.gd-fg{display:flex;gap:8px;overflow:hidden;height:46px;animation:gdFg 3.4s ease-in-out infinite}
+.gd-fg span{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+@keyframes gdFg{0%,30%{height:46px;opacity:1}46%,76%{height:0;opacity:0}92%,100%{height:46px;opacity:1}}
+@keyframes gdFa{0%,30%{transform:none}46%,76%{transform:rotate(-90deg)}92%,100%{transform:none}}
+.gd-bars{display:flex;align-items:flex-end;gap:5px;height:76px}
+.gd-bars span{position:relative;width:12px;border-radius:4px;background:var(--ch-track);overflow:hidden}
+.gd-bars span b{position:absolute;left:0;right:0;bottom:0;background:#30d158;border-radius:4px}
+.gd-pz{animation:gdPz 3.6s ease-in-out infinite}
+@keyframes gdPz{0%,20%{transform:scaleX(1)}50%,70%{transform:scaleX(.55)}96%,100%{transform:scaleX(1)}}
+.gd-pa{animation:gdPa 3.6s ease-in-out infinite}.gd-pb{animation:gdPb 3.6s ease-in-out infinite}
+@keyframes gdPa{0%,10%{opacity:0;transform:none}20%{opacity:1;transform:none}50%{opacity:1;transform:translate(28px,14px)}60%,100%{opacity:0;transform:translate(28px,14px)}}
+@keyframes gdPb{0%,10%{opacity:0;transform:none}20%{opacity:1;transform:none}50%{opacity:1;transform:translate(-28px,-14px)}60%,100%{opacity:0;transform:translate(-28px,-14px)}}
+.gd-dr{animation:gdDr 3.6s ease-in-out infinite}
+.gd-df{animation:gdDf 3.6s ease-in-out infinite}
+@keyframes gdDr{0%,18%{transform:none}50%,70%{transform:translateX(70px)}94%,100%{transform:none}}
+@keyframes gdDf{0%,8%{opacity:0;transform:none}18%{opacity:1;transform:none}50%{opacity:1;transform:translateX(70px)}58%,100%{opacity:0;transform:translateX(70px)}}
+.gd-ro{font-size:12px;line-height:14px;font-weight:600;color:#999}
+.gd-days{display:flex;gap:6px}
+.gd-days span{width:34px;height:40px;border-radius:9px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;line-height:12px;font-weight:600;color:#999}
+.gd-days span b{font-size:13px;color:var(--ink)}
+.gd-days span.sel{background:var(--blue-tint);box-shadow:inset 0 0 0 1.5px var(--blue);color:var(--blue)}
+.gd-days span.sel b{color:var(--blue)}
+.gd-dim{position:absolute;inset:0;background:rgba(0,0,0,.3);animation:gdDim 3.4s ease-in infinite}
+.gd-sheet{position:absolute;left:24px;right:24px;bottom:0;height:92px;border-radius:14px 14px 0 0;background:var(--pg);animation:gdSh 3.4s ease-in infinite}
+.gd-sheet::before{content:'';position:absolute;top:6px;left:50%;width:30px;height:4px;margin-left:-15px;border-radius:2px;background:var(--line)}
+.gd-sheet i{position:absolute;left:16px;right:40px;height:8px;border-radius:4px;background:var(--card)}
+.gd-sf{animation:gdShF 3.4s ease-in infinite}
+@keyframes gdSh{0%,22%{transform:none}50%{transform:translateY(40px)}62%{transform:translateY(100px)}64%,82%{transform:translateY(100px);opacity:0}84%{transform:translateY(100px);opacity:1}100%{transform:none}}
+@keyframes gdDim{0%,22%{opacity:1}62%,82%{opacity:0}100%{opacity:1}}
+@keyframes gdShF{0%,12%{opacity:0;transform:none}22%{opacity:1;transform:none}50%{opacity:1;transform:translateY(40px)}58%,100%{opacity:0;transform:translateY(40px)}}
+.gd-pg{position:absolute;inset:14px 24px 0;border-radius:12px 12px 0 0;background:var(--card);box-shadow:-4px 0 14px rgba(0,0,0,.1);padding:14px}
+.gd-pg i{display:block;height:8px;border-radius:4px;background:var(--box);margin-bottom:9px}
+.gd-pg i:first-child{width:46%;height:12px;background:var(--line)}
+.gd-pg0{box-shadow:none;opacity:.6}
+.gd-pg1{animation:gdPg 3.4s ease-in-out infinite}
+.gd-pf{animation:gdPgF 3.4s ease-in-out infinite}
+@keyframes gdPg{0%,18%{transform:none}54%,72%{transform:translateX(105%)}74%{transform:translateX(105%);opacity:0}76%{transform:none;opacity:0}92%,100%{transform:none;opacity:1}}
+@keyframes gdPgF{0%,8%{opacity:0;transform:none}18%{opacity:1;transform:none}54%{opacity:1;transform:translateX(150px)}62%,100%{opacity:0;transform:translateX(150px)}}
+.gd-name{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700;color:var(--ink)}
+.gd-name span{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
+@media (prefers-reduced-motion:reduce){.gd-pic *{animation:none!important}}
 /* Section titles (TASKS, MORNING, CALENDAR, labels in windows…): --label,
    a touch darker than the old #bbb in light mode; unchanged in dark mode. */
 html:not(#x) .sl,html:not(#x) .shdr,html:not(#x) .caltitle,html:not(#x) .el-grp,html:not(#x) .sheet-label{color:var(--label)}
@@ -1583,21 +1681,7 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
   <div class="opt-group" style="margin-top:8px">
     <div class="opt-row" onclick="Nav.go('guide-hidden')"><div class="opt-ico" style="background:#6366f1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.25c2.5 2 6.5 2 10 3.5 3.5-1.5 7.5-1.5 10-3.5.5 6.5-1.5 11.5-5.2 11.5-2.2 0-3.5-1.5-4.8-3-1.3 1.5-2.6 3-4.8 3C3.5 17.75 1.5 12.75 2 6.25z"/><path d="M2 6.25c2.5 2 6.5 2 10 3.5 3.5-1.5 7.5-1.5 10-3.5.5 6.5-1.5 11.5-5.2 11.5-2.2 0-3.5-1.5-4.8-3-1.3 1.5-2.6 3-4.8 3C3.5 17.75 1.5 12.75 2 6.25zM4.2 12.15c1.6-1.8 4.6-1.8 6.2.6-1.7 1.9-4.5 1.8-6.2-.6zM19.8 12.15c-1.6-1.8-4.6-1.8-6.2.6 1.7 1.9 4.5 1.8 6.2-.6z" fill="currentColor" stroke="none" fill-rule="evenodd"/></svg></div><div class="opt-text"><div class="opt-title">Hidden features</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
     <div class="opt-row" onclick="Nav.go('guide-war')"><div class="opt-ico" style="background:#ef4444"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path fill-rule="evenodd" transform="translate(12 12) scale(.88) translate(-12 -12)" d="M10.27 4.05a2 2 0 0 1 3.46 0L21.73 17.95A2 2 0 0 1 20 20.95H4A2 2 0 0 1 2.27 17.95ZM10.9 9.7a1.1 1.1 0 0 1 2.2 0v4.2a1.1 1.1 0 0 1-2.2 0ZM12 16.35a1.25 1.25 0 1 0 .001 0Z"/></svg></div><div class="opt-text"><div class="opt-title">War Room</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
-  </div>
-</div>
-
-<div class="page sp" id="p-guide-war">
-  <div class="hh">
-    <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
-    <div class="hh-title">War Room</div>
-  </div>
-  <div class="opt-group" style="margin-top:8px">
-    <div class="guide-item">
-      <div class="guide-p">The War Room priority is meant for your most urgent tasks: nothing else matters until they're done.</div>
-      <div class="guide-p">To put a task in the War Room, open it and pick War Room among the other priorities.</div>
-      <div class="guide-p">War Room tasks have a red tick box and always rank highest in Today and Tasks.</div>
-      <div class="guide-p">Show them in their own card at the top of Overview with Show War Room in Menu → Overview.</div>
-    </div>
+    <div class="opt-row" onclick="Nav.go('guide-tabs')"><div class="opt-ico" style="background:#0a84ff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5L9 4l6 2.5L20.5 4v13.5L15 20l-6-2.5-5.5 2.5z"/><line x1="9" y1="4" x2="9" y2="17.5"/><line x1="15" y1="6.5" x2="15" y2="20"/></svg></div><div class="opt-text"><div class="opt-title">Tab by tab</div></div><span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg></span></div>
   </div>
 </div>
 
@@ -1606,31 +1690,31 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
     <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
     <div class="hh-title">Hidden features</div>
   </div>
-  <div class="opt-group" style="margin-top:8px">
-    <div class="guide-item">
-      <div class="guide-t">Skip by swiping right</div>
-      <div class="guide-p">In Today, swipe a task or habit to the right to skip it for the day. This works when Skip tasks or Skip habits is turned on in Menu → Today.</div>
-      <div class="guide-p">In a Habits project, swipe a habit to the right to skip it on the day you're looking at — also a day in the past, if you were sick.</div>
-      <div class="guide-p">A skipped habit shows in light green in Statistics and doesn't count against your score — for days when you're sick or away.</div>
-      <div class="guide-p">A skipped task comes back the next day. To keep it away until you bring it back yourself, turn off Reset skipped tasks every new day in Menu → Today.</div>
-    </div>
-    <div class="guide-item">
-      <div class="guide-t">Move projects by holding</div>
-      <div class="guide-p">In Overview, hold a project for a second until it lifts, then drag it anywhere — also into another category, or to the top for no category. Hold a category's title to move the whole category.</div>
-    </div>
-    <div class="guide-item">
-      <div class="guide-t">Move habits by holding</div>
-      <div class="guide-p">In a Habits project, hold a habit's bar — not its tick box — until it lifts, then drag it up or down. The order is the same on every day and in Today.</div>
-    </div>
-    <div class="guide-item">
-      <div class="guide-t">Move tasks by holding</div>
-      <div class="guide-p">Hold a task — not its tick box — until it lifts, then drag it up or down. In Tasks this sets the order of all your tasks (also used in Today), in a project only that project's order. Drag it into another priority to change its priority.</div>
-    </div>
-    <div class="guide-item">
-      <div class="guide-t">Zoom and scroll charts</div>
-      <div class="guide-p">Pinch a chart with two fingers to zoom. Zoomed out, the columns turn from days into weeks and then months. Drag a chart sideways to look back at older history.</div>
-    </div>
+  <div id="guide-hidden-body" style="margin-top:8px"></div>
+</div>
+
+<div class="page sp" id="p-guide-war">
+  <div class="hh">
+    <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
+    <div class="hh-title">War Room</div>
   </div>
+  <div id="guide-war-body" style="margin-top:8px"></div>
+</div>
+
+<div class="page sp" id="p-guide-tabs">
+  <div class="hh">
+    <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
+    <div class="hh-title">Tab by tab</div>
+  </div>
+  <div class="opt-group" id="guide-tabs-list" style="margin-top:8px"></div>
+</div>
+
+<div class="page sp" id="p-guide-tab">
+  <div class="hh">
+    <div class="hh-bar"><button class="hh-btn" onclick="navBack()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button></div>
+    <div class="hh-title" id="guide-tab-title">Today</div>
+  </div>
+  <div id="guide-tab-body" style="margin-top:8px"></div>
 </div>
 
 <div class="page sp" id="p-app">
@@ -2088,7 +2172,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=42;
+var BETA_BUILD=43;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3442,7 +3526,8 @@ var CHANGELOG=[
     "The template window keeps one height and no longer grows or shrinks when you pick a template",
     "Menu → Data: the explanation under Export and Import is gone",
     "Projects can have files too: tap a project's name, then Attach a file under the description. Like on tasks: a tap opens one, × puts it in the Trash",
-    "Menu → General: Hold to complete and Sounds have a title, Completing tasks"
+    "Menu → General: Hold to complete and Sounds have a title, Completing tasks",
+    "New Guide (Menu → Guide): every part is a card, every tip starts with its question, and Hidden features shows each gesture moving. More hidden features, and the new Tab by tab explains every tab"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -3585,7 +3670,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos","New look for the charts","Attach files to tasks and projects"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","New app icon","New look for the tab bar","Backup as a file, with project photos","New look for the charts","Attach files to tasks and projects","New Guide, with every tab explained"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
@@ -4303,7 +4388,7 @@ var I18N=(function(){
     "Template":"Vorlage","Templates":"Vorlagen",
     "New tasks":"Neue Aufgaben","At the bottom":"Unten","At the top":"Oben",
     "Add a tracker":"Tracker hinzufügen","Name per day":"Name pro Tag",
-    "Tab bar":"Tab-Leiste","Completing tasks":"Aufgaben erledigen","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
+    "Tab bar":"Tab-Leiste","Completing tasks":"Aufgaben erledigen","Tab by tab":"Tab für Tab","Charts":"Diagramme","Everywhere":"Überall","What you see":"Was du siehst","What you can do":"Was du tun kannst","Make it yours":"Pass es an","The pages":"Die Seiten","For the few things that can't wait.":"Für die wenigen Dinge, die nicht warten können.","Everything that has to be done today, in one list.":"Alles, was heute zu tun ist, in einer Liste.","All your projects, grouped the way you like.":"Alle deine Projekte, so geordnet, wie du willst.","Every task from every project, in one place.":"Jede Aufgabe aus jedem Projekt, an einem Ort.","How often you keep up your habits.":"Wie oft du deine Gewohnheiten durchziehst.","Everything you can set up and change.":"Alles, was du einrichten und ändern kannst.","How do I skip something for today?":"Wie überspringe ich etwas für heute?","Swipe a task or habit to the right. A task is back tomorrow, and a skipped habit doesn't count against your score.":"Wische eine Aufgabe oder Gewohnheit nach rechts. Eine Aufgabe ist morgen wieder da, und eine übersprungene Gewohnheit zählt nicht gegen deinen Wert.","For habits, turn on Skip habits in Menu → Today.":"Für Gewohnheiten schalte zuerst Gewohnheiten überspringen unter Menü → Heute ein.","How do I see tomorrow or yesterday?":"Wie sehe ich morgen oder gestern?","Tap the date at the top right and pick a day. Swipe the calendar sideways for other months, and tap the title to get back to today.":"Tippe oben rechts auf das Datum und wähle einen Tag. Wische im Kalender seitwärts für andere Monate, und tippe auf den Titel, um zurück zu heute zu kommen.","Can I skip a day in the past?":"Kann ich einen vergangenen Tag überspringen?","In a Habits project, swipe a habit to the right on any day, also one in the past — handy when you were sick.":"Wische in einem Gewohnheiten-Projekt eine Gewohnheit an jedem Tag nach rechts, auch an einem vergangenen — praktisch, wenn du krank warst.","How far back can I go?":"Wie weit kann ich zurück?","As far as you like: the day bar goes on in both directions. The arrow at its edge takes you back to today.":"So weit du willst: Die Tagesleiste geht in beide Richtungen weiter. Der Pfeil an ihrem Rand bringt dich zurück zu heute.","How do I change the order of my habits?":"Wie ändere ich die Reihenfolge meiner Gewohnheiten?","Hold a habit's name until it lifts, then drag it. The new order counts for every day and for Today.":"Halte den Namen einer Gewohnheit gedrückt, bis sie sich anhebt, und zieh sie dann. Die neue Reihenfolge gilt für jeden Tag und für Heute.","How do I log a number for a tracker?":"Wie trage ich eine Zahl für einen Tracker ein?","Tap the tick box of a tracker habit and type that day's value. To remove it, clear the field and tap Save.":"Tippe auf das Kästchen einer Tracker-Gewohnheit und gib den Wert des Tages ein. Zum Entfernen leere das Feld und tippe auf Speichern.","How do I move a project?":"Wie verschiebe ich ein Projekt?","Hold it until it lifts, then drag it anywhere — also into another category.":"Halte es gedrückt, bis es sich anhebt, und zieh es dann irgendwohin — auch in eine andere Kategorie.","Can I hide a category?":"Kann ich eine Kategorie einklappen?","Tap its title to fold it, and again to open it. Hold the title to move the whole category.":"Tippe auf ihren Titel, um sie einzuklappen, und noch einmal, um sie zu öffnen. Halte den Titel gedrückt, um die ganze Kategorie zu verschieben.","How do I edit a project?":"Wie bearbeite ich ein Projekt?","Open it and tap its name: icon or photo, colour, description and files. A long description opens with a tap.":"Öffne es und tippe auf seinen Namen: Symbol oder Foto, Farbe, Beschreibung und Dateien. Eine lange Beschreibung öffnet sich mit einem Tippen.","How do I change a task's order or priority?":"Wie ändere ich Reihenfolge oder Priorität einer Aufgabe?","Hold a task until it lifts, then drag it. Drop it under another priority and it takes that priority.":"Halte eine Aufgabe gedrückt, bis sie sich anhebt, und zieh sie dann. Lässt du sie unter einer anderen Priorität los, bekommt sie diese Priorität.","How do I see weeks or months?":"Wie sehe ich Wochen oder Monate?","Pinch a chart. Days turn into weeks, then months. Tracker charts also zoom in, down to hours.":"Zieh ein Diagramm mit zwei Fingern zusammen. Aus Tagen werden Wochen, dann Monate. Tracker-Diagramme zoomen auch hinein, bis auf Stunden.","How do I see older days?":"Wie sehe ich ältere Tage?","Drag a chart sideways.":"Zieh ein Diagramm zur Seite.","How do I see the exact numbers?":"Wie sehe ich die genauen Zahlen?","Tap a bar or a point. Its numbers show at the top of the chart; tap again to let go.":"Tippe auf einen Balken oder Punkt. Seine Zahlen stehen oben im Diagramm; tippe noch einmal, um ihn loszulassen.","How do I close a window?":"Wie schließe ich ein Fenster?","Pull it down, or tap anywhere outside it. There's no Close button.":"Zieh es nach unten oder tippe irgendwo daneben. Einen Schließen-Knopf gibt es nicht.","How do I go back?":"Wie gehe ich zurück?","Swipe in from the left edge of the screen, or tap the arrow at the top left.":"Wische vom linken Bildschirmrand nach innen oder tippe oben links auf den Pfeil.","What is the War Room?":"Was ist der War Room?","The priority above High. Put a task there when nothing else matters until it's done.":"Die Priorität über Hoch. Leg eine Aufgabe hinein, wenn nichts anderes zählt, bis sie erledigt ist.","How do I put a task in the War Room?":"Wie kommt eine Aufgabe in den War Room?","Open the task, tap its priority at the top left and pick War Room.":"Öffne die Aufgabe, tippe oben links auf ihre Priorität und wähle War Room.","How do I recognise War Room tasks?":"Woran erkenne ich War-Room-Aufgaben?","They have a red tick box and always come first, in Today and in Tasks.":"Sie haben ein rotes Kästchen und stehen immer zuerst, in Heute und in Aufgaben.","Where else do they show?":"Wo erscheinen sie noch?","In a card at the top of Overview. You can turn it off in Menu → Overview → Show War Room.":"In einer Karte oben in der Übersicht. Du kannst sie unter Menü → Übersicht → War Room anzeigen ausschalten.","How many should I have?":"Wie viele sollte ich haben?","One to three. If everything is urgent, nothing is.":"Eine bis drei. Wenn alles dringend ist, ist nichts dringend.","Which tasks are in Today?":"Welche Aufgaben stehen in Heute?","The top tasks from all your projects: War Room first, then High, Medium and Low. Three by default — change it in Menu → Today → Tasks shown.":"Die wichtigsten Aufgaben aus all deinen Projekten: zuerst War Room, dann Hoch, Mittel und Niedrig. Anfangs drei — ändern kannst du das unter Menü → Heute → Angezeigte Aufgaben.","What are scheduled tasks?":"Was sind geplante Aufgaben?","Tasks with a date. They show on their day and stay until they're done. Add one with + in Overview.":"Aufgaben mit Datum. Sie erscheinen an ihrem Tag und bleiben, bis sie erledigt sind. Füge eine mit + in der Übersicht hinzu.","Which habits are in Today?":"Welche Gewohnheiten stehen in Heute?","The ones due today, in one card per Habits project.":"Die, die heute dran sind, in einer Karte pro Gewohnheiten-Projekt.","How do I tick something off?":"Wie hake ich etwas ab?","Tap its box. With Hold to complete on (Menu → General), you hold it instead, so nothing gets ticked by accident.":"Tippe auf das Kästchen. Ist Zum Erledigen gedrückt halten an (Menü → Allgemein), hältst du es stattdessen gedrückt, damit nichts aus Versehen abgehakt wird.","How do I skip something?":"Wie überspringe ich etwas?","Swipe it to the right. A task is back tomorrow, and a skipped habit doesn't count against your score.":"Wische es nach rechts. Eine Aufgabe ist morgen wieder da, und eine übersprungene Gewohnheit zählt nicht gegen deinen Wert.","How do I see another day?":"Wie sehe ich einen anderen Tag?","Tap the date at the top right. Dots mark scheduled tasks, coloured days temporary habits.":"Tippe oben rechts auf das Datum. Punkte zeigen geplante Aufgaben, farbige Tage befristete Gewohnheiten.","What can I change?":"Was kann ich ändern?","In Menu → Today: the order of the parts, how many tasks show, whether the next one moves up when you finish one, whether done habits disappear, and when your day starts.":"Unter Menü → Heute: die Reihenfolge der Bereiche, wie viele Aufgaben erscheinen, ob die nächste nachrückt, wenn du eine erledigst, ob erledigte Gewohnheiten verschwinden und wann dein Tag beginnt.","What kinds of projects are there?":"Welche Arten von Projekten gibt es?","To-do: tasks with priorities. List: a plain list, like groceries. Tracker: a number over time, like your weight. Habits: things you do on certain days.":"To-do: Aufgaben mit Prioritäten. Liste: eine einfache Liste, zum Beispiel fürs Einkaufen. Tracker: eine Zahl über die Zeit, zum Beispiel dein Gewicht. Gewohnheiten: Dinge, die du an bestimmten Tagen tust.","What are categories for?":"Wofür sind Kategorien?","They group projects under a title, like Work or Fitness. A project doesn't need one; those without sit at the top.":"Sie fassen Projekte unter einem Titel zusammen, zum Beispiel Arbeit oder Fitness. Ein Projekt braucht keine; Projekte ohne stehen ganz oben.","What's the War Room card?":"Was ist die War-Room-Karte?","Your most urgent tasks, from every project.":"Deine dringendsten Aufgaben, aus allen Projekten.","How do I add something?":"Wie füge ich etwas hinzu?","The + at the top right adds a category, a project or a scheduled task.":"Das + oben rechts fügt eine Kategorie, ein Projekt oder eine geplante Aufgabe hinzu.","How do I open a project?":"Wie öffne ich ein Projekt?","Tap it. On its page, tap its name to edit it.":"Tippe darauf. Auf seiner Seite tippst du auf den Namen, um es zu bearbeiten.","How do I sort my projects?":"Wie ordne ich meine Projekte?","Hold a project or a category's title, then drag. Tap a category's title to fold it.":"Halte ein Projekt oder den Titel einer Kategorie gedrückt und zieh. Tippe auf den Titel einer Kategorie, um sie einzuklappen.","In Menu → Overview: Minimal layout (just icons, like a home screen), the War Room card, Edit layout to sort everything in a list, and Reset a project.":"Unter Menü → Übersicht: Minimales Layout (nur Symbole, wie ein Home-Bildschirm), die War-Room-Karte, Layout bearbeiten, um alles in einer Liste zu ordnen, und Projekt zurücksetzen.","How are tasks sorted?":"Wie sind Aufgaben sortiert?","War Room, High, Medium and Low. Inside a priority, in your own order.":"War Room, Hoch, Mittel und Niedrig. Innerhalb einer Priorität in deiner eigenen Reihenfolge.","What's the button at the top right?":"Was macht der Knopf oben rechts?","It switches between Tasks, List (your List projects) and Scheduled tasks.":"Er wechselt zwischen Aufgaben, Liste (deine Listen-Projekte) und Geplante Aufgaben.","What's inside a task?":"Was steckt in einer Aufgabe?","Tap it to rename it, change its priority, write notes or attach files.":"Tippe darauf, um sie umzubenennen, ihre Priorität zu ändern, Notizen zu schreiben oder Dateien anzuhängen.","How do I reorder tasks?":"Wie ordne ich Aufgaben um?","Hold a task and drag it. This order also decides which tasks Today shows. Drag it to another priority to change it.":"Halte eine Aufgabe gedrückt und zieh sie. Diese Reihenfolge entscheidet auch, welche Aufgaben Heute zeigt. Zieh sie in eine andere Priorität, um diese zu ändern.","Where do done tasks go?":"Wohin kommen erledigte Aufgaben?","To the Trash, under Tasks. You can bring them back from there.":"In den Papierkorb, unter Aufgaben. Von dort kannst du sie zurückholen.","In Menu → Tasks: which view Tasks opens on, and whether new tasks go to the top or the bottom of their priority.":"Unter Menü → Aufgaben: mit welcher Ansicht Aufgaben öffnet und ob neue Aufgaben oben oder unten in ihrer Priorität landen.","What does the score mean?":"Was bedeutet der Wert?","How many of your habit days you got done in the time shown (3 months at first). Skipped days count as done.":"Wie viele deiner Gewohnheits-Tage du im angezeigten Zeitraum geschafft hast (anfangs 3 Monate). Übersprungene Tage zählen als erledigt.","How do I read the chart?":"Wie lese ich das Diagramm?","Grey is what was due each day, green what you did. Pinch for weeks or months, drag to look back, tap a bar for its numbers.":"Grau ist, was an einem Tag dran war, Grün, was du geschafft hast. Zieh mit zwei Fingern für Wochen oder Monate, wische für frühere Tage, tippe auf einen Balken für seine Zahlen.","What's a perfect streak?":"Was ist eine perfekte Serie?","Days in a row on which you did every habit.":"Tage in Folge, an denen du jede Gewohnheit geschafft hast.","Where do I see one habit?":"Wo sehe ich eine einzelne Gewohnheit?","Every habit is listed with its score. Tap one for its own page, with its streak and chart.":"Jede Gewohnheit steht mit ihrem Wert in der Liste. Tippe auf eine für ihre eigene Seite mit Serie und Diagramm.","In Menu → Statistics: Widgets turns cards on and off (Best and Worst score too), Edit layout changes their order, and Time range sets how far back the score looks. A deleted habit still counts for the days it existed, unless you turn that off.":"Unter Menü → Statistik: Widgets schaltet Karten ein und aus (auch Bester und Schlechtester Wert), Layout bearbeiten ändert ihre Reihenfolge, und Zeitraum legt fest, wie weit der Wert zurückschaut. Eine gelöschte Gewohnheit zählt weiter für die Tage, an denen es sie gab, außer du schaltest das aus.","How do I update the app?":"Wie aktualisiere ich die App?","Under App: your version and what's new. Updates come by themselves; you can also check yourself.":"Unter App: deine Version und was neu ist. Updates kommen von selbst; du kannst auch selbst nachsehen.","Is there a dark mode?":"Gibt es einen dunklen Modus?","Yes, under Appearance: Light, Dark, or the same as your phone.":"Ja, unter Darstellung: Hell, Dunkel oder wie dein Handy.","What's in General?":"Was steht unter Allgemein?","Which tab the app opens on, Hold to complete, sounds, and which tabs show in the tab bar.":"Mit welchem Tab die App öffnet, Zum Erledigen gedrückt halten, Töne und welche Tabs in der Tab-Leiste erscheinen.","Where are the settings for a tab?":"Wo sind die Einstellungen eines Tabs?","Today, Overview, Tasks and Statistics each have their own page in Menu.":"Heute, Übersicht, Aufgaben und Statistik haben im Menü je eine eigene Seite.","Where is my data?":"Wo sind meine Daten?","Only on this phone. Under Data, Export saves a backup file — keep it in Files — and Import brings it back. Import calendar turns calendar events into scheduled tasks.":"Nur auf diesem Handy. Unter Daten speichert Exportieren eine Sicherungsdatei — bewahre sie in Dateien auf — und Importieren holt sie zurück. Kalender importieren macht aus Kalender-Terminen geplante Aufgaben.","Can I change the language?":"Kann ich die Sprache ändern?","Yes, under Language: English or German.":"Ja, unter Sprache: Englisch oder Deutsch.","Can I get something back?":"Kann ich etwas zurückholen?","Everything you delete, and every task you tick off, lands in the Trash first. Restore it there, or delete it forever.":"Alles, was du löschst, und jede Aufgabe, die du abhakst, landet zuerst im Papierkorb. Stell es dort wieder her oder lösche es endgültig.","Hold to complete":"Zum Erledigen gedrückt halten","done":"erledigt",
     "Tu":"Di","We":"Mi","Th":"Do","Su":"So","Pick the days first.":"Wähle zuerst die Tage.",
     "Deleted":"Gelöscht","Deleted habits":"Gelöschte Gewohnheiten","Keep in statistics":"In der Statistik behalten","No habits yet.":"Noch keine Gewohnheiten.","Remove":"Entfernen",
     "On: a habit you delete keeps its past days in your statistics, as they really were. Off: it's left out, as if it never existed. The Habits widget lists the deleted ones that still count.":"Ein: Eine gelöschte Gewohnheit behält ihre vergangenen Tage in deiner Statistik, so wie sie wirklich waren. Aus: Sie wird weggelassen, als hätte es sie nie gegeben. Das Widget Gewohnheiten zeigt die gelöschten, die noch zählen.",
@@ -6327,6 +6412,7 @@ function _renderPage(id){
   if(id==='habits')renderHabits();
   if(id==='today')renderToday();
   if(id==='habit-detail')HabitDetail.render();
+  if(id.indexOf('guide-')===0)Guide.render(id); // drawn on every visit: the pictures start over
 }
 
 // While a page slides, a second navigation is ignored — two slides at
@@ -6380,7 +6466,7 @@ function navSwitch(id){
 // back button (navBack with no arg) and the swipe-back gesture get the
 // right target without each call site needing to know about it.
 // Pages opened from the Settings list (back returns there; the Settings tab stays lit)
-var SETTINGS_SUBPAGES=['dev','devquotes','guide','guide-hidden','guide-war','editlayout','statslayout','todaylayout','archive','app','general','appearance','data','settoday','setoverview','settasks','setstats','setblocker'];
+var SETTINGS_SUBPAGES=['dev','devquotes','guide','guide-hidden','guide-war','guide-tabs','guide-tab','editlayout','statslayout','todaylayout','archive','app','general','appearance','data','settoday','setoverview','settasks','setstats','setblocker'];
 // Where back goes: the page this one was opened from (Nav.stack), skipping
 // any that no longer exist (e.g. a deleted project). The fixed rules below
 // only apply when there's no history (e.g. right after the app reopened).
@@ -6391,7 +6477,8 @@ function _backTarget(){
   // Edit layout and Completed Tasks are only ever opened from Settings
   // (their opt-rows there), never from Overview — back should return
   // where they were actually opened from.
-  if(cur&&(cur.id==='p-guide-hidden'||cur.id==='p-guide-war'))return 'guide'; // a Guide page, opened from the Guide list
+  if(cur&&(cur.id==='p-guide-hidden'||cur.id==='p-guide-war'||cur.id==='p-guide-tabs'))return 'guide'; // a Guide page, opened from the Guide list
+  if(cur&&cur.id==='p-guide-tab')return 'guide-tabs';
   if(cur&&cur.id==='p-statslayout')return 'setstats';
   if(cur&&cur.id==='p-devquotes')return 'dev';
   if(cur&&cur.id==='p-todaylayout')return 'settoday';
@@ -8582,6 +8669,192 @@ var Backup={
     }
     requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(go,0);});});
     setTimeout(go,250);
+  }
+};
+// Menu → Guide ("M2", picked 2026-11-15 on the guide page): Hidden features,
+// War Room and Tab by tab. Every part is a card with a big title; every tip
+// a paragraph that starts with its question in bold. Hidden features show
+// each gesture as a small moving picture made of the app's own pieces. The
+// text is English here; German comes from DE like everything else. Drawn on
+// every visit (_renderPage), so the pictures start over.
+var Guide={
+  tab:'today',
+  // the Menu's colours for the tabs (Menu → Today / Overview / Tasks / Statistics); Menu itself: the Guide's orange
+  COL:{today:'#38bdf8',overview:'#3b82f6',lockedin:'#6b7280',stats:'#22c55e',settings:'#f97316'},
+  TABS:['today','overview','lockedin','stats','settings'],
+  HIDDEN:[
+    ['Today','today',[
+      {sc:'swipe',q:"How do I skip something for today?",p:"Swipe a task or habit to the right. A task is back tomorrow, and a skipped habit doesn't count against your score.",n:"For habits, turn on Skip habits in Menu → Today."},
+      {sc:'date',q:"How do I see tomorrow or yesterday?",p:"Tap the date at the top right and pick a day. Swipe the calendar sideways for other months, and tap the title to get back to today."}
+    ]],
+    ['Habits','habits',[
+      {sc:'swipeHabit',q:"Can I skip a day in the past?",p:"In a Habits project, swipe a habit to the right on any day, also one in the past — handy when you were sick."},
+      {sc:'days',q:"How far back can I go?",p:"As far as you like: the day bar goes on in both directions. The arrow at its edge takes you back to today."},
+      {sc:'holdHabit',q:"How do I change the order of my habits?",p:"Hold a habit's name until it lifts, then drag it. The new order counts for every day and for Today."},
+      {sc:'num',q:"How do I log a number for a tracker?",p:"Tap the tick box of a tracker habit and type that day's value. To remove it, clear the field and tap Save."}
+    ]],
+    ['Overview','overview',[
+      {sc:'tiles',q:"How do I move a project?",p:"Hold it until it lifts, then drag it anywhere — also into another category."},
+      {sc:'fold',q:"Can I hide a category?",p:"Tap its title to fold it, and again to open it. Hold the title to move the whole category."},
+      {sc:'name',q:"How do I edit a project?",p:"Open it and tap its name: icon or photo, colour, description and files. A long description opens with a tap."}
+    ]],
+    ['Tasks','lockedin',[
+      {sc:'holdTask',q:"How do I change a task's order or priority?",p:"Hold a task until it lifts, then drag it. Drop it under another priority and it takes that priority."}
+    ]],
+    ['Charts','stats',[
+      {sc:'pinch',q:"How do I see weeks or months?",p:"Pinch a chart. Days turn into weeks, then months. Tracker charts also zoom in, down to hours."},
+      {sc:'drag',q:"How do I see older days?",p:"Drag a chart sideways."},
+      {sc:'bar',q:"How do I see the exact numbers?",p:"Tap a bar or a point. Its numbers show at the top of the chart; tap again to let go."}
+    ]],
+    ['Everywhere','all',[
+      {sc:'pull',q:"How do I close a window?",p:"Pull it down, or tap anywhere outside it. There's no Close button."},
+      {sc:'edge',q:"How do I go back?",p:"Swipe in from the left edge of the screen, or tap the arrow at the top left."}
+    ]]
+  ],
+  WAR:[
+    {sc:'war',q:"What is the War Room?",p:"The priority above High. Put a task there when nothing else matters until it's done."},
+    {q:"How do I put a task in the War Room?",p:"Open the task, tap its priority at the top left and pick War Room."},
+    {q:"How do I recognise War Room tasks?",p:"They have a red tick box and always come first, in Today and in Tasks."},
+    {q:"Where else do they show?",p:"In a card at the top of Overview. You can turn it off in Menu → Overview → Show War Room."},
+    {q:"How many should I have?",p:"One to three. If everything is urgent, nothing is."}
+  ],
+  PAGES:{
+    today:{lead:"Everything that has to be done today, in one list.",secs:[
+      ['What you see',[
+        {q:"Which tasks are in Today?",p:"The top tasks from all your projects: War Room first, then High, Medium and Low. Three by default — change it in Menu → Today → Tasks shown."},
+        {q:"What are scheduled tasks?",p:"Tasks with a date. They show on their day and stay until they're done. Add one with + in Overview."},
+        {q:"Which habits are in Today?",p:"The ones due today, in one card per Habits project."}
+      ]],
+      ['What you can do',[
+        {q:"How do I tick something off?",p:"Tap its box. With Hold to complete on (Menu → General), you hold it instead, so nothing gets ticked by accident."},
+        {q:"How do I skip something?",p:"Swipe it to the right. A task is back tomorrow, and a skipped habit doesn't count against your score."},
+        {q:"How do I see another day?",p:"Tap the date at the top right. Dots mark scheduled tasks, coloured days temporary habits."}
+      ]],
+      ['Make it yours',[
+        {q:"What can I change?",p:"In Menu → Today: the order of the parts, how many tasks show, whether the next one moves up when you finish one, whether done habits disappear, and when your day starts."}
+      ]]
+    ]},
+    overview:{lead:"All your projects, grouped the way you like.",secs:[
+      ['What you see',[
+        {q:"What kinds of projects are there?",p:"To-do: tasks with priorities. List: a plain list, like groceries. Tracker: a number over time, like your weight. Habits: things you do on certain days."},
+        {q:"What are categories for?",p:"They group projects under a title, like Work or Fitness. A project doesn't need one; those without sit at the top."},
+        {q:"What's the War Room card?",p:"Your most urgent tasks, from every project."}
+      ]],
+      ['What you can do',[
+        {q:"How do I add something?",p:"The + at the top right adds a category, a project or a scheduled task."},
+        {q:"How do I open a project?",p:"Tap it. On its page, tap its name to edit it."},
+        {q:"How do I sort my projects?",p:"Hold a project or a category's title, then drag. Tap a category's title to fold it."}
+      ]],
+      ['Make it yours',[
+        {q:"What can I change?",p:"In Menu → Overview: Minimal layout (just icons, like a home screen), the War Room card, Edit layout to sort everything in a list, and Reset a project."}
+      ]]
+    ]},
+    lockedin:{lead:"Every task from every project, in one place.",secs:[
+      ['What you see',[
+        {q:"How are tasks sorted?",p:"War Room, High, Medium and Low. Inside a priority, in your own order."},
+        {q:"What's the button at the top right?",p:"It switches between Tasks, List (your List projects) and Scheduled tasks."}
+      ]],
+      ['What you can do',[
+        {q:"What's inside a task?",p:"Tap it to rename it, change its priority, write notes or attach files."},
+        {q:"How do I reorder tasks?",p:"Hold a task and drag it. This order also decides which tasks Today shows. Drag it to another priority to change it."},
+        {q:"Where do done tasks go?",p:"To the Trash, under Tasks. You can bring them back from there."}
+      ]],
+      ['Make it yours',[
+        {q:"What can I change?",p:"In Menu → Tasks: which view Tasks opens on, and whether new tasks go to the top or the bottom of their priority."}
+      ]]
+    ]},
+    stats:{lead:"How often you keep up your habits.",secs:[
+      ['What you see',[
+        {q:"What does the score mean?",p:"How many of your habit days you got done in the time shown (3 months at first). Skipped days count as done."},
+        {q:"How do I read the chart?",p:"Grey is what was due each day, green what you did. Pinch for weeks or months, drag to look back, tap a bar for its numbers."},
+        {q:"What's a perfect streak?",p:"Days in a row on which you did every habit."},
+        {q:"Where do I see one habit?",p:"Every habit is listed with its score. Tap one for its own page, with its streak and chart."}
+      ]],
+      ['Make it yours',[
+        {q:"What can I change?",p:"In Menu → Statistics: Widgets turns cards on and off (Best and Worst score too), Edit layout changes their order, and Time range sets how far back the score looks. A deleted habit still counts for the days it existed, unless you turn that off."}
+      ]]
+    ]},
+    settings:{lead:"Everything you can set up and change.",secs:[
+      ['The pages',[
+        {q:"How do I update the app?",p:"Under App: your version and what's new. Updates come by themselves; you can also check yourself."},
+        {q:"Is there a dark mode?",p:"Yes, under Appearance: Light, Dark, or the same as your phone."},
+        {q:"What's in General?",p:"Which tab the app opens on, Hold to complete, sounds, and which tabs show in the tab bar."},
+        {q:"Where are the settings for a tab?",p:"Today, Overview, Tasks and Statistics each have their own page in Menu."},
+        {q:"Where is my data?",p:"Only on this phone. Under Data, Export saves a backup file — keep it in Files — and Import brings it back. Import calendar turns calendar events into scheduled tasks."},
+        {q:"Can I change the language?",p:"Yes, under Language: English or German."},
+        {q:"Can I get something back?",p:"Everything you delete, and every task you tick off, lands in the Trash first. Restore it there, or delete it forever."}
+      ]]
+    ]}
+  },
+  _sv:function(inner,w){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(w||1.8)+'" stroke-linecap="round" stroke-linejoin="round">'+inner+'</svg>';},
+  // a section's icon: the Menu's colour and icon for that place
+  _ico:function(k){
+    var m={today:[Welcome._tab('today'),'#38bdf8'],habits:[TYPE_ICONS.daily,'#22c55e'],overview:[Welcome._tab('overview'),'#3b82f6'],
+      lockedin:[Welcome._tab('lockedin'),'#6b7280'],stats:[Welcome._tab('stats'),'#22c55e'],
+      all:[this._sv('<circle cx="12" cy="14.5" r="3.2" fill="currentColor" stroke="none"/><line x1="12" y1="3.5" x2="12" y2="6.5"/><line x1="5.6" y1="6.1" x2="7.6" y2="8.1"/><line x1="18.4" y1="6.1" x2="16.4" y2="8.1"/>'),'#6b7280']}[k];
+    return m?'<span class="gd-ico" style="background:'+m[1]+'">'+m[0]+'</span>':'';
+  },
+  _tip:function(x,pics){
+    return (pics&&x.sc?'<div class="gd-pic" translate="no" aria-hidden="true">'+this._scene(x.sc)+'</div>':'')
+      +'<p><b>'+esc(x.q)+'</b> '+esc(x.p)+(x.n?' <span class="gd-nt">'+esc(x.n)+'</span>':'')+'</p>';
+  },
+  _cards:function(secs,pics){
+    var self=this;
+    return secs.map(function(sc){return '<div class="gd-card"><h3>'+(sc.ico?self._ico(sc.ico):'')+'<span>'+esc(sc.t)+'</span></h3>'+sc.tips.map(function(x){return self._tip(x,pics);}).join('')+'</div>';}).join('');
+  },
+  // the small moving pictures (finger positions from the picture's centre, or an edge)
+  _f:function(dx,y,cls,edge){
+    var l=edge==='l'?dx+'px':edge==='r'?'calc(100% - '+dx+'px)':'calc(50% + '+dx+'px)';
+    return '<span class="gd-f '+cls+'" style="left:'+l+';top:'+y+'px"></span>';
+  },
+  _row:function(box,txt,cls,val){return '<div class="gd-rw'+(cls?' '+cls:'')+'"><span class="gd-bx'+(box?' '+box:'')+'"></span><span>'+esc(txt)+'</span>'+(val?'<span class="gd-v">'+esc(val)+'</span>':'<i></i>')+'</div>';},
+  _scene:function(k){
+    var f=this._f.bind(this),row=this._row.bind(this),sv=this._sv,L=Welcome._L.bind(Welcome);
+    var tile=function(e,c,cls){return '<span'+(cls?' class="'+cls+'"':'')+' style="'+tintStyle(c,true)+'">'+e+'</span>';};
+    if(k==='swipe'||k==='swipeHabit')return '<div class="gd-mn"><div class="gd-skip">'+sv('<line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>',2.4)+'</div>'+row('',k==='swipe'?L('Call the bank','Bank anrufen'):L('Morning run','Morgenlauf'),'gd-swr')+'</div>'+f(-80,66,'gd-swf');
+    if(k==='holdHabit'||k==='holdTask')return '<div class="gd-mn"><div class="gd-stack">'+row('',k==='holdHabit'?L('Meditate','Meditieren'):L('Plan the week','Woche planen'),'gd-ha')+row('',k==='holdHabit'?L('Read 10 pages','10 Seiten lesen'):L('Book flights','Flüge buchen'),'gd-hb')+'</div></div>'+f(40,43,'gd-hf');
+    if(k==='war')return '<div class="gd-mn"><div class="gd-stack">'+row('war',L('Send the offer','Angebot senden'))+row('',L('Plan the week','Woche planen'))+'</div></div>';
+    if(k==='tiles')return '<div class="gd-mn"><div class="gd-tl">'+tile('📝','#3b82f6','gd-ta')+tile('☀️','#f59e0b','gd-tb')+tile('🛒','#22c55e')+'</div></div>'+f(-62,66,'gd-tf');
+    if(k==='date')return '<div class="gd-mn" style="justify-content:flex-end;align-items:flex-start;padding:16px 20px"><div class="gd-date">'+sv('<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="6.5"/><line x1="16" y1="3" x2="16" y2="6.5"/>')+'<span>'+esc(chDM(new Date()))+'</span></div></div><div class="gd-cal">'+Array.apply(null,Array(21)).map(function(_,i){return '<i class="'+(i===10?'t':i===13?'d':'')+'"></i>';}).join('')+'</div>'+f(59,36,'gd-tap','r');
+    if(k==='num')return '<div class="gd-mn">'+row('',L('Steps','Schritte'),'',L('6,240 steps','6.240 Schritte'))+'</div>'+f(-93,66,'gd-tap');
+    if(k==='name')return '<div class="gd-mn"><div class="gd-name">'+tile('📝','#3b82f6')+'<b>'+L('Personal','Persönlich')+'</b></div></div>'+f(26,66,'gd-tap');
+    if(k==='fold')return '<div class="gd-mn"><div class="gd-fold"><div class="gd-ft"><span>FITNESS</span>'+sv('<polyline points="6 9 12 15 18 9"/>')+'</div><div class="gd-fg">'+tile('🏋️','#ef4444')+tile('👟','#f97316')+tile('⚖️','#14b8a6')+'</div></div></div>'+f(-80,39,'gd-tap');
+    var bars=function(cls){return '<div class="gd-bars'+(cls?' '+cls:'')+'">'+[5,7,4,8,6,7,3,8,6,5,7,6].map(function(v,i){return '<span style="height:'+(v*9)+'px"><b style="height:'+Math.max(9,(v-(i%3))*9)+'px"></b></span>';}).join('')+'</div>';};
+    if(k==='pinch')return '<div class="gd-mn">'+bars('gd-pz')+'</div>'+f(-14,59,'gd-pa')+f(14,73,'gd-pb');
+    if(k==='drag')return '<div class="gd-mn">'+bars('gd-dr')+'</div>'+f(-30,66,'gd-df');
+    if(k==='bar')return '<div class="gd-mn" style="flex-direction:column;gap:6px"><div class="gd-ro">7 / 8</div>'+bars('')+'</div>'+f(9,96,'gd-tap');
+    if(k==='days'){
+      var d0=new Date(),out='';
+      for(var i=-4;i<=2;i++){var d=new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()+i);out+='<span'+(i===0?' class="sel"':'')+'>'+esc(L(DN[wIdx(d)],['Mo','Di','Mi','Do','Fr','Sa','So'][wIdx(d)]))+'<b>'+d.getDate()+'</b></span>';}
+      return '<div class="gd-mn"><div class="gd-days gd-dr">'+out+'</div></div>'+f(-40,66,'gd-df');
+    }
+    if(k==='pull')return '<div class="gd-dim"></div><div class="gd-sheet"><i style="top:26px"></i><i style="top:44px;right:90px"></i><i style="top:62px;right:60px"></i></div>'+f(0,72,'gd-sf');
+    if(k==='edge')return '<div class="gd-pg gd-pg0"><i></i><i></i><i></i></div><div class="gd-pg gd-pg1"><i></i><i></i><i></i><i></i></div>'+f(30,66,'gd-pf','l');
+    return '';
+  },
+  open:function(k){this.tab=k;Nav.go('guide-tab');},
+  render:function(id){
+    var self=this,el;
+    if(id==='guide-hidden'&&(el=document.getElementById('guide-hidden-body')))
+      el.innerHTML=this._cards(this.HIDDEN.map(function(h){return{t:h[0],ico:h[1],tips:h[2]};}),true);
+    if(id==='guide-war'&&(el=document.getElementById('guide-war-body')))
+      el.innerHTML='<div class="gd-hero"><span class="gd-big" style="background:#ef4444"><svg viewBox="0 0 24 24" fill="#fff"><path fill-rule="evenodd" transform="translate(12 12) scale(.88) translate(-12 -12)" d="M10.27 4.05a2 2 0 0 1 3.46 0L21.73 17.95A2 2 0 0 1 20 20.95H4A2 2 0 0 1 2.27 17.95ZM10.9 9.7a1.1 1.1 0 0 1 2.2 0v4.2a1.1 1.1 0 0 1-2.2 0ZM12 16.35a1.25 1.25 0 1 0 .001 0Z"/></svg></span><b>War Room</b><span>For the few things that can\'t wait.</span></div>'
+        +'<div class="gd-card">'+this.WAR.map(function(x){return self._tip(x,true);}).join('')+'</div>';
+    if(id==='guide-tabs'&&(el=document.getElementById('guide-tabs-list'))){
+      var chev='<span style="display:inline-flex;transform:rotate(-90deg);margin-left:auto">'+ICON_CHEVRON+'</span>';
+      el.innerHTML=this.TABS.map(function(k){
+        var tb=Welcome.TABS.filter(function(x){return x.tab===k;})[0];
+        return '<div class="opt-row" onclick="Guide.open(\''+k+'\')"><div class="opt-ico" style="background:'+self.COL[k]+'">'+Welcome._tab(k)+'</div><div class="opt-text"><div class="opt-title">'+esc(tb.name)+'</div></div>'+chev+'</div>';
+      }).join('');
+    }
+    if(id==='guide-tab'&&(el=document.getElementById('guide-tab-body'))){
+      var k=this.tab,tb=Welcome.TABS.filter(function(x){return x.tab===k;})[0],pg=this.PAGES[k];
+      document.getElementById('guide-tab-title').textContent=tb.name;
+      el.innerHTML='<div class="gd-th"><div class="wel-ill wv-ill">'+Welcome._pic(k)+'</div>'
+        +'<div class="wel-eb" style="color:'+this.COL[k]+'">'+Welcome._tab(k)+'<span>'+esc(tb.name)+'</span></div>'
+        +'<div class="wel-title">'+esc(tb.title)+'</div><div class="wel-text">'+esc(pg.lead)+'</div></div>'
+        +this._cards(pg.secs.map(function(sc){return{t:sc[0],tips:sc[1]};}),false);
+    }
   }
 };
 var MenuPage={
