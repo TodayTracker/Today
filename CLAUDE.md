@@ -904,10 +904,16 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   settings page"; "put the correct colors"; keep the page): `#p-guide`
   is (1.0.52) a `.sl` "The basics" (German "Die Grundlagen"; 1.0.51 named
   it from App tour / The basics / How it works / The tabs — "basics sound
-  good") over a Menu card `#guide-tabs-list` with the five tabs Today /
-  Overview / Tasks / Stats / Menu, drawn by Guide.render('guide'), in the
-  MENU's colours (Guide.COL: #38bdf8 / #3b82f6 / #6b7280 / #22c55e, Menu =
-  the Guide's #f97316), then a second card, NO title, with Hidden features
+  good") over a Menu card `#guide-tabs-list` with the tabs Today /
+  Overview / Tasks / Stats / Blocker / Menu (tab bar order), drawn by
+  Guide.render('guide'), in the MENU's colours (Guide.COL: #38bdf8 /
+  #3b82f6 / #6b7280 / #22c55e / Blocker #ef4444, Menu = the Guide's
+  #f97316). The Blocker (1.0.53, "also put the blocker there… just say
+  coming soon but already put that it will have screen time and blockers,
+  app limits etc.") shows "Coming soon" as its row's grey value; its page =
+  the welcome Blocker picture, the lead "Coming soon: …" as the note, and a
+  "What's coming" card (Screen time, Block apps and websites, Daily limits,
+  Warnings) — update it when the Blocker is built. then a second card, NO title, with Hidden features
   (violet mask) and War Room (red triangle). Asked: "what we just have a
   title and then the 5 tabs in the guide not a seperate tab just to show
   them", "put hidden features and war room under the 5 and maybe as title
