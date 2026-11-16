@@ -634,12 +634,23 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   line tall (the 120px min-height is gone) and growing as you type (unlike a
   project description, no 5-line cap); 18px from the hero to the Files card
   (its own 20px margin is gone), as from a description to the first card.
-- TASK WINDOW PRIORITY = "F" (still; 1.0.57 tried the project window's
-  layout in the app — a 76px tile with the Tasks icon, a Priority row above
-  Files — and 1.0.58 took it out again: "no i dont want it in the app rn…
-  I always want to see it visual in the window you just opened". It's now
-  option P on the priority page. RULE: a new design idea goes on its
-  options page first, never straight into the app.) F = (4.67.28, picked on
+- TASK WINDOW = "P", LIKE A PROJECT'S WINDOW (1.0.59, picked on the
+  priority page https://claude.ai/artifact/ECSy2yZvgPVnJVeCYtbYzc — the
+  user's own idea: "a full bar above files attach for the prio and a icon
+  same size as project at the top… The icon could be the one we use for
+  tasks in the menu bar", then "make the icon a bit smaller so its visually
+  not the same as a project", "okey i like p"; 1.0.57 had put it straight
+  into the app and 1.0.58 took it out — "I always want to see it visual in
+  the window you just opened": new designs go on the options page FIRST).
+  The hero starts with `#task-sheet-ico` (`.sh-ico.ts-ico`, 56px r15 —
+  smaller than a project's 76 — tintStyle of the task's PROJECT colour,
+  the Tasks tab's outline icon via Welcome._tab('lockedin') at 30px), then
+  the centred name + notes; a Menu card `#task-sheet-pri-card` with ONE row
+  `.ts-pri-row` "Priority" + the badge (`#task-sheet-pri`, sideways arrow
+  turning down while the DSel dropdown is open) — a dropdown row, so it's
+  out of PRESS_ROWS (no grey); hidden for List projects; then the Files
+  card. F's badge in the top bar is gone (`.sh-bar .ts-pri` CSS too).
+  (History) TASK WINDOW PRIORITY F = (4.67.28, picked on
   https://claude.ai/artifact/ECSy2yZvgPVnJVeCYtbYzc — "i like F the most";
   keep the page): no Priority row any more; the task's badge (`.ts-pri bdg
   <pri>` + a small down arrow) sits top left in `.sh-bar` across from Save;

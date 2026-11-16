@@ -670,9 +670,14 @@ html:not(#x) .dhdr{min-height:40px}
    page edge's 16px */
 /* Task window (1.0): the priority badge top left ("F", it opens the usual
    dropdown); the Files card (a row per file + "Attach a file") */
-.sh-bar .ts-pri{grid-column:1;justify-self:start;display:inline-flex;align-items:center;gap:4px;border:none;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
-.sh-bar .ts-pri svg{flex:none;opacity:.7;transform:rotate(-90deg);transition:transform .2s ease} /* sideways, turning down while its dropdown is open (DSel adds .open) */
-.sh-bar .ts-pri.open svg{transform:none}
+/* the task window like the project window ("P"): a tile with the Tasks
+   tab's icon in the project's colour on top — 56px, smaller than a
+   project's 76 so it doesn't read as one — and a Priority row above Files */
+.sh-ico.ts-ico{width:56px;height:56px;border-radius:15px;display:flex;align-items:center;justify-content:center}
+.ts-ico svg{width:30px;height:30px}
+.ts-pri-row .ts-pri{margin-left:auto;display:inline-flex;align-items:center;gap:4px}
+.ts-pri-row .ts-pri svg{flex:none;opacity:.7;transform:rotate(-90deg);transition:transform .2s ease} /* sideways, turning down while its dropdown is open (DSel adds .open) */
+.ts-pri-row .ts-pri.open svg{transform:none}
 #task-sheet-files,#proj-sheet-files{margin-top:0}
 .ts-thumb{flex:none;width:30px;height:30px;border-radius:7px;overflow:hidden;background:var(--box,#eceef1);display:flex;align-items:center;justify-content:center}
 .ts-thumb img{width:100%;height:100%;object-fit:cover;display:block}
@@ -2097,10 +2102,14 @@ try{if(sessionStorage.getItem('lifeos-boot'))document.documentElement.classList.
 
 <div class="sheet-overlay" id="task-sheet-overlay" onclick="if(event.target===this)TaskSheet.close()">
   <div class="sheet sh-win">
-    <div class="sh-bar"><button type="button" class="ts-pri bdg bs" id="task-sheet-pri" onclick="TaskSheet.priMenu(this)"></button><span class="sh-bar-t" id="task-sheet-title"></span><button type="button" class="sh-save" onclick="TaskSheet.save()">Save</button></div>
+    <div class="sh-bar"><span class="sh-bar-t" id="task-sheet-title"></span><button type="button" class="sh-save" onclick="TaskSheet.save()">Save</button></div>
     <div class="sh-hero center">
+      <div class="sh-ico ts-ico" id="task-sheet-ico"></div>
       <input class="sh-name" id="task-sheet-name" placeholder="Task name">
       <textarea class="sh-text sh-notes" id="task-sheet-desc" rows="1" placeholder="Notes" oninput="TaskSheet.autosize()"></textarea>
+    </div>
+    <div class="opt-group" id="task-sheet-pri-card">
+      <div class="opt-row ts-pri-row" onclick="TaskSheet.priMenu(document.getElementById('task-sheet-pri'))"><div class="opt-text"><div class="opt-title">Priority</div></div><span class="ts-pri bdg bs" id="task-sheet-pri"></span></div>
     </div>
     <div class="opt-group" id="task-sheet-files"></div>
     <input type="file" id="task-file" multiple style="display:none" onchange="TaskFiles.add(this)">
@@ -2158,7 +2167,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=58;
+var BETA_BUILD=59;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3524,7 +3533,8 @@ var CHANGELOG=[
     "An attached picture opened full screen has a back arrow at the top left",
     "Guide: the five tabs are right at the top of the Guide, under The basics; Hidden features and War Room in a card under them. The Blocker has a page too: coming soon, and what it will do — the Menu row is grey",
     "The update screen shows one quote now",
-    "Developer: the Quotes page and the note at the bottom are gone"
+    "Developer: the Quotes page and the note at the bottom are gone",
+    "Task window laid out like a project's: a tile with the Tasks icon on top, and priority in its own row above Files"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -8101,7 +8111,7 @@ var SQ_BTNS='.hdr-add,.menu-btn,.back,.edit-proj-btn,.addbtn,.hh-btn,.el-btn,.td
   document.addEventListener('touchend',release,{passive:true});
   document.addEventListener('touchcancel',release,{passive:true});
 })();
-var PRESS_ROWS='.cali:not([data-once]),.ti:not([data-once]),.wri,.acard,.opt-row:not(:has(.switch)):not(:has(.dsel-wrap)):not(:has(.sh-rin)):not(.sh-days-row):not(.sh-ended):not(.trash-row)';
+var PRESS_ROWS='.cali:not([data-once]),.ti:not([data-once]),.wri,.acard,.opt-row:not(:has(.switch)):not(:has(.dsel-wrap)):not(:has(.sh-rin)):not(.sh-days-row):not(.sh-ended):not(.trash-row):not(.ts-pri-row)';
 (function(){
   var row=null,timer=null,sx=0,sy=0;
   function off(r){r.classList.remove('pressed-row');}
@@ -10408,7 +10418,12 @@ var TaskSheet={
   // their project: there's no Project row (removed by request, 3.73).
   renderPri:function(){
     var p=DB.data.projects[this.pid],isList=p&&p.type==='list',b=document.getElementById('task-sheet-pri');
-    b.className='ts-pri bdg '+this.pri;b.style.display=isList?'none':'';
+    // the tile on top: the Tasks tab's icon, tinted in the task's project colour (like a project's tile)
+    var ico=document.getElementById('task-sheet-ico');
+    ico.setAttribute('style',tintStyle(COLORS[(p&&p.color)||'c-grey']||'#6b7280',true));
+    ico.innerHTML=Welcome._tab('lockedin');
+    document.getElementById('task-sheet-pri-card').style.display=isList?'none':'';
+    b.className='ts-pri bdg '+this.pri;
     b.innerHTML='<span>'+esc(t(PLBL[this.pri]))+'</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
   },
   // the app's usual dropdown (DSel), under the badge
