@@ -902,8 +902,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   mixes M1–M3 after "a mix between g2,3,4"; "m2 looks good but the guide
   page looks horrible. i liked the way it was layout was same to the
   settings page"; "put the correct colors"; keep the page): `#p-guide`
-  stays a Menu-style list — Hidden features (violet mask), War Room (red
-  triangle), Tab by tab (NEW, blue #0a84ff map) → `#p-guide-tabs`, a
+  stays a Menu-style list — The basics (NEW, FIRST row, blue #0a84ff map;
+  1.0.51: "is there a better name than tab by tab" → picked "basics" from
+  App tour / The basics / How it works / The tabs, German "Die Grundlagen";
+  "it should be the first icon ofc not the last"; it was "Tab by tab", last),
+  Hidden features (violet mask), War Room (red triangle) → `#p-guide-tabs`, a
   Menu-style list of Today / Overview / Tasks / Stats / Menu in the MENU's
   colours (Guide.COL: #38bdf8 / #3b82f6 / #6b7280 / #22c55e, Menu = the
   Guide's #f97316) → `Guide.open(k)` → `#p-guide-tab` (one page, its title
