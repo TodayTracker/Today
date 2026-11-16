@@ -908,26 +908,23 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   = the tab's name): the welcome page's moving picture (Welcome._pic), the
   tab's name in its colour, the welcome title, a new lead line, then cards.
   Everything is `Guide` (before MenuPage), drawn by `Guide.render(id)` from
-  _renderPage on every visit (the pictures start over). LOOK (1.0.47, "a
-  consistent layout with the icons because its different than in war room"
-  → picked "a small icon on every card"; and "the text… same as outside of
-  the guide… everything is a bit too big and bold"): EVERY card starts with
-  `.gd-head` = a Menu row (46px, 30px `.gd-ico` tile with a 20px icon,
-  15/600 title), then `.gd-tip`s divided by 1.5px --line like rows: the
-  question `.gd-q` in row text 15/500 ink, the answer `.gd-a` in the
-  paragraph role 13/18 500 #999, a note in blue. War Room = two cards ("What
-  it is" red triangle, "How to use it" red touch ring; its big centred icon
-  is gone); tab pages' cards (What you see = eye, What you can do = touch
-  ring, Make it yours / The pages = sliders) in the tab's Guide.COL colour;
-  the tab hero below the picture is smaller (eyebrow 11px, title 20/700,
-  line 13 grey). (Before: a part was `.gd-card`
-  (big 19/700 title, Hidden features with the Menu icon+colour of its place:
-  Today, Habits, Overview, Tasks, Charts, Everywhere — Everywhere = the
-  phone ICON_PHONE on grey #6b7280, picked from six (phone / finger / all
-  tabs / arrows / app icon / mask) after "i dont like the everywhere icon";
-  it was a tap glyph), a tip = a paragraph
-  starting with its QUESTION in bold, then the answer (ink 82%), a note in
-  blue — replaced by the look above.) Hidden features (15 tips, more than before) and War Room have a
+  _renderPage on every visit (the pictures start over). LOOK = the MENU'S
+  OWN PIECES (1.0.49 — "way to many unecesary icons", "the seperation
+  lines are way to thic", "the whole idea is that the design aligns with
+  the rest of the app design… everything from the windows to the sizes to
+  the text and fonts"): a part = the usual `.sl` title + a real
+  `.opt-group` card (radius 14, the page's 8/22px spacing rules), tips =
+  `.gd-tip` rows with the Menu rows' divider — 0.5px var(--line) (MEASURED
+  on Menu rows; the "1.5px dividers" in the design-system note is wrong
+  for rows), the question `.gd-q` 15/500 ink, the answer `.gd-a` = the Data
+  page's note style 13/18 500 #999, a note in blue. NO icons on cards or
+  titles (1.0.47's Menu-row card heads with icon tiles, "option 1", were
+  undone two builds later); the Guide list and Tab by tab list keep their
+  Menu-row icons. A tab's page: the welcome picture in a plain `.opt-group`
+  (`.gd-th`, 300px, no shadow/24px radius) + its lead as a `.data-note`
+  under it, then the parts — no eyebrow, no big centred title. Lesson:
+  "same as the app" means reuse the app's classes and MEASURE them, don't
+  restyle look-alikes. Hidden features (15 tips, more than before) and War Room have a
   small moving picture per tip (`.gd-pic`, `_scene(k)`, `gd*` keyframes)
   built from the app's pieces in their real colours — the skip action is
   the app's light green #a7f3c0 (the options page had amber: wrong); the
