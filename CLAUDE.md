@@ -902,14 +902,20 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   mixes M1–M3 after "a mix between g2,3,4"; "m2 looks good but the guide
   page looks horrible. i liked the way it was layout was same to the
   settings page"; "put the correct colors"; keep the page): `#p-guide`
-  stays a Menu-style list — The basics (NEW, FIRST row, blue #0a84ff map;
-  1.0.51: "is there a better name than tab by tab" → picked "basics" from
-  App tour / The basics / How it works / The tabs, German "Die Grundlagen";
-  "it should be the first icon ofc not the last"; it was "Tab by tab", last),
-  Hidden features (violet mask), War Room (red triangle) → `#p-guide-tabs`, a
-  Menu-style list of Today / Overview / Tasks / Stats / Menu in the MENU's
-  colours (Guide.COL: #38bdf8 / #3b82f6 / #6b7280 / #22c55e, Menu = the
-  Guide's #f97316) → `Guide.open(k)` → `#p-guide-tab` (one page, its title
+  is (1.0.52) a `.sl` "The basics" (German "Die Grundlagen"; 1.0.51 named
+  it from App tour / The basics / How it works / The tabs — "basics sound
+  good") over a Menu card `#guide-tabs-list` with the five tabs Today /
+  Overview / Tasks / Stats / Menu, drawn by Guide.render('guide'), in the
+  MENU's colours (Guide.COL: #38bdf8 / #3b82f6 / #6b7280 / #22c55e, Menu =
+  the Guide's #f97316), then a second card, NO title, with Hidden features
+  (violet mask) and War Room (red triangle). Asked: "what we just have a
+  title and then the 5 tabs in the guide not a seperate tab just to show
+  them", "put hidden features and war room under the 5 and maybe as title
+  Extra", then "or just a space between" — built with the space (an
+  "Extra" title was in for a moment). The War Room stays its own page —
+  moving it into a tab page was discussed and dropped. Before: a "Tab by tab" / "The basics" row
+  (blue map) → its own list page `#p-guide-tabs` (gone). A tab row →
+  `Guide.open(k)` → `#p-guide-tab` (one page, its title
   = the tab's name): the welcome page's moving picture (Welcome._pic), the
   tab's name in its colour, the welcome title, a new lead line, then cards.
   Everything is `Guide` (before MenuPage), drawn by `Guide.render(id)` from
@@ -938,8 +944,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   user's own project. All other text is English in `Guide` with a DE entry
   each (the DOM layer translates it). A new tip: add it to Guide.HIDDEN /
   WAR / PAGES + its DE entries; a new Guide page: SETTINGS_SUBPAGES and
-  `_backTarget`'s no-history fallback (guide-tab → guide-tabs, the others
-  → guide). The old `.guide-item/.guide-t/.guide-p` are gone. Auto update = a silent
+  `_backTarget`'s no-history fallback (every Guide page → guide). The old `.guide-item/.guide-t/.guide-p` are gone. Auto update = a silent
   `A.checkForUpdate(true)` at launch and on resume after 30 min; it only
   speaks up (progress overlay, then reload) when an update exists.
 
