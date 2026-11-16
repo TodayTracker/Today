@@ -634,7 +634,20 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   line tall (the 120px min-height is gone) and growing as you type (unlike a
   project description, no 5-line cap); 18px from the hero to the Files card
   (its own 20px margin is gone), as from a description to the first card.
-- TASK WINDOW PRIORITY = "F" (4.67.28, picked on
+- TASK WINDOW = THE PROJECT WINDOW'S LAYOUT (1.0.57, the user's own idea
+  after seeing the priority page again: "a full bar above files attach for
+  the prio and a icon same size as project at the top. so exactly same
+  layout as projects. The icon could be the one we use for tasks in the
+  menu bar"): the hero starts with `#task-sheet-ico` (`.sh-ico.ts-ico`, 76px
+  like a project's tile, tintStyle of the task's PROJECT colour, the Tasks
+  tab's outline icon via Welcome._tab('lockedin') at 40px), then the
+  centred name + notes; a Menu card `#task-sheet-pri-card` with ONE row
+  `.ts-pri-row` "Priority" + the badge (`#task-sheet-pri`, sideways arrow
+  turning down while the DSel dropdown is open) — a dropdown row, so it's
+  out of PRESS_ROWS (no grey); hidden for List projects; then the Files
+  card. F's badge in the top bar is gone (`.sh-bar .ts-pri` CSS too).
+  "Try" — if the user goes back, F/B/E are on the priority page.
+  (History) TASK WINDOW PRIORITY = "F" (4.67.28, picked on
   https://claude.ai/artifact/ECSy2yZvgPVnJVeCYtbYzc — "i like F the most";
   keep the page): no Priority row any more; the task's badge (`.ts-pri bdg
   <pri>` + a small down arrow) sits top left in `.sh-bar` across from Save;
@@ -1167,8 +1180,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   the switch redraws only the history (`renderAppHistory`), not the card.
   What counts as a feature: something the user can newly DO or see (a new
   setting, gesture, page, tab); renames, restyles, moves and spacing are
-  design; anything that was broken is bug. A big visible change can still
-  get a line (2.55 redesign, 3.76 categories gone).
+  design; anything that was broken is bug. NO DESIGN LINES on the list,
+  not even big ones (1.0, "no we dont want any design changes on the list"
+  — "New app icon", "New look for the tab bar", "New look for the charts"
+  were taken off the 1.0 list; before, a big visible change could still get
+  a line: 2.55 redesign, 3.76 categories gone).
 - TAB BAR LINE (4.67.13, from the tab bar page's "Line on top" switch:
   "the hairline darker looks good, so that just as fixed"): `.tabbar`'s top
   border is one screen pixel in the iPhone separator grey —
