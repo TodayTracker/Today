@@ -69,8 +69,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   tried.
   1.0 RELEASED 2026-11-16 (CACHE_NAME v426), straight after the user had
   checked the last small beta (1.0.61) — no separate "Beta 1.0" step: "the
-  whole point is that its not beta. Its just 1.0". The next version starts
-  at BETA_BUILD 1 again (shown "1.0.1", base = 1.0).
+  whole point is that its not beta. Its just 1.0". 1.1 (CACHE_NAME v427)
+  went out the same day straight to everyone, only the Export fix above
+  ("you can push this straight away"; USER_LOG 'design', so no What's New
+  pop-up). The next version (1.2) starts at BETA_BUILD 1 (shown "1.1.1").
 - NAME (4.3): the app is called "Today" on screen (manifest name/short_name,
   <title>, apple-mobile-web-app-title — the home-screen label is fixed when
   an icon is ADDED, so rename before people add it). Internal names keep
@@ -601,9 +603,13 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   Delete forever / Delete all forever → `FileStore.dropUnused()` deletes
   every stored file no data mentions (never runs while DB.readOnly; nothing
   else deletes files). Backup: with files it's `backup:2` + `files:[{id,
-  name,type,size,data:base64}]`; reading files is async, so Export shows
-  "Backup ready — N files are in it too." whose Save button shares it (the
-  share sheet needs a tap); Import clears the stored files and writes the
+  name,type,size,data:base64}]`; reading files is async and the share sheet
+  needs a tap, so since 1.1 they're read IN ADVANCE when Menu → Data opens
+  (`Backup.prepare` from _renderPage, `_files` cache) and Export saves at
+  once without mentioning them ("the fact that it mentions it
+  specifically" — 1.0 showed "Backup ready — N files are in it too." with
+  Save); only when Export is tapped before that's done: a plain "Backup
+  ready" with Save; Import clears the stored files and writes the
   backup's before the restart (a backup 1 file leaves none). A paperclip on
   task rows that have files was offered and DECLINED (2026-11-16, "nah keep
   it the way it is") — don't offer it again.
