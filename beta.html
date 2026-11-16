@@ -2172,7 +2172,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=54;
+var BETA_BUILD=55;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3536,7 +3536,8 @@ var CHANGELOG=[
     "Welcome pages: the Stats picture's ring shows the skipped days in light green too",
     "Guide: looks like the rest of the Menu — no icons on the cards, the usual small titles, thin lines and text sizes; a tab's page shows its picture in a normal card with one line under it",
     "An attached picture opened full screen has a back arrow at the top left",
-    "Guide: the five tabs are right at the top of the Guide, under The basics; Hidden features and War Room in a card under them. The Blocker has a page too: coming soon, and what it will do — the Menu row is grey"
+    "Guide: the five tabs are right at the top of the Guide, under The basics; Hidden features and War Room in a card under them. The Blocker has a page too: coming soon, and what it will do — the Menu row is grey",
+    "The update screen shows one quote now"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -9540,47 +9541,11 @@ function _overlayClose(id,instant){
 }
 
 // Quotes for the update screen (and Menu → Developer): [English, German,
-// author, author in German]. Stoics (old translations, German our own),
-// Diogenes, and Luke Belmar's lines (the funny ones on purpose).
+// author, author in German]. Since 1.0 just one, the user's own pick ("i want
+// all quotes replaces with this"); the 38 before (Stoics, Diogenes, Luke
+// Belmar) are in git history (before 1.0.55).
 var QUOTES=[
-  ['Waste no more time arguing about what a good man should be. Be one.','Verschwende keine Zeit mehr damit, zu streiten, wie ein guter Mensch sein sollte. Sei einer.','Marcus Aurelius','Marc Aurel'],
-  ['What stands in the way becomes the way.','Was im Weg steht, wird zum Weg.','Marcus Aurelius','Marc Aurel'],
-  ['Very little is needed to make a happy life.','Für ein glückliches Leben braucht es sehr wenig.','Marcus Aurelius','Marc Aurel'],
-  ['If it is not right, do not do it; if it is not true, do not say it.','Wenn es nicht recht ist, tu es nicht; wenn es nicht wahr ist, sag es nicht.','Marcus Aurelius','Marc Aurel'],
-  ['The best revenge is not to be like your enemy.','Die beste Rache ist, nicht zu werden wie dein Feind.','Marcus Aurelius','Marc Aurel'],
-  ['We suffer more often in imagination than in reality.','Wir leiden öfter in der Vorstellung als in der Wirklichkeit.','Seneca','Seneca'],
-  ['It is not that we have a short time to live, but that we waste a lot of it.','Wir haben nicht zu wenig Zeit, wir verschwenden zu viel davon.','Seneca','Seneca'],
-  ['While we wait for life, life passes.','Während wir auf das Leben warten, zieht es vorbei.','Seneca','Seneca'],
-  ['Begin at once to live.','Fang sofort an zu leben.','Seneca','Seneca'],
-  ['No man is free who is not master of himself.','Niemand ist frei, der nicht Herr über sich selbst ist.','Epictetus','Epiktet'],
-  ['First say to yourself what you would be; then do what you have to do.','Sag dir zuerst, wer du sein willst; dann tu, was du tun musst.','Epictetus','Epiktet'],
-  ['People are not disturbed by things, but by the views they take of them.','Nicht die Dinge beunruhigen die Menschen, sondern ihre Ansichten über die Dinge.','Epictetus','Epiktet'],
-  ['Wealth consists not in having great possessions, but in having few wants.','Reichtum heisst nicht, viel zu besitzen, sondern wenig zu brauchen.','Epictetus','Epiktet'],
-  ['We have two ears and one mouth, so that we may listen more and speak less.','Wir haben zwei Ohren und einen Mund, damit wir mehr zuhören als reden.','Zeno of Citium','Zenon von Kition'],
-  ['Become indifferent to what makes no difference.','Werde gleichgültig gegenüber dem, was keinen Unterschied macht.','Luke Belmar','Luke Belmar'],
-  ['Never do business with a brokie.','Mach nie Geschäfte mit einem Brokie.','Luke Belmar','Luke Belmar'],
-  ["The happiness of your life depends upon the quality of your thoughts.","Das Glück deines Lebens hängt von der Beschaffenheit deiner Gedanken ab.","Marcus Aurelius","Marc Aurel"],
-  ["The soul becomes dyed with the colour of its thoughts.","Die Seele nimmt die Farbe ihrer Gedanken an.","Marcus Aurelius","Marc Aurel"],
-  ["Loss is nothing else but change, and change is nature's delight.","Verlust ist nichts anderes als Wandel, und am Wandel hat die Natur ihre Freude.","Marcus Aurelius","Marc Aurel"],
-  ["Confine yourself to the present.","Beschränke dich auf die Gegenwart.","Marcus Aurelius","Marc Aurel"],
-  ["How much more grievous are the consequences of anger than the causes of it.","Wie viel schlimmer sind die Folgen des Zorns als seine Ursachen.","Marcus Aurelius","Marc Aurel"],
-  ["Look within. Within is the fountain of good.","Schau nach innen. Dort ist die Quelle des Guten.","Marcus Aurelius","Marc Aurel"],
-  ["Begin the morning by saying to yourself: today I shall meet the busybody, the ungrateful, the arrogant.","Sag dir jeden Morgen: Heute treffe ich auf Wichtigtuer, Undankbare und Überhebliche.","Marcus Aurelius","Marc Aurel"],
-  ["Difficulties strengthen the mind, as labour does the body.","Schwierigkeiten stärken den Geist, wie Arbeit den Körper stärkt.","Seneca","Seneca"],
-  ["If a man knows not to which port he sails, no wind is favourable.","Wer nicht weiss, welchen Hafen er ansteuert, für den ist kein Wind der richtige.","Seneca","Seneca"],
-  ["Associate with people who are likely to improve you.","Umgib dich mit Menschen, die dich besser machen.","Seneca","Seneca"],
-  ["Sometimes even to live is an act of courage.","Manchmal ist schon zu leben ein Akt des Mutes.","Seneca","Seneca"],
-  ["As is a tale, so is life: not how long it is, but how good it is, is what matters.","Wie bei einer Geschichte zählt beim Leben nicht, wie lang es ist, sondern wie gut.","Seneca","Seneca"],
-  ["No one is laughable who laughs at himself.","Niemand ist lächerlich, der über sich selbst lacht.","Seneca","Seneca"],
-  ["Fate leads the willing and drags along the reluctant.","Das Schicksal führt den Willigen und zerrt den Unwilligen mit.","Seneca","Seneca"],
-  ["Don't explain your philosophy. Embody it.","Erklär deine Philosophie nicht. Leb sie.","Epictetus","Epiktet"],
-  ["No great thing is created suddenly.","Nichts Grosses entsteht plötzlich.","Epictetus","Epiktet"],
-  ["If you want to improve, be content to be thought foolish and stupid.","Wenn du besser werden willst, nimm in Kauf, für dumm gehalten zu werden.","Epictetus","Epiktet"],
-  ["He is a wise man who does not grieve for the things which he has not, but rejoices for those which he has.","Weise ist, wer nicht dem nachtrauert, was er nicht hat, sondern sich über das freut, was er hat.","Epictetus","Epiktet"],
-  ["Make the best use of what is in your power, and take the rest as it happens.","Mach das Beste aus dem, was in deiner Macht steht, und nimm den Rest, wie er kommt.","Epictetus","Epiktet"],
-  ["Well-being is realised by small steps, but is truly no small thing.","Wohlbefinden entsteht in kleinen Schritten, ist aber wahrlich keine Kleinigkeit.","Zeno of Citium","Zenon von Kition"],
-  ["If you accomplish something good with hard work, the labour passes quickly, but the good endures.","Wenn du mit Mühe etwas Gutes vollbringst, vergeht die Mühe, das Gute aber bleibt.","Musonius Rufus","Musonius Rufus"],
-  ["Stand a little out of my sun.","Geh mir ein wenig aus der Sonne.","Diogenes","Diogenes"]
+  ["Step by step, day by day, in every way, I'm getting better and better.","Schritt für Schritt, Tag für Tag, in jeder Hinsicht werde ich besser und besser.","Luke Belmar","Luke Belmar"]
 ];
 // The quote screens' loading bar: a full-width fill moved with transform
 // every frame along one smooth curve — no steps, no stops — its round front

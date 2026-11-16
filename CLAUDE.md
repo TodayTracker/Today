@@ -3216,8 +3216,13 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
 - QUOTES (4.36, "quotes from Luke Belmar and old stoic philosophers… for
   the loading screen", then "the loading bar at the very bottom, the text
   very big, slow enough to read the quote"): `QUOTES` = [en, de, author,
-  author de] — 38 since 4.38: Stoics (old public-domain translations,
-  German our own), Diogenes, and Luke Belmar. Add Belmar lines ONLY when
+  author de] — since 1.0.55 ONE quote, the user's own ("i want all quotes
+  replaces with this: Step by step, day by day in everyday way im getting
+  better and better - Luke Belmar"; written as "…, in every way, I'm…",
+  German "Schritt für Schritt, Tag für Tag, in jeder Hinsicht werde ich
+  besser und besser."). QuoteText.pick already copes with one. Before: 38
+  since 4.38: Stoics (old public-domain translations, German our own),
+  Diogenes, and Luke Belmar (git before 1.0.55 has them). Add Belmar lines ONLY when
   the user gives the exact text (copyright; the funny ones like "Never do
   business with a brokie" are wanted). New entries use double-quoted JS
   strings (apostrophes). SHOWN ONLY ON THE UPDATE SCREEN. 4.36–4.37
