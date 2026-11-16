@@ -907,8 +907,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   good") over a Menu card `#guide-tabs-list` with the tabs Today /
   Overview / Tasks / Stats / Blocker / Menu (tab bar order), drawn by
   Guide.render('guide'), in the MENU's colours (Guide.COL: #38bdf8 /
-  #3b82f6 / #6b7280 / #22c55e / Blocker #ef4444, Menu = the Guide's
-  #f97316). The Blocker (1.0.53, "also put the blocker there… just say
+  #3b82f6 / #6b7280 / #22c55e / Blocker #ef4444, Menu grey #6b7280 since
+  1.0.54 — "i want menu also grey. orange is to much color"; it was the
+  Guide's #f97316). The Blocker (1.0.53, "also put the blocker there… just say
   coming soon but already put that it will have screen time and blockers,
   app limits etc.") shows "Coming soon" as its row's grey value; its page =
   the welcome Blocker picture, the lead "Coming soon: …" as the note, and a

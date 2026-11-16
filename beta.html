@@ -2172,7 +2172,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=53;
+var BETA_BUILD=54;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3536,7 +3536,7 @@ var CHANGELOG=[
     "Welcome pages: the Stats picture's ring shows the skipped days in light green too",
     "Guide: looks like the rest of the Menu — no icons on the cards, the usual small titles, thin lines and text sizes; a tab's page shows its picture in a normal card with one line under it",
     "An attached picture opened full screen has a back arrow at the top left",
-    "Guide: the five tabs are right at the top of the Guide, under The basics; Hidden features and War Room in a card under them. The Blocker has a page too: coming soon, and what it will do"
+    "Guide: the five tabs are right at the top of the Guide, under The basics; Hidden features and War Room in a card under them. The Blocker has a page too: coming soon, and what it will do — the Menu row is grey"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -8691,8 +8691,8 @@ var Backup={
 // every visit (_renderPage), so the pictures start over.
 var Guide={
   tab:'today',
-  // the Menu's colours for the tabs (Menu → Today / Overview / Tasks / Statistics); Menu itself: the Guide's orange
-  COL:{today:'#38bdf8',overview:'#3b82f6',lockedin:'#6b7280',stats:'#22c55e',blocker:'#ef4444',settings:'#f97316'},
+  // the Menu's colours for the tabs (Menu → Today / Overview / Tasks / Statistics / Blocker); Menu itself: grey
+  COL:{today:'#38bdf8',overview:'#3b82f6',lockedin:'#6b7280',stats:'#22c55e',blocker:'#ef4444',settings:'#6b7280'}, // Menu grey like the Menu's own grey rows ("orange is to much color")
   TABS:['today','overview','lockedin','stats','blocker','settings'], // the tab bar's order (the Blocker too, though it's hidden by default)
   HIDDEN:[
     ['Today',[
