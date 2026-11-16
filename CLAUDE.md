@@ -3236,10 +3236,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   What's left is `QuoteText` (pick: random, never the same twice in a row,
   'lifeos-quote' = last index; `readMs(text)` = 1.8s + 0.32s per word,
   3.5–7s; `fill(textId,byId,i)`), used by `UpdateOverlay.show(i)`. Menu →
-  Developer has one Updates card: Advanced update info (switch), Quotes ›
-  (`#p-devquotes`, `renderDevQuotes`, every quote numbered in the app's
-  language; a tap = `UpdateOverlay.demo(i)` with that quote) and "Update
-  screen", a blue `.btn-row` action ("blue like all the other ones" — the
+  Developer has one Updates card: Advanced update info (switch) and "Update
+  screen" (Quotes › — `#p-devquotes`, `renderDevQuotes`, `.qrow` — was
+  removed in 1.0.56 with the one-quote change: "we no longer need quotes in
+  dev mode"; so was the page's bottom note "Only you see this page…":
+  "remove the text note in dev"), a blue `.btn-row` action ("blue like all the other ones" — the
   app's action rows are blue text, no arrow; rows with › open a page).
   The card is rendered by `renderDevPage()` (`#dev-updates`, from
   _renderPage('dev')). Text: ui-serif (New York on the iPhone, nothing
