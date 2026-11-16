@@ -642,8 +642,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   not the same as a project", "okey i like p"; 1.0.57 had put it straight
   into the app and 1.0.58 took it out — "I always want to see it visual in
   the window you just opened": new designs go on the options page FIRST).
-  The hero starts with `#task-sheet-ico` (`.sh-ico.ts-ico`, 56px r15 —
-  smaller than a project's 76 — tintStyle of the task's PROJECT colour,
+  The hero starts with `#task-sheet-ico` (`.sh-ico.ts-ico`, 50px r13 since
+  1.0.60 — "keep the icon itself same size but the widget around just a
+  touch more smaller"; was 56 — a project's is 76 — tintStyle of the task's PROJECT colour,
   the Tasks tab's outline icon via Welcome._tab('lockedin') at 30px), then
   the centred name + notes; a Menu card `#task-sheet-pri-card` with ONE row
   `.ts-pri-row` "Priority" + the badge (`#task-sheet-pri`, sideways arrow

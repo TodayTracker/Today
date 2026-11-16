@@ -671,9 +671,10 @@ html:not(#x) .dhdr{min-height:40px}
 /* Task window (1.0): the priority badge top left ("F", it opens the usual
    dropdown); the Files card (a row per file + "Attach a file") */
 /* the task window like the project window ("P"): a tile with the Tasks
-   tab's icon in the project's colour on top — 56px, smaller than a
-   project's 76 so it doesn't read as one — and a Priority row above Files */
-.sh-ico.ts-ico{width:56px;height:56px;border-radius:15px;display:flex;align-items:center;justify-content:center}
+   tab's icon in the project's colour on top — a 50px tile (a project's is
+   76) around a 30px icon, so it doesn't read as one — and a Priority row
+   above Files */
+.sh-ico.ts-ico{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center}
 .ts-ico svg{width:30px;height:30px}
 .ts-pri-row .ts-pri{margin-left:auto;display:inline-flex;align-items:center;gap:4px}
 .ts-pri-row .ts-pri svg{flex:none;opacity:.7;transform:rotate(-90deg);transition:transform .2s ease} /* sideways, turning down while its dropdown is open (DSel adds .open) */
@@ -2167,7 +2168,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=59;
+var BETA_BUILD=60;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
