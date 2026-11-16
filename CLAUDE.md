@@ -3139,7 +3139,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   6s); Overview lifts Personal and swaps it with Daily (3.4s, alternate);
   Tasks taps ≡, the view dropdown, List view, back (7s); Stats sweeps the
   N2 ring (a conic mask on `--wv-sweep`, @property) and grows the bars
-  (6s); Blocker's YouTube limit runs out → "Blocked for today" (6s); Menu
+  (6s) — the ring drawn like renderPieChart: green done + light green
+  skipped (1.0.48, "should also show the skipped light green in the pie
+  chart"; 113 / 9 / 48 = 72%); Blocker's YouTube limit runs out → "Blocked for today" (6s); Menu
   taps Appearance → Dark, the screen turns dark (`.wv-dk` = dark tokens,
   8s). Own `wv-*` classes, its own German via `_L` (translate="no"),
   aria-hidden; the Menu icons are the app's real ones (copied); the
@@ -3591,9 +3593,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   name field to iOS, which ignores autocomplete="off" for AutoFill; the bar
   hid once the typed text matched no contact. `_noSuggest` now also gives
   every typing field name="search<N>" (no forms exist, nothing reads it):
-  WebKit doesn't AutoFill fields with "search" in their name. Unconfirmed on
-  the phone — if the bar still comes, the next step is the placeholders and
-  titles (avoid the word "name"/"Business" next to the field).
+  WebKit doesn't AutoFill fields with "search" in their name. Confirmed on
+  the iPhone (2026-11-16, "is also fixed"). If it ever comes back, the next
+  step is the placeholders and titles (avoid the word "name"/"Business"
+  next to the field).
   4.42 — tracker "+" (`TrackerAddSheet.open`) focuses its field
   SYNCHRONOUSLY right after _overlayOpen, inside the tap on "+" ("it should
   open the keyboard automatically"): a focus inside the user's tap is what

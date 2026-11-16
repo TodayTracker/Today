@@ -2182,7 +2182,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=47;
+var BETA_BUILD=48;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3542,7 +3542,8 @@ var CHANGELOG=[
     "A project's files also show on its page, under the description, one chip each — tap one to open it",
     "In a project's window, Attach a file is now right above Delete project",
     "Guide: Everywhere has a phone as its icon",
-    "Guide: the same look as the rest of the app — every card starts with an icon and its name like a Menu row, questions and answers in the app's usual text sizes. War Room is two cards instead of a big icon"
+    "Guide: the same look as the rest of the app — every card starts with an icon and its name like a Menu row, questions and answers in the app's usual text sizes. War Room is two cards instead of a big icon",
+    "Welcome pages: the Stats picture's ring shows the skipped days in light green too"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -9824,8 +9825,9 @@ var Welcome={
     } else if(tab==='stats'){
       var ring='<span class="wv-rng"><svg viewBox="0 0 100 100" width="140" height="140"><circle class="wv-trk" cx="50" cy="50" r="42" fill="none" stroke-width="10"/>'
         +'<text class="wv-pct" x="50" y="55" text-anchor="middle" font-size="18.6" font-weight="700">72%</text><text class="wv-psub" x="50" y="67.9" text-anchor="middle" font-size="9.3" font-weight="500">'+L('done','erledigt')+'</text></svg>'
-        +'<svg class="wv-ringm" viewBox="0 0 100 100" width="140" height="140">'+ringSegment(0,.72,'#30d158')+'</svg></span>';
-      var rows=[[L('Done','Erledigt'),'#30d158',116],[L('Skipped','Übersprungen'),SKIP_COLOR,9],[L('Not done','Nicht erledigt'),'var(--ch-track)',45]].map(function(x){
+        // like the real ring (renderPieChart): 122 of 170 = 72%, the 9 skipped (6%) in light green after the green
+        +'<svg class="wv-ringm" viewBox="0 0 100 100" width="140" height="140">'+ringSegment(.66-.003,.72,SKIP_COLOR,false,true)+ringSegment(0,.66,'#30d158',true,false)+'</svg></span>';
+      var rows=[[L('Done','Erledigt'),'#30d158',113],[L('Skipped','Übersprungen'),SKIP_COLOR,9],[L('Not done','Nicht erledigt'),'var(--ch-track)',48]].map(function(x){
         return '<div class="wv-csr"><span><i style="background:'+x[1]+'"></i>'+x[0]+'</span><b>'+x[2]+'</b></div>';}).join('');
       // the last 14 days: grey = due, green = done
       var W=343,H=150,PL=18,PR=40,PT=10,PB=24,n=14,cw=(W-PL-PR)/n,bw=cw*.62,max=8,g='';
