@@ -588,7 +588,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   task its `files` saves at once too, on a NEW task they're `pending` until
   Save and deleted on close without Save. TaskSheet.loadFiles reads the open
   task's files into memory (`cache`) so a tap opens one INSIDE the tap: a
-  picture full screen (`FileView`, #file-view, tap closes), anything else
+  picture full screen (`FileView`, #file-view, tap closes; since 1.0.50 also
+  a white back arrow `.fv-back` exactly where a page's back arrow sits —
+  "a back arrow when opening a attached pic"), anything else
   navigator.share({files}) (iPhone share sheet: open in another app, save),
   else a download. Max 50 MB a file (FILE_MAX). Trash: a "Files" kind;
   restore puts it back on its task ("Restore the task first." if gone);
@@ -3758,6 +3760,11 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
     `typeof APP_VERSION === 'string'` before committing.
 1. No console errors on load or on interaction with the changed feature
 2. Existing features still work (see smoke-test.js — run it after every change)
+   NOTE (2026-11-16): smoke-test.js is still the generic template (it looks
+   for a hamburger menu / swipe cards this app doesn't have) and Node isn't
+   installed, so it can't run. Explained the trade-off; the user chose
+   "lets leave it out for now". Keep testing in the preview by hand; don't
+   offer the smoke test again unless asked.
 3. Screenshot review of the changed UI state looks correct (no layout
    breakage, elements not misaligned/overlapping)
 4. Only THEN report back for human review of feel/interaction quality
