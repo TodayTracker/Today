@@ -67,6 +67,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   The very first time (the phone had 4.66, without the switch) needed a
   normal release, Beta 4.67 = only the switch, before Beta 1.0 could be
   tried.
+  1.0 RELEASED 2026-11-16 (CACHE_NAME v426), straight after the user had
+  checked the last small beta (1.0.61) — no separate "Beta 1.0" step: "the
+  whole point is that its not beta. Its just 1.0". The next version starts
+  at BETA_BUILD 1 again (shown "1.0.1", base = 1.0).
 - NAME (4.3): the app is called "Today" on screen (manifest name/short_name,
   <title>, apple-mobile-web-app-title — the home-screen label is fixed when
   an icon is ADDED, so rename before people add it). Internal names keep
@@ -600,8 +604,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   name,type,size,data:base64}]`; reading files is async, so Export shows
   "Backup ready — N files are in it too." whose Save button shares it (the
   share sheet needs a tap); Import clears the stored files and writes the
-  backup's before the restart (a backup 1 file leaves none). Not done yet:
-  a paperclip on task rows that have files (offered).
+  backup's before the restart (a backup 1 file leaves none). A paperclip on
+  task rows that have files was offered and DECLINED (2026-11-16, "nah keep
+  it the way it is") — don't offer it again.
   ON PROJECTS TOO (1.0, "i want to be able to attach docs to projects as
   well"): `p.files` like a task's, in the project window (SheetEditor) as
   `#proj-sheet-files` — first right under the description (like the task
@@ -1132,9 +1137,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   --window-size=N,N --screenshot=…`. NEW FILE NAMES so the released app
   keeps its icon until the full release: apple-touch-icon-v2.png (180),
   favicon-32-v2.png, icon-192-v2.png (also the Welcome pictures),
-  icon-512-v2.png; index.html points at them. AT THE FULL RELEASE: also
-  switch manifest.json's icons and sw.js's asset list to the -v2 files and
-  delete the four old ones. A Home Screen icon only changes when the app is
+  icon-512-v2.png; index.html points at them. Done at the 1.0 release
+  (2026-11-16): manifest.json's icons and sw.js's asset list use the -v2
+  files, and the four old PNGs are deleted. A Home Screen icon only changes when the app is
   added again (iOS keeps the icon from that day).
 - AddChoice switches in place (4.67.8, "when I add a tracker to a habit
   project the window closes and reopens really quickly… the grey

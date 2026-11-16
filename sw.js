@@ -4,7 +4,7 @@
 // round-trip and works fully offline. New code only reaches the device
 // when the user taps "Check for updates" in Settings (see A.checkForUpdate
 // in index.html).
-var CACHE_NAME = 'lifeos-cache-v425';
+var CACHE_NAME = 'lifeos-cache-v426';
 var SCOPE_URL = self.registration.scope;
 var SHELL_URL = SCOPE_URL + 'index.html';
 var BETA_URL = SCOPE_URL + 'beta.html';
@@ -12,10 +12,10 @@ var ASSETS = [
   SCOPE_URL,
   SHELL_URL,
   SCOPE_URL + 'manifest.json',
-  SCOPE_URL + 'apple-touch-icon.png',
-  SCOPE_URL + 'favicon-32.png',
-  SCOPE_URL + 'icon-192.png',
-  SCOPE_URL + 'icon-512.png'
+  SCOPE_URL + 'apple-touch-icon-v2.png',
+  SCOPE_URL + 'favicon-32-v2.png',
+  SCOPE_URL + 'icon-192-v2.png',
+  SCOPE_URL + 'icon-512-v2.png'
 ];
 
 self.addEventListener('install', function (e) {

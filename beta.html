@@ -2168,7 +2168,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=61;
+var BETA_BUILD=0;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3679,7 +3679,7 @@ var USER_LOG={
   'Beta 4.65':["Tracker goals can aim lower or higher"],
   'Beta 4.66':'design',
   'Beta 4.67':'design',
-  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Trackers show their average on Overview","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","Backup as a file, with project photos","Attach files to tasks and projects","New Guide, with every tab explained"]
+  '1.0':["First official version","Endless day bar in Habits projects, with an arrow back to today","Categories can be folded","Today can show other days","Tracker charts zoom into a single day","Backup as a file, with project photos","Attach files to tasks and projects","New Guide, with every tab explained"]
 };
 // For a version without a new feature: 'bug', 'design' or 'both' (null for
 // a feature). Not in USER_LOG: a note starting with "Fixed" (or an internal
