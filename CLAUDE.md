@@ -634,20 +634,12 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   line tall (the 120px min-height is gone) and growing as you type (unlike a
   project description, no 5-line cap); 18px from the hero to the Files card
   (its own 20px margin is gone), as from a description to the first card.
-- TASK WINDOW = THE PROJECT WINDOW'S LAYOUT (1.0.57, the user's own idea
-  after seeing the priority page again: "a full bar above files attach for
-  the prio and a icon same size as project at the top. so exactly same
-  layout as projects. The icon could be the one we use for tasks in the
-  menu bar"): the hero starts with `#task-sheet-ico` (`.sh-ico.ts-ico`, 76px
-  like a project's tile, tintStyle of the task's PROJECT colour, the Tasks
-  tab's outline icon via Welcome._tab('lockedin') at 40px), then the
-  centred name + notes; a Menu card `#task-sheet-pri-card` with ONE row
-  `.ts-pri-row` "Priority" + the badge (`#task-sheet-pri`, sideways arrow
-  turning down while the DSel dropdown is open) — a dropdown row, so it's
-  out of PRESS_ROWS (no grey); hidden for List projects; then the Files
-  card. F's badge in the top bar is gone (`.sh-bar .ts-pri` CSS too).
-  "Try" — if the user goes back, F/B/E are on the priority page.
-  (History) TASK WINDOW PRIORITY = "F" (4.67.28, picked on
+- TASK WINDOW PRIORITY = "F" (still; 1.0.57 tried the project window's
+  layout in the app — a 76px tile with the Tasks icon, a Priority row above
+  Files — and 1.0.58 took it out again: "no i dont want it in the app rn…
+  I always want to see it visual in the window you just opened". It's now
+  option P on the priority page. RULE: a new design idea goes on its
+  options page first, never straight into the app.) F = (4.67.28, picked on
   https://claude.ai/artifact/ECSy2yZvgPVnJVeCYtbYzc — "i like F the most";
   keep the page): no Priority row any more; the task's badge (`.ts-pri bdg
   <pri>` + a small down arrow) sits top left in `.sh-bar` across from Save;
