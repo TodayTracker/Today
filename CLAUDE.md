@@ -634,6 +634,14 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   line tall (the 120px min-height is gone) and growing as you type (unlike a
   project description, no 5-line cap); 18px from the hero to the Files card
   (its own 20px margin is gone), as from a description to the first card.
+- PRIORITY COLOURS (1.0.61, picked on https://claude.ai/artifact/FjCjTYiZ63kR7TnbmGJ37q
+  — "I dont like the yellow", then "it has to be yellow just give a
+  different ones", "could be a complet differnet color palet" → "y4"):
+  Medium (`.bp`) is "soft lemon" #fefce8 / #a16207, dark #2f2a0c / #facc15
+  (was #fef9c3 / #854d0e, dark #422006 / #fcd34d) — in all four rule sets
+  (plain, dark media, data-theme dark/light). War Room / High / Low
+  unchanged. The page also has other yellows, whole palettes (S1–S6) and
+  non-yellow ideas; keep it.
 - TASK WINDOW = "P", LIKE A PROJECT'S WINDOW (1.0.59, picked on the
   priority page https://claude.ai/artifact/ECSy2yZvgPVnJVeCYtbYzc — the
   user's own idea: "a full bar above files attach for the prio and a icon
