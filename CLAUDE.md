@@ -73,6 +73,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   went out the same day straight to everyone, only the Export fix above
   ("you can push this straight away"; USER_LOG 'design', so no What's New
   pop-up). The next version (1.2) starts at BETA_BUILD 1 (shown "1.1.1").
+  1.1.1 (beta, 2026-11-25): tracker charts follow the goal history ("A").
 - NAME (4.3): the app is called "Today" on screen (manifest name/short_name,
   <title>, apple-mobile-web-app-title — the home-screen label is fixed when
   an icon is ADDED, so rename before people add it). Internal names keep
@@ -357,8 +358,10 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   entry for today. it.goal/it.goalLow stay the CURRENT goal — the released
   app (same data) only reads those, so it keeps working. Goals raised
   BEFORE 4.67.23 have no history: those past days stay judged by the
-  current goal (nothing to recover them from). The line chart's goal line
-  is still the current goal only. Tested: a week of 10 stays done after
+  current goal (nothing to recover them from). The line chart follows the
+  history too since 1.1.1 (see CHARTS NOW › LINES; before, it only knew the
+  current goal, so 10s done under goal 10 were red after 10 → 12 while the
+  ring said 100% — reported with a phone screenshot). Tested: a week of 10 stays done after
   10 → 12 and → 14 through the real window, today needs 12, notes "Goal:
   10" yesterday / "Goal: 12" today, no-goal → goal keeps the past done,
   Lower direction 80 → 78 keeps 79s done.
@@ -1053,8 +1056,26 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   "−0.6 kg since 16 Oct" (moving average: "· 7-day average"); a tap = the
   nearest point (date, time when zoomed in or the day has 2+ entries;
   "Average 6 Jul – 12 Jul" for a group); with a goal (the linked habit's,
-  `goalLow` = at most), everything on the wrong side is red — line, fade,
-  stems (`.ch-red`, clipPaths per pid), end ring too; zoomed out under 6px a
+  `goalLow` = at most) = "A" from https://claude.ai/artifact/H4q4NUJATSr9dNe42eekTe
+  (1.1.1; the user's reference: a chart with the fill between the line and a
+  dotted goal line — "i dont want the red green separation to be
+  horizontal"; B dotted / C even fill are on that page, keep it; source
+  .claude/optprev/goal-chart-options.src.html, built by build-goal.py from
+  the app's TrkZ): every point is judged by ITS day's goal
+  (`trkGoalSegs(link)` → `this.segs`, `_goalAt(ts)`, goalOn's rule); the
+  goal line is one piece per goal, stepping at the midnight it changed
+  (whole-px x, so pieces meet without a seam); each piece clips the line
+  green on its good side, red on the other (above an "at most" goal, below
+  an "at least" one; a line ON the goal, ±1.5px, is green); the fill runs
+  between the line and the goal (the bottom where there's no goal), faint
+  at the goal (.09 green / .07 red) and stronger away from it (.32 / .28,
+  userSpaceOnUse gradients per piece); between the last entry under the old
+  goal and the first under the new one the line is red only where it misses
+  BOTH (else a red sliver showed at the step); each piece's "Goal N" label
+  sits where the line doesn't run through it (above the goal from the
+  piece's start, else below, else further along in 20px steps; left out
+  when the piece is narrower than the label); stems and the end ring follow
+  the same day rule; zoomed out under 6px a
   day the line goes through 2/3/7/14/30-day averages counted from a fixed
   Monday (no shimmer while scrolling), the latest entry stays itself. Still
   3 hours … everything, 30 days to start, TRK_VIEW. The plot (not the card)
