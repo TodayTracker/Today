@@ -74,6 +74,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   ("you can push this straight away"; USER_LOG 'design', so no What's New
   pop-up). The next version (1.2) starts at BETA_BUILD 1 (shown "1.1.1").
   1.1.1 (beta, 2026-11-25): tracker charts follow the goal history ("A").
+  1.1.2 (beta, 2026-11-26): the goal line is thin and black.
 - NAME (4.3): the app is called "Today" on screen (manifest name/short_name,
   <title>, apple-mobile-web-app-title — the home-screen label is fixed when
   an icon is ADDED, so rename before people add it). Internal names keep
@@ -1030,7 +1031,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   are labelled ONLY with the month, on the week it starts in ("anything too
   much is overwhelming"). No value at a line's end ring (it's in the
   readout); no average line in bar charts. Text sizes are CSS (`.ch-*`),
-  colours `--ch-grid/--ch-tick/--ch-ink2/--ch-ref/--ch-track/--ch-chip`.
+  colours `--ch-grid/--ch-tick/--ch-ink2/--ch-track/--ch-chip`.
   BAR CHARTS (ZChart; Statistics, a habit's page, a tracker with Bar chart
   on): same gestures as before; corners min(8, 23% of the bar) ("a touch less
   round" than 28%); readouts per chart = `read(q,sel,gran,avg,tot)` →
@@ -1071,7 +1072,12 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   at the goal (.09 green / .07 red) and stronger away from it (.32 / .28,
   userSpaceOnUse gradients per piece); between the last entry under the old
   goal and the first under the new one the line is red only where it misses
-  BOTH (else a red sliver showed at the step); each piece's "Goal N" label
+  BOTH (else a red sliver showed at the step); the goal line is a thin INK
+  line (1.1.2, "can we make the goal stripe more thin but full black"; was
+  1px `--ch-ref` grey, that token is gone): two screen pixels on a 3x phone,
+  one on 2x (`gd`=round(dpr×.6) device px), laid on whole device pixels by
+  `px()` instead of crispEdges, the step a square-capped vertical so the
+  corners close; each piece's "Goal N" label
   sits where the line doesn't run through it (above the goal from the
   piece's start, else below, else further along in 20px steps; left out
   when the piece is narrower than the label); stems and the end ring follow
