@@ -75,6 +75,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   pop-up). The next version (1.2) starts at BETA_BUILD 1 (shown "1.1.1").
   1.1.1 (beta, 2026-11-25): tracker charts follow the goal history ("A").
   1.1.2 (beta, 2026-11-26): the goal line is thin and black.
+  1.1.3 (beta, 2026-11-26): no "Goal N" label on the goal line.
 - NAME (4.3): the app is called "Today" on screen (manifest name/short_name,
   <title>, apple-mobile-web-app-title — the home-screen label is fixed when
   an icon is ADDED, so rename before people add it). Internal names keep
@@ -1077,10 +1078,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   1px `--ch-ref` grey, that token is gone): two screen pixels on a 3x phone,
   one on 2x (`gd`=round(dpr×.6) device px), laid on whole device pixels by
   `px()` instead of crispEdges, the step a square-capped vertical so the
-  corners close; each piece's "Goal N" label
-  sits where the line doesn't run through it (above the goal from the
-  piece's start, else below, else further along in 20px steps; left out
-  when the piece is narrower than the label); stems and the end ring follow
+  corners close; NO "Goal N" label since 1.1.3 ("you can remove the text
+  for goal, its not nessecary"; 1.1.1–1.1.2 placed one per piece where the
+  line didn't cross it; `.ch-lbl/.ch-halo` are gone); stems and the end ring follow
   the same day rule; zoomed out under 6px a
   day the line goes through 2/3/7/14/30-day averages counted from a fixed
   Monday (no shimmer while scrolling), the latest entry stays itself. Still

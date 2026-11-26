@@ -832,8 +832,6 @@ html:not(#x) .calsec.zc-card{padding:18px 0 8px;overflow:hidden}
 .ch-cross{stroke:var(--ch-ink2);stroke-width:1}
 .ch-tick{font-size:11px;font-weight:500;fill:var(--ch-tick);font-variant-numeric:tabular-nums}
 .ch-tick.mo{font-weight:600;fill:var(--ch-ink2)}
-.ch-lbl{font-size:11px;font-weight:600;fill:var(--ch-ink2)}
-.ch-halo{stroke:var(--card);stroke-width:4px;stroke-linejoin:round;paint-order:stroke}
 .ch-red{stroke:var(--red)}.ch-red-fill{fill:var(--red)}.ch-red-stop{stop-color:var(--red)}
 /* Consistency ("N2"): the ring, beside it the time span (bold) and the
    done / skipped / not done counts as rows */
@@ -2168,7 +2166,7 @@ function verName(v){return IS_BETA&&v===APP_VERSION?'Beta '+v:v;}
 // every beta push); when they're bundled into the next version, the beta of
 // it is "Beta 1.3" (BETA_BUILD 0) and then everyone gets 1.3. The released
 // app shows just its version.
-var BETA_BUILD=2;
+var BETA_BUILD=3;
 function buildName(){
   if(!IS_BETA)return APP_VERSION;
   if(!BETA_BUILD)return verName(APP_VERSION);
@@ -3544,8 +3542,7 @@ var CHANGELOG=[
   {v:'1.2',notes:[
     "Tracker charts judge every day by the goal it had then: the goal line steps where you changed it, so days that met the old goal stay green",
     "Tracker charts fill the colour between the line and the goal, green above it and red below (the other way round for an \"at most\" goal)",
-    "The goal's label on a tracker chart moves to where the line doesn't run through it",
-    "The goal line on tracker charts is thinner and black (white in dark mode)"
+    "The goal line on tracker charts is thinner and black (white in dark mode), without the \"Goal\" label"
   ]}
 ];
 // ── THE SIMPLE UPDATE LOG ─────────────────────────────────────
@@ -5065,27 +5062,6 @@ TrkZ.prototype.render=function(){
     var a=Math.max(L,c.x0),b=Math.min(L+pw,c.x1),p=pc[k-1];
     if(b>a)s+='<line class="ch-ref" x1="'+a+'" x2="'+b+'" y1="'+px(c.G)+'" y2="'+px(c.G)+'"'+gl+'/>';
     if(p&&p.goal!=null&&p.G!==c.G&&c.x0>=L&&c.x0<=L+pw)s+='<line class="ch-ref" x1="'+px(c.x0)+'" x2="'+px(c.x0)+'" y1="'+px(p.G)+'" y2="'+px(c.G)+'"'+gl+' stroke-linecap="square"/>';
-  });
-  // each piece's label goes where the line doesn't run through it: above the
-  // goal from the piece's start, else under it, else a bit further along
-  function lineSpan(xa,xb){
-    var lo=1e9,hi=-1e9;
-    function at(x){for(var j=0;j+1<pts.length;j++){var p=pts[j],q=pts[j+1];if(x>=p[0]&&x<=q[0]){var u=q[0]>p[0]?(x-p[0])/(q[0]-p[0]):0;return p[1]+(q[1]-p[1])*u;}}return null;}
-    [at(xa),at(xb)].forEach(function(y){if(y!=null){lo=Math.min(lo,y);hi=Math.max(hi,y);}});
-    pts.forEach(function(p){if(p[0]>xa&&p[0]<xb){lo=Math.min(lo,p[1]);hi=Math.max(hi,p[1]);}});
-    return [lo-3,hi+3];
-  }
-  pc.forEach(function(c){
-    if(c.goal==null)return;
-    var txt=t('Goal')+' '+fmtTrk(c.goal),w=chTextW(txt,true),a=Math.max(a0,c.x0+6),b=Math.min(a1,c.x1-6);
-    if(b-a<w)return;
-    var at=null;
-    for(var x=a;x+w<=b&&!at;x+=20)[[c.G-6,c.G-15,c.G-4],[c.G+15,c.G+5,c.G+16]].forEach(function(o){
-      if(at||o[1]<2||o[2]>Tp+ph-2)return;
-      var sp=lineSpan(x-2,x+w+2);if(sp[1]<o[1]||sp[0]>o[2])at=[x,o[0]];
-    });
-    at=at||[a,c.G-6];
-    s+='<text class="ch-lbl ch-halo" x="'+f(at[0])+'" y="'+f(at[1])+'">'+esc(txt)+'</text>';
   });
   // the fill: between the line and the goal, following its steps
   var area='';
