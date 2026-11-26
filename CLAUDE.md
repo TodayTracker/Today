@@ -76,6 +76,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   1.1.1 (beta, 2026-11-25): tracker charts follow the goal history ("A").
   1.1.2 (beta, 2026-11-26): the goal line is thin and black.
   1.1.3 (beta, 2026-11-26): no "Goal N" label on the goal line.
+  1.1.4 (beta, 2026-11-26): grid lines thinner/darker, goal line dark grey, all one thickness.
 - NAME (4.3): the app is called "Today" on screen (manifest name/short_name,
   <title>, apple-mobile-web-app-title — the home-screen label is fixed when
   an icon is ADDED, so rename before people add it). Internal names keep
@@ -1019,7 +1020,9 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   big number 34/700 + unit, one line under it 13/500, the column size
   Days/Weeks/Months on the right; `zcHeadHTML/zcHeadEls/zcHeadSet`) and a
   230px plot (`.zc-plot`, px-sized svg, `CH_BOX` L18 R40 T24 B26, 8px in):
-  fine grid lines (`.ch-grid`, ALWAYS shown — "i mean always": with a tallest
+  fine grid lines (`.ch-grid` in `--ch-line`, since 1.1.4 a touch darker
+  than the dividers' `--ch-grid` — #e0dfdb / dark #353432 — and as thin as
+  `chHair()`; ALWAYS shown — "i mean always": with a tallest
   column of 1 there were none) with round numbers on the right (`chNice`
   1/2/5 steps — 2.5 gave "77.75", cut off in the 40px; `chTick`, 10000+ as
   "10k"), dates along the bottom through ONE picker, `chLabels(lbl,L,H)`:
@@ -1032,7 +1035,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   are labelled ONLY with the month, on the week it starts in ("anything too
   much is overwhelming"). No value at a line's end ring (it's in the
   readout); no average line in bar charts. Text sizes are CSS (`.ch-*`),
-  colours `--ch-grid/--ch-tick/--ch-ink2/--ch-track/--ch-chip`.
+  colours `--ch-grid/--ch-line/--ch-tick/--ch-ink2/--ch-track/--ch-chip`.
   BAR CHARTS (ZChart; Statistics, a habit's page, a tracker with Bar chart
   on): same gestures as before; corners min(8, 23% of the bar) ("a touch less
   round" than 28%); readouts per chart = `read(q,sel,gran,avg,tot)` →
@@ -1073,11 +1076,14 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   at the goal (.09 green / .07 red) and stronger away from it (.32 / .28,
   userSpaceOnUse gradients per piece); between the last entry under the old
   goal and the first under the new one the line is red only where it misses
-  BOTH (else a red sliver showed at the step); the goal line is a thin INK
-  line (1.1.2, "can we make the goal stripe more thin but full black"; was
-  1px `--ch-ref` grey, that token is gone): two screen pixels on a 3x phone,
-  one on 2x (`gd`=round(dpr×.6) device px), laid on whole device pixels by
-  `px()` instead of crispEdges, the step a square-capped vertical so the
+  BOTH (else a red sliver showed at the step); the goal line is DARK GREY
+  `--ch-ink2` (1.1.2 "more thin but full black" → 1.1.4 "the full black
+  make it dark grey"; was 1px `--ch-ref` grey, that token is gone) and
+  exactly as thin as the grid lines (1.1.4 "same thickness, make them all
+  same"): `chHair()` = two screen pixels on a 3x phone, one on 2x
+  (round(dpr×.6) device px), laid on whole device pixels by `.at(v)`
+  instead of crispEdges — used for EVERY chart's grid lines (TrkZ and
+  ZChart) and the goal line; the step a square-capped vertical so the
   corners close; NO "Goal N" label since 1.1.3 ("you can remove the text
   for goal, its not nessecary"; 1.1.1–1.1.2 placed one per piece where the
   line didn't cross it; `.ch-lbl/.ch-halo` are gone); stems and the end ring follow
