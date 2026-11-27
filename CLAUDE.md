@@ -77,6 +77,7 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   1.1.2 (beta, 2026-11-26): the goal line is thin and black.
   1.1.3 (beta, 2026-11-26): no "Goal N" label on the goal line.
   1.1.4 (beta, 2026-11-26): grid lines thinner/darker, goal line dark grey, all one thickness.
+  1.1.5 (beta, 2026-11-27): dragging + scrolling fixed (keepStill, top edge zone).
 - NAME (4.3): the app is called "Today" on screen (manifest name/short_name,
   <title>, apple-mobile-web-app-title — the home-screen label is fixed when
   an icon is ADDED, so rename before people add it). Internal names keep
@@ -2167,6 +2168,15 @@ king83853/LifeOS; the old address is gone, GitHub Pages doesn't redirect).
   pickup while the lifted item stayed put (very visible with the copy):
   `_keepStill(y0)` scrolls the page along for 320ms so the copy stays where
   the item was (works whenever the page can scroll; measured 0px shift).
+  1.1.5 ("scrolling when dragging a project around is bugged"): it also
+  followed the copy's OWN first moves — a drag started within 320ms of the
+  lift scrolled the whole page so the copy stayed put (measured 400 → 135
+  in 60ms); it now stops at the first move (`_lastMoveAt>=t0`). Same
+  release: `_edgeScroll`'s top zone starts under the status bar
+  (`KbFit.safeTop()` + 70px) — measured from the page's top (0, behind the
+  clock), an iPhone left ~11px of it below the notch, so dragging up barely
+  scrolled. Tested with finger-style touches and rAF forced to setTimeout
+  (this preview runs no frames during a script) and safeTop faked to 59.
   A drag whose item was redrawn away resets itself on the next touch
   (`_reset`), so a re-render mid-drag can't block dragging for good.
   EDIT LAYOUT PAGES: up/down arrows replaced by a handle (`EL_GRIP`, three
